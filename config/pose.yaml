@@ -1,0 +1,19 @@
+joints:
+  joint_LFCoxa: 15
+  joint_LFFemur: -112
+  joint_LFTibia: 80  
+  joint_LHCoxa_roll: 50
+  joint_LHFemur: -112
+  joint_LHTibia: 75
+  joint_LMCoxa_roll: 0
+  joint_LMFemur: -112
+  joint_LMTibia: 80
+  joint_RFCoxa: 15
+  joint_RFFemur: -112
+  joint_RFTibia: 80
+  joint_RHCoxa_roll: 50
+  joint_RHFemur: -112
+  joint_RHTibia: 75
+  joint_RMCoxa_roll: 0
+  joint_RMFemur: -112
+  joint_RMTibia: 80
