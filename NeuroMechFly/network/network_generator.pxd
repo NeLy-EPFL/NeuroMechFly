@@ -1,7 +1,5 @@
-from farms_network.leaky_integrator cimport LeakyIntegrator
-from farms_container.table cimport Table
-from farms_network.neuron cimport Neuron
-
+from .neuron cimport Neuron
+from ..container.table cimport Table
 
 cdef class NetworkGenerator(object):
     cdef:

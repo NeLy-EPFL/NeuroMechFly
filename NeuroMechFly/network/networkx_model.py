@@ -5,8 +5,6 @@ import os
 import networkx as nx
 import numpy as np
 
-import farms_pylog as pylog
-
 
 class NetworkXModel(object):
     """Generate Network based on graphml format.
@@ -45,11 +43,7 @@ class NetworkXModel(object):
         self.net_matrix = nx.to_scipy_sparse_matrix(self.graph)
         self.net_matrix = self.net_matrix.todense()
         return self.net_matrix
-
-    def show_network_sparse_matrix(self):
-        """Show network connectivity matrix."""
-        pylog.info('Showing network connectivity matrix')
-        pylog.info(self.net_matrix)
+        
 
     def read_neuron_position_in_graph(self, from_layout=False):
         """ Read the positions of neurons.

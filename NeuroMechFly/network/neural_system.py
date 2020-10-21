@@ -1,4 +1,4 @@
-from farms_network.network_generator import NetworkGenerator
+from .network_generator import NetworkGenerator
 from scipy.integrate import ode
 from .networkx_model import NetworkXModel
 

@@ -1,18 +1,15 @@
 """ Generate a template network. """
 
-import farms_pylog as pylog
 import networkx as nx
-from farms_network.neural_system import NeuralSystem
-from farms_sdf.sdf import ModelSDF
-from farms_sdf import utils as sdf_utils
+from .neural_system import NeuralSystem
+from ..sdf.sdf import ModelSDF
+from ..sdf import utils as sdf_utils
 import matplotlib.pyplot as plt
 import os
 import numpy as np
 import matplotlib.pyplot as plt
 import itertools
-from farms_container import Container
-
-pylog.set_level('debug')
+from ..container.container import Container
 
 
 class AgnosticBaseController:

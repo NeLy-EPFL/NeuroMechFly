@@ -4,7 +4,7 @@ import xml.dom.minidom
 import xml.etree.ElementTree as ET
 import numpy as np
 import trimesh as tri
-from farms_data.options import Options
+from ..utils.options import Options
 from .units import SimulationUnitScaling
 from .utils import replace_file_name_in_path
 

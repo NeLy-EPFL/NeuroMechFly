@@ -6,9 +6,8 @@ from pathlib import Path
 
 import numpy as np
 
-import farms_pylog as pylog
 import pybullet as p
-from farms_container import Container
+from NeuroMechFly.container import Container
 from jmetal.algorithm.multiobjective.nsgaii import NSGAII
 from jmetal.core.observer import Observer
 from jmetal.core.problem import FloatProblem
@@ -26,7 +25,6 @@ from jmetal.util.solution import print_variables_to_file
 from jmetal.util.termination_criterion import StoppingByEvaluations
 from drosophila_simulation_opt import DrosophilaSimulation
 
-pylog.set_level('error')
 LOGGER = logging.getLogger('jmetal')
 
 class WriteFullFrontToFileObserver(Observer):
@@ -184,12 +182,12 @@ class DrosophilaEvolution(FloatProblem):
         time_step = 0.001
         sim_options = {
             "headless": True,
-            "model": "../design/sdf/drosophila_100x_Limits_strict_offset.sdf",
+            "model": "../../design/sdf/drosophila_100x_Limits_strict_offset.sdf",
             "model_offset": [0., 0., 1.12],
-            "pose": "../config/pose.yaml",
+            "pose": "../../config/pose.yaml",
             "run_time": run_time,
             "base_link": 'Thorax',
-            "controller": '../config/locomotion_ball.graphml',
+            "controller": '../../config/locomotion_ball.graphml',
         }
         container = Container(run_time/time_step)
         fly = DrosophilaSimulation(container, sim_options)
@@ -245,14 +243,14 @@ class DrosophilaEvolution(FloatProblem):
         return 'Drosophila'
 
     def __del__(self):
-        pylog.debug("Deleting fly simulation....")
+        print("Deleting fly simulation....")
 
 
 def main():
     """ Main """
 
-    n_pop = 50
-    n_gen = 100
+    n_pop = 20
+    n_gen = 50
 
     max_evaluations = n_pop*n_gen
 

@@ -1,6 +1,6 @@
 """Units"""
 
-from farms_data.options import Options
+from ..utils.options import Options
 
 
 class SimulationUnitScaling(Options):

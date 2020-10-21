@@ -6,14 +6,6 @@ try:
     from yaml import CLoader as Loader, CDumper as Dumper
 except ImportError:
     from yaml import Loader, Dumper
-    import farms_pylog as pylog
-    pylog.warning(
-        'YAML CLoader and CDumper not available'
-        ', switching to Python implementation'
-        '\nThis will run slower than the C alternative'
-    )
-
-
 
 def pyobject2yaml(filename, pyobject, mode='w+'):
     """Pyobject to yaml"""

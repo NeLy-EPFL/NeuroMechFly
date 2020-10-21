@@ -12,18 +12,14 @@
 
 """ Generate neural network. """
 from libc.stdio cimport printf
-from farms_network.neuron cimport Neuron
-from farms_container.table cimport Table
+from .neuron cimport Neuron
+from ..container.table cimport Table
 from cython.parallel import prange
-from farms_network.leaky_integrator cimport LeakyIntegrator
-import farms_pylog as pylog
-from farms_network.neuron_factory import NeuronFactory
+from .neuron_factory import NeuronFactory
 from collections import OrderedDict
 import numpy as np
 cimport numpy as cnp
 cimport cython
-pylog.set_level('debug')
-
 
 cdef class NetworkGenerator:
     """ Generate Neural Network.
@@ -77,7 +73,7 @@ cdef class NetworkGenerator:
         cdef int j
         for j, (name, neuron) in enumerate(sorted(self.graph.nodes.items())):
             #: Add neuron to list
-            pylog.debug(
+            print(
                 'Generating neuron model : {} of type {}'.format(
                     name, neuron['model']))
             #: Generate Neuron Models
@@ -94,11 +90,11 @@ cdef class NetworkGenerator:
         Generate the network.
         """
         for name, neuron in list(self.neurons.items()):
-            pylog.debug(
+            print(
                 'Establishing neuron {} network connections'.format(
                     name))
             for j, pred in enumerate(self.graph.predecessors(name)):
-                pylog.debug(('{} -> {}'.format(pred, name)))
+                print(('{} -> {}'.format(pred, name)))
                 #: Set the weight of the parameter
                 neuron.add_ode_input(
                     j,

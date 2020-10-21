@@ -12,25 +12,31 @@ Options.warning_errors = True
 # directive_defaults = Cython.Compiler.Options.get_directive_defaults()
 
 extensions = [
-    Extension("network.network_generator",
-              ["network/network_generator.pyx"],
+    Extension("NeuroMechFly.network.network_generator",
+              ["NeuroMechFly/network/network_generator.pyx"],
               include_dirs=[numpy.get_include()],
               extra_compile_args=['-ffast-math', '-O3'],
               extra_link_args=['-O3']
               ),
-    Extension("network.oscillator",
-              ["network/oscillator.pyx"],
+    Extension("NeuroMechFly.network.oscillator",
+              ["NeuroMechFly/network/oscillator.pyx"],
               include_dirs=[numpy.get_include()],
               extra_compile_args=['-ffast-math', '-O3'],
               extra_link_args=['-O3']
               ),
-    "container/*.pyx"
+    Extension("NeuroMechFly.network.neuron",
+              ["NeuroMechFly/network/neuron.pyx"],
+              include_dirs=[numpy.get_include()],
+              extra_compile_args=['-ffast-math', '-O3'],
+              extra_link_args=['-O3']
+              ),
+    "NeuroMechFly/container/*.pyx"
 ]
 
 setuptools.setup(
     name='NeuroMechFly',
     version='0.1',
-    description='Modules to run NeuroMEchFly simulation',
+    description='Modules to run NeuroMechFly simulation',
     #url='https://gitlab.com/FARMSIM/farms_network.git',
     author='Neuroengineering Lab.',
     author_email='victor.lobatorios@epfl.ch',
@@ -52,7 +58,8 @@ setuptools.setup(
         'ipython',
         'dataclasses',
         'jmetalpy',
-        'tables'
+        'tables',
+        'pillow'
     ],
     zip_safe=False,
     ext_modules=cythonize(extensions),

@@ -6,13 +6,11 @@ import pandas as pd
 import numpy as np
 import time
 import pickle
-import farms_pylog as pylog
 import numpy as np
-from farms_container import Container
+from NeuroMechFly.container import Container
 import os
 from spring_damper_muscles import SDAntagonistMuscle, Parameters
-from farms_sdf.units import SimulationUnitScaling
-pylog.set_level('error')
+from NeuroMechFly.sdf.units import SimulationUnitScaling
 
 class DrosophilaSimulation(BulletSimulation):
     """Drosophila Simulation Class
@@ -300,14 +298,14 @@ class DrosophilaSimulation(BulletSimulation):
         opti_joint_phases = params[6*N:6*N+edges_joints]
         opti_antagonist_phases = params[6*N+edges_joints:6*N+edges_joints+edges_anta]
         opti_base_phases = params[6*N+edges_joints+edges_anta:]
-        pylog.debug(
-            "Opti active muscle gains {}".format(
-                opti_active_muscle_gains
-            )
-        )
-        pylog.debug("Opti joint phases {}".format(opti_joint_phases))
-        pylog.debug("Opti antagonist phases {}".format(opti_antagonist_phases))
-        pylog.debug("Opti base phases {}".format(opti_base_phases))
+        #print(
+        #    "Opti active muscle gains {}".format(
+        #        opti_active_muscle_gains
+        #    )
+        #)
+        #print("Opti joint phases {}".format(opti_joint_phases))
+        #print("Opti antagonist phases {}".format(opti_antagonist_phases))
+        #print("Opti base phases {}".format(opti_base_phases))
 
         #: update active muscle parameters
         symmetry_joints = filter(
@@ -468,12 +466,12 @@ def main():
     
     sim_options = {
         "headless": False,
-        "model": "../design/sdf/drosophila_100x_Limits_strict_offset.sdf",
+        "model": "../../design/sdf/drosophila_100x_Limits_strict_offset.sdf",
         "model_offset": [0., 0., 1.12],
         "run_time": run_time,
-        "pose": '../config/pose.yaml',
+        "pose": '../../config/pose.yaml',
         "base_link": 'Thorax',
-        "controller": '../config/locomotion_ball.graphml',
+        "controller": '../../config/locomotion_ball.graphml',
         "ground_contacts": ground_contact,
         'self_collisions':self_collision,
         "record": False,

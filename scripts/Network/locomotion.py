@@ -1,26 +1,25 @@
 """ cpg locomotion controller. """
 
-import farms_pylog as pylog
 import networkx as nx
 import os
-from farms_network.neural_system import NeuralSystem
+from NeuroMechFly.network.neural_system import NeuralSystem
 import numpy as np
 import matplotlib.pyplot as plt
 import itertools
-from farms_container import Container
-from farms_sdf.sdf import ModelSDF
-from farms_network.utils.agnostic_controller import AgnosticController
+from NeuroMechFly.container import Container
+from NeuroMechFly.sdf.sdf import ModelSDF
+from NeuroMechFly.network.agnostic_controller import AgnosticController
 import yaml
 
 def main():
     """ Main. """
     controller_gen = AgnosticController(
-        ("../../../../farms_models_data/drosophila_v3/design/sdf/drosophila_100x_noLimits.sdf"),
+        ("../../design/sdf/drosophila_100x_noLimits.sdf"),
         connect_mutual=False,
         connect_closest_neighbors=False,
         connect_base_nodes=False
     )
-    net_dir = "../config/locomotion.graphml"
+    net_dir = "../../config/locomotion_test.graphml"
     network = controller_gen.network
     #: EDIT THE GENERIC CONTROLLER
     #: Remove Head nodes
@@ -113,7 +112,7 @@ def main():
     #     phi=np.pi
     # )
 
-    with open('../config/network_node_positions.yaml', 'r') as file:
+    with open('network_node_positions.yaml', 'r') as file:
         node_positions = yaml.load(file, yaml.SafeLoader)
     for node, data in node_positions.items():
         network.nodes[node]['x'] = data[0]
@@ -190,7 +189,7 @@ def main():
     time_vec = np.arange(0, dur, dt)  #: Time
     container = Container(dur/dt)
     net = NeuralSystem(
-        "../config/locomotion.graphml",
+        net_dir,
         container)
 
     #: initialize network parameters
@@ -198,7 +197,7 @@ def main():
     net.setup_integrator()
 
     #: Integrate the network
-    pylog.info('Begin Integration!')
+    print('Begin Integration!')
 
     for t in time_vec:
         net.step(dt=dt)

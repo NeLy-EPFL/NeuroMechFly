@@ -12,7 +12,6 @@
 
 """Oscillator model"""
 from libc.stdio cimport printf
-import farms_pylog as pylog
 from libc.math cimport exp
 from libc.math cimport M_PI
 from libc.math cimport sin as csin

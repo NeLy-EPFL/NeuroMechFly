@@ -12,7 +12,6 @@
 
 from collections import OrderedDict
 import numpy as np
-import farms_pylog as pylog
 from .parameter cimport Parameter
 
 DTYPE = np.float64
@@ -30,7 +29,7 @@ cdef class Table(list):
         elif table_type == 'CONSTANT':
             self.max_iterations = 1
         else:
-            pylog.error('Unkown table of type {}'.format(table_type))
+            print('Unkown table of type {}'.format(table_type))
             raise TypeError
         self._name_to_idx = {}
         self._names = []
@@ -65,7 +64,7 @@ cdef class Table(list):
         #: TO DO : ADD CHECK FOR MAX ITERATIONS
         self.c_update_log()
         if self.buffer_full:
-            pylog.debug(
+            print(
                 "Logging Buffer exceeded for {}!".format(self.name))
 
     #################### PROPERTIES ####################
@@ -102,7 +101,7 @@ cdef class Table(list):
         cdef int array_len = len(self)
         #:
         if array_len == 0:
-            pylog.warning(
+            print(
                 "No parameters of type : {}!!!".format(self.name))
 
         if self.max_iterations == 1:

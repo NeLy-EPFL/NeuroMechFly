@@ -2,7 +2,6 @@
 """Class to generate DAE system."""
 
 from .table import Table
-import farms_pylog as pylog
 import shutil
 import os
 import pandas as pd
@@ -16,8 +15,8 @@ class Container:
         super().__init__()
         self.__max_iterations = max_iterations
         if self.__max_iterations == 1:
-            pylog.info("LOGGING of Data is Disbaled!")
-            pylog.info("Max Iterations set to {}".format(
+            print("LOGGING of Data is Disbaled!")
+            print("Max Iterations set to {}".format(
                 self.__max_iterations))
 
     def __del__(self):
@@ -35,11 +34,9 @@ class Container:
             Return the created namespace
         """
         if hasattr(self, name):
-            pylog.error(
-                "Trying to recreate {} namespace that already exists!".format(name))
             raise ValueError
         setattr(self, name, DataTable(name, self.__max_iterations))
-        pylog.info("Created new container namespace : {}".format(name))
+        print("Created new container namespace : {}".format(name))
         return getattr(self, name)
 
     def initialize(self):
@@ -80,17 +77,17 @@ class Container:
         #: Check if the given folder is valid
         (path, folder_name) = os.path.split(dump_path)
         if not os.path.isdir(path):
-            pylog.error("Provided path is invalid - {}".format(dump_path))
+            print("Provided path is invalid - {}".format(dump_path))
             raise ValueError
         if os.path.isdir(dump_path):
-            pylog.info("Folder {} already exists.".format(folder_name))
+            print("Folder {} already exists.".format(folder_name))
             if overwrite is None:
                 overwrite = input(
                     "Do you want overwrite the exisiting folder {}?"
                     "[y]/[n]\n".format(folder_name))
                 overwrite = True if overwrite.lower()=='y' else False
             if overwrite:
-                pylog.info("Deleting Folder {}".format(folder_name))
+                print("Deleting Folder {}".format(folder_name))
                 shutil.rmtree(dump_path)
             else:
                 folder_name = input(
@@ -142,13 +139,13 @@ class DataTable(dict):
             Return the parameters table
         """
         if hasattr(self, name):
-            pylog.error(
+            print(
                 "Trying to recreate {} table that already exists!".format(name))
             raise ValueError
         setattr(
             self, name,
             Table(name, table_type, self.max_iterations))
-        pylog.info(
+        print(
             "Created new table {} in namespaces {}".format(name, self.name))
         return getattr(self, name)
 
