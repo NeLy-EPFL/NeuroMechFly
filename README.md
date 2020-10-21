@@ -3,7 +3,7 @@ Functions for running NeuroMechFly simulation
 
 ## Installation
 ```bash
-$ conda create -n neuromechfly python=3.6 numpy Cython`
-$ git clone https://github.com/NeLy-EPFL/NeuroMechFly.git`
+$ conda create -n neuromechfly python=3.6 numpy Cython
+$ git clone https://github.com/NeLy-EPFL/NeuroMechFly.git
 $ pip install -e .
 ```
