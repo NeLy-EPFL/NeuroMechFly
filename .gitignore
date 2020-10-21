@@ -137,9 +137,9 @@ documentation/_templates
 **.swp
 
 # data
-#scripts/
-#config/
-#design/
+scripts/
+config/
+design/
 
 # Mac
 **.DS_Store
