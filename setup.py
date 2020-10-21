@@ -46,7 +46,7 @@ setuptools.setup(
         'numpy',
         'pandas',
         'matplotlib==3.0.2',
-        'networkx',
+        'networkx==2.3',
         'pydot',
         'ddt',
         'scipy',
