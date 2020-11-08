@@ -19,7 +19,7 @@ def main():
         connect_closest_neighbors=False,
         connect_base_nodes=False
     )
-    net_dir = "../../config/locomotion_test.graphml"
+    net_dir = "../../config/locomotion_ball_f6.graphml"
     network = controller_gen.network
     #: EDIT THE GENERIC CONTROLLER
     #: Remove Head nodes

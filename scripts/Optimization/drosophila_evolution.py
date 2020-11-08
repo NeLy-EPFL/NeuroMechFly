@@ -91,12 +91,12 @@ class DrosophilaEvolution(FloatProblem):
     """Documentation for DrosophilaEvolution"""
     def __init__(self):
         super(DrosophilaEvolution, self).__init__()
-        self.number_of_variables = 79
+        self.number_of_variables = 71
         self.number_of_objectives = 2
         self.number_of_constraints = 0
 
         self.obj_directions = [self.MINIMIZE, self.MINIMIZE]
-        self.obj_labels = ["Distance (negative)", "Activations"]
+        self.obj_labels = ["Distance (negative)", "Stability"]
 
         #: Bounds
         noscillators = 36
@@ -124,15 +124,21 @@ class DrosophilaEvolution(FloatProblem):
         #                                      [5e-2, 5e-2, 5e-3, 5e-4, 1.5, 2]*3 +
         #                                      [7e-2, 7e-2, 7e-3, 7e-4, 1.5, 2]*3)
         
-        upper_bound_active_muscles = np.array([2e-2, 2e-2, 3e-3, 1e-3, 1.5, 2]*3 +
-                                              [3e-2, 3e-2, 3e-3, 1e-3, 1.5, 2]*3 +
-                                              [3e-2, 3e-2, 1e-3, 8e-4, 1.5, 2]*3)
+        #upper_bound_active_muscles = np.array([4e-1, 3e-2, 3e-3, 1e-3, 1.5, 2]*3 +
+        #                                      [3e-1, 2e-2, 3e-3, 1e-3, 1.5, 2]*3 +
+        #                                      [2e-1, 1e-2, 1e-3, 7e-4, 1.5, 2]*3)
+
+        upper_bound_active_muscles = np.array([6e-2, 3e-2, 3e-3, 1e-3, 1.5, 2]*3 +
+                                              [6e-2, 3e-2, 3e-3, 1e-3, 1.5, 2]*3 +
+                                              [6e-2, 3e-2, 3e-3, 1e-3, 1.5, 2]*3)
+
+        #F:[2e-2, 2e-2, 3e-3, 1e-3, 1.5, 2], M:[3e-2, 3e-2, 3e-3, 1e-3, 1.5, 2], H:[3e-2, 3e-2, 1e-3, 8e-4, 1.5, 2]
         
         #: Phases
         lower_bound_phases = np.ones(
-            (25,))*-np.pi
+            (17,))*-np.pi
         upper_bound_phases = np.ones(
-            (25,))*np.pi
+            (17,))*np.pi
 
         self.lower_bound = np.hstack(
             (
@@ -153,8 +159,8 @@ class DrosophilaEvolution(FloatProblem):
         #)
 
         #fun, var = read_optimization_results(
-        #     "./optimization_results/run_Drosophila_var_48_obj_2_pop_12_gen_30_03_19_12/FUN.19",
-        #     "./optimization_results/run_Drosophila_var_48_obj_2_pop_12_gen_30_03_19_12/VAR.19",
+        #     "./optimization_results/run_Drosophila_var_71_obj_2_pop_20_gen_100_1106_0257/FUN.12",
+        #     "./optimization_results/run_Drosophila_var_71_obj_2_pop_20_gen_100_1106_0257/VAR.12",
         #)
 
         #self.initial_solutions =  list(var) # [var[np.argmin(fun[:, 0])]]
@@ -182,9 +188,9 @@ class DrosophilaEvolution(FloatProblem):
         time_step = 0.001
         sim_options = {
             "headless": True,
-            "model": "../../design/sdf/drosophila_100x_Limits_strict_offset.sdf",
+            "model": "../../design/sdf/drosophila_100x_limits_from_data2.sdf",
             "model_offset": [0., 0., 1.12],
-            "pose": "../../config/pose.yaml",
+            "pose": "../../config/pose_tripod.yaml",
             "run_time": run_time,
             "base_link": 'Thorax',
             "controller": '../../config/locomotion_ball.graphml',
@@ -230,12 +236,16 @@ class DrosophilaEvolution(FloatProblem):
         expected_dist = 2*np.pi*fly.ball_radius
         penalty_dist = 0.0 if expected_dist < distance else (1e1 + 40*abs(distance-expected_dist))
 
-        penalty_linearity = 1e1*fly.ball_radius*(abs(np.array(fly.ball_rotations()))[1]+abs(np.array(fly.ball_rotations()))[2])
+        penalty_linearity = 1e2*fly.ball_radius*(abs(np.array(fly.ball_rotations()))[1]+abs(np.array(fly.ball_rotations()))[2])
 
-        print(1e2*distance,1e4*act,penalty_linearity,penalty_dist,penalty_time)
-        solution.objectives[0] = (-1e2*distance + penalty_linearity + penalty_time)
-        solution.objectives[1] = (1e4*act + penalty_dist + penalty_time)
-        # solution.objectives[2] = (velocity + penalty_dist + penalty_time)
+        penalty_stability = 5*fly.stability_coef/fly.TIME
+
+        penalty_time_stance = fly.stance_count/(36*fly.TIME)
+
+        print(1e2*distance,1e4*act,penalty_linearity,penalty_dist,penalty_time,penalty_stability,penalty_time_stance)
+        solution.objectives[0] = (-2e2*distance + penalty_linearity + penalty_time)
+        #solution.objectives[1] = (1e4*act + penalty_dist + penalty_time)
+        solution.objectives[1] = (penalty_stability + penalty_dist + penalty_time_stance)
         print(solution.objectives)
         return solution
 
@@ -250,7 +260,7 @@ def main():
     """ Main """
 
     n_pop = 20
-    n_gen = 50
+    n_gen = 100
 
     max_evaluations = n_pop*n_gen
 
@@ -281,7 +291,7 @@ def main():
                 problem.number_of_objectives,
                 n_pop,
                 n_gen,
-                datetime.now().strftime("%d_%H_%M"),
+                datetime.now().strftime("%m%d_%H%M"),
             )
         )
     )

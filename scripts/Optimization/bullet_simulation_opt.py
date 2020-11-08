@@ -465,6 +465,9 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             2
         ) else False
 
+    def get_link_position(self, link_name):
+        return (p.getLinkState(self.animal, self.link_id[link_name]))[0]
+
     def add_ball(self, r):
         #####Create Fly ball
         colSphereParent = p.createCollisionShape(p.GEOM_SPHERE, radius=0.001)
@@ -477,7 +480,8 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             #basePosition=[-0.025,0.01,0.566] ### Walking ball r= 0.55
             #basePosition=[0.0,0.01,0.566] ### Walking ball r= 0.55
             #basePosition=[-0.0225, 0.007, 0.61973] ### Walking ball r= 0.5
-            basePosition=[0.0, 0.01, 0.62]
+            #basePosition=[0.0, 0.01, 0.62] ##****NORMAL****
+            basePosition=[0.0, 0.005, 0.61]
         elif self.behavior == 'grooming':
             basePosition=[-0.02,0.0,0.59] ### Grooming
             
@@ -684,7 +688,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         ######Optimization camera sequence#######
         if self.GUI == p.GUI and self.rotate_camera:
             base = np.array(self.base_position)
-            yaw = (t-5000)/5000*360-90
+            yaw = (t-4500)/4500*360-90
             pitch = -10
             p.resetDebugVisualizerCamera(
                 self.camera_distance,

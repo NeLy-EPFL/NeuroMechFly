@@ -1995,7 +1995,6 @@ static const char __pyx_k_strided_and_direct[] = "<strided and direct>";
 static const char __pyx_k_get_parameter_index[] = "get_parameter_index";
 static const char __pyx_k_Unkown_table_of_type[] = "Unkown table of type {}";
 static const char __pyx_k_strided_and_indirect[] = "<strided and indirect>";
-static const char __pyx_k_No_parameters_of_type[] = "No parameters of type : {}!!!";
 static const char __pyx_k_contiguous_and_direct[] = "<contiguous and direct>";
 static const char __pyx_k_MemoryView_of_r_object[] = "<MemoryView of %r object>";
 static const char __pyx_k_MemoryView_of_r_at_0x_x[] = "<MemoryView of %r at 0x%x>";
@@ -2043,7 +2042,6 @@ static PyObject *__pyx_n_s_MemoryError;
 static PyObject *__pyx_kp_s_MemoryView_of_r_at_0x_x;
 static PyObject *__pyx_kp_s_MemoryView_of_r_object;
 static PyObject *__pyx_n_s_NeuroMechFly_container_table;
-static PyObject *__pyx_kp_u_No_parameters_of_type;
 static PyObject *__pyx_n_b_O;
 static PyObject *__pyx_n_s_OrderedDict;
 static PyObject *__pyx_kp_s_Out_of_bounds_on_buffer_access_a;
@@ -3557,60 +3555,15 @@ static void __pyx_f_12NeuroMechFly_9container_5table_5Table_c_initialize_table(s
  *         cdef int array_len = len(self)
  *         #:
  *         if array_len == 0:             # <<<<<<<<<<<<<<
- *             print(
- *                 "No parameters of type : {}!!!".format(self.name))
+ *             pass
+ *             #print(
  */
   __pyx_t_2 = ((__pyx_v_array_len == 0) != 0);
   if (__pyx_t_2) {
-
-    /* "NeuroMechFly/container/table.pyx":105
- *         if array_len == 0:
- *             print(
- *                 "No parameters of type : {}!!!".format(self.name))             # <<<<<<<<<<<<<<
- * 
- *         if self.max_iterations == 1:
- */
-    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_kp_u_No_parameters_of_type, __pyx_n_s_format); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 105, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_5 = NULL;
-    if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_4))) {
-      __pyx_t_5 = PyMethod_GET_SELF(__pyx_t_4);
-      if (likely(__pyx_t_5)) {
-        PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_4);
-        __Pyx_INCREF(__pyx_t_5);
-        __Pyx_INCREF(function);
-        __Pyx_DECREF_SET(__pyx_t_4, function);
-      }
-    }
-    __pyx_t_3 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_4, __pyx_t_5, __pyx_v_self->name) : __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_v_self->name);
-    __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-    if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 105, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_3);
-    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-
-    /* "NeuroMechFly/container/table.pyx":104
- *         #:
- *         if array_len == 0:
- *             print(             # <<<<<<<<<<<<<<
- *                 "No parameters of type : {}!!!".format(self.name))
- * 
- */
-    __pyx_t_4 = __Pyx_PyObject_CallOneArg(__pyx_builtin_print, __pyx_t_3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 104, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_4);
-    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-
-    /* "NeuroMechFly/container/table.pyx":103
- *         cdef int array_len = len(self)
- *         #:
- *         if array_len == 0:             # <<<<<<<<<<<<<<
- *             print(
- *                 "No parameters of type : {}!!!".format(self.name))
- */
   }
 
-  /* "NeuroMechFly/container/table.pyx":107
- *                 "No parameters of type : {}!!!".format(self.name))
+  /* "NeuroMechFly/container/table.pyx":108
+ *             #    "No parameters of type : {}!!!".format(self.name))
  * 
  *         if self.max_iterations == 1:             # <<<<<<<<<<<<<<
  *             self.data_table = (
@@ -3619,48 +3572,48 @@ static void __pyx_f_12NeuroMechFly_9container_5table_5Table_c_initialize_table(s
   __pyx_t_2 = ((__pyx_v_self->max_iterations == 1) != 0);
   if (__pyx_t_2) {
 
-    /* "NeuroMechFly/container/table.pyx":109
+    /* "NeuroMechFly/container/table.pyx":110
  *         if self.max_iterations == 1:
  *             self.data_table = (
  *                 np.zeros((1, array_len), dtype=DTYPE))             # <<<<<<<<<<<<<<
  *         else:
  *             self.data_table = (
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 109, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_zeros); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 109, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 110, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __pyx_t_4 = __Pyx_PyInt_From_int(__pyx_v_array_len); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 109, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_zeros); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 110, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_5 = PyTuple_New(2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 109, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_array_len); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 110, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
+    __pyx_t_5 = PyTuple_New(2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 110, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_INCREF(__pyx_int_1);
     __Pyx_GIVEREF(__pyx_int_1);
     PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_int_1);
-    __Pyx_GIVEREF(__pyx_t_4);
-    PyTuple_SET_ITEM(__pyx_t_5, 1, __pyx_t_4);
-    __pyx_t_4 = 0;
-    __pyx_t_4 = PyTuple_New(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 109, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_4);
+    __Pyx_GIVEREF(__pyx_t_3);
+    PyTuple_SET_ITEM(__pyx_t_5, 1, __pyx_t_3);
+    __pyx_t_3 = 0;
+    __pyx_t_3 = PyTuple_New(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 110, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
     __Pyx_GIVEREF(__pyx_t_5);
-    PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_5);
+    PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_5);
     __pyx_t_5 = 0;
-    __pyx_t_5 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 109, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 110, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_DTYPE); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 109, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_DTYPE); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 110, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
-    if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_dtype, __pyx_t_6) < 0) __PYX_ERR(0, 109, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_dtype, __pyx_t_6) < 0) __PYX_ERR(0, 110, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-    __pyx_t_6 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_4, __pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 109, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_3, __pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 110, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
-    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __pyx_t_7 = __Pyx_PyObject_to_MemoryviewSlice_dsds_double(__pyx_t_6, PyBUF_WRITABLE); if (unlikely(!__pyx_t_7.memview)) __PYX_ERR(0, 109, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyObject_to_MemoryviewSlice_dsds_double(__pyx_t_6, PyBUF_WRITABLE); if (unlikely(!__pyx_t_7.memview)) __PYX_ERR(0, 110, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
 
-    /* "NeuroMechFly/container/table.pyx":108
+    /* "NeuroMechFly/container/table.pyx":109
  * 
  *         if self.max_iterations == 1:
  *             self.data_table = (             # <<<<<<<<<<<<<<
@@ -3672,8 +3625,8 @@ static void __pyx_f_12NeuroMechFly_9container_5table_5Table_c_initialize_table(s
     __pyx_t_7.memview = NULL;
     __pyx_t_7.data = NULL;
 
-    /* "NeuroMechFly/container/table.pyx":107
- *                 "No parameters of type : {}!!!".format(self.name))
+    /* "NeuroMechFly/container/table.pyx":108
+ *             #    "No parameters of type : {}!!!".format(self.name))
  * 
  *         if self.max_iterations == 1:             # <<<<<<<<<<<<<<
  *             self.data_table = (
@@ -3682,7 +3635,7 @@ static void __pyx_f_12NeuroMechFly_9container_5table_5Table_c_initialize_table(s
     goto __pyx_L4;
   }
 
-  /* "NeuroMechFly/container/table.pyx":112
+  /* "NeuroMechFly/container/table.pyx":113
  *         else:
  *             self.data_table = (
  *                 np.zeros((self.max_iterations, array_len), dtype=DTYPE))             # <<<<<<<<<<<<<<
@@ -3690,43 +3643,43 @@ static void __pyx_f_12NeuroMechFly_9container_5table_5Table_c_initialize_table(s
  *         for p in self:
  */
   /*else*/ {
-    __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_np); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 112, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_np); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 113, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
-    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_zeros); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 112, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_zeros); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 113, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-    __pyx_t_6 = __Pyx_PyInt_From_long(__pyx_v_self->max_iterations); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 112, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyInt_From_long(__pyx_v_self->max_iterations); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 113, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
-    __pyx_t_4 = __Pyx_PyInt_From_int(__pyx_v_array_len); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 112, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 112, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_array_len); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 113, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
+    __pyx_t_4 = PyTuple_New(2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 113, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_4);
     __Pyx_GIVEREF(__pyx_t_6);
-    PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_6);
-    __Pyx_GIVEREF(__pyx_t_4);
-    PyTuple_SET_ITEM(__pyx_t_3, 1, __pyx_t_4);
-    __pyx_t_6 = 0;
-    __pyx_t_4 = 0;
-    __pyx_t_4 = PyTuple_New(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 112, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_4);
+    PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_6);
     __Pyx_GIVEREF(__pyx_t_3);
-    PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_3);
+    PyTuple_SET_ITEM(__pyx_t_4, 1, __pyx_t_3);
+    __pyx_t_6 = 0;
     __pyx_t_3 = 0;
-    __pyx_t_3 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 112, __pyx_L1_error)
+    __pyx_t_3 = PyTuple_New(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 113, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_DTYPE); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 112, __pyx_L1_error)
+    __Pyx_GIVEREF(__pyx_t_4);
+    PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_4);
+    __pyx_t_4 = 0;
+    __pyx_t_4 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 113, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_4);
+    __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_DTYPE); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 113, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
-    if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_dtype, __pyx_t_6) < 0) __PYX_ERR(0, 112, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_dtype, __pyx_t_6) < 0) __PYX_ERR(0, 113, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-    __pyx_t_6 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_4, __pyx_t_3); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 112, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_3, __pyx_t_4); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 113, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_7 = __Pyx_PyObject_to_MemoryviewSlice_dsds_double(__pyx_t_6, PyBUF_WRITABLE); if (unlikely(!__pyx_t_7.memview)) __PYX_ERR(0, 112, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+    __pyx_t_7 = __Pyx_PyObject_to_MemoryviewSlice_dsds_double(__pyx_t_6, PyBUF_WRITABLE); if (unlikely(!__pyx_t_7.memview)) __PYX_ERR(0, 113, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
 
-    /* "NeuroMechFly/container/table.pyx":111
+    /* "NeuroMechFly/container/table.pyx":112
  *                 np.zeros((1, array_len), dtype=DTYPE))
  *         else:
  *             self.data_table = (             # <<<<<<<<<<<<<<
@@ -3740,7 +3693,7 @@ static void __pyx_f_12NeuroMechFly_9container_5table_5Table_c_initialize_table(s
   }
   __pyx_L4:;
 
-  /* "NeuroMechFly/container/table.pyx":114
+  /* "NeuroMechFly/container/table.pyx":115
  *                 np.zeros((self.max_iterations, array_len), dtype=DTYPE))
  *         cdef Parameter p
  *         for p in self:             # <<<<<<<<<<<<<<
@@ -3751,46 +3704,46 @@ static void __pyx_f_12NeuroMechFly_9container_5table_5Table_c_initialize_table(s
     __pyx_t_6 = ((PyObject *)__pyx_v_self); __Pyx_INCREF(__pyx_t_6); __pyx_t_1 = 0;
     __pyx_t_8 = NULL;
   } else {
-    __pyx_t_1 = -1; __pyx_t_6 = PyObject_GetIter(((PyObject *)__pyx_v_self)); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 114, __pyx_L1_error)
+    __pyx_t_1 = -1; __pyx_t_6 = PyObject_GetIter(((PyObject *)__pyx_v_self)); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 115, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
-    __pyx_t_8 = Py_TYPE(__pyx_t_6)->tp_iternext; if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 114, __pyx_L1_error)
+    __pyx_t_8 = Py_TYPE(__pyx_t_6)->tp_iternext; if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 115, __pyx_L1_error)
   }
   for (;;) {
     if (likely(!__pyx_t_8)) {
       if (likely(PyList_CheckExact(__pyx_t_6))) {
         if (__pyx_t_1 >= PyList_GET_SIZE(__pyx_t_6)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_3 = PyList_GET_ITEM(__pyx_t_6, __pyx_t_1); __Pyx_INCREF(__pyx_t_3); __pyx_t_1++; if (unlikely(0 < 0)) __PYX_ERR(0, 114, __pyx_L1_error)
+        __pyx_t_4 = PyList_GET_ITEM(__pyx_t_6, __pyx_t_1); __Pyx_INCREF(__pyx_t_4); __pyx_t_1++; if (unlikely(0 < 0)) __PYX_ERR(0, 115, __pyx_L1_error)
         #else
-        __pyx_t_3 = PySequence_ITEM(__pyx_t_6, __pyx_t_1); __pyx_t_1++; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 114, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_3);
+        __pyx_t_4 = PySequence_ITEM(__pyx_t_6, __pyx_t_1); __pyx_t_1++; if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 115, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_4);
         #endif
       } else {
         if (__pyx_t_1 >= PyTuple_GET_SIZE(__pyx_t_6)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_3 = PyTuple_GET_ITEM(__pyx_t_6, __pyx_t_1); __Pyx_INCREF(__pyx_t_3); __pyx_t_1++; if (unlikely(0 < 0)) __PYX_ERR(0, 114, __pyx_L1_error)
+        __pyx_t_4 = PyTuple_GET_ITEM(__pyx_t_6, __pyx_t_1); __Pyx_INCREF(__pyx_t_4); __pyx_t_1++; if (unlikely(0 < 0)) __PYX_ERR(0, 115, __pyx_L1_error)
         #else
-        __pyx_t_3 = PySequence_ITEM(__pyx_t_6, __pyx_t_1); __pyx_t_1++; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 114, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_3);
+        __pyx_t_4 = PySequence_ITEM(__pyx_t_6, __pyx_t_1); __pyx_t_1++; if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 115, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_4);
         #endif
       }
     } else {
-      __pyx_t_3 = __pyx_t_8(__pyx_t_6);
-      if (unlikely(!__pyx_t_3)) {
+      __pyx_t_4 = __pyx_t_8(__pyx_t_6);
+      if (unlikely(!__pyx_t_4)) {
         PyObject* exc_type = PyErr_Occurred();
         if (exc_type) {
           if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-          else __PYX_ERR(0, 114, __pyx_L1_error)
+          else __PYX_ERR(0, 115, __pyx_L1_error)
         }
         break;
       }
-      __Pyx_GOTREF(__pyx_t_3);
+      __Pyx_GOTREF(__pyx_t_4);
     }
-    if (!(likely(((__pyx_t_3) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_3, __pyx_ptype_12NeuroMechFly_9container_9parameter_Parameter))))) __PYX_ERR(0, 114, __pyx_L1_error)
-    __Pyx_XDECREF_SET(__pyx_v_p, ((struct __pyx_obj_12NeuroMechFly_9container_9parameter_Parameter *)__pyx_t_3));
-    __pyx_t_3 = 0;
+    if (!(likely(((__pyx_t_4) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_4, __pyx_ptype_12NeuroMechFly_9container_9parameter_Parameter))))) __PYX_ERR(0, 115, __pyx_L1_error)
+    __Pyx_XDECREF_SET(__pyx_v_p, ((struct __pyx_obj_12NeuroMechFly_9container_9parameter_Parameter *)__pyx_t_4));
+    __pyx_t_4 = 0;
 
-    /* "NeuroMechFly/container/table.pyx":115
+    /* "NeuroMechFly/container/table.pyx":116
  *         cdef Parameter p
  *         for p in self:
  *             p.c_set_memory_view(self.data_table, & self.current_idx)             # <<<<<<<<<<<<<<
@@ -3799,7 +3752,7 @@ static void __pyx_f_12NeuroMechFly_9container_5table_5Table_c_initialize_table(s
  */
     ((struct __pyx_vtabstruct_12NeuroMechFly_9container_9parameter_Parameter *)__pyx_v_p->__pyx_vtab)->c_set_memory_view(__pyx_v_p, __pyx_v_self->data_table, (&__pyx_v_self->current_idx));
 
-    /* "NeuroMechFly/container/table.pyx":114
+    /* "NeuroMechFly/container/table.pyx":115
  *                 np.zeros((self.max_iterations, array_len), dtype=DTYPE))
  *         cdef Parameter p
  *         for p in self:             # <<<<<<<<<<<<<<
@@ -3831,7 +3784,7 @@ static void __pyx_f_12NeuroMechFly_9container_5table_5Table_c_initialize_table(s
   __Pyx_RefNannyFinishContext();
 }
 
-/* "NeuroMechFly/container/table.pyx":117
+/* "NeuroMechFly/container/table.pyx":118
  *             p.c_set_memory_view(self.data_table, & self.current_idx)
  * 
  *     cdef double[:] c_get_values(self) nogil:             # <<<<<<<<<<<<<<
@@ -3843,7 +3796,7 @@ static __Pyx_memviewslice __pyx_f_12NeuroMechFly_9container_5table_5Table_c_get_
   __Pyx_memviewslice __pyx_r = { 0, 0, { 0 }, { 0 }, { 0 } };
   __Pyx_memviewslice __pyx_t_1 = { 0, 0, { 0 }, { 0 }, { 0 } };
 
-  /* "NeuroMechFly/container/table.pyx":119
+  /* "NeuroMechFly/container/table.pyx":120
  *     cdef double[:] c_get_values(self) nogil:
  *         """ Get the values. """
  *         return self.data_table[self.current_idx, :]             # <<<<<<<<<<<<<<
@@ -3868,7 +3821,7 @@ __pyx_r = __pyx_t_1;
   __pyx_t_1.data = NULL;
   goto __pyx_L0;
 
-  /* "NeuroMechFly/container/table.pyx":117
+  /* "NeuroMechFly/container/table.pyx":118
  *             p.c_set_memory_view(self.data_table, & self.current_idx)
  * 
  *     cdef double[:] c_get_values(self) nogil:             # <<<<<<<<<<<<<<
@@ -3884,7 +3837,7 @@ __pyx_r = __pyx_t_1;
   return __pyx_r;
 }
 
-/* "NeuroMechFly/container/table.pyx":121
+/* "NeuroMechFly/container/table.pyx":122
  *         return self.data_table[self.current_idx, :]
  * 
  *     cdef void c_set_values(self, double[:] values) nogil:             # <<<<<<<<<<<<<<
@@ -3898,7 +3851,7 @@ static void __pyx_f_12NeuroMechFly_9container_5table_5Table_c_set_values(struct 
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
 
-  /* "NeuroMechFly/container/table.pyx":123
+  /* "NeuroMechFly/container/table.pyx":124
  *     cdef void c_set_values(self, double[:] values) nogil:
  *         """ Set the values. """
  *         self.data_table[self.current_idx, :] = values[:]             # <<<<<<<<<<<<<<
@@ -3918,12 +3871,12 @@ __pyx_t_1.shape[0] = __pyx_v_self->data_table.shape[1];
 __pyx_t_1.strides[0] = __pyx_v_self->data_table.strides[1];
     __pyx_t_1.suboffsets[0] = -1;
 
-if (unlikely(__pyx_memoryview_copy_contents(__pyx_v_values, __pyx_t_1, 1, 1, 0) < 0)) __PYX_ERR(0, 123, __pyx_L1_error)
+if (unlikely(__pyx_memoryview_copy_contents(__pyx_v_values, __pyx_t_1, 1, 1, 0) < 0)) __PYX_ERR(0, 124, __pyx_L1_error)
   __PYX_XDEC_MEMVIEW(&__pyx_t_1, 0);
   __pyx_t_1.memview = NULL;
   __pyx_t_1.data = NULL;
 
-  /* "NeuroMechFly/container/table.pyx":121
+  /* "NeuroMechFly/container/table.pyx":122
  *         return self.data_table[self.current_idx, :]
  * 
  *     cdef void c_set_values(self, double[:] values) nogil:             # <<<<<<<<<<<<<<
@@ -3939,7 +3892,7 @@ if (unlikely(__pyx_memoryview_copy_contents(__pyx_v_values, __pyx_t_1, 1, 1, 0) 
   __pyx_L0:;
 }
 
-/* "NeuroMechFly/container/table.pyx":125
+/* "NeuroMechFly/container/table.pyx":126
  *         self.data_table[self.current_idx, :] = values[:]
  * 
  *     cdef double[:, :] c_get_buffer(self):             # <<<<<<<<<<<<<<
@@ -3952,7 +3905,7 @@ static __Pyx_memviewslice __pyx_f_12NeuroMechFly_9container_5table_5Table_c_get_
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("c_get_buffer", 0);
 
-  /* "NeuroMechFly/container/table.pyx":127
+  /* "NeuroMechFly/container/table.pyx":128
  *     cdef double[:, :] c_get_buffer(self):
  *         """Get teh complete buffer."""
  *         return self.data_table[:, :]             # <<<<<<<<<<<<<<
@@ -3963,7 +3916,7 @@ static __Pyx_memviewslice __pyx_f_12NeuroMechFly_9container_5table_5Table_c_get_
   __pyx_r = __pyx_v_self->data_table;
   goto __pyx_L0;
 
-  /* "NeuroMechFly/container/table.pyx":125
+  /* "NeuroMechFly/container/table.pyx":126
  *         self.data_table[self.current_idx, :] = values[:]
  * 
  *     cdef double[:, :] c_get_buffer(self):             # <<<<<<<<<<<<<<
@@ -3980,7 +3933,7 @@ static __Pyx_memviewslice __pyx_f_12NeuroMechFly_9container_5table_5Table_c_get_
   return __pyx_r;
 }
 
-/* "NeuroMechFly/container/table.pyx":129
+/* "NeuroMechFly/container/table.pyx":130
  *         return self.data_table[:, :]
  * 
  *     cdef void c_update_log(self) nogil:             # <<<<<<<<<<<<<<
@@ -3996,7 +3949,7 @@ static void __pyx_f_12NeuroMechFly_9container_5table_5Table_c_update_log(struct 
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
 
-  /* "NeuroMechFly/container/table.pyx":130
+  /* "NeuroMechFly/container/table.pyx":131
  * 
  *     cdef void c_update_log(self) nogil:
  *         if self.max_iterations == 1:             # <<<<<<<<<<<<<<
@@ -4006,7 +3959,7 @@ static void __pyx_f_12NeuroMechFly_9container_5table_5Table_c_update_log(struct 
   __pyx_t_1 = ((__pyx_v_self->max_iterations == 1) != 0);
   if (__pyx_t_1) {
 
-    /* "NeuroMechFly/container/table.pyx":131
+    /* "NeuroMechFly/container/table.pyx":132
  *     cdef void c_update_log(self) nogil:
  *         if self.max_iterations == 1:
  *             self.current_idx = 0             # <<<<<<<<<<<<<<
@@ -4015,7 +3968,7 @@ static void __pyx_f_12NeuroMechFly_9container_5table_5Table_c_update_log(struct 
  */
     __pyx_v_self->current_idx = 0;
 
-    /* "NeuroMechFly/container/table.pyx":130
+    /* "NeuroMechFly/container/table.pyx":131
  * 
  *     cdef void c_update_log(self) nogil:
  *         if self.max_iterations == 1:             # <<<<<<<<<<<<<<
@@ -4025,7 +3978,7 @@ static void __pyx_f_12NeuroMechFly_9container_5table_5Table_c_update_log(struct 
     goto __pyx_L3;
   }
 
-  /* "NeuroMechFly/container/table.pyx":133
+  /* "NeuroMechFly/container/table.pyx":134
  *             self.current_idx = 0
  *         else:
  *             if self.current_idx < self.max_iterations-1:             # <<<<<<<<<<<<<<
@@ -4036,7 +3989,7 @@ static void __pyx_f_12NeuroMechFly_9container_5table_5Table_c_update_log(struct 
     __pyx_t_1 = ((__pyx_v_self->current_idx < (__pyx_v_self->max_iterations - 1)) != 0);
     if (__pyx_t_1) {
 
-      /* "NeuroMechFly/container/table.pyx":134
+      /* "NeuroMechFly/container/table.pyx":135
  *         else:
  *             if self.current_idx < self.max_iterations-1:
  *                 self.current_idx += 1             # <<<<<<<<<<<<<<
@@ -4045,7 +3998,7 @@ static void __pyx_f_12NeuroMechFly_9container_5table_5Table_c_update_log(struct 
  */
       __pyx_v_self->current_idx = (__pyx_v_self->current_idx + 1);
 
-      /* "NeuroMechFly/container/table.pyx":133
+      /* "NeuroMechFly/container/table.pyx":134
  *             self.current_idx = 0
  *         else:
  *             if self.current_idx < self.max_iterations-1:             # <<<<<<<<<<<<<<
@@ -4055,7 +4008,7 @@ static void __pyx_f_12NeuroMechFly_9container_5table_5Table_c_update_log(struct 
       goto __pyx_L4;
     }
 
-    /* "NeuroMechFly/container/table.pyx":136
+    /* "NeuroMechFly/container/table.pyx":137
  *                 self.current_idx += 1
  *             else:
  *                 self.buffer_full = 1             # <<<<<<<<<<<<<<
@@ -4067,7 +4020,7 @@ static void __pyx_f_12NeuroMechFly_9container_5table_5Table_c_update_log(struct 
     }
     __pyx_L4:;
 
-    /* "NeuroMechFly/container/table.pyx":138
+    /* "NeuroMechFly/container/table.pyx":139
  *                 self.buffer_full = 1
  *             self.data_table[self.current_idx,
  *                             :] = self.data_table[self.current_idx-1, :]             # <<<<<<<<<<<<<<
@@ -4087,7 +4040,7 @@ __pyx_t_2.strides[0] = __pyx_v_self->data_table.strides[1];
 
 __pyx_t_3.data = __pyx_v_self->data_table.data;
 
-    /* "NeuroMechFly/container/table.pyx":137
+    /* "NeuroMechFly/container/table.pyx":138
  *             else:
  *                 self.buffer_full = 1
  *             self.data_table[self.current_idx,             # <<<<<<<<<<<<<<
@@ -4105,7 +4058,7 @@ __pyx_t_3.shape[0] = __pyx_v_self->data_table.shape[1];
 __pyx_t_3.strides[0] = __pyx_v_self->data_table.strides[1];
     __pyx_t_3.suboffsets[0] = -1;
 
-if (unlikely(__pyx_memoryview_copy_contents(__pyx_t_2, __pyx_t_3, 1, 1, 0) < 0)) __PYX_ERR(0, 137, __pyx_L1_error)
+if (unlikely(__pyx_memoryview_copy_contents(__pyx_t_2, __pyx_t_3, 1, 1, 0) < 0)) __PYX_ERR(0, 138, __pyx_L1_error)
     __PYX_XDEC_MEMVIEW(&__pyx_t_3, 0);
     __pyx_t_3.memview = NULL;
     __pyx_t_3.data = NULL;
@@ -4115,7 +4068,7 @@ if (unlikely(__pyx_memoryview_copy_contents(__pyx_t_2, __pyx_t_3, 1, 1, 0) < 0))
   }
   __pyx_L3:;
 
-  /* "NeuroMechFly/container/table.pyx":129
+  /* "NeuroMechFly/container/table.pyx":130
  *         return self.data_table[:, :]
  * 
  *     cdef void c_update_log(self) nogil:             # <<<<<<<<<<<<<<
@@ -18917,7 +18870,6 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_kp_s_MemoryView_of_r_at_0x_x, __pyx_k_MemoryView_of_r_at_0x_x, sizeof(__pyx_k_MemoryView_of_r_at_0x_x), 0, 0, 1, 0},
   {&__pyx_kp_s_MemoryView_of_r_object, __pyx_k_MemoryView_of_r_object, sizeof(__pyx_k_MemoryView_of_r_object), 0, 0, 1, 0},
   {&__pyx_n_s_NeuroMechFly_container_table, __pyx_k_NeuroMechFly_container_table, sizeof(__pyx_k_NeuroMechFly_container_table), 0, 0, 1, 1},
-  {&__pyx_kp_u_No_parameters_of_type, __pyx_k_No_parameters_of_type, sizeof(__pyx_k_No_parameters_of_type), 0, 1, 0, 0},
   {&__pyx_n_b_O, __pyx_k_O, sizeof(__pyx_k_O), 0, 0, 0, 1},
   {&__pyx_n_s_OrderedDict, __pyx_k_OrderedDict, sizeof(__pyx_k_OrderedDict), 0, 0, 1, 1},
   {&__pyx_kp_s_Out_of_bounds_on_buffer_access_a, __pyx_k_Out_of_bounds_on_buffer_access_a, sizeof(__pyx_k_Out_of_bounds_on_buffer_access_a), 0, 0, 1, 0},

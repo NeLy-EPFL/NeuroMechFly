@@ -101,8 +101,9 @@ cdef class Table(list):
         cdef int array_len = len(self)
         #:
         if array_len == 0:
-            print(
-                "No parameters of type : {}!!!".format(self.name))
+            pass
+            #print(
+            #    "No parameters of type : {}!!!".format(self.name))
 
         if self.max_iterations == 1:
             self.data_table = (

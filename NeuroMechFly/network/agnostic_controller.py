@@ -286,7 +286,7 @@ class AgnosticController:
         for joint in model.joints:
             for conn in sdf_utils.find_neighboring_joints(
                     model, joint.name):
-                print("{} -> {}".format(joint.name, conn))
+                #print("{} -> {}".format(joint.name, conn))
                 AgnosticController.add_mutual_connection(
                     network,
                     joint.name + '_flexion',
@@ -421,7 +421,7 @@ def main():
     names = container.neural.outputs.names
     parameters = container.neural.parameters
     #: Show graph
-    print(net.graph.number_of_edges())
+    #print(net.graph.number_of_edges())
     net.visualize_network(edge_labels=False)
     nosc = net.network.graph.number_of_nodes()
     plt.figure()

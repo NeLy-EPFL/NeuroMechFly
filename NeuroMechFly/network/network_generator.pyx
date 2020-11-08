@@ -73,9 +73,9 @@ cdef class NetworkGenerator:
         cdef int j
         for j, (name, neuron) in enumerate(sorted(self.graph.nodes.items())):
             #: Add neuron to list
-            print(
-                'Generating neuron model : {} of type {}'.format(
-                    name, neuron['model']))
+            #print(
+            #    'Generating neuron model : {} of type {}'.format(
+            #        name, neuron['model']))
             #: Generate Neuron Models
             _neuron = NeuronFactory.gen_neuron(neuron['model'])
             self.neurons[name] = _neuron(
@@ -90,11 +90,11 @@ cdef class NetworkGenerator:
         Generate the network.
         """
         for name, neuron in list(self.neurons.items()):
-            print(
-                'Establishing neuron {} network connections'.format(
-                    name))
+            #print(
+            #    'Establishing neuron {} network connections'.format(
+            #        name))
             for j, pred in enumerate(self.graph.predecessors(name)):
-                print(('{} -> {}'.format(pred, name)))
+                #print(('{} -> {}'.format(pred, name)))
                 #: Set the weight of the parameter
                 neuron.add_ode_input(
                     j,

@@ -96,7 +96,7 @@ class DrosophilaSimulation(BulletSimulation):
             p.changeDynamics(
                 self.animal,
                 idx,
-                maxJointVelocity=1000.0
+                maxJointVelocity=10000.0
             )
 
         # ########## DISABLE COLLISIONS ##########
@@ -111,6 +111,8 @@ class DrosophilaSimulation(BulletSimulation):
         self.grf=[]
         self.collision_forces=[]
         self.ball_rot=[]
+        self.stability_coef = 0
+        self.stance_count = 0
 
 
     def muscle_controller(self):
@@ -122,6 +124,7 @@ class DrosophilaSimulation(BulletSimulation):
                 controlMode=p.TORQUE_CONTROL,
                 force=value.compute_torque(only_passive=False)
             )
+            
 
     def fixed_joints_controller(self):
         """Controller for fixed joints"""
@@ -132,10 +135,6 @@ class DrosophilaSimulation(BulletSimulation):
                     pos = np.deg2rad(-15)
                 #else:
                 #    pos = 0
-                elif joint_name == 'joint_LFCoxa_roll':
-                    pos = np.deg2rad(-25)
-                elif joint_name == 'joint_RFCoxa_roll':
-                    pos = np.deg2rad(25)
                 elif joint_name == 'joint_LAntenna':
                     pos = np.deg2rad(25)
                 elif joint_name == 'joint_RAntenna':
@@ -150,12 +149,54 @@ class DrosophilaSimulation(BulletSimulation):
                     pos = np.deg2rad(-17)
                 elif joint_name == 'joint_RWing_yaw':
                     pos = np.deg2rad(17)
-                elif 'FTarsus1' in joint_name:
-                    pos = np.deg2rad(-24)
-                elif 'MTarsus1' in joint_name:
-                    pos = np.deg2rad(-28)
-                elif 'HTarsus1' in joint_name:
-                    pos = np.deg2rad(-22)
+                #elif joint_name == 'joint_LFCoxa_yaw':
+                #    pos = np.deg2rad(-5)
+                #elif joint_name == 'joint_RFCoxa_yaw':
+                #    pos = np.deg2rad(5)
+                #elif joint_name == 'joint_LFCoxa_roll':
+                #    pos = np.deg2rad(-35)
+                #elif joint_name == 'joint_RFCoxa_roll':
+                #    pos = np.deg2rad(35)
+                #elif joint_name == 'joint_LFFemur_roll':
+                #    pos = np.deg2rad(-26)
+                #elif joint_name == 'joint_RFFemur_roll':
+                #    pos = np.deg2rad(26)
+                elif joint_name == 'joint_LFTarsus1':
+                    pos = np.deg2rad(-44)
+                elif joint_name == 'joint_RFTarsus1':
+                    pos = np.deg2rad(-39)
+                elif joint_name == 'joint_LMCoxa_yaw':
+                    pos = np.deg2rad(-11)#12
+                elif joint_name == 'joint_RMCoxa_yaw':
+                    pos = np.deg2rad(12)#12
+                elif joint_name == 'joint_LMCoxa':
+                    pos = np.deg2rad(-3)
+                elif joint_name == 'joint_RMCoxa':
+                    pos = np.deg2rad(-5)
+                #elif joint_name == 'joint_LMFemur_roll':
+                #    pos = np.deg2rad(-7)
+                #elif joint_name == 'joint_RMFemur_roll':
+                #    pos = np.deg2rad(7)                    
+                elif joint_name == 'joint_LMTarsus1':
+                    pos = np.deg2rad(-53)
+                elif joint_name == 'joint_RMTarsus1':
+                    pos = np.deg2rad(-46)                    
+                elif joint_name == 'joint_LHCoxa_yaw':
+                    pos = np.deg2rad(-13)
+                elif joint_name == 'joint_RHCoxa_yaw':
+                    pos = np.deg2rad(15)
+                elif joint_name == 'joint_LHCoxa':
+                    pos = np.deg2rad(20)
+                elif joint_name == 'joint_RHCoxa':
+                    pos = np.deg2rad(13)
+                #elif joint_name == 'joint_LHFemur_roll':
+                #    pos = np.deg2rad(9)
+                #elif joint_name == 'joint_RHFemur_roll':
+                #    pos = np.deg2rad(-9)
+                elif joint_name == 'joint_LHTarsus1':
+                    pos = np.deg2rad(-40)
+                elif joint_name == 'joint_RHTarsus1':
+                    pos = np.deg2rad(-34)
                 else:
                     pos = 0
 
@@ -163,6 +204,9 @@ class DrosophilaSimulation(BulletSimulation):
                 #print('fly: ',self.is_flying())
                 #print('touch: ',self.is_touch())
                 #print('Ball rotations: ', self.ball_rotations(),'\n')
+                #print('Dist stance_polygon:', self.stance_polygon_dist())
+                #print(np.array(self.get_link_position('Thorax')[:2]))
+                
                 
                 p.setJointMotorControl2(
                     self.animal, joint,
@@ -183,7 +227,7 @@ class DrosophilaSimulation(BulletSimulation):
 
         if t%10 == 0:
             grf = self.ball_reaction_forces()
-            #print(grf.shape)
+            #print(grf[:6])
             self.grf.append(grf)
 
         if t%10 == 0:
@@ -191,9 +235,7 @@ class DrosophilaSimulation(BulletSimulation):
             ball_rot[:2] = ball_rot[:2]*self.ball_radius*10 # Distance in mm
             self.ball_rot.append(ball_rot)
             #print(ball_rot)
-
-        
-
+            
 
     def feedback_to_controller(self):
         """ Implementation of abstractmethod. """
@@ -220,6 +262,35 @@ class DrosophilaSimulation(BulletSimulation):
                 np.arange(0, p.getNumJoints(self.ball_id))
             )
         )
+
+    def stance_polygon_dist(self):
+        contact_segments = [leg for leg in self.feet_links if self.is_contact_ball(leg)]
+        contact_legs = []
+        sum_x = 0
+        sum_y = 0
+        #print(contact_segments)
+        for seg in contact_segments:
+            if seg[:2] not in contact_legs:
+                contact_legs.append(seg[:2])
+                pos_tarsus = self.get_link_position(seg[:2]+'Tarsus5')
+                sum_x += pos_tarsus[0]
+                sum_y += pos_tarsus[1]
+
+        #print(contact_legs)
+
+        self.stance_count += len(contact_legs)
+
+        if len(contact_legs)>2:
+            if 'LM' in contact_legs or 'RM' in contact_legs:
+                poly_centroid = np.array([sum_x/len(contact_legs),sum_y/len(contact_legs)])
+                body_centroid = np.array(self.get_link_position('Thorax')[:2])
+                dist = np.linalg.norm(body_centroid-poly_centroid)
+            else:
+                dist = 0.5
+        else:
+            dist = 1 - len(contact_legs)*0.25
+            
+        return dist
 
     def is_lava(self):
         """ State of lava approaching the model. """
@@ -253,23 +324,28 @@ class DrosophilaSimulation(BulletSimulation):
 
     def is_velocity_limit(self):
         """ Check velocity limits. """
-        return np.any(np.array(self.joint_velocities) > 1000)
+        return np.any(np.array(self.joint_velocities) > 10000)
+
+    
+    #def is_flying(self):
+    #    """Check if no leg of the model is in contact """
+    #    contact_segments = [leg for leg in self.feet_links if self.is_contact_ball(leg)]
+    #    contact_legs = []
+    #    for seg in contact_segments:
+    #        if seg[:2] not in contact_legs:
+    #            contact_legs.append(seg[:2])
+    #    #print(contact_legs)
+    #    #print(num_legs < 2)
+    #    return len(contact_legs) < 3
+    #    #return not(
+    #    #    np.any([self.is_contact_ball(leg) for leg in self.feet_links])
+    #    #)
 
     def is_flying(self):
-        """Check if no leg of the model is in contact """
-        contact_segments = [leg for leg in self.feet_links if self.is_contact_ball(leg)]
-        num_legs = 0
-        contact_legs = []
-        for seg in contact_segments:
-            if seg[1] not in contact_legs:
-                contact_legs.append(seg[1])
-                num_legs += 1
-        #print(contact_legs)
-        #print(num_legs < 2)
-        return num_legs < 2
-        #return not(
-        #    np.any([self.is_contact_ball(leg) for leg in self.feet_links])
-        #)
+        dist_to_centroid = self.stance_polygon_dist()
+        self.stability_coef += dist_to_centroid
+        #print(dist_to_centroid)
+        return dist_to_centroid > 0.25
 
     def optimization_check(self):
         """ Check optimization status. """
@@ -296,8 +372,11 @@ class DrosophilaSimulation(BulletSimulation):
 
         opti_active_muscle_gains = params[:6*N]
         opti_joint_phases = params[6*N:6*N+edges_joints]
-        opti_antagonist_phases = params[6*N+edges_joints:6*N+edges_joints+edges_anta]
-        opti_base_phases = params[6*N+edges_joints+edges_anta:]
+        #opti_antagonist_phases = params[6*N+edges_joints:6*N+edges_joints+edges_anta]
+        #opti_base_phases = params[6*N+edges_joints+edges_anta:]
+
+        opti_base_phases = params[6*N+edges_joints:]
+
         #print(
         #    "Opti active muscle gains {}".format(
         #        opti_active_muscle_gains
@@ -311,7 +390,9 @@ class DrosophilaSimulation(BulletSimulation):
         symmetry_joints = filter(
             lambda x: x.split('_')[1][0] != 'R', self.actuated_joints
         )
+        
         for j, joint in enumerate(symmetry_joints):
+            #print(joint,joint.replace('L', 'R', 1))
             self.active_muscles[joint].update_parameters(
                 Parameters(*opti_active_muscle_gains[6*j:6*(j+1)])
             )
@@ -327,16 +408,21 @@ class DrosophilaSimulation(BulletSimulation):
         ]
         
         for side in ('L', 'R'):
-            n_leg = 0
-            for pos in ('F', 'M', 'H'):
+            for j0, pos in enumerate(('F', 'M', 'H')):
+                if pos != 'F':
+                    coxa_label = 'Coxa_roll'
+                else:
+                    coxa_label = 'Coxa'
                 for j1, ed in enumerate(phase_edges):
-                    if ('Coxa' in ed[0]) and ((pos == 'M') or (pos == 'H')):
-                        ed[0] = 'Coxa_roll'
-                    if ('Coxa' in ed[0]) and (pos == 'F'):
-                        ed[0] = 'Coxa'     
+                    if ed[0] == 'Coxa':
+                        from_node = coxa_label
+                    else:
+                        from_node = ed[0]
+                    to_node = ed[1]
                     for j2, action in enumerate(('flexion', 'extension')):
-                        node_1 = "joint_{}{}{}_{}".format(side, pos, ed[0], action)
-                        node_2 = "joint_{}{}{}_{}".format(side, pos, ed[1], action)
+                        node_1 = "joint_{}{}{}_{}".format(side, pos, from_node, action)
+                        node_2 = "joint_{}{}{}_{}".format(side, pos, to_node, action)
+                        #print(node_1, node_2)
                         parameters.get_parameter(
                             'phi_{}_to_{}'.format(node_1, node_2)
                         ).value = opti_joint_phases[2*j1 + j2]
@@ -344,19 +430,17 @@ class DrosophilaSimulation(BulletSimulation):
                             'phi_{}_to_{}'.format(node_2, node_1)
                         ).value = -1*opti_joint_phases[2*j1 + j2]
         
-                if pos != 'F':
-                    coxa_label = 'Coxa_roll'
-                else:
-                    coxa_label = 'Coxa'
-                node_1 = "joint_{}{}{}_{}".format(side, pos, coxa_label, 'flexion')
-                node_2 = "joint_{}{}{}_{}".format(side, pos, coxa_label, 'extension')
-                parameters.get_parameter(
-                    'phi_{}_to_{}'.format(node_1, node_2)
-                ).value = opti_antagonist_phases[n_leg]
-                parameters.get_parameter(
-                    'phi_{}_to_{}'.format(node_2, node_1)
-                ).value = -1*opti_antagonist_phases[n_leg]
-                n_leg += 1
+                #node_1 = "joint_{}{}{}_{}".format(side, pos, coxa_label, 'flexion')
+                #node_2 = "joint_{}{}{}_{}".format(side, pos, coxa_label, 'extension')
+                ##print(node_1,node_2)
+                ##print()
+                #parameters.get_parameter(
+                #    'phi_{}_to_{}'.format(node_1, node_2)
+                #).value = opti_antagonist_phases[j0]
+                #parameters.get_parameter(
+                #    'phi_{}_to_{}'.format(node_2, node_1)
+                #).value = -1*opti_antagonist_phases[j0]
+                
 
         coxae_edges =[
             ['LFCoxa', 'RFCoxa'],
@@ -372,17 +456,17 @@ class DrosophilaSimulation(BulletSimulation):
                 node_2 = "joint_{}_{}".format(ed[1], action)
                 parameters.get_parameter(
                     'phi_{}_to_{}'.format(node_1, node_2)
-                ).value = opti_base_phases[2*j1 + j2]
+                ).value = opti_base_phases[j1]
                 parameters.get_parameter(
                     'phi_{}_to_{}'.format(node_2, node_1)
-                ).value = -1*opti_base_phases[2*j1 + j2]
+                ).value = -1*opti_base_phases[j1]
         
 
 def read_optimization_results(fun, var):
     """ Read optimization results. """
     return (np.loadtxt(fun), np.loadtxt(var))
 
-def save_data(fly, filename):
+def save_data(fly, filename, exp=''):
     torques_dict = {}
     grf_dict = {}
     collisions_dict = {}
@@ -397,17 +481,24 @@ def save_data(fly, filename):
     for i, joint in enumerate(fly.GROUND_CONTACTS):
         grf_dict[joint] = data_grf[i]
 
-    path_torque = os.path.join(currentDirectory,'Results','torques_'+filename)
-    path_grf = os.path.join(currentDirectory,'Results','grf_'+filename)
-    path_ball_rot = os.path.join(currentDirectory,'ball_data','ballRot_'+filename)
+    path_torque = os.path.join(currentDirectory,'Output_data','torques',exp)
+    path_grf = os.path.join(currentDirectory,'Output_data','grf',exp)
+    path_ball_rot = os.path.join(currentDirectory,'Output_data','ballRotations',exp)
 
-    with open(path_torque,'wb') as f:
+    if not os.path.exists(path_torque):
+        os.makedirs(path_torque)
+    if not os.path.exists(path_grf):
+        os.makedirs(path_grf)
+    if not os.path.exists(path_ball_rot):
+        os.makedirs(path_ball_rot)
+        
+    with open(path_torque+'/torques_'+filename,'wb') as f:
         pickle.dump(torques_dict,f)
 
-    with open(path_grf,'wb') as f:
+    with open(path_grf+'/grf_'+filename,'wb') as f:
         pickle.dump(grf_dict,f)
 
-    with open(path_ball_rot,'wb') as f:
+    with open(path_ball_rot+'/ballRot_'+filename,'wb') as f:
         pickle.dump(fly.ball_rot,f)
 
 def main():
@@ -428,7 +519,7 @@ def main():
     right_front_leg = ['RF'+name for name in leg_segments]
     right_middle_leg = ['RM'+name for name in leg_segments]
     right_hind_leg = ['RH'+name for name in leg_segments]
-    
+
     body_segments = ['A1A2','A3','A4','A5','A6','Thorax','Head']
 
     self_collision = []
@@ -463,13 +554,13 @@ def main():
     for link0 in right_hind_leg:
         for link1 in body_segments:
             self_collision.append([link0,link1])
-    
+
     sim_options = {
         "headless": False,
-        "model": "../../design/sdf/drosophila_100x_Limits_strict_offset.sdf",
+        "model": "../../design/sdf/drosophila_100x_limits_from_data2.sdf",
         "model_offset": [0., 0., 1.12],
         "run_time": run_time,
-        "pose": '../../config/pose.yaml',
+        "pose": '../../config/pose_tripod.yaml',
         "base_link": 'Thorax',
         "controller": '../../config/locomotion_ball.graphml',
         "ground_contacts": ground_contact,
@@ -477,38 +568,43 @@ def main():
         "record": False,
         'camera_distance': 0.5,
         'track': False,
-        'moviename': 'neuroOpt_walking_New_Opt.mp4',
+        'moviename': 'tripod_gait_1.mp4',
         'slow_down': True,
         'sleep_time': 0.001,
         'rot_cam': False
         }
+
+    gen = '50'
+    exp = '1108_1908'
+    
     container = Container(run_time/time_step)
     animal = DrosophilaSimulation(container, sim_options)
 
     #: read results
-    
+
     #fun, var = read_optimization_results(
     #    "./sim_files/fun/FUN_last_good.ged3",
     #    "./sim_files/var/VAR_last_good.ged3"
     #)
-    #fun, var = read_optimization_results(
-    #    "./optimization_results/run_Drosophila_var_79_obj_2_pop_20_gen_200_18_01_16/FUN.199",
-    #    "./optimization_results/run_Drosophila_var_79_obj_2_pop_20_gen_200_18_01_16/VAR.199"
-    #)
     fun, var = read_optimization_results(
-        "./FUN.ged3",
-        "./VAR.ged3"
+        "./optimization_results/run_Drosophila_var_71_obj_2_pop_20_gen_100_"+exp+"/FUN."+gen,
+        "./optimization_results/run_Drosophila_var_71_obj_2_pop_20_gen_100_"+exp+"/VAR."+gen
     )
-    
-    params = var[np.argmin(fun[:, 0])]
+    #fun, var = read_optimization_results(
+    #    "./FUN.ged3",
+    #    "./VAR.ged3"
+    #)
+
+    #params = var[np.argmin(fun[:,0]*fun[:,1])]
+    params = var[np.argmin(fun[:,0])]
     animal.update_parameters(params)
 
     animal.run(optimization=False)
     animal.container.dump(overwrite=True)
 
-    name_data = 'data_optimization.pkl'
-    
-    save_data(animal,name_data)
+    name_data = 'optimization_gen_'+ gen +'.pkl'
+
+    save_data(animal,name_data,exp)
 
 if __name__ == '__main__':
     main()

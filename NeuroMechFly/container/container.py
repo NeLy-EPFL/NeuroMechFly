@@ -36,7 +36,7 @@ class Container:
         if hasattr(self, name):
             raise ValueError
         setattr(self, name, DataTable(name, self.__max_iterations))
-        print("Created new container namespace : {}".format(name))
+        #print("Created new container namespace : {}".format(name))
         return getattr(self, name)
 
     def initialize(self):
@@ -145,8 +145,8 @@ class DataTable(dict):
         setattr(
             self, name,
             Table(name, table_type, self.max_iterations))
-        print(
-            "Created new table {} in namespaces {}".format(name, self.name))
+        #print(
+        #    "Created new table {} in namespaces {}".format(name, self.name))
         return getattr(self, name)
 
     def initialize(self):
