@@ -49,7 +49,7 @@ setuptools.setup(
         'networkx==2.3',
         'pydot',
         'ddt',
-        'scipy',
+        'scipy==1.5.4',
         'trimesh',
         'treelib',
         'tqdm',
