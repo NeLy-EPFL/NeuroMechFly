@@ -54,9 +54,11 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             'background_color_BLUE', 1)
         self.RECORD_MOVIE = kwargs.get('record', False)
         self.MOVIE_NAME = kwargs.get('moviename', 'default_movie.mp4')
+        self.movie_fps = kwargs.get('moviefps', 60)
         self.behavior = kwargs.get('behavior', 'walking')
         self.rotate_camera = kwargs.get('rot_cam', False)
         self.self_collisions = kwargs.get('self_collisions', [])
+        self.draw_collisions = kwargs.get('draw_collisions', False)
 
         #: Init
         self.TIME = 0.0
@@ -127,11 +129,12 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         if self.RECORD_MOVIE and self.GUI==p.GUI:
             p.connect(
                 self.GUI,
-                options='--background_color_red={} --background_color_green={} --background_color_blue={} --mp4={}'.format(
+                options='--background_color_red={} --background_color_green={} --background_color_blue={} --mp4={} --mp4fps={}'.format(
                     self.VIS_OPTIONS_BACKGROUND_COLOR_RED,
                     self.VIS_OPTIONS_BACKGROUND_COLOR_GREEN,
                     self.VIS_OPTIONS_BACKGROUND_COLOR_RED,
-                    self.MOVIE_NAME))
+                    self.MOVIE_NAME,
+                    self.movie_fps))
         elif self.GUI == p.GUI:
             p.connect(
                 self.GUI,
@@ -185,11 +188,13 @@ class BulletSimulation(metaclass=abc.ABCMeta):
 
         colorWings = [91/100,96/100,97/100,0.7]
         colorEyes = [67/100,21/100,12/100,1]
-        colorBody = [140/255,100/255,30/255,1]
-        colorLegs = [170/255,130/255,50/255,1]
+        self.colorBody = [140/255,100/255,30/255,1]
+        self.colorLegs = [170/255,130/255,50/255,1]
+        self.colorCollision = [0,1,0,1]
         nospecular = [0.5,0.5,0.5]
         
-        p.changeVisualShape(self.animal, -1, rgbaColor=colorBody,specularColor=nospecular)
+        p.changeVisualShape(self.animal, -1, rgbaColor=self.colorBody,specularColor=nospecular)
+
         
         for n in range(self.num_joints):
             info = p.getJointInfo(self.animal, n)
@@ -201,14 +206,14 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             self.joint_type[joint_name] = _type
             self.link_id[link_name] = _id
 
-            if 'Wing' in joint_name:
+            if 'Wing' in joint_name and 'Fake' not in joint_name:
                 p.changeVisualShape(self.animal, _id, rgbaColor=colorWings)
-            elif 'Eye' in joint_name:
+            elif 'Eye' in joint_name and 'Fake' not in joint_name:
                 p.changeVisualShape(self.animal, _id, rgbaColor=colorEyes)
-            elif ('Tarsus' in joint_name or 'Tibia' in joint_name or 'Femur' in joint_name or 'Coxa' in joint_name):
-                p.changeVisualShape(self.animal, _id, rgbaColor=colorLegs,specularColor=nospecular)
-            else:
-                p.changeVisualShape(self.animal, _id, rgbaColor=colorBody,specularColor=nospecular)
+            elif ('Tarsus' in joint_name or 'Tibia' in joint_name or 'Femur' in joint_name or 'Coxa' in joint_name):# and 'Fake' not in joint_name:
+                p.changeVisualShape(self.animal, _id, rgbaColor=self.colorLegs,specularColor=nospecular)
+            elif 'Fake' not in joint_name:
+                p.changeVisualShape(self.animal, _id, rgbaColor=self.colorBody,specularColor=nospecular)
                         
             #print("Link name {} id {}".format(link_name, _id))
             #self.link_names.append(link_name)
@@ -482,6 +487,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             #basePosition=[-0.0225, 0.007, 0.61973] ### Walking ball r= 0.5
             #basePosition=[0.0, 0.01, 0.62] ##****NORMAL****
             basePosition=[0.0, 0.005, 0.61]
+            #basePosition=[0.0, -0.015, 0.63]
         elif self.behavior == 'grooming':
             basePosition=[-0.02,0.0,0.59] ### Grooming
             

@@ -221,7 +221,7 @@ class DrosophilaEvolution(FloatProblem):
         act = np.asarray(
             [m_out[:, j] for j, name in enumerate(m_names) if 'active' in name]
         )
-        act = np.sum(act**2)*fly.TIME_STEP/fly.RUN_TIME
+        act = np.sum(act**2)*fly.TIME_STEP/fly.TIME
         #: Distance
         distance = -np.array(fly.ball_rotations())[0]*fly.ball_radius #fly.distance_y
         
@@ -236,16 +236,23 @@ class DrosophilaEvolution(FloatProblem):
         expected_dist = 2*np.pi*fly.ball_radius
         penalty_dist = 0.0 if expected_dist < distance else (1e1 + 40*abs(distance-expected_dist))
 
-        penalty_linearity = 1e2*fly.ball_radius*(abs(np.array(fly.ball_rotations()))[1]+abs(np.array(fly.ball_rotations()))[2])
+        penalty_linearity = 2e3*fly.ball_radius*(abs(np.array(fly.ball_rotations()))[1]+abs(np.array(fly.ball_rotations()))[2])
 
-        penalty_stability = 5*fly.stability_coef/fly.TIME
+        stability = fly.stability_coef*fly.TIME_STEP/fly.TIME
 
-        penalty_time_stance = fly.stance_count/(36*fly.TIME)
+        expected_stance_legs = 4
+        min_legs = 3
+        mean_stance_legs = fly.stance_count*fly.TIME_STEP/fly.TIME
+        print(fly.stance_count,fly.TIME_STEP,fly.TIME,mean_stance_legs)
+        penalty_time_stance = 0.0 if min_legs <= mean_stance_legs <= expected_stance_legs else 1e2*abs(mean_stance_legs - min_legs)
 
-        print(1e2*distance,1e4*act,penalty_linearity,penalty_dist,penalty_time,penalty_stability,penalty_time_stance)
-        solution.objectives[0] = (-2e2*distance + penalty_linearity + penalty_time)
-        #solution.objectives[1] = (1e4*act + penalty_dist + penalty_time)
-        solution.objectives[1] = (penalty_stability + penalty_dist + penalty_time_stance)
+        print(-2e3*distance,penalty_linearity,penalty_time)
+        print(1e4*act,penalty_dist,penalty_time_stance)
+        print(2e3*stability,penalty_dist,penalty_time_stance)
+        
+        solution.objectives[0] = (-2e3*distance + penalty_linearity + penalty_time)
+        #solution.objectives[1] = (1e4*act + penalty_dist + penalty_time_stance)
+        solution.objectives[1] = (2e3*stability + penalty_dist + penalty_time_stance)
         print(solution.objectives)
         return solution
 
@@ -260,7 +267,7 @@ def main():
     """ Main """
 
     n_pop = 20
-    n_gen = 100
+    n_gen = 50
 
     max_evaluations = n_pop*n_gen
 

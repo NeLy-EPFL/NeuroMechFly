@@ -113,6 +113,7 @@ class DrosophilaSimulation(BulletSimulation):
         self.ball_rot=[]
         self.stability_coef = 0
         self.stance_count = 0
+        self.lastDraw=[]
 
 
     def muscle_controller(self):
@@ -227,7 +228,19 @@ class DrosophilaSimulation(BulletSimulation):
 
         if t%10 == 0:
             grf = self.ball_reaction_forces()
-            #print(grf[:6])
+            if self.draw_collisions:
+                ind = np.where(np.array(grf).transpose()[0]>0)[0]
+                draw=[]
+                for i in ind:
+                    link1 = self.GROUND_CONTACTS[i][:-1]
+                    if link1 not in draw:
+                        draw.append(link1)
+                        p.changeVisualShape(self.animal, self.link_id[link1+'5'],rgbaColor=self.colorCollision)
+                for link in self.lastDraw:
+                    if link not in draw:
+                        p.changeVisualShape(self.animal, self.link_id[link+'5'], rgbaColor=self.colorLegs)
+
+                self.lastDraw = draw
             self.grf.append(grf)
 
         if t%10 == 0:
@@ -392,7 +405,7 @@ class DrosophilaSimulation(BulletSimulation):
         )
         
         for j, joint in enumerate(symmetry_joints):
-            #print(joint,joint.replace('L', 'R', 1))
+            #print(joint,joint.replace('L', 'R', 1),6*j,6*(j+1))
             self.active_muscles[joint].update_parameters(
                 Parameters(*opti_active_muscle_gains[6*j:6*(j+1)])
             )
@@ -422,13 +435,14 @@ class DrosophilaSimulation(BulletSimulation):
                     for j2, action in enumerate(('flexion', 'extension')):
                         node_1 = "joint_{}{}{}_{}".format(side, pos, from_node, action)
                         node_2 = "joint_{}{}{}_{}".format(side, pos, to_node, action)
-                        #print(node_1, node_2)
+                        #print(node_1, node_2, 4*j0 + 2*j1 + j2)
+                        #print(len(opti_joint_phases))
                         parameters.get_parameter(
                             'phi_{}_to_{}'.format(node_1, node_2)
-                        ).value = opti_joint_phases[2*j1 + j2]
+                        ).value = opti_joint_phases[4*j0 + 2*j1 + j2]
                         parameters.get_parameter(
                             'phi_{}_to_{}'.format(node_2, node_1)
-                        ).value = -1*opti_joint_phases[2*j1 + j2]
+                        ).value = -1*opti_joint_phases[4*j0 + 2*j1 + j2]
         
                 #node_1 = "joint_{}{}{}_{}".format(side, pos, coxa_label, 'flexion')
                 #node_2 = "joint_{}{}{}_{}".format(side, pos, coxa_label, 'extension')
@@ -449,11 +463,12 @@ class DrosophilaSimulation(BulletSimulation):
             ['RFCoxa', 'LMCoxa_roll'],
             ['LMCoxa_roll', 'RHCoxa_roll']        
         ]
-
+        
         for j1, ed in enumerate(coxae_edges):    
             for j2, action in enumerate(('flexion', 'extension')):
                 node_1 = "joint_{}_{}".format(ed[0], action)
                 node_2 = "joint_{}_{}".format(ed[1], action)
+                #print(node_1, node_2, j1)
                 parameters.get_parameter(
                     'phi_{}_to_{}'.format(node_1, node_2)
                 ).value = opti_base_phases[j1]
@@ -475,31 +490,43 @@ def save_data(fly, filename, exp=''):
     #data_collisions = np.array(fly.collision_forces).transpose((1, 0, 2))
     currentDirectory = os.getcwd()
 
-    for i, joint in enumerate(fly.joint_id.keys()):
-        torques_dict[joint] = data_torque[i]
+    #for i, joint in enumerate(fly.joint_id.keys()):
+    #    torques_dict[joint] = data_torque[i]
 
     for i, joint in enumerate(fly.GROUND_CONTACTS):
         grf_dict[joint] = data_grf[i]
 
-    path_torque = os.path.join(currentDirectory,'Output_data','torques',exp)
+    path_muscles = os.path.join(currentDirectory,'Results/muscle/outputs.h5')
+    path_joint_pos = os.path.join(currentDirectory,'Results/physics/joint_positions.h5')
+
+    path_angles = os.path.join(currentDirectory,'Output_data','angles',exp)
+    path_act = os.path.join(currentDirectory,'Output_data','muscles',exp)
     path_grf = os.path.join(currentDirectory,'Output_data','grf',exp)
     path_ball_rot = os.path.join(currentDirectory,'Output_data','ballRotations',exp)
 
-    if not os.path.exists(path_torque):
-        os.makedirs(path_torque)
+    if not os.path.exists(path_angles):
+        os.makedirs(path_angles)
+    if not os.path.exists(path_act):
+        os.makedirs(path_act)
     if not os.path.exists(path_grf):
         os.makedirs(path_grf)
     if not os.path.exists(path_ball_rot):
         os.makedirs(path_ball_rot)
         
-    with open(path_torque+'/torques_'+filename,'wb') as f:
-        pickle.dump(torques_dict,f)
+    #with open(path_torque+'/torques_'+filename,'wb') as f:
+    #    pickle.dump(torques_dict,f)
 
-    with open(path_grf+'/grf_'+filename,'wb') as f:
+    with open(path_grf+'/grf_'+filename+'.pkl','wb') as f:
         pickle.dump(grf_dict,f)
 
-    with open(path_ball_rot+'/ballRot_'+filename,'wb') as f:
+    with open(path_ball_rot+'/ballRot_'+filename+'.pkl','wb') as f:
         pickle.dump(fly.ball_rot,f)
+
+    muscles_data = pd.read_hdf(path_muscles)
+    muscles_data.to_hdf(path_act+'/outputs_'+filename+'.h5','muscles',mode='w')
+
+    angles_data = pd.read_hdf(path_joint_pos)
+    angles_data.to_hdf(path_angles+'/jointpos_'+filename+'.h5','angles',mode='w')
 
 def main():
     """ Main """
@@ -555,6 +582,9 @@ def main():
         for link1 in body_segments:
             self_collision.append([link0,link1])
 
+    gen = '49'
+    exp = '1211_0208'        
+
     sim_options = {
         "headless": False,
         "model": "../../design/sdf/drosophila_100x_limits_from_data2.sdf",
@@ -565,17 +595,16 @@ def main():
         "controller": '../../config/locomotion_ball.graphml',
         "ground_contacts": ground_contact,
         'self_collisions':self_collision,
+        "draw_collisions": False,
         "record": False,
         'camera_distance': 0.5,
         'track': False,
-        'moviename': 'tripod_gait_1.mp4',
+        'moviename': 'stability_'+exp+'_gen_'+gen+'.mp4',
+        'moviefps': 50,
         'slow_down': True,
         'sleep_time': 0.001,
         'rot_cam': False
         }
-
-    gen = '50'
-    exp = '1108_1908'
     
     container = Container(run_time/time_step)
     animal = DrosophilaSimulation(container, sim_options)
@@ -587,8 +616,8 @@ def main():
     #    "./sim_files/var/VAR_last_good.ged3"
     #)
     fun, var = read_optimization_results(
-        "./optimization_results/run_Drosophila_var_71_obj_2_pop_20_gen_100_"+exp+"/FUN."+gen,
-        "./optimization_results/run_Drosophila_var_71_obj_2_pop_20_gen_100_"+exp+"/VAR."+gen
+        "./optimization_results/run_Drosophila_var_71_obj_2_pop_20_gen_50_"+exp+"/FUN."+gen,
+        "./optimization_results/run_Drosophila_var_71_obj_2_pop_20_gen_50_"+exp+"/VAR."+gen
     )
     #fun, var = read_optimization_results(
     #    "./FUN.ged3",
@@ -602,7 +631,7 @@ def main():
     animal.run(optimization=False)
     animal.container.dump(overwrite=True)
 
-    name_data = 'optimization_gen_'+ gen +'.pkl'
+    name_data = 'optimization_gen_'+ gen
 
     save_data(animal,name_data,exp)
 
