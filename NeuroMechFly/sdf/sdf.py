@@ -434,9 +434,10 @@ class Link(Options):
 class Inertial(Options):
     """Inertial"""
 
-    def __init__(self, pose, mass, inertias, units):
+    def __init__(self, pose, mass, volume, inertias, units):
         super(Inertial, self).__init__()
         self.mass = mass
+        self.volume = volume
         self.inertias = inertias
         self.units = units
         self.pose = pose
@@ -447,6 +448,7 @@ class Inertial(Options):
         return cls(
             pose=[0]*6,
             mass=0,
+            volume = 0,
             inertias=[0]*6,
             units=units
         )
@@ -562,6 +564,7 @@ class Inertial(Options):
                 )
                 _mesh = meshes[0]
             mass = _mesh.mass
+            volume = _mesh.volume
         inertia = _mesh.moment_inertia
         if not Inertial.valid_mass(mass) or not Inertial.valid_inertia(inertia):
             raise ValueError(
@@ -577,6 +580,7 @@ class Inertial(Options):
                 pose[3:]
             ]),
             mass=mass,
+            volume=volume,
             inertias=[
                 inertia[0, 0],
                 inertia[0, 1],
@@ -660,6 +664,11 @@ class Inertial(Options):
             if data.find('mass') is not None
             else None
         )
+        volume = (
+            float(data.find('volume').text)
+            if data.find('volume') is not None
+            else None
+        )
         inertias = (
             [float(i.text) for i in data.find('inertia').getchildren()]
             if data.find('inertia') is not None
@@ -667,6 +676,7 @@ class Inertial(Options):
         )
         return cls(
             mass=mass,
+            volume=volume,
             inertias=inertias,
             pose=pose,
             units=SimulationUnitScaling()
