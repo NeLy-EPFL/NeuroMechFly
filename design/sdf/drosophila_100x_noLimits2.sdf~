@@ -3011,52 +3011,52 @@
       </axis>
     </joint>
     <joint name="joint_LFCoxa" type="revolute">
-      <parent>Thorax</parent>
+      <parent>LFCoxa_yaw</parent>
       <child>LFCoxa</child>
       <axis>
         <xyz>1.0 0.0 0.0</xyz>
         <limit>
-          <lower>-0.3</lower>
-          <upper>0.54</upper>
+          <lower>-3.141592653589793</lower>
+          <upper>3.141592653589793</upper>
           <effort>-1</effort>
           <velocity>-1</velocity>
         </limit>
       </axis>
     </joint>
     <joint name="joint_LFCoxa_roll" type="revolute">
-      <parent>LFCoxa_yaw</parent>
+      <parent>Thorax</parent>
       <child>LFCoxa_roll</child>
       <axis>
         <xyz>0.0 0.0 1.0</xyz>
         <limit>
-          <lower>-0.92</lower>
-          <upper>-0.07</upper>
+          <lower>-3.141592653589793</lower>
+          <upper>3.141592653589793</upper>
           <effort>-1</effort>
           <velocity>-1</velocity>
         </limit>
       </axis>
     </joint>
     <joint name="joint_LFCoxa_yaw" type="revolute">
-      <parent>LFCoxa</parent>
+      <parent>LFCoxa_roll</parent>
       <child>LFCoxa_yaw</child>
       <axis>
         <xyz>0.0 -1.0 0.0</xyz>
         <limit>
-          <lower>-0.1</lower>
-          <upper>0.28</upper>
+          <lower>-3.141592653589793</lower>
+          <upper>3.141592653589793</upper>
           <effort>-1</effort>
           <velocity>-1</velocity>
         </limit>
       </axis>
     </joint>
     <joint name="joint_LFFemur" type="revolute">
-      <parent>LFCoxa_roll</parent>
+      <parent>LFCoxa</parent>
       <child>LFFemur</child>
       <axis>
         <xyz>1.0 0.0 0.0</xyz>
         <limit>
-          <lower>-3.0</lower>
-          <upper>-1.0</upper>
+          <lower>-3.141592653589793</lower>
+          <upper>3.141592653589793</upper>
           <effort>-1</effort>
           <velocity>-1</velocity>
         </limit>
@@ -3146,8 +3146,8 @@
       <axis>
         <xyz>1.0 0.0 0.0</xyz>
         <limit>
-          <lower>0.45</lower>
-          <upper>2.3</upper>
+          <lower>-3.141592653589793</lower>
+          <upper>3.141592653589793</upper>
           <effort>-1</effort>
           <velocity>-1</velocity>
         </limit>
@@ -3159,8 +3159,8 @@
       <axis>
         <xyz>1.0 0.0 0.0</xyz>
         <limit>
-          <lower>0.0</lower>
-          <upper>0.26</upper>
+          <lower>-3.141592653589793</lower>
+          <upper>3.141592653589793</upper>
           <effort>-1</effort>
           <velocity>-1</velocity>
         </limit>
@@ -3172,8 +3172,8 @@
       <axis>
         <xyz>0.0 0.0 -1.0</xyz>
         <limit>
-          <lower>0.65</lower>
-          <upper>1.05</upper>
+          <lower>-3.141592653589793</lower>
+          <upper>3.141592653589793</upper>
           <effort>-1</effort>
           <velocity>-1</velocity>
         </limit>
@@ -3185,8 +3185,8 @@
       <axis>
         <xyz>0.0 -1.0 0.0</xyz>
         <limit>
-          <lower>-0.1</lower>
-          <upper>0.1</upper>
+          <lower>-3.141592653589793</lower>
+          <upper>3.141592653589793</upper>
           <effort>-1</effort>
           <velocity>-1</velocity>
         </limit>
@@ -3198,8 +3198,8 @@
       <axis>
         <xyz>0.0 -1.0 0.0</xyz>
         <limit>
-          <lower>-2.7</lower>
-          <upper>-1.1</upper>
+          <lower>-3.141592653589793</lower>
+          <upper>3.141592653589793</upper>
           <effort>-1</effort>
           <velocity>-1</velocity>
         </limit>
@@ -3289,8 +3289,8 @@
       <axis>
         <xyz>0.0 -1.0 0.0</xyz>
         <limit>
-          <lower>0.2</lower>
-          <upper>2.5</upper>
+          <lower>-3.141592653589793</lower>
+          <upper>3.141592653589793</upper>
           <effort>-1</effort>
           <velocity>-1</velocity>
         </limit>
@@ -3341,8 +3341,8 @@
       <axis>
         <xyz>1.0 0.0 0.0</xyz>
         <limit>
-          <lower>-0.34</lower>
-          <upper>0.1</upper>
+          <lower>-3.141592653589793</lower>
+          <upper>3.141592653589793</upper>
           <effort>-1</effort>
           <velocity>-1</velocity>
         </limit>
@@ -3354,8 +3354,8 @@
       <axis>
         <xyz>0.0 0.0 -1.0</xyz>
         <limit>
-          <lower>-0.17</lower>
-          <upper>0.83</upper>
+          <lower>-3.141592653589793</lower>
+          <upper>3.141592653589793</upper>
           <effort>-1</effort>
           <velocity>-1</velocity>
         </limit>
@@ -3367,8 +3367,8 @@
       <axis>
         <xyz>0.0 -1.0 0.0</xyz>
         <limit>
-          <lower>-0.15</lower>
-          <upper>0.2</upper>
+          <lower>-3.141592653589793</lower>
+          <upper>3.141592653589793</upper>
           <effort>-1</effort>
           <velocity>-1</velocity>
         </limit>
@@ -3380,8 +3380,8 @@
       <axis>
         <xyz>0.0 -1.0 0.0</xyz>
         <limit>
-          <lower>-2.8</lower>
-          <upper>-1.9</upper>
+          <lower>-3.141592653589793</lower>
+          <upper>3.141592653589793</upper>
           <effort>-1</effort>
           <velocity>-1</velocity>
         </limit>
@@ -3471,8 +3471,8 @@
       <axis>
         <xyz>0.0 -1.0 0.0</xyz>
         <limit>
-          <lower>1.3</lower>
-          <upper>2.6</upper>
+          <lower>-3.141592653589793</lower>
+          <upper>3.141592653589793</upper>
           <effort>-1</effort>
           <velocity>-1</velocity>
         </limit>
@@ -3570,52 +3570,52 @@
       </axis>
     </joint>
     <joint name="joint_RFCoxa" type="revolute">
-      <parent>Thorax</parent>
+      <parent>RFCoxa_yaw</parent>
       <child>RFCoxa</child>
       <axis>
         <xyz>1.0 0.0 0.0</xyz>
         <limit>
-          <lower>-0.55</lower>
-          <upper>0.55</upper>
+          <lower>-3.141592653589793</lower>
+          <upper>3.141592653589793</upper>
           <effort>-1</effort>
           <velocity>-1</velocity>
         </limit>
       </axis>
     </joint>
     <joint name="joint_RFCoxa_roll" type="revolute">
-      <parent>RFCoxa_yaw</parent>
+      <parent>Thorax</parent>
       <child>RFCoxa_roll</child>
       <axis>
         <xyz>0.0 0.0 1.0</xyz>
         <limit>
-          <lower>-0.03</lower>
-          <upper>0.72</upper>
+          <lower>-3.141592653589793</lower>
+          <upper>3.141592653589793</upper>
           <effort>-1</effort>
           <velocity>-1</velocity>
         </limit>
       </axis>
     </joint>
     <joint name="joint_RFCoxa_yaw" type="revolute">
-      <parent>RFCoxa</parent>
+      <parent>RFCoxa_roll</parent>
       <child>RFCoxa_yaw</child>
       <axis>
         <xyz>0.0 -1.0 0.0</xyz>
         <limit>
-          <lower>-0.25</lower>
-          <upper>0.1</upper>
+          <lower>-3.141592653589793</lower>
+          <upper>3.141592653589793</upper>
           <effort>-1</effort>
           <velocity>-1</velocity>
         </limit>
       </axis>
     </joint>
     <joint name="joint_RFFemur" type="revolute">
-      <parent>RFCoxa_roll</parent>
+      <parent>RFCoxa</parent>
       <child>RFFemur</child>
       <axis>
         <xyz>1.0 0.0 0.0</xyz>
         <limit>
-          <lower>-3.0</lower>
-          <upper>-1.0</upper>
+          <lower>-3.141592653589793</lower>
+          <upper>3.141592653589793</upper>
           <effort>-1</effort>
           <velocity>-1</velocity>
         </limit>
@@ -3705,8 +3705,8 @@
       <axis>
         <xyz>1.0 0.0 0.0</xyz>
         <limit>
-          <lower>0.4</lower>
-          <upper>2.3</upper>
+          <lower>-3.141592653589793</lower>
+          <upper>3.141592653589793</upper>
           <effort>-1</effort>
           <velocity>-1</velocity>
         </limit>
@@ -3718,8 +3718,8 @@
       <axis>
         <xyz>1.0 0.0 0.0</xyz>
         <limit>
-          <lower>0.0</lower>
-          <upper>0.3</upper>
+          <lower>-3.141592653589793</lower>
+          <upper>3.141592653589793</upper>
           <effort>-1</effort>
           <velocity>-1</velocity>
         </limit>
@@ -3731,8 +3731,8 @@
       <axis>
         <xyz>0.0 0.0 1.0</xyz>
         <limit>
-          <lower>0.55</lower>
-          <upper>0.95</upper>
+          <lower>-3.141592653589793</lower>
+          <upper>3.141592653589793</upper>
           <effort>-1</effort>
           <velocity>-1</velocity>
         </limit>
@@ -3744,8 +3744,8 @@
       <axis>
         <xyz>0.0 -1.0 0.0</xyz>
         <limit>
-          <lower>-0.1</lower>
-          <upper>0.1</upper>
+          <lower>-3.141592653589793</lower>
+          <upper>3.141592653589793</upper>
           <effort>-1</effort>
           <velocity>-1</velocity>
         </limit>
@@ -3757,8 +3757,8 @@
       <axis>
         <xyz>0.0 1.0 0.0</xyz>
         <limit>
-          <lower>-2.8</lower>
-          <upper>-1.25</upper>
+          <lower>-3.141592653589793</lower>
+          <upper>3.141592653589793</upper>
           <effort>-1</effort>
           <velocity>-1</velocity>
         </limit>
@@ -3848,8 +3848,8 @@
       <axis>
         <xyz>0.0 1.0 0.0</xyz>
         <limit>
-          <lower>0.5</lower>
-          <upper>2.7</upper>
+          <lower>-3.141592653589793</lower>
+          <upper>3.141592653589793</upper>
           <effort>-1</effort>
           <velocity>-1</velocity>
         </limit>
@@ -3900,8 +3900,8 @@
       <axis>
         <xyz>1.0 0.0 0.0</xyz>
         <limit>
-          <lower>-0.33</lower>
-          <upper>0.06</upper>
+          <lower>-3.141592653589793</lower>
+          <upper>3.141592653589793</upper>
           <effort>-1</effort>
           <velocity>-1</velocity>
         </limit>
@@ -3913,8 +3913,8 @@
       <axis>
         <xyz>0.0 0.0 1.0</xyz>
         <limit>
-          <lower>-0.17</lower>
-          <upper>0.83</upper>
+          <lower>-3.141592653589793</lower>
+          <upper>3.141592653589793</upper>
           <effort>-1</effort>
           <velocity>-1</velocity>
         </limit>
@@ -3926,8 +3926,8 @@
       <axis>
         <xyz>0.0 -1.0 0.0</xyz>
         <limit>
-          <lower>-0.1</lower>
-          <upper>0.1</upper>
+          <lower>-3.141592653589793</lower>
+          <upper>3.141592653589793</upper>
           <effort>-1</effort>
           <velocity>-1</velocity>
         </limit>
@@ -3939,8 +3939,8 @@
       <axis>
         <xyz>0.0 1.0 0.0</xyz>
         <limit>
-          <lower>-2.7</lower>
-          <upper>-1.5</upper>
+          <lower>-3.141592653589793</lower>
+          <upper>3.141592653589793</upper>
           <effort>-1</effort>
           <velocity>-1</velocity>
         </limit>
@@ -4030,8 +4030,8 @@
       <axis>
         <xyz>0.0 1.0 0.0</xyz>
         <limit>
-          <lower>1.35</lower>
-          <upper>2.7</upper>
+          <lower>-3.141592653589793</lower>
+          <upper>3.141592653589793</upper>
           <effort>-1</effort>
           <velocity>-1</velocity>
         </limit>
