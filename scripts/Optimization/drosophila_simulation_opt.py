@@ -215,9 +215,7 @@ class DrosophilaSimulation(BulletSimulation):
                     self.animal, joint,
                     controlMode=p.POSITION_CONTROL,
                     targetPosition=pos,
-                    positionGain=0.3,
-                    velocityGain=0.9)
-                    #force=1e36)
+                    force=1e36)
         
 
     def controller_to_actuator(self, t):
