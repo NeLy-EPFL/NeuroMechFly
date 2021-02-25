@@ -164,16 +164,17 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         ########## ADD FLOOR ##########
         self.plane = p.loadURDF(
             "plane.urdf", [0, 0, -0.],
-            globalScaling=self.units.meters
+            globalScaling=self.units.meters*0.01
         )
 
         ########## ADD BALL ######################
-        self.ball_radius = 0.5 # 100x (real size d=10mm)
+        self.ball_radius = 5e-03*self.units.meters # 100x (real size d=10mm)
         self.ball_id = self.add_ball(self.ball_radius)
 
         
         ########## ADD ANIMAL #########
         if ".sdf" in self.MODEL:
+            print(self.MODEL)
             self.animal = p.loadSDF(self.MODEL)[0]
         elif ".urdf" in self.MODEL:
             self.animal = p.loadURDF(self.MODEL)
@@ -475,7 +476,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
 
     def add_ball(self, r):
         #####Create Fly ball
-        colSphereParent = p.createCollisionShape(p.GEOM_SPHERE, radius=0.001)
+        colSphereParent = p.createCollisionShape(p.GEOM_SPHERE, radius=r)
         colSphereId = p.createCollisionShape(p.GEOM_SPHERE, radius=r)
         
         massParent = 0
@@ -483,14 +484,14 @@ class BulletSimulation(metaclass=abc.ABCMeta):
 
         if self.behavior == 'walking':
             #basePosition=[-0.025,0.01,0.566] ### Walking ball r= 0.55
-            #basePosition=[0.0,0.01,0.566] ### Walking ball r= 0.55
+            #basePosition=[-0.025,0.005,0.568] ### Walking ball r= 0.55 NEW
+            #basePosition=[-0.023, 0.0085, 0.6198] ### Walking ball r= 0.5
             #basePosition=[-0.0225, 0.007, 0.61973] ### Walking ball r= 0.5
-            #basePosition=[0.0, 0.01, 0.62] ##****NORMAL****
-            basePosition=[0.0, 0.005, 0.61]
-            #basePosition=[0.0, -0.015, 0.63]
+            basePosition = np.array([0.18e-3, 0.18e-3,-4.92e-3])*self.units.meters+self.MODEL_OFFSET
         elif self.behavior == 'grooming':
-            basePosition=[-0.02,0.0,0.59] ### Grooming
-            
+            #basePosition=[0.0,-0.01,0.63] ### Grooming
+            basePosition = np.array([0.0e-3, 0.0e-3,-5e-3])*self.units.meters+self.MODEL_OFFSET
+
         #basePosition=[-0.03,-0.0,0.589] ### Walking ball r= 0.525
         #basePosition=[-0.02,0.0,0.595] ### Walking ball r= 0.52        
         #basePosition=[-0.04,-0.005,0.594] ### Walking ball r=0.52
@@ -498,8 +499,8 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         
         
         baseOrientation = [0,0,0,1]
-
-        link_Masses = [0.0000005,0.0000005,0.0000005]
+        #link_Masses = [0.0000005,0.0000005,0.0000005]
+        link_Masses = np.array([5e-11,5e-11,5e-11])*self.units.kilograms
         linkCollisionShapeIndices = [-1,-1,colSphereId]
         linkVisualShapeIndices = [-1,-1,-1]
         linkPositions = [[0, 0, 0],[0, 0, 0],[0, 0, 0]]
@@ -508,7 +509,8 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         linkInertialFrameOrientations = [[0, 0, 0, 1],[0, 0, 0, 1],[0, 0, 0, 1]]
         indices = [0,1,2]
         jointTypes = [p.JOINT_REVOLUTE,p.JOINT_REVOLUTE,p.JOINT_REVOLUTE]
-        axis = [[1, 0, 0],[0, 1, 0],[0, 0, 1]]
+        #axis = [[1, 0, 0],[0, 1, 0],[0, 0, 1]]
+        axis = [[0, 1, 0],[1, 0, 0],[0, 0, 1]]
         
         sphereId = p.createMultiBody(massParent,
                                       colSphereParent,
@@ -525,15 +527,16 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                                       linkParentIndices=indices,
                                       linkJointTypes=jointTypes,
                                       linkJointAxis=axis)
-
+                                      
         #p.changeDynamics(sphereId,
         #               -1,
         #               spinningFriction=100,
         #               linearDamping=0.0)
-        textureBall = p.loadTexture('../../design/textures/ball/chequered_0048.jpg')
+        textureBall = p.loadTexture('/Users/ozdil/Desktop/GIT/NeuroMechFy1x/NeuroMechFly/design/textures/ball/chequered_0048.jpg')
         p.changeVisualShape(sphereId, 2, rgbaColor=[225/255,225/255,210/255,1],specularColor=[0,0,0],textureUniqueId=textureBall)
 
         return sphereId
+        
 
     @property
     def joint_states(self):
