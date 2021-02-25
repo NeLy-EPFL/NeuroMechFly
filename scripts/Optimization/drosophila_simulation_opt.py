@@ -589,7 +589,7 @@ def main():
 
     sim_options = {
         "headless": False,
-        "model": "/Users/ozdil/Desktop/GIT/NeuroMechFy1x/NeuroMechFly/design/sdf/neuromechfly_noLimits.sdf",
+        "model": "../../design/sdf/neuromechfly_noLimits.sdf",
         "model_offset": [0., 0., 11.2e-3],
         "run_time": run_time,
         "pose": '../../config/pose_tripod.yaml',
