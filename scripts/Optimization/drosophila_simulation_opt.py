@@ -16,7 +16,7 @@ class DrosophilaSimulation(BulletSimulation):
     """Drosophila Simulation Class
     """
 
-    def __init__(self, container, sim_options, units=SimulationUnitScaling()):
+    def __init__(self, container, sim_options, units=SimulationUnitScaling(meters=1000,kilograms=1000)):
         ########## Container ##########
         container.add_namespace('muscle')
         container.muscle.add_table('parameters', table_type='CONSTANT')
@@ -140,16 +140,18 @@ class DrosophilaSimulation(BulletSimulation):
                     pos = np.deg2rad(25)
                 elif joint_name == 'joint_RAntenna':
                     pos = np.deg2rad(-25)
-                elif joint_name == 'joint_Proboscis' or joint_name == 'joint_RWing_roll':
+                elif joint_name == 'joint_Rostrum' or joint_name == 'joint_LWing_roll':
                     pos = np.deg2rad(90)
-                elif joint_name == 'joint_Labellum':
-                    pos = np.deg2rad(60)
-                elif joint_name == 'joint_LWing_roll':
+                elif joint_name == 'joint_Haustellum':
+                    pos = np.deg2rad(-60)
+                elif joint_name == 'joint_RWing_roll':
                     pos = np.deg2rad(-90)
                 elif joint_name == 'joint_LWing_yaw':
                     pos = np.deg2rad(-17)
                 elif joint_name == 'joint_RWing_yaw':
                     pos = np.deg2rad(17)
+                elif joint_name == 'joint_Head':
+                    pos = np.deg2rad(10)
                 #elif joint_name == 'joint_LFCoxa_yaw':
                 #    pos = np.deg2rad(-5)
                 #elif joint_name == 'joint_RFCoxa_yaw':
@@ -163,41 +165,41 @@ class DrosophilaSimulation(BulletSimulation):
                 #elif joint_name == 'joint_RFFemur_roll':
                 #    pos = np.deg2rad(26)
                 elif joint_name == 'joint_LFTarsus1':
-                    pos = np.deg2rad(-44)
+                    pos = np.deg2rad(-38)#-44)
                 elif joint_name == 'joint_RFTarsus1':
-                    pos = np.deg2rad(-39)
+                    pos = np.deg2rad(-51)#-39)
                 elif joint_name == 'joint_LMCoxa_yaw':
-                    pos = np.deg2rad(-11)#12
+                    pos = np.deg2rad(7.5)#-11)#12
                 elif joint_name == 'joint_RMCoxa_yaw':
-                    pos = np.deg2rad(12)#12
+                    pos = np.deg2rad(-0.34)#12)#12
                 elif joint_name == 'joint_LMCoxa':
-                    pos = np.deg2rad(-3)
+                    pos = np.deg2rad(-5.31)#-3)
                 elif joint_name == 'joint_RMCoxa':
-                    pos = np.deg2rad(-5)
+                    pos = np.deg2rad(-8.66)#-5)
                 #elif joint_name == 'joint_LMFemur_roll':
                 #    pos = np.deg2rad(-7)
                 #elif joint_name == 'joint_RMFemur_roll':
                 #    pos = np.deg2rad(7)                    
                 elif joint_name == 'joint_LMTarsus1':
-                    pos = np.deg2rad(-53)
+                    pos = np.deg2rad(-51)#-53)
                 elif joint_name == 'joint_RMTarsus1':
-                    pos = np.deg2rad(-46)                    
+                    pos = np.deg2rad(-53)#-46)                    
                 elif joint_name == 'joint_LHCoxa_yaw':
-                    pos = np.deg2rad(-13)
+                    pos = np.deg2rad(7.44)#-13)
                 elif joint_name == 'joint_RHCoxa_yaw':
-                    pos = np.deg2rad(15)
+                    pos = np.deg2rad(0.74)
                 elif joint_name == 'joint_LHCoxa':
-                    pos = np.deg2rad(20)
+                    pos = np.deg2rad(-51)#20)
                 elif joint_name == 'joint_RHCoxa':
-                    pos = np.deg2rad(13)
+                    pos = np.deg2rad(-8.66)#13)
                 #elif joint_name == 'joint_LHFemur_roll':
                 #    pos = np.deg2rad(9)
                 #elif joint_name == 'joint_RHFemur_roll':
                 #    pos = np.deg2rad(-9)
                 elif joint_name == 'joint_LHTarsus1':
-                    pos = np.deg2rad(-40)
+                    pos = np.deg2rad(-45)#-40)
                 elif joint_name == 'joint_RHTarsus1':
-                    pos = np.deg2rad(-34)
+                    pos = np.deg2rad(-51)#-34)
                 else:
                     pos = 0
 
@@ -587,8 +589,8 @@ def main():
 
     sim_options = {
         "headless": False,
-        "model": "../../design/sdf/drosophila_100x_limits_from_data2.sdf",
-        "model_offset": [0., 0., 1.12],
+        "model": "../../design/sdf/neuromechfly_noLimits.sdf",
+        "model_offset": [0., 0., 11.2e-3],
         "run_time": run_time,
         "pose": '../../config/pose_tripod.yaml',
         "base_link": 'Thorax',
@@ -597,7 +599,7 @@ def main():
         'self_collisions':self_collision,
         "draw_collisions": False,
         "record": False,
-        'camera_distance': 0.5,
+        'camera_distance': 3.5,
         'track': False,
         'moviename': 'stability_'+exp+'_gen_'+gen+'.mp4',
         'moviefps': 50,
@@ -615,14 +617,16 @@ def main():
     #    "./sim_files/fun/FUN_last_good.ged3",
     #    "./sim_files/var/VAR_last_good.ged3"
     #)
+    '''
     fun, var = read_optimization_results(
         "./optimization_results/run_Drosophila_var_71_obj_2_pop_20_gen_50_"+exp+"/FUN."+gen,
         "./optimization_results/run_Drosophila_var_71_obj_2_pop_20_gen_50_"+exp+"/VAR."+gen
     )
-    #fun, var = read_optimization_results(
-    #    "./FUN.ged3",
-    #    "./VAR.ged3"
-    #)
+    '''
+    fun, var = read_optimization_results(
+        "./FUN_old.ged3",
+        "./VAR_old.ged3"
+    )
 
     #params = var[np.argmin(fun[:,0]*fun[:,1])]
     params = var[np.argmin(fun[:,0])]
