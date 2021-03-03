@@ -6,9 +6,11 @@ from NeuroMechFly.sdf.sdf import ModelSDF, Link, Joint, Inertial, Collision
 from NeuroMechFly.sdf.units import SimulationUnitScaling
 from NeuroMechFly.sdf import utils
 import yaml
-from df3dPostProcessing import df3dPostProcess
+import glob
+import pickle
 
-MODEL_NAME = "drosophila_100x_limits_from_data2"
+MODEL_NAME = "neuromechfly_noLimits.sdf"
+NEW_MODEL_NAME = "neuromechfly_limitsFromData.sdf"
 
 def main():
     """Main"""
@@ -20,20 +22,21 @@ def main():
     )
 
     #: Read the sdf model from template
-    model = ModelSDF.read(
-        'drosophila_100x_noLimits.sdf')[0]
-    model.change_units(units)
+    model = ModelSDF.read(MODEL_NAME)[0]
+    #model.change_units(units)
 
     link_index = utils.link_name_to_index(model)
     joint_index = utils.joint_name_to_index(model)
 
-    ####### CALCULATE ANGLES ##########
+    ####### LOAD ANGLES ##########
 
-    experiment = '/home/lobato/Desktop/DF3D_data/180921_aDN_PR_Fly8_005_SG1_behData_images/images/df3d/pose_result__home_nely_Desktop_animationSimfly_video2_180921_aDN_PR_Fly8_005_SG1_behData_images_images.pkl' ### walking
+    angles_path = glob.glob('../../data/walking/df3d/joint_angles*.pkl') ### walking
 
-    df3d = df3dPostProcess(experiment)
-    align = df3d.align_3d_data()
-    angles = df3d.calculate_leg_angles()
+    if angles_path:
+        with open(angles_path[0], 'rb') as f:
+            angles = pickle.load(f)
+    else:
+        raise Exception("Angles file not found")
 
     ######## CHANGE JOINT LIMITS #########
     sides = ('L', 'R')
@@ -59,7 +62,7 @@ def main():
             std_val = np.std(val)
             max_lim = mean_val + 2*std_val
             min_lim = mean_val - 2*std_val
-            print(leg, angle, np.array([min_lim, max_lim, mean_val, std_val])*180/np.pi)
+            #print(leg, angle, np.array([min_lim, max_lim, mean_val, std_val])*180/np.pi)
             for new_name, original_name in equivalence.items():
                 if angle == original_name:
                     name = leg[:2] + new_name
@@ -70,8 +73,8 @@ def main():
                     #if max_lim < limits[name][1]:
                     #    limits[name][1] = max_lim
 
-    for leg, lim in limits.items():
-        print(leg, np.array(lim)*180/np.pi)
+    #for leg, lim in limits.items():
+    #    print(leg, np.array(lim)*180/np.pi)
 
     for joint in actuated_joints:
         joint_obj = model.joints[joint_index[joint]]
@@ -89,8 +92,8 @@ def main():
             ljoint.axis.xyz=[-axis if axis == 1 else axis for axis in ljoint.axis.xyz]
     '''
     ########## WRITE ##########    
-    model.units = units
-    model.write(filename="{}.sdf".format(MODEL_NAME))
+    #model.units = units
+    model.write(filename="{}".format(NEW_MODEL_NAME))
         
 if __name__ == '__main__':
     main()
