@@ -1,9 +1,0 @@
-README.md
-setup.py
-df3dPostProcessing/__init__.py
-df3dPostProcessing/df3dPostProcessing.py
-df3dPostProcessing.egg-info/PKG-INFO
-df3dPostProcessing.egg-info/SOURCES.txt
-df3dPostProcessing.egg-info/dependency_links.txt
-df3dPostProcessing.egg-info/requires.txt
-df3dPostProcessing.egg-info/top_level.txt
