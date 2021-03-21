@@ -10,6 +10,10 @@ from IPython import embed
 import pybullet_data
 import pandas as pd
 import time
+import glob
+from pathlib import Path
+import pkgutil
+sys.path.append('/Users/ozdil/Desktop/GIT/NeuroMechFy1x/df3dPostProcessing')
 from df3dPostProcessing import df3dPostProcess
 from NeuroMechFly.container import Container
 from NeuroMechFly.sdf.units import SimulationUnitScaling
@@ -17,26 +21,37 @@ from NeuroMechFly.sdf.units import SimulationUnitScaling
 
 class DrosophilaSimulation(BulletSimulation):
     
-    def __init__(self, container, sim_options, units=SimulationUnitScaling()):
+    def __init__(self, container, sim_options, units=SimulationUnitScaling(meters=1000,kilograms=1000)):
         super().__init__(container, units, **sim_options)
         self.torques=[]
         self.grf=[]
+        self.positions = []
         self.collision_forces=[]
         self.ball_rot=[]
-        self.angles = self.calculate_angles(self.behavior)
+        #self.angles = self.load_angles('./old_angles/grooming_joint_angles.pkl') 
+        self.angles = self.calculate_angles()
+        self.lastDraw=[]
+    
 
-    def calculate_angles(self, behavior):
+    def load_angles(self,data_path):
+        with open(data_path, 'rb') as f:
+            return pickle.load(f)
 
-        if behavior == 'walking':
-            experiment = '/home/nely/Desktop/DF3D_data/180921_aDN_PR_Fly8_005_SG1_behData_images/images/df3d/pose_result__home_nely_Desktop_animationSimfly_video2_180921_aDN_PR_Fly8_005_SG1_behData_images_images.pkl' # Walking
-            #experiment = '/home/nely/Desktop/DF3D_data/190703-SS42740-fly2-005-CLC/images/df3d/pose_result__home_nely_Desktop_DF3D_data_190703-SS42740-fly2-005-CLC_images.pkl'
-
-        elif behavior == 'grooming':        
-            experiment = '/home/nely/Desktop/DF3D_data/180921_aDN_CsCh_Fly6_003_SG1_behData_images/images/df3d/pose_result__home_nely_Desktop_DF3D_data_180921_aDN_CsCh_Fly6_003_SG1_behData_images_images.pkl' # Grooming
-
-        df3d = df3dPostProcess(experiment)
-        align = df3d.align_3d_data()
-        angles = df3d.calculate_leg_angles()
+    def calculate_angles(self, data_path='/Users/ozdil/Desktop/GIT/NeuroMechFy1x/NeuroMechFly/data/grooming/df3d', overwrite_angles=False):
+        
+        experiment = glob.glob(data_path + '/pose_result*.pkl')[0]
+        angles_path = glob.glob(data_path + '/joint_angles*.pkl')
+        
+        if angles_path and not overwrite_angles:
+            with open(angles_path[0], 'rb') as f:
+                angles = pickle.load(f)
+        else:
+            df3d = df3dPostProcess(experiment, calculate_3d=True)
+            align = df3d.align_to_template(interpolate=True, smoothing=True)
+            print("calculating...")
+            angles = df3d.calculate_leg_angles(save_angles=False)
+        
+        return angles
 
         ########PRISM#########################
         #experiment = '/home/nely/Desktop/prismData/prismData_LiftFly3d_axes.pkl' # Prism
@@ -46,7 +61,7 @@ class DrosophilaSimulation(BulletSimulation):
         #angles = df3d.calculate_leg_angles(begin=690,end=1590)
         
         return angles
-        
+       
     def controller_to_actuator(self,t):
         """
         Code that glues the controller the actuator in the system.
@@ -62,28 +77,79 @@ class DrosophilaSimulation(BulletSimulation):
         pose[self.joint_id['joint_A5']] = np.deg2rad(-15)
         pose[self.joint_id['joint_A6']] = np.deg2rad(-15)
 
-        pose[self.joint_id['joint_LAntenna']] = np.deg2rad(32)
-        pose[self.joint_id['joint_RAntenna']] = np.deg2rad(-32)
+        pose[self.joint_id['joint_LAntenna']] = np.deg2rad(33)
+        pose[self.joint_id['joint_RAntenna']] = np.deg2rad(-33)
    
-        pose[self.joint_id['joint_Proboscis']] = np.deg2rad(90)
-        pose[self.joint_id['joint_Labellum']] = np.deg2rad(-60)
+        pose[self.joint_id['joint_Rostrum']] = np.deg2rad(90)
+        pose[self.joint_id['joint_Haustellum']] = np.deg2rad(-60)
 
-        pose[self.joint_id['joint_LWing_roll']] = np.deg2rad(-90)
+        pose[self.joint_id['joint_LWing_roll']] = np.deg2rad(90)
         pose[self.joint_id['joint_LWing_yaw']] = np.deg2rad(-17)
-        pose[self.joint_id['joint_RWing_roll']] = np.deg2rad(90)
+        pose[self.joint_id['joint_RWing_roll']] = np.deg2rad(-90)
         pose[self.joint_id['joint_RWing_yaw']] = np.deg2rad(17)
 
-        pose[self.joint_id['joint_Head']] = np.deg2rad(25)
+        pose[self.joint_id['joint_Head']] = np.deg2rad(10)
 
-        ind = t//10
-
+        ind = t 
         #######Walk on floor#########
-        if ind<5:
-            pose[1] = 0.2-ind*0.04
+        init_lim = 35
+        if ind<init_lim:
+            pose[self.joint_id['prismatic_support_2']] = (1.01*self.MODEL_OFFSET[2]-ind*self.MODEL_OFFSET[2]/init_lim)*self.units.meters
         else:
-            pose[1] = 0
+            pose[self.joint_id['prismatic_support_2']] = 0
         #############################
+        '''      
+        ####LEFT LEGS#######
+        pose[self.joint_id['joint_LFCoxa_roll']] = self.angles['LF_leg']['roll'][ind]
+        pose[self.joint_id['joint_LFCoxa_yaw']] = self.angles['LF_leg']['yaw'][ind]
+        pose[self.joint_id['joint_LFCoxa']] = self.angles['LF_leg']['pitch'][ind]
+        pose[self.joint_id['joint_LFFemur_roll']] = self.angles['LF_leg']['roll_tr'][ind]
+        pose[self.joint_id['joint_LFFemur']] = -np.pi + self.angles['LF_leg']['th_fe'][ind]
+        pose[self.joint_id['joint_LFTibia']] = np.pi + self.angles['LF_leg']['th_ti'][ind]
+        pose[self.joint_id['joint_LFTarsus1']] = -np.pi + self.angles['LF_leg']['th_ta'][ind]
+
+        pose[self.joint_id['joint_LMCoxa_roll']] = -np.pi/2 + self.angles['LM_leg']['roll'][ind]
+        pose[self.joint_id['joint_LMCoxa_yaw']] = self.angles['LM_leg']['yaw'][ind]
+        pose[self.joint_id['joint_LMCoxa']] = self.angles['LM_leg']['pitch'][ind]
+        pose[self.joint_id['joint_LMFemur_roll']] = self.angles['LM_leg']['roll_tr'][ind]
+        pose[self.joint_id['joint_LMFemur']] = -np.pi + self.angles['LM_leg']['th_fe'][ind]
+        pose[self.joint_id['joint_LMTibia']] = np.pi + self.angles['LM_leg']['th_ti'][ind]
+        pose[self.joint_id['joint_LMTarsus1']] = -np.pi + self.angles['LM_leg']['th_ta'][ind]
+
+        pose[self.joint_id['joint_LHCoxa_roll']] = np.pi + self.angles['LH_leg']['roll'][ind]
+        pose[self.joint_id['joint_LHCoxa_yaw']] = self.angles['LH_leg']['yaw'][ind]
+        pose[self.joint_id['joint_LHCoxa']] = self.angles['LH_leg']['pitch'][ind]
+        pose[self.joint_id['joint_LHFemur_roll']] = self.angles['LH_leg']['roll_tr'][ind]
+        pose[self.joint_id['joint_LHFemur']] = -np.pi + self.angles['LH_leg']['th_fe'][ind]
+        pose[self.joint_id['joint_LHTibia']] = np.pi + self.angles['LH_leg']['th_ti'][ind]
+        pose[self.joint_id['joint_LHTarsus1']] = -np.pi + self.angles['LH_leg']['th_ta'][ind]
         
+        
+        #####RIGHT LEGS######
+        pose[self.joint_id['joint_RFCoxa_roll']] = self.angles['RF_leg']['roll'][ind]
+        pose[self.joint_id['joint_RFCoxa_yaw']] = self.angles['RF_leg']['yaw'][ind]
+        pose[self.joint_id['joint_RFCoxa']] = self.angles['RF_leg']['pitch'][ind]
+        pose[self.joint_id['joint_RFFemur_roll']] = self.angles['RF_leg']['roll_tr'][ind]
+        pose[self.joint_id['joint_RFFemur']] = -np.pi + self.angles['RF_leg']['th_fe'][ind]
+        pose[self.joint_id['joint_RFTibia']] = np.pi + self.angles['RF_leg']['th_ti'][ind]
+        pose[self.joint_id['joint_RFTarsus1']] = -np.pi + self.angles['RF_leg']['th_ta'][ind]
+
+        pose[self.joint_id['joint_RMCoxa_roll']] = -np.pi/2 + self.angles['RM_leg']['roll'][ind]
+        pose[self.joint_id['joint_RMCoxa_yaw']] = self.angles['RM_leg']['yaw'][ind]
+        pose[self.joint_id['joint_RMCoxa']] = self.angles['RM_leg']['pitch'][ind]
+        pose[self.joint_id['joint_RMFemur_roll']] = self.angles['RM_leg']['roll_tr'][ind]
+        pose[self.joint_id['joint_RMFemur']] = -np.pi + self.angles['RM_leg']['th_fe'][ind]
+        pose[self.joint_id['joint_RMTibia']] = np.pi + self.angles['RM_leg']['th_ti'][ind]
+        pose[self.joint_id['joint_RMTarsus1']] = -np.pi + self.angles['RM_leg']['th_ta'][ind]
+
+        pose[self.joint_id['joint_RHCoxa_roll']] = np.pi + self.angles['RH_leg']['roll'][ind]
+        pose[self.joint_id['joint_RHCoxa_yaw']] = self.angles['RH_leg']['yaw'][ind]
+        pose[self.joint_id['joint_RHCoxa']] = self.angles['RH_leg']['pitch'][ind]
+        pose[self.joint_id['joint_RHFemur_roll']] = self.angles['RH_leg']['roll_tr'][ind]
+        pose[self.joint_id['joint_RHFemur']] = -np.pi + self.angles['RH_leg']['th_fe'][ind]
+        pose[self.joint_id['joint_RHTibia']] = np.pi + self.angles['RH_leg']['th_ti'][ind]
+        pose[self.joint_id['joint_RHTarsus1']] = -np.pi + self.angles['RH_leg']['th_ta'][ind]
+        '''
         ####LEFT LEGS#######
         pose[self.joint_id['joint_LFCoxa_roll']] = self.angles['LF_leg']['roll'][ind]
         pose[self.joint_id['joint_LFCoxa_yaw']] = self.angles['LF_leg']['yaw'][ind]
@@ -135,39 +201,36 @@ class DrosophilaSimulation(BulletSimulation):
         pose[self.joint_id['joint_RHTibia']] = self.angles['RH_leg']['th_ti'][ind]
         pose[self.joint_id['joint_RHTarsus1']] = self.angles['RH_leg']['th_ta'][ind]
 
-        #p.setJointMotorControlArray(
-        #            self.animal, joints,
-        #            controlMode=p.POSITION_CONTROL,
-        #            targetPositions=pose)#,
-        #            #force=1e16)
-
+        joint_control = list(np.arange(17,39)) + list(np.arange(42,53)) +  list(np.arange(56,78)) + list(np.arange(81,92))
+             
         for joint in range(self.num_joints):
-            #if joint!=19 and joint!=58:
-                    p.setJointMotorControl2(
-                    self.animal, joint,
-                    controlMode=p.POSITION_CONTROL,
-                    targetPosition=pose[joint])
+            #if joint in joint_control:
+            p.setJointMotorControl2(
+            self.animal, joint,
+            controlMode=p.POSITION_CONTROL,
+            targetPosition=pose[joint],
+            positionGain=0.4,
+            velocityGain =0.9,
+            )
+
+        jointPos = np.array(self.joint_positions())
+        self.positions.append(jointPos)
         
-        if t%10 == 0:
-            jointTorques = np.array(self.joint_torques())
-            #print(jointTorques.shape)
-            self.torques.append(jointTorques)
+        jointTorques = np.array(self.joint_torques())
+        #print(jointTorques.shape)
+        self.torques.append(jointTorques)
 
-        if t%10 == 0:
-            grf = self.ball_reaction_forces()
-            #print(grf.shape)
-            self.grf.append(grf)
-
-        if t%10 == 0:
-            ball_rot = np.array(self.ball_rotations())
-            ball_rot[:2] = ball_rot[:2]*self.ball_radius*10 # Distance in mm
-            self.ball_rot.append(ball_rot)
-            #print(ball_rot)
-
-
-        if t%10 == 0:
-            coll_forces = self.selfCollision_reaction_forces(self.self_collisions)
-            self.collision_forces.append(coll_forces)
+        grf = self.ball_reaction_forces()
+        #print(grf.shape)
+        self.grf.append(grf)
+        '''
+        ball_rot = np.array(self.ball_rotations())
+        ball_rot[:2] = ball_rot[:2]*self.ball_radius*10 # Distance in mm
+        self.ball_rot.append(ball_rot)
+        #print(ball_rot)
+        '''
+        coll_forces = self.selfCollision_reaction_forces(self.self_collisions)
+        self.collision_forces.append(coll_forces)
 
         #print(self.antennae_pos())
         
@@ -196,6 +259,15 @@ class DrosophilaSimulation(BulletSimulation):
         _joints = np.arange(0, p.getNumJoints(self.animal))
         return tuple(
             state[-1] for state in p.getJointStates(self.animal, _joints))
+
+    def joint_positions(self):
+        """ Get the joint positions in the animal  """
+        return tuple(
+            state[0] for state in p.getJointStates(
+                self.animal,
+                np.arange(0, p.getNumJoints(self.animal))
+            )
+        )
 
     def ball_reaction_forces(self):
         """Get the ground reaction forces.  """
@@ -228,6 +300,8 @@ def save_data(fly, filename):
     torques_dict = {}
     grf_dict = {}
     collisions_dict = {}
+    pos_dict = {}
+    data_pos = np.array(fly.positions).transpose()
     data_torque = np.array(fly.torques).transpose()
     data_grf = np.array(fly.grf).transpose((1, 0, 2))
     data_collisions = np.array(fly.collision_forces).transpose((1, 0, 2))
@@ -235,6 +309,8 @@ def save_data(fly, filename):
     
     for i, joint in enumerate(fly.joint_id.keys()):
         torques_dict[joint] = data_torque[i]
+        pos_dict[joint] = data_pos[i]
+        
 
     for i, joint in enumerate(fly.GROUND_CONTACTS):
         grf_dict[joint] = data_grf[i]
@@ -247,10 +323,11 @@ def save_data(fly, filename):
         collisions_dict[joints[0]][joints[1]] = data_collisions[i]
         collisions_dict[joints[1]][joints[0]] = data_collisions[i]
         
-    path_torque = os.path.join(currentDirectory,'results','torquesSC_'+filename)
-    path_grf = os.path.join(currentDirectory,'results','grfSC_'+filename)
-    path_ball_rot = os.path.join(currentDirectory,'results','ballRotSC_'+filename)
-    path_collisions = os.path.join(currentDirectory,'results','selfCollisions_'+filename)
+    path_torque = os.path.join(currentDirectory,'Grooming_Results','torquesSC_'+filename)
+    path_grf = os.path.join(currentDirectory,'Grooming_Results','grfSC_'+filename)
+    path_ball_rot = os.path.join(currentDirectory,'Grooming_Results','ballRotSC_'+filename)
+    path_collisions = os.path.join(currentDirectory,'Grooming_Results','selfCollisions_'+filename)
+    path_pos = os.path.join(currentDirectory,'Grooming_Results','posSC_'+filename)
 
     with open(path_torque,'wb') as f:
         pickle.dump(torques_dict,f)
@@ -258,16 +335,19 @@ def save_data(fly, filename):
     with open(path_grf,'wb') as f:
         pickle.dump(grf_dict,f)
 
-    with open(path_ball_rot,'wb') as f:
-        pickle.dump(fly.ball_rot,f)
+    #with open(path_ball_rot,'wb') as f:
+    #    pickle.dump(fly.ball_rot,f)
 
     with open(path_collisions,'wb') as f:
-        pickle.dump(collisions_dict,f)
+        pickle.dump(collisions_dict,f)    
+        
+    with open(path_pos,'wb') as f:
+        pickle.dump(pos_dict,f)
 
 
 def main():
     """ Main """
-    run_time = 9.0
+    run_time = 7.0
     time_step = 0.001
     behavior = 'grooming'
     
@@ -292,8 +372,8 @@ def main():
 
     sim_options = {
         "headless": False,
-        "model": "/home/nely/SimFly/GIT/farms_models_data/drosophila_v3/design/sdf/drosophila_100x_noLimits.sdf",
-        "model_offset": [0., 0., 1.12],
+        "model": "../../design/sdf/neuromechfly_noLimits.sdf",
+        "model_offset": [0., 0., 11.2e-3],
         "run_time": run_time,
         #"pose": '../config/pose.yaml',
         "base_link": 'Thorax',
@@ -301,10 +381,10 @@ def main():
         "ground_contacts": ground_contact,
         "self_collisions": self_collision,
         "record": False,
-        'camera_distance': 0.35,
+        'camera_distance': 3.5,
         'track': False,
         'moviename': 'KM_grooming.mp4',
-        'slow_down': True,
+        'slow_down': False,
         'sleep_time': 0.001,
         'rot_cam': False,
         'behavior': behavior,
@@ -312,6 +392,7 @@ def main():
     container = Container(run_time/time_step)
     animal = DrosophilaSimulation(container, sim_options)
     animal.run(optimization=False)
+    #animal.container.dump(dump_path ="./Grooming_Results",overwrite=False)
 
     name_data = 'data_ball_' + behavior + '.pkl'
     

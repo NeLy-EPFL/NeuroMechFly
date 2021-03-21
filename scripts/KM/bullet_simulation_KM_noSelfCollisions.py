@@ -212,7 +212,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             elif 'Fake' not in joint_name:
                 p.changeVisualShape(self.animal, _id, rgbaColor=self.colorBody,specularColor=nospecular)
                 
-            print("Link name {} id {}".format(link_name, _id))
+            print("Link name {} id {} type {}".format(link_name, _id, _type))
             #self.link_names.append(link_name)
 
         ########## ADD BALL ######################

@@ -10,6 +10,10 @@ from IPython import embed
 import pybullet_data
 import pandas as pd
 import time
+import glob 
+from pathlib import Path
+import pkgutil
+sys.path.append('/Users/ozdil/Desktop/GIT/NeuroMechFy1x/df3dPostProcessing')
 from df3dPostProcessing import df3dPostProcess
 from NeuroMechFly.container import Container
 from NeuroMechFly.sdf.units import SimulationUnitScaling
@@ -22,28 +26,31 @@ class DrosophilaSimulation(BulletSimulation):
         self.grf=[]
         self.collision_forces=[]
         self.ball_rot=[]
-        self.angles = self.calculate_angles(self.behavior,overwrite_angles=False)
+        #self.angles = self.load_angles('old_angles/walking_joint_angles.pkl') 
+        self.angles = self.calculate_angles()
         self.lastDraw=[]
 
-    def calculate_angles(self, behavior,overwrite_angles=False):
 
-        if behavior == 'walking':
-            experiment = '/home/lobato/Desktop/DF3D_data/180921_aDN_PR_Fly8_005_SG1_behData_images/images/df3d/pose_result__home_nely_Desktop_animationSimfly_video2_180921_aDN_PR_Fly8_005_SG1_behData_images_images.pkl' # Walking
-
-        elif behavior == 'grooming':        
-            experiment = '/home/lobato/Desktop/DF3D_data/180921_aDN_CsCh_Fly6_003_SG1_behData_images/images/df3d/pose_result__home_nely_Desktop_DF3D_data_180921_aDN_CsCh_Fly6_003_SG1_behData_images_images.pkl' # Grooming
-
-        angles_path = os.path.join(os.path.dirname(experiment),'joint_angles.pkl')
-        if os.path.isfile(angles_path) and not overwrite_angles:
-            with open(angles_path, 'rb') as f:
+    def calculate_angles(self, data_path='/Users/ozdil/Desktop/GIT/NeuroMechFy1x/NeuroMechFly/data/walking/df3d', overwrite_angles=False):
+        
+        experiment = glob.glob(data_path + '/pose_result*.pkl')[0]
+        angles_path = glob.glob(data_path + '/joint_angles*.pkl')
+        
+        if angles_path and not overwrite_angles:
+            with open(angles_path[0], 'rb') as f:
                 angles = pickle.load(f)
         else:
             df3d = df3dPostProcess(experiment, calculate_3d=True)
-            align = df3d.align_to_template(interpolate=True)
-            angles = df3d.calculate_leg_angles(save_angles=True)
+            align = df3d.align_to_template(interpolate=True, smoothing=True)
+            print("calculating...")
+            angles = df3d.calculate_leg_angles(save_angles=False)
         
         return angles
-        
+    
+    def load_angles(self,data_path):
+        with open(data_path, 'rb') as f:
+            return pickle.load(f)
+
     def controller_to_actuator(self,t):
         """
         Code that glues the controller the actuator in the system.
@@ -72,10 +79,10 @@ class DrosophilaSimulation(BulletSimulation):
 
         pose[self.joint_id['joint_Head']] = np.deg2rad(10)
 
-        ind = t
+        ind = t + 1000
         
         #######Walk on floor#########
-        init_lim = 25
+        init_lim = 1035
         if ind<init_lim:
             pose[self.joint_id['prismatic_support_2']] = (1.01*self.MODEL_OFFSET[2]-ind*self.MODEL_OFFSET[2]/init_lim)*self.units.meters
         else:
@@ -132,22 +139,28 @@ class DrosophilaSimulation(BulletSimulation):
         pose[self.joint_id['joint_RHFemur']] = -np.pi + self.angles['RH_leg']['th_fe'][ind]
         pose[self.joint_id['joint_RHTibia']] = np.pi + self.angles['RH_leg']['th_ti'][ind]
         pose[self.joint_id['joint_RHTarsus1']] = -np.pi + self.angles['RH_leg']['th_ta'][ind]
-
-        #p.setJointMotorControlArray(
-        #            self.animal, joints,
-        #            controlMode=p.POSITION_CONTROL,
-        #            targetPositions=pose)#,
-        #            #force=1e16)
-
-        for joint in range(self.num_joints):
-            #if joint!=19 and joint!=58:
-                    p.setJointMotorControl2(
-                    self.animal, joint,
-                    controlMode=p.POSITION_CONTROL,
-                    targetPosition=pose[joint],
-                    #force=1e16,
-                    positionGain=0.4)
         
+
+        joint_control = list(np.arange(17,39)) + list(np.arange(42,53)) +  list(np.arange(56,78)) + list(np.arange(81,92))
+             
+        for joint in range(self.num_joints):
+            if t==37:
+                print("joint: {} and pos: {}".format(joint,np.rad2deg(pose[joint])))
+            if joint in joint_control:
+                p.setJointMotorControl2(
+                self.animal, joint,
+                controlMode=p.POSITION_CONTROL,
+                targetPosition=pose[joint],
+                positionGain=0.4,
+                velocityGain = 0.9,
+                )
+            else:
+                p.setJointMotorControl2(
+                self.animal, joint,
+                controlMode=p.POSITION_CONTROL,
+                targetPosition=pose[joint],
+                )
+
         #if t%10 == 0:
         jointTorques = np.array(self.joint_torques())
         #print(jointTorques.shape)
@@ -281,16 +294,16 @@ def save_data(fly, filename):
 
 def main():
     """ Main """
-    run_time = 8.97
+    run_time = 7
     time_step = 0.001
     behavior = 'walking'
-    
     side = ['L','R']
     pos = ['F','M','H']
     leg_segments = ['Tibia']+['Tarsus' + str(i) for i in range(1, 6)]
     left_front_leg = ['LF'+name for name in leg_segments]
     right_front_leg = ['RF'+name for name in leg_segments]
-    body_segments = [s+b for s in side for b in ['Eye','Antenna']]
+    body_segments = [s+b for s in side for b in ['Eye','Antenna']] + \
+         ['A'+str(i) for i in range(3,7)]
 
     ground_contact = [s+p+name for s in side for p in pos for name in leg_segments if name != 'Tibia']
 
@@ -322,7 +335,7 @@ def main():
         'track': False,
         'moviename': 'videos/KM_1x_walking_interpolate.mp4',
         'moviefps': 50,
-        'slow_down': True,
+        'slow_down': False,
         'sleep_time': 0.001,
         'rot_cam': False,
         'behavior': behavior,
@@ -333,7 +346,10 @@ def main():
 
     name_data = 'data_ball_' + behavior + '.pkl'
     
-    save_data(animal,name_data)
+    #save_data(animal,name_data)
 
 if __name__ == '__main__':
     main()
+
+
+
