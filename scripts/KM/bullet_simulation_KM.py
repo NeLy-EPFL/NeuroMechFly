@@ -155,7 +155,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             solverResidualThreshold=1e-10,
             # erp=1e-1,
             contactERP=0.0,
-            frictionERP=0.0,
+            frictionERP=0.1,
         )
         #: Turn off rendering while loading the models
         self.rendering(0)
@@ -163,7 +163,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         ########## ADD FLOOR ##########
         self.plane = p.loadURDF(
             "plane.urdf", [0, 0, -0.],
-            globalScaling=self.units.meters
+            globalScaling=0.01*self.units.meters
         )
 
         ########## ADD ANIMAL #########
@@ -218,7 +218,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             #self.link_names.append(link_name)
 
         ########## ADD BALL ######################
-        self.ball_radius = 0.5 # 100x (real size d=10mm)
+        self.ball_radius = 5e-3 * self.units.meters # 1x (real size 10mm)
         self.ball_id = self.add_ball(self.ball_radius)
 
         ############### CONFIGURE CONTACTS ###############
@@ -291,9 +291,9 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         #self.sim_data.base_position.add_parameter('z')
 
         #: ADD joint paramters
-        #for name, _ in self.joint_id.items():
-        #    self.sim_data.joint_positions.add_parameter(name)
-        #    self.sim_data.joint_velocities.add_parameter(name)
+        for name, _ in self.joint_id.items():
+            self.sim_data.joint_positions.add_parameter(name)
+            self.sim_data.joint_velocities.add_parameter(name)
         #    self.sim_data.joint_torques.add_parameter(name)
 
 
@@ -474,9 +474,10 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         visualShapeId = -1
 
         if self.behavior == 'walking':
-            basePosition=[-0.0225,0.0051,0.61973] ### Walking ball r= 0.55
+            #basePosition=[-0.0225,0.0051,0.61973] ### Walking ball r= 0.55            
+            basePosition = np.array([0.39e-3, -0.14e-3,-5.01e-3])*self.units.meters+self.MODEL_OFFSET
         elif self.behavior == 'grooming':
-            basePosition=[0.0,-0.01,0.63] ### Grooming
+            basePosition = np.array([0.0e-3, -0.12e-3,-4.85e-3])*self.units.meters+self.MODEL_OFFSET
             
         #basePosition=[-0.03,-0.0,0.589] ### Walking ball r= 0.525
         #basePosition=[-0.02,0.0,0.595] ### Walking ball r= 0.52        
@@ -484,9 +485,9 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         #basePosition=[-0.04,0.0,0.605] ### Walking ball r=0.51
         
         
-        baseOrientation = [0,0,1.5,1]
+        baseOrientation = [0,0,0,1]
 
-        link_Masses = [0.0000005,0.0000005,0.0000005]
+        link_Masses = np.array([5e-11,5e-11,5e-11])*self.units.kilograms
         linkCollisionShapeIndices = [-1,-1,colSphereId]
         linkVisualShapeIndices = [-1,-1,-1]
         linkPositions = [[0, 0, 0],[0, 0, 0],[0, 0, 0]]
@@ -495,8 +496,9 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         linkInertialFrameOrientations = [[0, 0, 0, 1],[0, 0, 0, 1],[0, 0, 0, 1]]
         indices = [0,1,2]
         jointTypes = [p.JOINT_REVOLUTE,p.JOINT_REVOLUTE,p.JOINT_REVOLUTE]
-        axis = [[1, 0, 0],[0, 1, 0],[0, 0, 1]]
-        
+        #axis = [[1, 0, 0],[0, 1, 0],[0, 0, 1]]
+        axis = [[0, 1, 0],[1, 0, 0],[0, 0, 1]]
+               
         sphereId = p.createMultiBody(massParent,
                                       colSphereParent,
                                       visualShapeId,
@@ -517,7 +519,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         #               -1,
         #               spinningFriction=100,
         #               linearDamping=0.0)
-        textureBall = p.loadTexture('textures/ball/chequered_0048.jpg')
+        textureBall = p.loadTexture('../../design/textures/ball/chequered_0048.jpg')
         p.changeVisualShape(sphereId, 2, rgbaColor=[225/255,225/255,210/255,1],specularColor=[0,0,0],textureUniqueId=textureBall)
 
         return sphereId

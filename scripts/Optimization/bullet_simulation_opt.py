@@ -532,7 +532,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         #               -1,
         #               spinningFriction=100,
         #               linearDamping=0.0)
-        textureBall = p.loadTexture('/Users/ozdil/Desktop/GIT/NeuroMechFy1x/NeuroMechFly/design/textures/ball/chequered_0048.jpg')
+        textureBall = p.loadTexture('../../design/textures/ball/chequered_0048.jpg')
         p.changeVisualShape(sphereId, 2, rgbaColor=[225/255,225/255,210/255,1],specularColor=[0,0,0],textureUniqueId=textureBall)
 
         return sphereId

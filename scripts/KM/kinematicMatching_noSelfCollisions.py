@@ -1,11 +1,9 @@
-import glob
 import math
 import os
+from pathlib import Path
 import pickle
-import pkgutil
 import sys
 import time
-from pathlib import Path
 from random import random
 
 import numpy as np
@@ -14,9 +12,20 @@ from IPython import embed
 
 import pybullet as p
 import pybullet_data
-from bullet_simulation_KM_noSelfCollisions import BulletSimulation
+import pandas as pd
+import time
+import glob
+from pathlib import Path
+import pkgutil
+sys.path.append('/../../../df3dPostProcessing')
+from bullet_simulation_KM import BulletSimulation
+from df3dPostProcessing import df3dPostProcess
 from NeuroMechFly.container import Container
 from NeuroMechFly.sdf.units import SimulationUnitScaling
+
+script_path = Path(__file__).resolve().parent
+data_folder = script_path.joinpath("..", "..", "data")
+sdf_folder = script_path.joinpath("..", "..", "design", "sdf")
 
 try:
     from df3dPostProcessing import df3dPostProcess
@@ -37,18 +46,9 @@ class DrosophilaSimulation(BulletSimulation):
         self.grf=[]
         self.collision_forces=[]
         self.ball_rot=[]
+        #self.angles = self.load_angles('old_angles/walking_joint_angles.pkl') 
+        self.angles = self.calculate_angles()
         self.lastDraw=[]
-        if df3dPP:
-            self.angles = DrosophilaSimulation.calculate_angles(
-                self.behavior, overwrite_angles=False
-            )
-        else:
-            angles_path = data_folder.joinpath(
-                self.behavior, "df3d",
-                "joint_angles_180921_aDN_PR_Fly8_005_SG1_behData_images_images.pkl"
-            )
-            with open(angles_path, 'rb') as f:
-                self.angles = pickle.load(f)
 
     @staticmethod
     def calculate_angles(behavior, overwrite_angles=False):
@@ -68,9 +68,16 @@ class DrosophilaSimulation(BulletSimulation):
                 angles = pickle.load(f)
         else:
             df3d = df3dPostProcess(experiment, calculate_3d=True)
-            align = df3d.align_to_template(interpolate=True)
-            angles = df3d.calculate_leg_angles(save_angles=True)
+            align = df3d.align_to_template(interpolate=True, smoothing=True)
+            print("calculating...")
+            angles = df3d.calculate_leg_angles(save_angles=False)
+        
         return angles
+    
+    def load_angles(self,data_path):
+        with open(data_path, 'rb') as f:
+            return pickle.load(f)
+
 
     def controller_to_actuator(self,t):
         """
@@ -161,20 +168,24 @@ class DrosophilaSimulation(BulletSimulation):
         pose[self.joint_id['joint_RHTibia']] = self.angles['RH_leg']['th_ti'][ind]
         pose[self.joint_id['joint_RHTarsus1']] = self.angles['RH_leg']['th_ta'][ind]
 
-        #p.setJointMotorControlArray(
-        #            self.animal, joints,
-        #            controlMode=p.POSITION_CONTROL,
-        #            targetPositions=pose)#,
-        #            #force=1e16)
-
+        joint_control = list(np.arange(17,39)) + list(np.arange(42,53)) +  list(np.arange(56,78)) + list(np.arange(81,92))
+             
         for joint in range(self.num_joints):
-            #if joint!=19 and joint!=58:
-                    p.setJointMotorControl2(
-                    self.animal, joint,
-                    controlMode=p.POSITION_CONTROL,
-                    targetPosition=pose[joint],
-                    #force=1e16,
-                    positionGain=0.4)
+            if joint in joint_control:
+                p.setJointMotorControl2(
+                self.animal, joint,
+                controlMode=p.POSITION_CONTROL,
+                targetPosition=pose[joint],
+                positionGain=0.4,
+                velocityGain = 0.9,
+                )
+            else:
+                p.setJointMotorControl2(
+                self.animal, joint,
+                controlMode=p.POSITION_CONTROL,
+                targetPosition=pose[joint],
+                )
+
 
         jointTorques = np.array(self.joint_torques())
         #print(jointTorques.shape)
@@ -307,16 +318,16 @@ def save_data(fly, filename):
 
 def main():
     """ Main """
-    run_time = 8.97
+    run_time = 7
     time_step = 0.001
     behavior = 'walking'
-
     side = ['L','R']
     pos = ['F','M','H']
     leg_segments = ['Tibia']+['Tarsus' + str(i) for i in range(1, 6)]
     left_front_leg = ['LF'+name for name in leg_segments]
     right_front_leg = ['RF'+name for name in leg_segments]
-    body_segments = [s+b for s in side for b in ['Eye','Antenna']]
+    body_segments = [s+b for s in side for b in ['Eye','Antenna']] + \
+         ['A'+str(i) for i in range(3,7)]
 
     ground_contact = [s+p+name for s in side for p in pos for name in leg_segments if name != 'Tibia']
 
@@ -347,7 +358,7 @@ def main():
         'track': False,
         'moviename': 'videos/KM_1x_walking_interpolate.mp4',
         'moviefps': 50,
-        'slow_down': True,
+        'slow_down': False,
         'sleep_time': 0.001,
         'rot_cam': False,
         'behavior': behavior,
@@ -356,9 +367,11 @@ def main():
     animal = DrosophilaSimulation(container, sim_options)
     animal.run(optimization=False)
 
-    name_data = 'data_ball_' + behavior + '.pkl'
-
-    save_data(animal,name_data)
+    name_data = 'data_ball_' + behavior + '.pkl'    
+    #save_data(animal,name_data)
 
 if __name__ == '__main__':
     main()
+
+
+

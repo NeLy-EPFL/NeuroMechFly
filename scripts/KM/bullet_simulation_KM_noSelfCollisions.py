@@ -212,7 +212,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             elif 'Fake' not in joint_name:
                 p.changeVisualShape(self.animal, _id, rgbaColor=self.colorBody,specularColor=nospecular)
                 
-            print("Link name {} id {}".format(link_name, _id))
+            print("Link name {} id {} type {}".format(link_name, _id, _type))
             #self.link_names.append(link_name)
 
         ########## ADD BALL ######################
@@ -466,10 +466,10 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             #basePosition = [-0.02, -0.015, 0.632]###GOOD
             #basePosition = [-0.018, -0.018, 0.632]###GOOD
             #basePosition = np.array([0.18e-3, 0.18e-3,-4.88e-3])*self.units.meters+self.MODEL_OFFSET
-            basePosition = np.array([0.18e-3, 0.18e-3,-4.92e-3])*self.units.meters+self.MODEL_OFFSET
+            basePosition = np.array([0.39e-3, -0.14e-3,-5.01e-3])*self.units.meters+self.MODEL_OFFSET
         elif self.behavior == 'grooming':
             basePosition=[0.0,-0.01,0.63] ### Grooming        
-            basePosition = np.array([0.0e-3, 0.0e-3,-5e-3])*self.units.meters+self.MODEL_OFFSET
+            basePosition = np.array([0.0e-3, -0.0e-3,-5e-3])*self.units.meters+self.MODEL_OFFSET
             
         baseOrientation = [0,0,0,1]
 
