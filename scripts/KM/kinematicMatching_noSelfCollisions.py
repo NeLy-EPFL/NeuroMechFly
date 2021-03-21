@@ -17,9 +17,8 @@ import time
 import glob
 from pathlib import Path
 import pkgutil
-sys.path.append('/../../../df3dPostProcessing')
-from bullet_simulation_KM import BulletSimulation
-from df3dPostProcessing import df3dPostProcess
+sys.path.append('/../../df3dPostProcessing')
+from bullet_simulation_KM_noSelfCollisions import BulletSimulation
 from NeuroMechFly.container import Container
 from NeuroMechFly.sdf.units import SimulationUnitScaling
 
@@ -46,8 +45,8 @@ class DrosophilaSimulation(BulletSimulation):
         self.grf=[]
         self.collision_forces=[]
         self.ball_rot=[]
-        #self.angles = self.load_angles('old_angles/walking_joint_angles.pkl') 
-        self.angles = self.calculate_angles()
+        self.angles = self.load_angles('angles/walking_joint_angles.pkl')
+        #self.angles = self.calculate_angles()
         self.lastDraw=[]
 
     @staticmethod
@@ -117,56 +116,57 @@ class DrosophilaSimulation(BulletSimulation):
             pose[self.joint_id['prismatic_support_2']] = 0
         #############################
 
+        
         ####LEFT LEGS#######
         pose[self.joint_id['joint_LFCoxa_roll']] = self.angles['LF_leg']['roll'][ind]
         pose[self.joint_id['joint_LFCoxa_yaw']] = self.angles['LF_leg']['yaw'][ind]
         pose[self.joint_id['joint_LFCoxa']] = self.angles['LF_leg']['pitch'][ind]
         pose[self.joint_id['joint_LFFemur_roll']] = self.angles['LF_leg']['roll_tr'][ind]
-        pose[self.joint_id['joint_LFFemur']] = self.angles['LF_leg']['th_fe'][ind]
-        pose[self.joint_id['joint_LFTibia']] = self.angles['LF_leg']['th_ti'][ind]
-        pose[self.joint_id['joint_LFTarsus1']] = self.angles['LF_leg']['th_ta'][ind]
+        pose[self.joint_id['joint_LFFemur']] = -np.pi + self.angles['LF_leg']['th_fe'][ind]
+        pose[self.joint_id['joint_LFTibia']] = np.pi + self.angles['LF_leg']['th_ti'][ind]
+        pose[self.joint_id['joint_LFTarsus1']] = -np.pi + self.angles['LF_leg']['th_ta'][ind]
 
-        pose[self.joint_id['joint_LMCoxa_roll']] = self.angles['LM_leg']['roll'][ind]
+        pose[self.joint_id['joint_LMCoxa_roll']] = -np.pi/2 + self.angles['LM_leg']['roll'][ind]
         pose[self.joint_id['joint_LMCoxa_yaw']] = self.angles['LM_leg']['yaw'][ind]
         pose[self.joint_id['joint_LMCoxa']] = self.angles['LM_leg']['pitch'][ind]
         pose[self.joint_id['joint_LMFemur_roll']] = self.angles['LM_leg']['roll_tr'][ind]
-        pose[self.joint_id['joint_LMFemur']] = self.angles['LM_leg']['th_fe'][ind]
-        pose[self.joint_id['joint_LMTibia']] = self.angles['LM_leg']['th_ti'][ind]
-        pose[self.joint_id['joint_LMTarsus1']] = self.angles['LM_leg']['th_ta'][ind]
+        pose[self.joint_id['joint_LMFemur']] = -np.pi + self.angles['LM_leg']['th_fe'][ind]
+        pose[self.joint_id['joint_LMTibia']] = np.pi + self.angles['LM_leg']['th_ti'][ind]
+        pose[self.joint_id['joint_LMTarsus1']] = -np.pi + self.angles['LM_leg']['th_ta'][ind]
 
-        pose[self.joint_id['joint_LHCoxa_roll']] = self.angles['LH_leg']['roll'][ind]
+        pose[self.joint_id['joint_LHCoxa_roll']] = np.pi + self.angles['LH_leg']['roll'][ind]
         pose[self.joint_id['joint_LHCoxa_yaw']] = self.angles['LH_leg']['yaw'][ind]
         pose[self.joint_id['joint_LHCoxa']] = self.angles['LH_leg']['pitch'][ind]
         pose[self.joint_id['joint_LHFemur_roll']] = self.angles['LH_leg']['roll_tr'][ind]
-        pose[self.joint_id['joint_LHFemur']] = self.angles['LH_leg']['th_fe'][ind]
-        pose[self.joint_id['joint_LHTibia']] = self.angles['LH_leg']['th_ti'][ind]
-        pose[self.joint_id['joint_LHTarsus1']] = self.angles['LH_leg']['th_ta'][ind]
-
-
+        pose[self.joint_id['joint_LHFemur']] = -np.pi + self.angles['LH_leg']['th_fe'][ind]
+        pose[self.joint_id['joint_LHTibia']] = np.pi + self.angles['LH_leg']['th_ti'][ind]
+        pose[self.joint_id['joint_LHTarsus1']] = -np.pi + self.angles['LH_leg']['th_ta'][ind]
+        
+        
         #####RIGHT LEGS######
-        pose[self.joint_id['joint_RFCoxa_roll']] = self.angles['RF_leg']['roll'][ind]
+        pose[self.joint_id['joint_RFCoxa_roll']] = -np.pi/2 + self.angles['RF_leg']['roll'][ind]
         pose[self.joint_id['joint_RFCoxa_yaw']] = self.angles['RF_leg']['yaw'][ind]
         pose[self.joint_id['joint_RFCoxa']] = self.angles['RF_leg']['pitch'][ind]
         pose[self.joint_id['joint_RFFemur_roll']] = self.angles['RF_leg']['roll_tr'][ind]
-        pose[self.joint_id['joint_RFFemur']] = self.angles['RF_leg']['th_fe'][ind]
-        pose[self.joint_id['joint_RFTibia']] = self.angles['RF_leg']['th_ti'][ind]
-        pose[self.joint_id['joint_RFTarsus1']] = self.angles['RF_leg']['th_ta'][ind]
+        pose[self.joint_id['joint_RFFemur']] = -np.pi + self.angles['RF_leg']['th_fe'][ind]
+        pose[self.joint_id['joint_RFTibia']] = np.pi + self.angles['RF_leg']['th_ti'][ind]
+        pose[self.joint_id['joint_RFTarsus1']] = -np.pi + self.angles['RF_leg']['th_ta'][ind]
 
         pose[self.joint_id['joint_RMCoxa_roll']] = self.angles['RM_leg']['roll'][ind]
         pose[self.joint_id['joint_RMCoxa_yaw']] = self.angles['RM_leg']['yaw'][ind]
         pose[self.joint_id['joint_RMCoxa']] = self.angles['RM_leg']['pitch'][ind]
-        pose[self.joint_id['joint_RMFemur_roll']] = self.angles['RM_leg']['roll_tr'][ind]
-        pose[self.joint_id['joint_RMFemur']] = self.angles['RM_leg']['th_fe'][ind]
-        pose[self.joint_id['joint_RMTibia']] = self.angles['RM_leg']['th_ti'][ind]
-        pose[self.joint_id['joint_RMTarsus1']] = self.angles['RM_leg']['th_ta'][ind]
+        pose[self.joint_id['joint_RMFemur_roll']] = -np.pi/6 + self.angles['RM_leg']['roll_tr'][ind]
+        pose[self.joint_id['joint_RMFemur']] = -np.pi + self.angles['RM_leg']['th_fe'][ind]
+        pose[self.joint_id['joint_RMTibia']] = np.pi + self.angles['RM_leg']['th_ti'][ind]
+        pose[self.joint_id['joint_RMTarsus1']] = -np.pi + self.angles['RM_leg']['th_ta'][ind]
 
-        pose[self.joint_id['joint_RHCoxa_roll']] = self.angles['RH_leg']['roll'][ind]
+        pose[self.joint_id['joint_RHCoxa_roll']] = np.pi + self.angles['RH_leg']['roll'][ind]
         pose[self.joint_id['joint_RHCoxa_yaw']] = self.angles['RH_leg']['yaw'][ind]
         pose[self.joint_id['joint_RHCoxa']] = self.angles['RH_leg']['pitch'][ind]
         pose[self.joint_id['joint_RHFemur_roll']] = self.angles['RH_leg']['roll_tr'][ind]
-        pose[self.joint_id['joint_RHFemur']] = self.angles['RH_leg']['th_fe'][ind]
-        pose[self.joint_id['joint_RHTibia']] = self.angles['RH_leg']['th_ti'][ind]
-        pose[self.joint_id['joint_RHTarsus1']] = self.angles['RH_leg']['th_ta'][ind]
+        pose[self.joint_id['joint_RHFemur']] = -np.pi + self.angles['RH_leg']['th_fe'][ind]
+        pose[self.joint_id['joint_RHTibia']] = np.pi + self.angles['RH_leg']['th_ti'][ind]
+        pose[self.joint_id['joint_RHTarsus1']] = -np.pi + self.angles['RH_leg']['th_ta'][ind]
 
         joint_control = list(np.arange(17,39)) + list(np.arange(42,53)) +  list(np.arange(56,78)) + list(np.arange(81,92))
              
@@ -343,8 +343,7 @@ def main():
 
     sim_options = {
         "headless": False,
-        "model": sdf_folder / "neuromechfly_noLimits.sdf",
-        #"model_offset": [0., 0., 1.12],
+        "model": "../../design/sdf/neuromechfly_noLimits.sdf",
         "model_offset": [0., 0., 11.2e-3],
         "run_time": run_time,
         #"pose": '../config/pose.yaml',
