@@ -103,9 +103,10 @@ class DrosophilaEvolution(FloatProblem):
         N = int(noscillators/4)
 
         #: Muscle parameters
-        lower_bound_active_muscles = (
-        np.ones((N, 6))*np.array([1e-3, 1e-3, 1e-4, 1e-5, 0.5, 0.0]
-            )).flatten()
+        #lower_bound_active_muscles = (
+        #np.ones((N, 6))*np.array([1e-3, 1e-3, 1e-4, 1e-5, 0.5, 0.0]
+        #    )).flatten()
+        lower_bound_active_muscles = (np.ones((N, 6))*np.array([1e-1, 1e-1, 1e-1, 1e-1, 0.5, 0.0])).flatten()
         #upper_bound_active_muscles = (
         #    np.ones((N, 6))*np.array([7e-1, 7e-1, 7e-2, 7e-3, 0.0, 0.0]
         #    )).flatten()
@@ -128,10 +129,12 @@ class DrosophilaEvolution(FloatProblem):
         #                                      [3e-1, 2e-2, 3e-3, 1e-3, 1.5, 2]*3 +
         #                                      [2e-1, 1e-2, 1e-3, 7e-4, 1.5, 2]*3)
 
-        upper_bound_active_muscles = np.array([6e-2, 3e-2, 3e-3, 1e-3, 1.5, 2]*3 +
-                                              [6e-2, 3e-2, 3e-3, 1e-3, 1.5, 2]*3 +
-                                              [6e-2, 3e-2, 3e-3, 1e-3, 1.5, 2]*3)
-
+        #upper_bound_active_muscles = np.array([6e-2, 3e-2, 3e-3, 1e-3, 1.5, 2]*3 +
+        #                                      [6e-2, 3e-2, 3e-3, 1e-3, 1.5, 2]*3 +
+        #                                      [6e-2, 3e-2, 3e-3, 1e-3, 1.5, 2]*3)
+        upper_bound_active_muscles = np.array([6, 3, 3, 1, 150, 200]*3 +
+                                        [6, 3, 3, 1, 150, 200]*3 +
+                                        [6, 3, 3, 1, 150, 200]*3)
         #F:[2e-2, 2e-2, 3e-3, 1e-3, 1.5, 2], M:[3e-2, 3e-2, 3e-3, 1e-3, 1.5, 2], H:[3e-2, 3e-2, 1e-3, 8e-4, 1.5, 2]
         
         #: Phases
@@ -188,8 +191,8 @@ class DrosophilaEvolution(FloatProblem):
         time_step = 0.001
         sim_options = {
             "headless": True,
-            "model": "../../design/sdf/drosophila_100x_limits_from_data2.sdf",
-            "model_offset": [0., 0., 1.12],
+            "model": "../../design/sdf/neuromechfly_limitsFromData.sdf",
+            "model_offset": [0., 0., 11.2e-3],
             "pose": "../../config/pose_tripod.yaml",
             "run_time": run_time,
             "base_link": 'Thorax',
@@ -249,7 +252,7 @@ class DrosophilaEvolution(FloatProblem):
         print(-2e3*distance,penalty_linearity,penalty_time)
         print(1e4*act,penalty_dist,penalty_time_stance)
         print(2e3*stability,penalty_dist,penalty_time_stance)
-        
+        # into a single objective
         solution.objectives[0] = (-2e3*distance + penalty_linearity + penalty_time)
         #solution.objectives[1] = (1e4*act + penalty_dist + penalty_time_stance)
         solution.objectives[1] = (2e3*stability + penalty_dist + penalty_time_stance)
@@ -267,12 +270,13 @@ def main():
     """ Main """
 
     n_pop = 20
-    n_gen = 50
+    n_gen = 150
 
     max_evaluations = n_pop*n_gen
 
     problem = DrosophilaEvolution()
-
+    # here change the genetic algorithm 
+    # plotting tools 
     algorithm = NSGAII(
         problem=problem,
         population_size=n_pop,
@@ -341,7 +345,7 @@ def main():
 
     print('Algorithm (continuous problem): ' + algorithm.get_name())
     print('Problem: ' + problem.get_name())
-    print('Computing time: ' + str(algorithm.total_computing_time))
+    print('Computing time: ' + str(algorithm.total_computing_time*1/60))
 
 
 if __name__ == '__main__':

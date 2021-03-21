@@ -587,9 +587,11 @@ def main():
 
     sim_options = {
         "headless": False,
-        "model": "../../design/sdf/neuromechfly_noLimits.sdf",
+        # Scaled SDF model 
+        "model": "../../design/sdf/neuromechfly_noLimits.sdf", 
         "model_offset": [0., 0., 11.2e-3],
         "run_time": run_time,
+    
         "pose": '../../config/pose_tripod.yaml',
         "base_link": 'Thorax',
         "controller": '../../config/locomotion_ball.graphml',
@@ -622,8 +624,8 @@ def main():
     )
     '''
     fun, var = read_optimization_results(
-        "./FUN_old.ged3",
-        "./VAR_old.ged3"
+        "./FUN.ged3",
+        "./VAR.ged3"
     )
 
     #params = var[np.argmin(fun[:,0]*fun[:,1])]
