@@ -6,7 +6,7 @@ import itertools
 import matplotlib.ticker as mtick
 import matplotlib.patches as mpatches
 from .sensitivity_analysis import calculate_forces
-plt.style.use('ggplot')
+plt.style.use('seaborn-colorblind')
 
 legs = ['LF', 'LM', 'LH', 'RF', 'RM', 'RH']
 joints = ['Coxa', 'Coxa_yaw', 'Coxa_roll', 'Femur', 'Femur_roll', 'Tibia', 'Tarsus1']
@@ -59,7 +59,7 @@ def plot_mu_sem(
                         alpha=alpha, color=p[i].get_color())
 
 def plot_kp_joint(
-    *args, 
+    *args,
     show_vector=False,
     calc_force=False,
     full_name='joint_LMTibia', 
@@ -100,6 +100,8 @@ def plot_kp_joint(
 
         if not calc_force:
             ax.plot(np.array(args[0][k_value][full_name][beg:beg+intv])*scaling_factor, color=color, label=k_value)
+            plt.legend(bbox_to_anchor=(1.1, 1), loc = 'upper right')
+
         else:
             vector, norm = calculate_forces(full_name, k_value, *args)
             print(norm.shape)
@@ -108,7 +110,7 @@ def plot_kp_joint(
                     ax[i].plot(np.array(vector[i,beg:beg+intv])*scaling_factor,\
                                 color=color, label=k_value)                
                     ax[i].set_ylabel(axis)
-                plt.legend(bbox_to_anchor=(1.1, 0.5), loc = 'upper right')
+                plt.legend(bbox_to_anchor=(1.1, 0.), loc = 'upper right')
             else:
                 ax.plot(norm[beg:beg+intv]*scaling_factor, color=color, label=k_value)
                 plt.legend(bbox_to_anchor=(1.1, 1), loc = 'upper right')
@@ -183,6 +185,8 @@ def plot_stance_force(
         k_value = "_".join((constant, 'Kv'+str(round(k,1)) )) if 'Kp' in constant else "_".join(('Kp'+str(round(k,1)), constant))
 
         color = plt.cm.winter(np.linalg.norm(k))
+        if k_value == k_constant:
+            color = 'red' 
         norm_force = np.linalg.norm(data[k_value],axis=1)
         ax.plot(norm_force[start:stop]*scaling_factor,label=k_value, color=color)
 
@@ -267,12 +271,12 @@ def violin_plot(title,x,y,data,ax=None):
         ax.yaxis.set_major_formatter(mtick.FormatStrFormatter('%.1e'))
     ax.set_title(title)
 
-def heatmap_plot(title, joint_data, ax=None):
+def heatmap_plot(title, joint_data, colorbar_title, precision = "d",linewidth="0.005",ax=None, cmap='viridis'):
     """ Plots a heatmap plot for global sensitivity analysis. """
     if ax is None:
         ax = plt.gca()
 
-    ax = sns.heatmap(joint_data,annot=True, ax=ax)
+    ax = sns.heatmap(joint_data,annot=True, ax=ax, linewidth=linewidth, cmap=cmap, fmt=precision, cbar_kws={'label': colorbar_title})
     ax.set_title(title)    
     ax.invert_yaxis()
 
