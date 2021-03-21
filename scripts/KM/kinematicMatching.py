@@ -17,9 +17,9 @@ import time
 import glob
 from pathlib import Path
 import pkgutil
-sys.path.append('/../../../df3dPostProcessing')
+sys.path.append('/../../df3dPostProcessing')
 from bullet_simulation_KM import BulletSimulation
-from df3dPostProcessing import df3dPostProcess
+#from df3dPostProcessing import df3dPostProcess
 from NeuroMechFly.container import Container
 from NeuroMechFly.sdf.units import SimulationUnitScaling
 
@@ -38,14 +38,14 @@ class DrosophilaSimulation(BulletSimulation):
         self.positions = []
         self.collision_forces=[]
         self.ball_rot=[]
-        #self.angles = self.load_angles('./old_angles/grooming_joint_angles.pkl') 
-        self.angles = self.calculate_angles()
+        self.angles = self.load_angles('./angles/grooming_joint_angles.pkl') 
+        #self.angles = self.calculate_angles()
         self.lastDraw=[]
     
 
     def load_angles(self,data_path):
         with open(data_path, 'rb') as f:
-
+            return pickle.load(f)
 
 
     def calculate_angles(self, data_path, overwrite_angles=False):
@@ -100,7 +100,7 @@ class DrosophilaSimulation(BulletSimulation):
         else:
             pose[self.joint_id['prismatic_support_2']] = 0
         #############################
-        '''      
+              
         ####LEFT LEGS#######
         pose[self.joint_id['joint_LFCoxa_roll']] = self.angles['LF_leg']['roll'][ind]
         pose[self.joint_id['joint_LFCoxa_yaw']] = self.angles['LF_leg']['yaw'][ind]
@@ -128,7 +128,7 @@ class DrosophilaSimulation(BulletSimulation):
         
         
         #####RIGHT LEGS######
-        pose[self.joint_id['joint_RFCoxa_roll']] = self.angles['RF_leg']['roll'][ind]
+        pose[self.joint_id['joint_RFCoxa_roll']] = -self.angles['RF_leg']['roll'][ind]
         pose[self.joint_id['joint_RFCoxa_yaw']] = self.angles['RF_leg']['yaw'][ind]
         pose[self.joint_id['joint_RFCoxa']] = self.angles['RF_leg']['pitch'][ind]
         pose[self.joint_id['joint_RFFemur_roll']] = self.angles['RF_leg']['roll_tr'][ind]
@@ -136,10 +136,10 @@ class DrosophilaSimulation(BulletSimulation):
         pose[self.joint_id['joint_RFTibia']] = np.pi + self.angles['RF_leg']['th_ti'][ind]
         pose[self.joint_id['joint_RFTarsus1']] = -np.pi + self.angles['RF_leg']['th_ta'][ind]
 
-        pose[self.joint_id['joint_RMCoxa_roll']] = -np.pi/2 + self.angles['RM_leg']['roll'][ind]
+        pose[self.joint_id['joint_RMCoxa_roll']] = -np.pi/6 + self.angles['RM_leg']['roll'][ind]
         pose[self.joint_id['joint_RMCoxa_yaw']] = self.angles['RM_leg']['yaw'][ind]
         pose[self.joint_id['joint_RMCoxa']] = self.angles['RM_leg']['pitch'][ind]
-        pose[self.joint_id['joint_RMFemur_roll']] = self.angles['RM_leg']['roll_tr'][ind]
+        pose[self.joint_id['joint_RMFemur_roll']] =  self.angles['RM_leg']['roll_tr'][ind]
         pose[self.joint_id['joint_RMFemur']] = -np.pi + self.angles['RM_leg']['th_fe'][ind]
         pose[self.joint_id['joint_RMTibia']] = np.pi + self.angles['RM_leg']['th_ti'][ind]
         pose[self.joint_id['joint_RMTarsus1']] = -np.pi + self.angles['RM_leg']['th_ta'][ind]
@@ -151,7 +151,7 @@ class DrosophilaSimulation(BulletSimulation):
         pose[self.joint_id['joint_RHFemur']] = -np.pi + self.angles['RH_leg']['th_fe'][ind]
         pose[self.joint_id['joint_RHTibia']] = np.pi + self.angles['RH_leg']['th_ti'][ind]
         pose[self.joint_id['joint_RHTarsus1']] = -np.pi + self.angles['RH_leg']['th_ta'][ind]
-        '''
+        
 
         joint_control = list(np.arange(17,39)) + list(np.arange(42,53)) +  list(np.arange(56,78)) + list(np.arange(81,92))
              
@@ -367,7 +367,7 @@ def main():
 
     name_data = 'data_ball_' + behavior + '.pkl'
 
-    save_data(animal,name_data)
+    #save_data(animal,name_data)
 
 if __name__ == '__main__':
     main()
