@@ -152,7 +152,9 @@ def main():
     
     leg_joints = ('Cox','Fem','Tib','Tar')
 
-    axes_to_change = ['joint_RFCoxa_roll','joint_LMCoxa_roll','joint_RHCoxa_roll','joint_RFFemur_roll','joint_RMFemur_roll','joint_LHFemur_roll']
+    #axes_to_change = ['joint_RFCoxa_roll','joint_LMCoxa_roll','joint_RHCoxa_roll','joint_RFFemur_roll','joint_RMFemur_roll','joint_LHFemur_roll']
+
+    axes_to_change = []
     
     for joint in model.joints:
         name_split = joint.name.split('_')

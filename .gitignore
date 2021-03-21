@@ -140,6 +140,8 @@ documentation/_templates
 scripts/
 config/
 design/
+data/
+build/
 
 # Mac
 **.DS_Store

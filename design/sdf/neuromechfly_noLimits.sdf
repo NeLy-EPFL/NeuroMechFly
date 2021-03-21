@@ -3046,7 +3046,7 @@
       <child>LHFemur_roll</child>
       <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
       <axis>
-        <xyz>0.0 0.0 -1.0</xyz>
+        <xyz>0.0 0.0 1.0</xyz>
         <limit>
           <lower>-3.1415927410125732</lower>
           <upper>3.1415927410125732</upper>
@@ -3200,7 +3200,7 @@
       <child>LMCoxa_roll</child>
       <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
       <axis>
-        <xyz>0.0 0.0 -1.0</xyz>
+        <xyz>0.0 0.0 1.0</xyz>
         <limit>
           <lower>-3.1359473737307995</lower>
           <upper>3.1359473737307995</upper>
@@ -3424,7 +3424,7 @@
       <child>RFCoxa_roll</child>
       <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
       <axis>
-        <xyz>0.0 0.0 -1.0</xyz>
+        <xyz>0.0 0.0 1.0</xyz>
         <limit>
           <lower>-3.1422325363661354</lower>
           <upper>3.1422325363661354</upper>
@@ -3466,7 +3466,7 @@
       <child>RFFemur_roll</child>
       <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
       <axis>
-        <xyz>0.0 0.0 -1.0</xyz>
+        <xyz>0.0 0.0 1.0</xyz>
         <limit>
           <lower>-3.1447326076594218</lower>
           <upper>3.1447326076594218</upper>
@@ -3578,7 +3578,7 @@
       <child>RHCoxa_roll</child>
       <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
       <axis>
-        <xyz>0.0 0.0 -1.0</xyz>
+        <xyz>0.0 0.0 1.0</xyz>
         <limit>
           <lower>-3.132800398985696</lower>
           <upper>3.132800398985696</upper>
@@ -3816,7 +3816,7 @@
       <child>RMFemur_roll</child>
       <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
       <axis>
-        <xyz>0.0 0.0 -1.0</xyz>
+        <xyz>0.0 0.0 1.0</xyz>
         <limit>
           <lower>-3.1415918047449765</lower>
           <upper>3.1415918047449765</upper>
