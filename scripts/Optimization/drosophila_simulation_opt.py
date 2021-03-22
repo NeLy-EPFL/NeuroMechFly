@@ -134,12 +134,10 @@ class DrosophilaSimulation(BulletSimulation):
             if joint_name not in self.actuated_joints:# and 'support' not in joint_name:          
                 if joint_name == 'joint_A3' or joint_name == 'joint_A4' or joint_name == 'joint_A5' or joint_name == 'joint_A6':
                     pos = np.deg2rad(-15)
-                #else:
-                #    pos = 0
                 elif joint_name == 'joint_LAntenna':
-                    pos = np.deg2rad(25)
+                    pos = np.deg2rad(33)
                 elif joint_name == 'joint_RAntenna':
-                    pos = np.deg2rad(-25)
+                    pos = np.deg2rad(-33)
                 elif joint_name == 'joint_Rostrum' or joint_name == 'joint_LWing_roll':
                     pos = np.deg2rad(90)
                 elif joint_name == 'joint_Haustellum':
@@ -165,33 +163,33 @@ class DrosophilaSimulation(BulletSimulation):
                 #elif joint_name == 'joint_RFFemur_roll':
                 #    pos = np.deg2rad(26)
                 elif joint_name == 'joint_LFTarsus1':
-                    pos = np.deg2rad(-38)#-44)
+                    pos = np.deg2rad(-39)#-44)
                 elif joint_name == 'joint_RFTarsus1':
-                    pos = np.deg2rad(-51)#-39)
+                    pos = np.deg2rad(-52)#-39)
                 elif joint_name == 'joint_LMCoxa_yaw':
                     pos = np.deg2rad(7.5)#-11)#12
                 elif joint_name == 'joint_RMCoxa_yaw':
-                    pos = np.deg2rad(-0.34)#12)#12
+                    pos = np.deg2rad(-0.22)#12)#12
                 elif joint_name == 'joint_LMCoxa':
-                    pos = np.deg2rad(-5.31)#-3)
+                    pos = np.deg2rad(-5.3)#-3)
                 elif joint_name == 'joint_RMCoxa':
-                    pos = np.deg2rad(-8.66)#-5)
+                    pos = np.deg2rad(-8.7)#-5)
                 #elif joint_name == 'joint_LMFemur_roll':
                 #    pos = np.deg2rad(-7)
                 #elif joint_name == 'joint_RMFemur_roll':
                 #    pos = np.deg2rad(7)                    
                 elif joint_name == 'joint_LMTarsus1':
-                    pos = np.deg2rad(-51)#-53)
+                    pos = np.deg2rad(-55)#-53)
                 elif joint_name == 'joint_RMTarsus1':
-                    pos = np.deg2rad(-53)#-46)                    
+                    pos = np.deg2rad(-54)#-46)                    
                 elif joint_name == 'joint_LHCoxa_yaw':
-                    pos = np.deg2rad(7.44)#-13)
+                    pos = np.deg2rad(3.44)#-13)
                 elif joint_name == 'joint_RHCoxa_yaw':
-                    pos = np.deg2rad(0.74)
+                    pos = np.deg2rad(0.7)
                 elif joint_name == 'joint_LHCoxa':
-                    pos = np.deg2rad(-51)#20)
+                    pos = np.deg2rad(6.2)#20)
                 elif joint_name == 'joint_RHCoxa':
-                    pos = np.deg2rad(-8.66)#13)
+                    pos = np.deg2rad(10)#13)
                 #elif joint_name == 'joint_LHFemur_roll':
                 #    pos = np.deg2rad(9)
                 #elif joint_name == 'joint_RHFemur_roll':
@@ -589,9 +587,11 @@ def main():
 
     sim_options = {
         "headless": False,
-        "model": "../../design/sdf/neuromechfly_noLimits.sdf",
+        # Scaled SDF model 
+        "model": "../../design/sdf/neuromechfly_noLimits.sdf", 
         "model_offset": [0., 0., 11.2e-3],
         "run_time": run_time,
+    
         "pose": '../../config/pose_tripod.yaml',
         "base_link": 'Thorax',
         "controller": '../../config/locomotion_ball.graphml',
@@ -624,12 +624,13 @@ def main():
     )
     '''
     fun, var = read_optimization_results(
-        "./FUN_old.ged3",
-        "./VAR_old.ged3"
+        "./FUN.ged3",
+        "./VAR.ged3"
     )
 
     #params = var[np.argmin(fun[:,0]*fun[:,1])]
     params = var[np.argmin(fun[:,0])]
+    params = np.array(params)
     animal.update_parameters(params)
 
     animal.run(optimization=False)
