@@ -588,7 +588,7 @@ def main():
     sim_options = {
         "headless": False,
         # Scaled SDF model 
-        "model": "../../design/sdf/neuromechfly_noLimits.sdf", 
+        "model": "../../design/sdf/neuromechfly_limitsFromData.sdf", 
         "model_offset": [0., 0., 11.2e-3],
         "run_time": run_time,
     
@@ -624,12 +624,12 @@ def main():
     )
     '''
     fun, var = read_optimization_results(
-        "./FUN.ged3",
-        "./VAR.ged3"
+        "./FUN_old.ged3",
+        "./VAR_old_2.ged3"
     )
 
-    #params = var[np.argmin(fun[:,0]*fun[:,1])]
-    params = var[np.argmin(fun[:,0])]
+    params = var[np.argmin(fun[:,0]*fun[:,1])]
+    #params = var[np.argmin(fun[:,0])]
     params = np.array(params)
     animal.update_parameters(params)
 

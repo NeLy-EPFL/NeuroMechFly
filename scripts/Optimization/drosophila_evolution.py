@@ -19,8 +19,7 @@ from jmetal.operator import (DifferentialEvolutionCrossover,
 from jmetal.util.evaluator import MultiprocessEvaluator
 from jmetal.util.observer import ProgressBarObserver, VisualizerObserver
 from jmetal.util.ranking import FastNonDominatedRanking
-from jmetal.util.solution import \
-    print_function_values_to_file  # read_solutions,
+from jmetal.util.solution import print_function_values_to_file  
 from jmetal.util.solution import print_variables_to_file
 from jmetal.util.termination_criterion import StoppingByEvaluations
 from drosophila_simulation_opt import DrosophilaSimulation
@@ -106,7 +105,10 @@ class DrosophilaEvolution(FloatProblem):
         #lower_bound_active_muscles = (
         #np.ones((N, 6))*np.array([1e-3, 1e-3, 1e-4, 1e-5, 0.5, 0.0]
         #    )).flatten()
-        lower_bound_active_muscles = (np.ones((N, 6))*np.array([1e-1, 1e-1, 1e-1, 1e-1, 0.5, 0.0])).flatten()
+        lower_bound_active_muscles = (
+                np.ones((N, 6))*np.array([1e-3, 1e-3, 1e-4, 1e-5, 0.5, 0.0]
+            )).flatten()
+                   
         #upper_bound_active_muscles = (
         #    np.ones((N, 6))*np.array([7e-1, 7e-1, 7e-2, 7e-3, 0.0, 0.0]
         #    )).flatten()
@@ -132,9 +134,9 @@ class DrosophilaEvolution(FloatProblem):
         #upper_bound_active_muscles = np.array([6e-2, 3e-2, 3e-3, 1e-3, 1.5, 2]*3 +
         #                                      [6e-2, 3e-2, 3e-3, 1e-3, 1.5, 2]*3 +
         #                                      [6e-2, 3e-2, 3e-3, 1e-3, 1.5, 2]*3)
-        upper_bound_active_muscles = np.array([6, 3, 3, 1, 150, 200]*3 +
-                                        [6, 3, 3, 1, 150, 200]*3 +
-                                        [6, 3, 3, 1, 150, 200]*3)
+        upper_bound_active_muscles = np.array([6e-2, 3e-2, 3e-3, 1e-3, 1.5, 2]*3 +
+                                              [6e-2, 3e-2, 3e-3, 1e-3, 1.5, 2]*3 +
+                                              [6e-2, 3e-2, 3e-3, 1e-3, 1.5, 2]*3)
         #F:[2e-2, 2e-2, 3e-3, 1e-3, 1.5, 2], M:[3e-2, 3e-2, 3e-3, 1e-3, 1.5, 2], H:[3e-2, 3e-2, 1e-3, 8e-4, 1.5, 2]
         
         #: Phases
@@ -250,12 +252,12 @@ class DrosophilaEvolution(FloatProblem):
         penalty_time_stance = 0.0 if min_legs <= mean_stance_legs <= expected_stance_legs else 1e2*abs(mean_stance_legs - min_legs)
 
         print(-2e3*distance,penalty_linearity,penalty_time)
-        print(1e4*act,penalty_dist,penalty_time_stance)
+        #print(1e4*act,penalty_dist,penalty_time_stance)
         print(2e3*stability,penalty_dist,penalty_time_stance)
         # into a single objective
         solution.objectives[0] = (-2e3*distance + penalty_linearity + penalty_time)
-        #solution.objectives[1] = (1e4*act + penalty_dist + penalty_time_stance)
-        solution.objectives[1] = (2e3*stability + penalty_dist + penalty_time_stance)
+        solution.objectives[1] = (1e4*act + penalty_dist + penalty_time_stance)
+        #solution.objectives[1] = (2e3*stability + penalty_dist + penalty_time_stance)
         print(solution.objectives)
         return solution
 
@@ -269,8 +271,8 @@ class DrosophilaEvolution(FloatProblem):
 def main():
     """ Main """
 
-    n_pop = 20
-    n_gen = 150
+    n_pop = 50
+    n_gen = 300
 
     max_evaluations = n_pop*n_gen
 
