@@ -27,6 +27,7 @@ import yaml
 
 import bpy
 sys.path.append(bpy.data.filepath)
+SCRIPT_PATH = pathlib.Path(__file__).parent.absolute()
 
 
 def add_floor(**kwargs):
@@ -172,8 +173,8 @@ def configure_scene(**kwargs):
 def add_cameras():
     """Add cameras """
     camera_options = {
-        "loc": (3.3, -0.165, -0.035), "rot": (np.pi/2, 0., np.pi/2.),
-        "type": 'ORTHO', "lens": 50, "scale": 2.5
+        "loc": (4.4, -0.165, -0.035), "rot": (np.pi/2, 0., np.pi/2.),
+        "type": 'PERSP', "lens" : 50, "scale" : 1.0
     }
     #: Create camera 0
     camera_front = create_multiview_camera(
@@ -181,7 +182,7 @@ def add_cameras():
     )
 
     #: Create camera 1
-    camera_options['loc'] = (0.43, 2., -0.035)
+    camera_options['loc'] = (0.43, 3.78, -0.035)
     camera_options['rot'] = (np.pi/2, 0., np.pi)
     camera_side = create_multiview_camera(
         1, camera_options
@@ -210,7 +211,10 @@ def render_leg(side='R', leg='F', cameras=None, camera_options=None):
         bpy.data.scenes['Scene'].camera = camera
 
         # render settings
-        bpy.context.scene.render.filepath =  f"../../data/leg_joints_{camera.name}.png"
+        bpy.context.scene.render.filepath =  os.path.join(
+            SCRIPT_PATH,
+            f"../../data/leg_joints_{camera.name}.png"
+        )
         bpy.ops.render.render(write_still=1)
 
 
@@ -230,10 +234,21 @@ def main():
     model_name, objs = load_fly(
         model_offset=(0.0, 0.0, 0.0), resources_scale=0.15
     )
-    #: Configure freestyle
-    configure_freestyle(objs)
     #: add cameras
     cameras=add_cameras()
+    #: Add resource object
+    world_axis = get_resource_object(resource_object='link', name="world")
+    world_axis.scale = [0.25]*3
+    world_axis.location = (0.71, -0.73, -1.13)
+    #: Configure freestyle
+    configure_freestyle(
+        objs=[
+            world_axis, *[
+                obj
+                for obj, _ in objs_of_farms_types(joint_axis=True)
+            ]
+        ]
+    )
     #: Display
     display = {
         'link': False,
