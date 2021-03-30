@@ -139,7 +139,7 @@ documentation/_templates
 # data
 scripts/
 config/
-design/
+!design/
 data/
 build/
 
