@@ -25,7 +25,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         #: Simulation options
         self.GUI = p.DIRECT if kwargs["headless"] else p.GUI
         self.GRAVITY = np.array(
-            kwargs.get("gravity", [0, 0, -9.81])
+            kwargs.get("gravity", [0, 0, -9.81*self.units.gravity])
         )*self.units.gravity
         self.TIME_STEP = kwargs.get("time_step", 0.001)*self.units.seconds
         self.REAL_TIME = kwargs.get("real_time", 0)
@@ -41,10 +41,10 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         self.POSE_FILE = kwargs.get("pose", None)
         self.MUSCLE_CONFIG_FILE = kwargs.get("muscles", None)
         self.container = container
-        self.camera_distance = kwargs.get('camera_distance', 0.1)
+        self.camera_distance = kwargs.get('camera_distance', 0.1)*self.units.meters
         self.track_animal = kwargs.get("track", True)
         self.slow_down = kwargs.get("slow_down", False)
-        self.sleep_time = kwargs.get("sleep_time", 0.001)
+        self.sleep_time = kwargs.get("sleep_time", 1e-3)
         self.VIS_OPTIONS_BACKGROUND_COLOR_RED = kwargs.get(
             'background_color_red', 1)
         self.VIS_OPTIONS_BACKGROUND_COLOR_GREEN = kwargs.get(
@@ -56,7 +56,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         self.rotate_camera = kwargs.get('rot_cam', False)
         self.behavior = kwargs.get('behavior', 'walking')
         self.self_collisions = kwargs.get('self_collisions', [])
-        
+
         #: Init
         self.TIME = 0.0
         self.plane = None
@@ -73,7 +73,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         #self.torques=[]
         #self.grf=[]
         ####################
-        
+
         #: ADD PHYSICS SIMULATION namespace to container
         self.sim_data = self.container.add_namespace('physics')
         #: ADD Tables to physics container
@@ -109,10 +109,10 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                 -85,
                 -10,
                 base)
-        
+
         #: Initialize simulation
         self.initialize_simulation()
-        
+
 
     def __del__(self):
         print('Disconnecting pybullet')
@@ -187,10 +187,10 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         colorBody = [140/255,100/255,30/255,1]
         colorLegs = [170/255,130/255,50/255,1]
         nospecular = [0.5,0.5,0.5]
-        
+
         p.changeVisualShape(self.animal, -1, rgbaColor=colorBody,specularColor=nospecular)
 
-        
+
         #for n in range(self.num_joints):
         #    info = p.getJointInfo(self.animal, n)
         #    _id = info[0]
@@ -213,7 +213,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                 p.changeVisualShape(self.animal, _id, rgbaColor=colorLegs,specularColor=nospecular)
             elif 'Fake' not in link_name:
                 p.changeVisualShape(self.animal, _id, rgbaColor=colorBody,specularColor=nospecular)
-                
+
             print("Link name {} id {}".format(link_name, _id))
             #self.link_names.append(link_name)
 
@@ -255,7 +255,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                 linkIndexB=self.link_id[link1],
                 enableCollision=1,
             )
-                    
+
         '''
         LFTarsus = ['LFTarsus' + str(i) for i in range(1, 6)]
         RFTarsus = ['RFTarsus' + str(i) for i in range(1, 6)]
@@ -284,7 +284,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         if self.CONTROLLER:
             self.controller = NeuralSystem(
                 self.CONTROLLER, self.container)
-            
+
         #: ADD base position parameters
         #self.sim_data.base_position.add_parameter('x')
         #self.sim_data.base_position.add_parameter('y')
@@ -298,7 +298,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
 
 
         ########## DISABLE DEFAULT BULLET CONTROLLERS  ##########
-        
+
         p.setJointMotorControlArray(
             self.animal,
             np.arange(self.num_joints),
@@ -322,7 +322,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         self.total_mass = 0.0
 
         for j in np.arange(-1, p.getNumJoints(self.animal)):
-            self.total_mass += p.getDynamicsInfo(self.animal, j)[0]
+            self.total_mass += p.getDynamicsInfo(self.animal, j)[0]*self.units.kilograms
 
         self.bodyweight = -1 * self.total_mass * self.GRAVITY[2]
         print("Total mass = {}".format(self.total_mass))
@@ -339,19 +339,19 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                 collisionFilterGroup=group,
                 collisionFilterMask=mask
             )
-            
+
 
     def initialize_simulation(self):
         """ Initialize simulation. """
         ########## INITIALIZE THE CONTAINER ##########
         self.container.initialize()
-        
+
         ########## SETUP THE INTEGRATOR ##########
         if self.CONTROLLER:
             self.controller.setup_integrator()
         if self.MUSCLES:
             self.muscles.setup_integrator()
-        
+
     def initialize_muscles(self):
         self.muscles = MusculoSkeletalSystem(self.MUSCLE_CONFIG_FILE)
 
@@ -362,7 +362,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
              File path to the pose data
         """
         if pose_file:
-            
+
             try:
                 with open(pose_file) as stream:
                     data = yaml.load(stream, Loader=yaml.SafeLoader)
@@ -404,7 +404,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             [pt[9]for pt in c], axis=0) / self.bodyweight if c else self.ZEROS_3x1
         force = self.normal * self.normal_dir
 
-        return force[2]
+        return force[2]*self.units.newtons
 
     def _get_contact_force_ball(self, link_id):
         c = p.getContactPoints(
@@ -416,14 +416,14 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             [pt[7]for pt in c], axis=0) / len(c) if c else self.ZEROS_3x1
         self.normal = np.sum(
             [pt[9]for pt in c], axis=0) / self.bodyweight if c else self.ZEROS_3x1
-        force = self.normal * self.normal_dir
+        force = self.normal * self.normal_dir*self.units.newtons
         res_force = np.linalg.norm(force)
         res_dir = np.arctan2(force[2],force[1])
         #print(len(c),self.normal_dir, self.normal,force)
         #return force[2]
         return res_force, res_dir
 
-    
+
     def _get_selfCollision_force(self, links):
         c = p.getContactPoints(
             self.animal, self.animal,
@@ -439,12 +439,12 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         #force2 = np.sum(
         #    [pt[12]*np.asarray(pt[13]) for pt in c], axis=0) if c else self.ZEROS_3x1
 
-        force = self.normal * self.normal_dir
+        force = self.normal * self.normal_dir*self.units.newtons
         res_force = np.linalg.norm(force)#+np.linalg.norm(force1)+np.linalg.norm(force2)
         res_dir = np.arctan2(force[2],force[1])
         #print(links[0],links[1],force,force1,force2,res_force)
         return res_force, res_dir
-    
+
 
     def get_contact_friction(self, link_id):
         c = p.getContactPoints(
@@ -455,7 +455,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             [pt[10]*np.asarray(pt[11]) for pt in c], axis=0) if c else self.ZEROS_3x1
         force2 = np.sum(
             [pt[12]*np.asarray(pt[13]) for pt in c], axis=0) if c else self.ZEROS_3x1
-        return force1, force2
+        return force1*self.units.newtons, force2*self.units.newtons
 
     def is_contact(self, link_name):
         """ Check if link is in contact with floor. """
@@ -469,22 +469,22 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         #####Create Fly ball
         colSphereParent = p.createCollisionShape(p.GEOM_SPHERE, radius=0.001)
         colSphereId = p.createCollisionShape(p.GEOM_SPHERE, radius=r)
-        
+
         massParent = 0
         visualShapeId = -1
 
         if self.behavior == 'walking':
-            #basePosition=[-0.0225,0.0051,0.61973] ### Walking ball r= 0.55            
+            #basePosition=[-0.0225,0.0051,0.61973] ### Walking ball r= 0.55
             basePosition = np.array([0.39e-3, -0.14e-3,-5.01e-3])*self.units.meters+self.MODEL_OFFSET
         elif self.behavior == 'grooming':
             basePosition = np.array([0.0e-3, -0.12e-3,-4.85e-3])*self.units.meters+self.MODEL_OFFSET
-            
+
         #basePosition=[-0.03,-0.0,0.589] ### Walking ball r= 0.525
-        #basePosition=[-0.02,0.0,0.595] ### Walking ball r= 0.52        
+        #basePosition=[-0.02,0.0,0.595] ### Walking ball r= 0.52
         #basePosition=[-0.04,-0.005,0.594] ### Walking ball r=0.52
         #basePosition=[-0.04,0.0,0.605] ### Walking ball r=0.51
-        
-        
+
+
         baseOrientation = [0,0,0,1]
 
         link_Masses = np.array([5e-11,5e-11,5e-11])*self.units.kilograms
@@ -498,7 +498,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         jointTypes = [p.JOINT_REVOLUTE,p.JOINT_REVOLUTE,p.JOINT_REVOLUTE]
         #axis = [[1, 0, 0],[0, 1, 0],[0, 0, 1]]
         axis = [[0, 1, 0],[1, 0, 0],[0, 0, 1]]
-               
+
         sphereId = p.createMultiBody(massParent,
                                       colSphereParent,
                                       visualShapeId,
@@ -523,7 +523,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         p.changeVisualShape(sphereId, 2, rgbaColor=[225/255,225/255,210/255,1],specularColor=[0,0,0],textureUniqueId=textureBall)
 
         return sphereId
-        
+
     @property
     def joint_states(self):
         """ Get all joint states  """
@@ -551,9 +551,9 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         """ Get the position of the animal  """
         if self.BASE_LINK and self.link_id[self.BASE_LINK] != -1:
             link_id = self.link_id[self.BASE_LINK]
-            return (p.getLinkState(self.animal, link_id))[0]
+            return (p.getLinkState(self.animal, link_id))[0]*self.units.meters
         else:
-            return (p.getBasePositionAndOrientation(self.animal))[0]
+            return (p.getBasePositionAndOrientation(self.animal))[0]*self.units.meters
 
     @property
     def joint_positions(self):
@@ -570,15 +570,16 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         """ Get the joint torques in the animal  """
         _joints = np.arange(0, p.getNumJoints(self.animal))
         return tuple(
-            state[-1] for state in p.getJointStates(
-                self.animal, _joints)
+            state[-1]*self.units.torques
+            for state in p.getJointStates(self.animal, _joints)
         )
 
     @property
     def joint_velocities(self):
         """ Get the joint velocities in the animal  """
         return tuple(
-            state[1] for state in p.getJointStates(
+            state[1]*self.units.velocity
+            for state in p.getJointStates(
                 self.animal,
                 np.arange(0, p.getNumJoints(self.animal))
             )
@@ -587,25 +588,25 @@ class BulletSimulation(metaclass=abc.ABCMeta):
     @property
     def distance_x(self):
         """ Distance the animal has travelled in x-direction. """
-        return self.base_position[0]
+        return self.base_position[0]*self.units.meters
 
     @property
     def distance_y(self):
         """ Distance the animal has travelled in y-direction. """
-        return -self.base_position[1]
+        return -self.base_position[1]*self.units.meters
 
     @property
     def distance_z(self):
         """ Distance the animal has travelled in z-direction. """
-        return self.base_position[2]
+        return self.base_position[2]*self.units.meters
 
     @property
     def mechanical_work(self):
         """ Mechanical work done by the animal. """
-        return np.sum(np.sum(
-            np.abs(np.asarray(self.sim_data.joint_torques.log)
-            * np.asarray(self.sim_data.joint_velocities.log))
-        ))*self.TIME_STEP/self.RUN_TIME
+        return np.sum(
+            np.sum(np.abs(np.asarray(self.sim_data.joint_torques.log)\
+                * np.asarray(self.sim_data.joint_velocities.log)))
+        )*self.TIME_STEP/self.RUN_TIME
 
     @property
     def thermal_loss(self):
@@ -677,7 +678,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                 -85,
                 -10,
                 base)
-        
+
         ####Walking camera sequence########
         if self.GUI == p.GUI and self.rotate_camera and self.behavior=='walking':
             base = np.array(self.base_position)
@@ -710,8 +711,8 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                 yaw,
                 pitch,
                 base)
-        
-        
+
+
         ######Grooming camera sequence#######
         if self.GUI == p.GUI and self.rotate_camera and self.behavior=='grooming':
             base = np.array(self.base_position)
@@ -732,8 +733,8 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                 yaw,
                 pitch,
                 base)
-        
-            
+
+
         #: update the feedback to controller
         self.feedback_to_controller()
 
@@ -752,6 +753,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         self.TIME += self.TIME_STEP
         #: Step physics
         p.stepSimulation()
+        # FIXME: Why is this commented out?
         #: Update logs
         #self.update_logs()
         #: Update container log
