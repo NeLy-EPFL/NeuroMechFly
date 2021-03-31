@@ -322,7 +322,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         self.total_mass = 0.0
 
         for j in np.arange(-1, p.getNumJoints(self.animal)):
-            self.total_mass += p.getDynamicsInfo(self.animal, j)[0]*self.units.kilograms
+            self.total_mass += p.getDynamicsInfo(self.animal, j)[0]/self.units.kilograms
 
         self.bodyweight = -1 * self.total_mass * self.GRAVITY[2]
         print("Total mass = {}".format(self.total_mass))
@@ -404,7 +404,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             [pt[9]for pt in c], axis=0) / self.bodyweight if c else self.ZEROS_3x1
         force = self.normal * self.normal_dir
 
-        return force[2]*self.units.newtons
+        return force[2]/self.units.newtons
 
     def _get_contact_force_ball(self, link_id):
         c = p.getContactPoints(
@@ -416,8 +416,8 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             [pt[7]for pt in c], axis=0) / len(c) if c else self.ZEROS_3x1
         self.normal = np.sum(
             [pt[9]for pt in c], axis=0) / self.bodyweight if c else self.ZEROS_3x1
-        force = self.normal * self.normal_dir*self.units.newtons
-        res_force = np.linalg.norm(force)
+        force = (self.normal * self.normal_dir)
+        res_force = np.linalg.norm(force)/self.units.newtons
         res_dir = np.arctan2(force[2],force[1])
         #print(len(c),self.normal_dir, self.normal,force)
         #return force[2]
@@ -439,8 +439,9 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         #force2 = np.sum(
         #    [pt[12]*np.asarray(pt[13]) for pt in c], axis=0) if c else self.ZEROS_3x1
 
-        force = self.normal * self.normal_dir*self.units.newtons
-        res_force = np.linalg.norm(force)#+np.linalg.norm(force1)+np.linalg.norm(force2)
+        force = self.normal * self.normal_dir
+        #+np.linalg.norm(force1)+np.linalg.norm(force2)
+        res_force = np.linalg.norm(force)/self.units.newtons
         res_dir = np.arctan2(force[2],force[1])
         #print(links[0],links[1],force,force1,force2,res_force)
         return res_force, res_dir
@@ -455,7 +456,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             [pt[10]*np.asarray(pt[11]) for pt in c], axis=0) if c else self.ZEROS_3x1
         force2 = np.sum(
             [pt[12]*np.asarray(pt[13]) for pt in c], axis=0) if c else self.ZEROS_3x1
-        return force1*self.units.newtons, force2*self.units.newtons
+        return force1/self.units.newtons, force2/self.units.newtons
 
     def is_contact(self, link_name):
         """ Check if link is in contact with floor. """
@@ -551,9 +552,9 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         """ Get the position of the animal  """
         if self.BASE_LINK and self.link_id[self.BASE_LINK] != -1:
             link_id = self.link_id[self.BASE_LINK]
-            return (p.getLinkState(self.animal, link_id))[0]*self.units.meters
+            return (p.getLinkState(self.animal, link_id))[0]/self.units.meters
         else:
-            return (p.getBasePositionAndOrientation(self.animal))[0]*self.units.meters
+            return (p.getBasePositionAndOrientation(self.animal))[0]/self.units.meters
 
     @property
     def joint_positions(self):
@@ -570,7 +571,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         """ Get the joint torques in the animal  """
         _joints = np.arange(0, p.getNumJoints(self.animal))
         return tuple(
-            state[-1]*self.units.torques
+            state[-1]/self.units.torques
             for state in p.getJointStates(self.animal, _joints)
         )
 
@@ -578,7 +579,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
     def joint_velocities(self):
         """ Get the joint velocities in the animal  """
         return tuple(
-            state[1]*self.units.velocity
+            state[1]/self.units.velocity
             for state in p.getJointStates(
                 self.animal,
                 np.arange(0, p.getNumJoints(self.animal))
@@ -588,17 +589,17 @@ class BulletSimulation(metaclass=abc.ABCMeta):
     @property
     def distance_x(self):
         """ Distance the animal has travelled in x-direction. """
-        return self.base_position[0]*self.units.meters
+        return self.base_position[0]/self.units.meters
 
     @property
     def distance_y(self):
         """ Distance the animal has travelled in y-direction. """
-        return -self.base_position[1]*self.units.meters
+        return -self.base_position[1]/self.units.meters
 
     @property
     def distance_z(self):
         """ Distance the animal has travelled in z-direction. """
-        return self.base_position[2]*self.units.meters
+        return self.base_position[2]/self.units.meters
 
     @property
     def mechanical_work(self):
