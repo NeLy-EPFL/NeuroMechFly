@@ -13,7 +13,7 @@ joints:
 
   joint_RHCoxa: 20
   joint_RHCoxa_yaw: -13
-  joint_RHCoxa_roll: 216
+  joint_RHCoxa_roll: -144
   joint_RHFemur: -131
   joint_RHTibia: 165
   joint_RHTarsus1: -40
