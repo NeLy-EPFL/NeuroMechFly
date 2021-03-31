@@ -173,7 +173,7 @@ def configure_scene(**kwargs):
 def add_cameras():
     """Add cameras """
     camera_options = {
-        "loc": (4.4, -0.165, -0.035), "rot": (np.pi/2, 0., np.pi/2.),
+        "loc": (12.4, -0.165, -0.035), "rot": (np.pi/2, 0., np.pi/2.),
         "type": 'PERSP', "lens" : 50, "scale" : 1.0
     }
     #: Create camera 0
@@ -182,7 +182,7 @@ def add_cameras():
     )
 
     #: Create camera 1
-    camera_options['loc'] = (0.43, 3.78, -0.035)
+    camera_options['loc'] = (-0.43, 10.78, -0.035)
     camera_options['rot'] = (np.pi/2, 0., np.pi)
     camera_side = create_multiview_camera(
         1, camera_options
@@ -213,16 +213,36 @@ def render_leg(side='R', leg='F', cameras=None, camera_options=None):
         # render settings
         bpy.context.scene.render.filepath =  os.path.join(
             SCRIPT_PATH,
-            f"../../data/leg_joints_{camera.name}.png"
+            f"./leg_joints_{camera.name}.png"
         )
         bpy.ops.render.render(write_still=1)
 
+def render_whole_body(cameras=None, camera_options=None):
+    """ Render leg """
+
+    objs = {
+        obj.name : obj
+        for obj, _ in objs_of_farms_types(visual=True, joint_axis=True)
+    }
+
+    display_farms_types(objs=objs.values(), visual=True, joint_axis=True)
+
+    for camera in cameras:
+        #: Choose camera
+        bpy.data.scenes['Scene'].camera = camera
+
+        # render settings
+        bpy.context.scene.render.filepath =  os.path.join(
+            SCRIPT_PATH,
+            f"./whole_body_{camera.name}.png"
+        )
+        bpy.ops.render.render(write_still=1)
 
 def main():
     """ main """
     #: Load default scene
     scene(
-        add_floor=False, scale=1e-2, resolution_x=1080, resolution_y=1920,
+        add_floor=False, scale=1e-2, resolution_x= 1920, resolution_y=1080,
         render_samples=16
     )
     #: Configure scene
@@ -263,7 +283,7 @@ def main():
     #: Hide all
     display_farms_types(objs=objs, **display)
     #: Render leg
-    render_leg(cameras=cameras)
+    render_whole_body(cameras=cameras)
 
 
 if __name__ == '__main__':
