@@ -25,8 +25,8 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         #: Simulation options
         self.GUI = p.DIRECT if kwargs["headless"] else p.GUI
         self.GRAVITY = np.array(
-            kwargs.get("gravity", [0, 0, -9.81*self.units.gravity])
-        )*self.units.gravity
+            kwargs.get("gravity", [0, 0, -9.81])
+        )
         self.TIME_STEP = kwargs.get("time_step", 0.001)*self.units.seconds
         self.REAL_TIME = kwargs.get("real_time", 0)
         self.RUN_TIME = kwargs.get("run_time", 10)*self.units.seconds
@@ -146,7 +146,9 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         p.resetSimulation()
         p.setAdditionalSearchPath(pybullet_data.getDataPath())
         #: everything should fall down
-        p.setGravity(self.GRAVITY[0], self.GRAVITY[1], self.GRAVITY[2])
+        p.setGravity(
+            *[g*self.units.gravity for g in self.GRAVITY]
+        )
         p.setPhysicsEngineParameter(
             fixedTimeStep=self.TIME_STEP,
             numSolverIterations=100,
@@ -401,7 +403,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         self.normal_dir = -1 * np.sum(
             [pt[7]for pt in c], axis=0) / len(c) if c else self.ZEROS_3x1
         self.normal = np.sum(
-            [pt[9]for pt in c], axis=0) / self.bodyweight if c else self.ZEROS_3x1
+            [pt[9]for pt in c], axis=0) if c else self.ZEROS_3x1
         force = self.normal * self.normal_dir
 
         return force[2]/self.units.newtons
@@ -415,7 +417,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         self.normal_dir = 1 * np.sum(
             [pt[7]for pt in c], axis=0) / len(c) if c else self.ZEROS_3x1
         self.normal = np.sum(
-            [pt[9]for pt in c], axis=0) / self.bodyweight if c else self.ZEROS_3x1
+            [pt[9]for pt in c], axis=0) if c else self.ZEROS_3x1
         force = (self.normal * self.normal_dir)
         res_force = np.linalg.norm(force)/self.units.newtons
         res_dir = np.arctan2(force[2],force[1])
@@ -433,7 +435,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         self.normal_dir = 1 * np.sum(
             [pt[7]for pt in c], axis=0) / len(c) if c else self.ZEROS_3x1
         self.normal = np.sum(
-            [pt[9]for pt in c], axis=0) / self.bodyweight if c else self.ZEROS_3x1
+            [pt[9]for pt in c], axis=0) if c else self.ZEROS_3x1
         #force1 = np.sum(
         #    [pt[10]*np.asarray(pt[11]) for pt in c], axis=0) if c else self.ZEROS_3x1
         #force2 = np.sum(
