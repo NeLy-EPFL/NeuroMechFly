@@ -1,20 +1,23 @@
 """ Class to run animal model. """
 import abc
-from tqdm import tqdm
-import pybullet as p
-import pybullet_data
-import numpy as np
 import os
 import time
+
 import matplotlib.pyplot as plt
-from NeuroMechFly.container import Container
+import numpy as np
 import yaml
+from tqdm import tqdm
+
+import pybullet as p
+import pybullet_data
+from NeuroMechFly.container import Container
 from sdf import load_sdf
+
 try:
     from NeuroMechFly.network.neural_system import NeuralSystem
 except ImportError:
     print("network module not found!")
-    
+
 
 class BulletSimulation(metaclass=abc.ABCMeta):
     """Methods to run bullet simulation.
@@ -127,7 +130,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
     def setup_simulation(self):
         """ Setup the simulation. """
         ########## PYBULLET SETUP ##########
-        if self.RECORD_MOVIE and self.GUI==p.GUI:
+        if self.RECORD_MOVIE and self.GUI == p.GUI:
             p.connect(
                 self.GUI,
                 options='--background_color_red={} --background_color_green={} --background_color_blue={} --mp4={} --mp4fps={}'.format(
@@ -170,9 +173,9 @@ class BulletSimulation(metaclass=abc.ABCMeta):
 
         ########## ADD BALL ######################
         if self.is_ball:
-            self.ball_radius = 5e-03*self.units.meters # 100x (real size d=10mm)
+            # 100x (real size d=10mm)
+            self.ball_radius = 5e-03*self.units.meters
             self.ball_id = self.add_ball(self.ball_radius)
-
 
         ########## ADD ANIMAL #########
         if ".sdf" in self.MODEL:
@@ -189,16 +192,16 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         #: FUCK : Need to clean this section
         self.link_id[p.getBodyInfo(self.animal)[0].decode('UTF-8')] = -1
 
-        colorWings = [91/100,96/100,97/100,0.7]
-        colorEyes = [67/100,21/100,12/100,1]
-        self.colorBody = [140/255,100/255,30/255,1]
-        self.colorLegs = [170/255,130/255,50/255,1]
-        self.colorCollision = [0,1,0,1]
-        nospecular = [0.5,0.5,0.5]
-        
-        p.changeVisualShape(self.animal, -1, rgbaColor=self.colorBody,specularColor=nospecular)
+        colorWings = [91/100, 96/100, 97/100, 0.7]
+        colorEyes = [67/100, 21/100, 12/100, 1]
+        self.colorBody = [140/255, 100/255, 30/255, 1]
+        self.colorLegs = [170/255, 130/255, 50/255, 1]
+        self.colorCollision = [0, 1, 0, 1]
+        nospecular = [0.5, 0.5, 0.5]
 
-        
+        p.changeVisualShape(
+            self.animal, -1, rgbaColor=self.colorBody, specularColor=nospecular)
+
         for n in range(self.num_joints):
             info = p.getJointInfo(self.animal, n)
             _id = info[0]
@@ -213,13 +216,16 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                 p.changeVisualShape(self.animal, _id, rgbaColor=colorWings)
             elif 'Eye' in joint_name and 'Fake' not in joint_name:
                 p.changeVisualShape(self.animal, _id, rgbaColor=colorEyes)
-            elif ('Tarsus' in joint_name or 'Tibia' in joint_name or 'Femur' in joint_name or 'Coxa' in joint_name):# and 'Fake' not in joint_name:
-                p.changeVisualShape(self.animal, _id, rgbaColor=self.colorLegs,specularColor=nospecular)
+            # and 'Fake' not in joint_name:
+            elif ('Tarsus' in joint_name or 'Tibia' in joint_name or 'Femur' in joint_name or 'Coxa' in joint_name):
+                p.changeVisualShape(
+                    self.animal, _id, rgbaColor=self.colorLegs, specularColor=nospecular)
             elif 'Fake' not in joint_name:
-                p.changeVisualShape(self.animal, _id, rgbaColor=self.colorBody,specularColor=nospecular)
-                        
+                p.changeVisualShape(
+                    self.animal, _id, rgbaColor=self.colorBody, specularColor=nospecular)
+
             #print("Link name {} id {}".format(link_name, _id))
-            #self.link_names.append(link_name)
+            # self.link_names.append(link_name)
         '''
 
         ########## ADD ANIMAL #########
@@ -243,7 +249,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         colorBody = [140/255,100/255,30/255,1]
         colorLegs = [170/255,130/255,50/255,1]
         nospecular = [0.5,0.5,0.5]
-        
+
         p.changeVisualShape(self.animal, -1, rgbaColor=colorBody,specularColor=nospecular)
 
         self.joint_id = joints
@@ -257,7 +263,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                 p.changeVisualShape(self.animal, _id, rgbaColor=colorLegs,specularColor=nospecular)
             elif 'Fake' not in link_name:
                 p.changeVisualShape(self.animal, _id, rgbaColor=colorBody,specularColor=nospecular)
-                
+
             #print("Link name {} id {}".format(link_name, _id))
             pylog.debug("Link name {} id {}".format(link_name, _id))
             #self.link_names.append(link_name)
@@ -323,7 +329,6 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             self.sim_data.joint_velocities.add_parameter(name)
             self.sim_data.joint_torques.add_parameter(name)
 
-
         ########## DISABLE DEFAULT BULLET CONTROLLERS  ##########
         p.setJointMotorControlArray(
             self.animal,
@@ -369,7 +374,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         """ Initialize simulation. """
         ########## INITIALIZE THE CONTAINER ##########
         self.container.initialize()
-        
+
         ########## SETUP THE INTEGRATOR ##########
         if self.CONTROLLER:
             self.controller.setup_integrator()
@@ -441,9 +446,9 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             [pt[9]for pt in c], axis=0) / self.bodyweight if c else self.ZEROS_3x1
         force = self.normal * self.normal_dir
         res_force = np.linalg.norm(force)
-        res_dir = np.arctan2(force[2],force[1])
+        res_dir = np.arctan2(force[2], force[1])
         #print(len(c),self.normal_dir, self.normal,force)
-        #return force[2]
+        # return force[2]
         return res_force, res_dir
 
     def get_contact_friction(self, link_id):
@@ -477,59 +482,61 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         return (p.getLinkState(self.animal, self.link_id[link_name]))[0]
 
     def add_ball(self, r):
-        #####Create Fly ball
+        # Create Fly ball
         colSphereParent = p.createCollisionShape(p.GEOM_SPHERE, radius=r)
         colSphereId = p.createCollisionShape(p.GEOM_SPHERE, radius=r)
-        
+
         massParent = 0
         visualShapeId = -1
 
         if self.behavior == 'walking':
-            #basePosition=[-0.025,0.01,0.566] ### Walking ball r= 0.55
-            #basePosition=[-0.025,0.005,0.568] ### Walking ball r= 0.55 NEW
-            #basePosition=[-0.023, 0.0085, 0.6198] ### Walking ball r= 0.5
-            #basePosition=[-0.0225, 0.007, 0.61973] ### Walking ball r= 0.5
-            basePosition = np.array([0.18e-3, 0.18e-3,-5.5e-3])*self.units.meters+self.MODEL_OFFSET
+            # basePosition=[-0.025,0.01,0.566] ### Walking ball r= 0.55
+            # basePosition=[-0.025,0.005,0.568] ### Walking ball r= 0.55 NEW
+            # basePosition=[-0.023, 0.0085, 0.6198] ### Walking ball r= 0.5
+            # basePosition=[-0.0225, 0.007, 0.61973] ### Walking ball r= 0.5
+            basePosition = np.array(
+                [0.18e-3, 0.18e-3, -5.5e-3])*self.units.meters+self.MODEL_OFFSET
         elif self.behavior == 'grooming':
-            #basePosition=[0.0,-0.01,0.63] ### Grooming
-            basePosition = np.array([0.0e-3, 0.0e-3,-5e-3])*self.units.meters+self.MODEL_OFFSET
+            # basePosition=[0.0,-0.01,0.63] ### Grooming
+            basePosition = np.array(
+                [0.0e-3, 0.0e-3, -5e-3])*self.units.meters+self.MODEL_OFFSET
 
-        #basePosition=[-0.03,-0.0,0.589] ### Walking ball r= 0.525
-        #basePosition=[-0.02,0.0,0.595] ### Walking ball r= 0.52        
-        #basePosition=[-0.04,-0.005,0.594] ### Walking ball r=0.52
-        #basePosition=[-0.04,0.0,0.605] ### Walking ball r=0.51
-        
-        
-        baseOrientation = [0,0,0,1]
+        # basePosition=[-0.03,-0.0,0.589] ### Walking ball r= 0.525
+        # basePosition=[-0.02,0.0,0.595] ### Walking ball r= 0.52
+        # basePosition=[-0.04,-0.005,0.594] ### Walking ball r=0.52
+        # basePosition=[-0.04,0.0,0.605] ### Walking ball r=0.51
+
+        baseOrientation = [0, 0, 0, 1]
         #link_Masses = [0.0000005,0.0000005,0.0000005]
-        link_Masses = np.array([5e-11,5e-11,5e-11])*self.units.kilograms
-        linkCollisionShapeIndices = [-1,-1,colSphereId]
-        linkVisualShapeIndices = [-1,-1,-1]
-        linkPositions = [[0, 0, 0],[0, 0, 0],[0, 0, 0]]
-        linkOrientations = [[0, 0, 0, 1],[0, 0, 0, 1],[0, 0, 0, 1]]
-        linkInertialFramePositions = [[0, 0, 0],[0, 0, 0],[0, 0, 0]]
-        linkInertialFrameOrientations = [[0, 0, 0, 1],[0, 0, 0, 1],[0, 0, 0, 1]]
-        indices = [0,1,2]
-        jointTypes = [p.JOINT_REVOLUTE,p.JOINT_REVOLUTE,p.JOINT_REVOLUTE]
+        link_Masses = np.array([5e-11, 5e-11, 5e-11])*self.units.kilograms
+        linkCollisionShapeIndices = [-1, -1, colSphereId]
+        linkVisualShapeIndices = [-1, -1, -1]
+        linkPositions = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
+        linkOrientations = [[0, 0, 0, 1], [0, 0, 0, 1], [0, 0, 0, 1]]
+        linkInertialFramePositions = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
+        linkInertialFrameOrientations = [
+            [0, 0, 0, 1], [0, 0, 0, 1], [0, 0, 0, 1]]
+        indices = [0, 1, 2]
+        jointTypes = [p.JOINT_REVOLUTE, p.JOINT_REVOLUTE, p.JOINT_REVOLUTE]
         #axis = [[1, 0, 0],[0, 1, 0],[0, 0, 1]]
-        axis = [[0, 1, 0],[1, 0, 0],[0, 0, 1]]
-        
+        axis = [[0, 1, 0], [1, 0, 0], [0, 0, 1]]
+
         sphereId = p.createMultiBody(massParent,
-                                      colSphereParent,
-                                      visualShapeId,
-                                      basePosition,
-                                      baseOrientation,
-                                      linkMasses=link_Masses,
-                                      linkCollisionShapeIndices=linkCollisionShapeIndices,
-                                      linkVisualShapeIndices=linkVisualShapeIndices,
-                                      linkPositions=linkPositions,
-                                      linkOrientations=linkOrientations,
-                                      linkInertialFramePositions=linkInertialFramePositions,
-                                      linkInertialFrameOrientations=linkInertialFrameOrientations,
-                                      linkParentIndices=indices,
-                                      linkJointTypes=jointTypes,
-                                      linkJointAxis=axis)
-                                      
+                                     colSphereParent,
+                                     visualShapeId,
+                                     basePosition,
+                                     baseOrientation,
+                                     linkMasses=link_Masses,
+                                     linkCollisionShapeIndices=linkCollisionShapeIndices,
+                                     linkVisualShapeIndices=linkVisualShapeIndices,
+                                     linkPositions=linkPositions,
+                                     linkOrientations=linkOrientations,
+                                     linkInertialFramePositions=linkInertialFramePositions,
+                                     linkInertialFrameOrientations=linkInertialFrameOrientations,
+                                     linkParentIndices=indices,
+                                     linkJointTypes=jointTypes,
+                                     linkJointAxis=axis)
+
         #p.changeDynamics(sphereId,
         #               -1,
         #               spinningFriction=100,
@@ -538,7 +545,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         p.changeVisualShape(sphereId, 2, rgbaColor=[225/255,225/255,210/255,1],specularColor=[0,0,0],textureUniqueId=textureBall)
 
         return sphereId
-        
+
 
     @property
     def joint_states(self):
@@ -706,7 +713,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                 yaw,
                 pitch,
                 base)
-            
+
         #: update the feedback to controller
         self.feedback_to_controller()
 
