@@ -1,22 +1,27 @@
 """ Spring damper muscles. """
 from dataclasses import dataclass
+
 import numpy as np
+
 
 @dataclass
 class Parameters:
+    """ Muscle parameters class """
     alpha: float = 0.0
     beta: float = 0.01
     gamma: float = 0.01
     delta: float = 0.005
+    rest_pos: float = 0.0
     f_mn_clip: float = 0.0
     e_mn_clip: float = 0.0
+
 
 class SDAntagonistMuscle:
     """Antagonist Spring Damper muscles
     """
 
     def __init__(
-            self, container, name,joint_pos, joint_vel, rest_pos = 0.0,
+            self, container, name, joint_pos, joint_vel, rest_pos=0.0,
             flexor_mn=None, extensor_mn=None,
             flexor_amp=None, extensor_amp=None,
             parameters=None
@@ -37,7 +42,7 @@ class SDAntagonistMuscle:
             '{}_delta'.format(name), params.delta
         )[0]
         self.rest_pos = container.muscle.parameters.add_parameter(
-            '{}_rest_pos'.format(name), rest_pos
+            '{}_rest_pos'.format(name), params.rest_pos
         )[0]
         self.f_mn_clip = container.muscle.parameters.add_parameter(
             '{}_f_mn_clip'.format(name), params.f_mn_clip
@@ -74,6 +79,7 @@ class SDAntagonistMuscle:
         self.beta.value = params.beta
         self.gamma.value = params.gamma
         self.delta.value = params.delta
+        self.rest_pos.value = params.rest_pos
         self.f_mn_clip.value = params.f_mn_clip
         self.e_mn_clip.value = params.e_mn_clip
 
@@ -88,7 +94,7 @@ class SDAntagonistMuscle:
         self.passive_torque.value = _passive_stiff - _damp
         if only_passive:
             self.torque.value = self.passive_torque.value
-            return self.torque.value    
+            return self.torque.value
         else:
             #: Active
             self.flexor_act.value = self.r_fmn.value*(
@@ -112,8 +118,7 @@ class SDAntagonistMuscle:
                 self.flexor_act.value + self.extensor_act.value
             )*(self.rest_pos.value - self.jpos.value)
             self.active_torque.value = _co + _active_stiff
-            self.torque.value =  (
+            self.torque.value = (
                 self.active_torque.value + self.passive_torque.value
             )
             return self.torque.value
-            
