@@ -59,6 +59,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         self.rotate_camera = kwargs.get('rot_cam', False)
         self.self_collisions = kwargs.get('self_collisions', [])
         self.draw_collisions = kwargs.get('draw_collisions', False)
+        self.is_ball = kwargs.get("is_ball", True)
 
         #: Init
         self.TIME = 0.0
@@ -74,7 +75,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         ##################
         self.link_names = []
         ####################
-        
+
         #: ADD PHYSICS SIMULATION namespace to container
         self.sim_data = self.container.add_namespace('physics')
         #: ADD Tables to physics container
@@ -168,10 +169,11 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         )
 
         ########## ADD BALL ######################
-        self.ball_radius = 5e-03*self.units.meters # 100x (real size d=10mm)
-        self.ball_id = self.add_ball(self.ball_radius)
+        if self.is_ball:
+            self.ball_radius = 5e-03*self.units.meters # 100x (real size d=10mm)
+            self.ball_id = self.add_ball(self.ball_radius)
 
-        
+
         ########## ADD ANIMAL #########
         if ".sdf" in self.MODEL:
             print(self.MODEL)
