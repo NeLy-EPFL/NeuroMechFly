@@ -24,9 +24,9 @@ class DrosophilaSimulation(BulletSimulation):
         self.pose = [0] * self.num_joints
         self.vel = [0] * self.num_joints
         self.angles = self.load_angles(
-            './new_angles/walking_converted_joint_angles_smoothed.pkl')
+            f'./new_angles/{self.behavior}_converted_joint_angles.pkl')
         self.velocities = self.load_angles(
-            './new_angles/walking_converted_joint_velocities.pkl')
+            f'./new_angles/{self.behavior}_converted_joint_velocities.pkl')
 
     def load_angles(self, data_path):
         try:
@@ -95,7 +95,7 @@ def main():
     """ Main """
     run_time = 4.0
     time_step = 0.001
-    behavior = 'walking'
+    behavior = 'grooming'
 
 
     #: Setting up the collision and ground sensors
@@ -125,22 +125,22 @@ def main():
     sim_options = {
         "headless": False,
         "model": "../../design/sdf/neuromechfly_noLimits.sdf",
-        "model_offset": [0., -0.1, 11.2e-3],
+        "model_offset": [0., -0.1e-3, 11.2e-3],
         "run_time": run_time,
         "base_link": 'Thorax',
         "ground_contacts": ground_contact,
         "self_collisions": self_collision,
         "draw_collisions": False,
-        "record": True,
+        "record": False,
         'camera_distance': 6.0,
-        'track': True,
+        'track': False,
         'moviename': './videos/kinematic_replay_video.mp4',
         'moviefps': 80,
         'slow_down': False,
         'sleep_time': 0.001,
         'rot_cam': False,
         'behavior': behavior,
-        'ground': 'floor'
+        'ground': 'ball'
     }
 
     container = Container(run_time / time_step)
