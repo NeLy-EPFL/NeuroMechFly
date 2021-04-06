@@ -1,18 +1,10 @@
-from bullet_simulation_KM_noSelfCollisions_SA import BulletSimulation
-from random import random
 import pybullet as p
 import numpy as np
-import matplotlib.pyplot as plt
-import sys
-import math
 import pickle
-import os
-from IPython import embed
-import pandas as pd
-import time
+
+from bullet_simulation_kinematic_replay import BulletSimulation
 from NeuroMechFly.container import Container
 from NeuroMechFly.sdf.units import SimulationUnitScaling
-
 
 class DrosophilaSimulation(BulletSimulation):
 
@@ -26,19 +18,13 @@ class DrosophilaSimulation(BulletSimulation):
             meters=1000,
             kilograms=1000)):
         super().__init__(container, units, **sim_options)
-        # Transferred to Container, delete later
-        self.torques = []
-        self.grf = []
-        self.collision_forces = []
-        self.ball_rot = []
-        self.lateral_force1 = []
-        self.lateral_force2 = []
+
         self.kp = Kp
         self.kv = Kv
         self.angles = self.load_angles(
-            './new_angles/walking_joint_angles_smoothed.pkl')
+            './new_angles/walking_converted_joint_angles_smoothed.pkl')
         self.velocities = self.load_angles(
-            './new_angles/walking_joint_velocities.pkl')
+            './new_angles/walking_converted_joint_velocities.pkl')
 
     def load_angles(self, data_path):
         try:
