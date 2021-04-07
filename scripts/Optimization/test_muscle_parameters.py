@@ -212,7 +212,7 @@ class DrosophilaSimulation(BulletSimulation):
 
 def main():
     """ Main """
-    run_time = 5.
+    run_time = 5000.
     time_step = 0.001
 
     side = ['L', 'R']
