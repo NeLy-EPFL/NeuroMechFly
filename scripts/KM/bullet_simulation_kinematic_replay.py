@@ -8,6 +8,8 @@ import os
 import time
 import yaml
 from NeuroMechFly.container import Container
+# FIXME: carry this to a folder
+from sdf import load_sdf
 
 try:
     from NeuroMechFly.network.neural_system import NeuralSystem
@@ -54,7 +56,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         self.MOVIE_NAME = kwargs.get('moviename', 'default_movie.mp4')
         self.MOVIE_FPS = kwargs.get('moviefps', 60)
         self.ROTATE_CAMERA = kwargs.get('rot_cam', False)
-        self.BEHAVIOR = kwargs.get('behavior', 'walking')
+        self.behavior = kwargs.get('behavior', 'walking')
         self.GROUND = kwargs.get('ground', 'ball')
         self.self_collisions = kwargs.get('self_collisions', [])
 
@@ -71,11 +73,6 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         self.link_id = {}
         self.ground_sensors = {}
         self.collision_sensors = {}
-        ##################
-        self.link_names = []
-        self.torques = []
-        self.grf = []
-        ####################
 
         #: ADD 'Physics' namespace to container
         self.sim_data = self.container.add_namespace('physics')
@@ -109,7 +106,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
 
         #: Camera
         if self.GUI == p.GUI and not self.track_animal:
-            base = np.array(self.base_position) * 1e3
+            base = np.array(self.base_position) * self.units.meters
             p.resetDebugVisualizerCamera(
                 self.camera_distance,
                 5,
@@ -151,6 +148,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             p.connect(self.GUI)
         p.resetSimulation()
         p.setAdditionalSearchPath(pybullet_data.getDataPath())
+        
         #: Everything should fall down
         p.setGravity(
             *[g * self.units.gravity for g in self.GRAVITY]
@@ -186,7 +184,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
 
         ########## ADD ANIMAL #########
         if ".sdf" in self.MODEL:
-            self.animal = p.loadSDF(self.MODEL)[0]
+            self.animal, links, joints = load_sdf(self.MODEL)
         elif ".urdf" in self.MODEL:
             self.animal = p.loadURDF(self.MODEL)
         p.resetBasePositionAndOrientation(
@@ -197,50 +195,34 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         #: Generate joint_name to id dict
         self.link_id[p.getBodyInfo(self.animal)[0].decode('UTF-8')] = -1
 
-        colorWings = [91 / 100, 96 / 100, 97 / 100, 0.7]
-        colorEyes = [67 / 100, 21 / 100, 12 / 100, 1]
-        self.colorBody = [140 / 255, 100 / 255, 30 / 255, 1]
-        self.colorLegs = [170 / 255, 130 / 255, 50 / 255, 1]
-        self.colorCollision = [0, 1, 0, 1]
-        nospecular = [0.5, 0.5, 0.5]
+        #: Body colors
+        colorWings = [91/100,96/100,97/100,0.7]
+        colorEyes = [67/100,21/100,12/100,1]
+        colorBody = [140/255,100/255,30/255,1]
+        colorLegs = [170/255,130/255,50/255,1]
+        nospecular = [0.5,0.5,0.5]
 
-        p.changeVisualShape(
-            self.animal, -1, rgbaColor=self.colorBody, specularColor=nospecular)
+        p.changeVisualShape(self.animal, -1, rgbaColor=colorBody,specularColor=nospecular)
 
-        for n in range(self.num_joints):
-            info = p.getJointInfo(self.animal, n)
-            _id = info[0]
-            joint_name = info[1].decode('UTF-8')
-            link_name = info[12].decode('UTF-8')
-            _type = info[2]
-            self.joint_id[joint_name] = _id
-            self.joint_type[joint_name] = _type
-            self.link_id[link_name] = _id
-
-            if 'Wing' in joint_name and 'Fake' not in joint_name:
+        self.joint_id = joints
+        self.link_id = links
+        for link_name, _id in self.joint_id.items():
+            if 'Wing' in link_name and 'Fake' not in link_name:
                 p.changeVisualShape(self.animal, _id, rgbaColor=colorWings)
-            elif 'Eye' in joint_name and 'Fake' not in joint_name:
+            elif 'Eye' in link_name and 'Fake' not in link_name:
                 p.changeVisualShape(self.animal, _id, rgbaColor=colorEyes)
-            # and 'Fake' not in joint_name:
-            elif ('Tarsus' in joint_name or 'Tibia' in joint_name or 'Femur' in joint_name or 'Coxa' in joint_name):
-                p.changeVisualShape(
-                    self.animal,
-                    _id,
-                    rgbaColor=self.colorLegs,
-                    specularColor=nospecular)
-            elif 'Fake' not in joint_name:
-                p.changeVisualShape(
-                    self.animal,
-                    _id,
-                    rgbaColor=self.colorBody,
-                    specularColor=nospecular)
+            elif ('Tarsus' in link_name or 'Tibia' in link_name or 'Femur' in link_name or 'Coxa' in link_name):# and 'Fake' not in link_name:
+                p.changeVisualShape(self.animal, _id, rgbaColor=colorLegs,specularColor=nospecular)
+            elif 'Fake' not in link_name:
+                p.changeVisualShape(self.animal, _id, rgbaColor=colorBody,specularColor=nospecular)
 
             print("Link name {} id {}".format(link_name, _id))
             # self.link_names.append(link_name)
 
         ############### CONFIGURE CONTACTS ###############
 
-        self.set_collisions(self.link_id, group=0, mask=0)
+        self.set_collisions(self.link_id, group=1, mask=1)
+        self.set_collisions_whole_body()
 
         # Disable/Enable all self-collisions
         for link0 in self.link_id.keys():
@@ -267,11 +249,11 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         # Disable/Enable selected self-collisions
         for (link0, link1) in self.self_collisions:
             p.setCollisionFilterPair(
-                bodyUniqueIdA=self.animal,
-                bodyUniqueIdB=self.animal,
-                linkIndexA=self.link_id[link0],
-                linkIndexB=self.link_id[link1],
-                enableCollision=0,
+                bodyUniqueIdA=int(self.animal),
+                bodyUniqueIdB=int(self.animal),
+                linkIndexA=int(self.link_id[link0]),
+                linkIndexB=int(self.link_id[link1]),
+                enableCollision=1,
             )
 
         ########## ADD GROUND_CONTACTS ##########
@@ -308,7 +290,8 @@ class BulletSimulation(metaclass=abc.ABCMeta):
 
         for link0, link1 in self.self_collisions:
             contact_links = '-'.join((link0, link1))
-            self.collision_sensors[contact_links] = [self.link_id[link0], self.link_id[link1]]
+            self.collision_sensors[contact_links] = [
+                self.link_id[link0], self.link_id[link1]]
             #: ADD self collision forces
             for axis in ['x', 'y', 'z']:
                 self.sim_data.collision_forces.add_parameter(
@@ -422,7 +405,6 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         """
         self.ground_sensors[link] = self.link_id[link]
 
-
     def get_contact_forces(self):
         c = p.getContactPoints(self.plane, self.animal)
         normal = np.sum(
@@ -486,7 +468,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         return lateral_friction_force / self.units.newtons
 
     def _get_contact_force_self_collisions(self, link_ids):
-        print(link_ids)
+        #print(link_ids)
         c = p.getContactPoints(
             self.animal, self.animal,
             link_ids[0], link_ids[1])
@@ -516,10 +498,10 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         mass_parent = 0
         visual_shape_id = -1
 
-        if self.BEHAVIOR == 'walking':
+        if self.behavior == 'walking':
             base_position = np.array(
                 [0.20e-3, -0.14e-3, -4.98e-3]) * self.units.meters + self.MODEL_OFFSET
-        elif self.BEHAVIOR == 'grooming':
+        elif self.behavior == 'grooming':
             base_position = np.array(
                 [0.0e-3, 0.0e-3, -5e-3]) * self.units.meters + self.MODEL_OFFSET
 
@@ -609,7 +591,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
     def collision_forces(self):
         """ Get collision forces between limb segments. """
         return list(map(self._get_contact_force_self_collisions,
-                        self.collision_sensors.values()))        
+                        self.collision_sensors.values()))
 
     @property
     def base_position(self):
@@ -646,7 +628,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
     def joint_velocities(self):
         """ Get the joint velocities in the animal  """
         return tuple(
-            state[1] / self.units.velocity for state in p.getJointStates(
+            state[1] for state in p.getJointStates(
                 self.animal,
                 np.arange(0, p.getNumJoints(self.animal))
             )
@@ -758,7 +740,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                 base)
 
         ######## WALKING CAMERA SEQUENCE ########
-        if self.GUI == p.GUI and self.ROTATE_CAMERA and self.BEHAVIOR == 'walking':
+        if self.GUI == p.GUI and self.ROTATE_CAMERA and self.behavior == 'walking':
             base = np.array(self.base_position)
             base[-1] = 1.10
 
@@ -793,7 +775,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                 base)
 
         ###### GROOMING CAMERA SEQUENCE #######
-        if self.GUI == p.GUI and self.ROTATE_CAMERA and self.BEHAVIOR == 'grooming':
+        if self.GUI == p.GUI and self.ROTATE_CAMERA and self.behavior == 'grooming':
             base = np.array(self.base_position)
             if t < 250:
                 yaw = -90
