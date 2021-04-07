@@ -55,7 +55,8 @@ class DrosophilaSimulation(BulletSimulation):
         self.physics = self.container.physics
         self.muscle = self.container.muscle
         ########## Initialize joint muscles ##########
-        for joint in self.actuated_joints:
+        self.debug_joint = 'joint_RFTibia'
+        for joint in [self.debug_joint,]:
             fmn = self.neural.states.get_parameter(
                 'phase_' + joint + '_flexion')
             emn = self.neural.states.get_parameter(
@@ -108,24 +109,26 @@ class DrosophilaSimulation(BulletSimulation):
         #    self.animal, self.plane, self.link_id['Head'], -1, 0
         # )
         ########## DEBUG PARAMETER ##########
-        self.debug_joint = 'joint_RFCoxa'
+        self.debug_joint_id = self.joint_id[self.debug_joint]
         self.debug_parameters = {}
+        self.debug_muscle_act = {}
         self.debug_parameters['alpha'] = p.addUserDebugParameter(
-            'alpha', 1e-3, 6e-2, 0.0)
+            'alpha', 1e-2, 1e-1, 1e-2)
         self.debug_parameters['beta'] = p.addUserDebugParameter(
-            'beta', 1e-3, 3e-2, 0.0)
+            'beta', 1e-2, 1e-1, 1e-2)
         self.debug_parameters['gamma'] = p.addUserDebugParameter(
-            'gamma', 1e-4, 3e-3, 0.0)
+            'gamma', 1e-3, 1e-1, 1e-3)
         self.debug_parameters['delta'] = p.addUserDebugParameter(
-            'delta', 1e-5, 1e-0, 0.0)
-        # self.debug_parameters['flexion'] = p.addUserDebugParameter(
-        #     'flexion', 0, 1, 0.0)
-        # self.debug_parameters['extension'] = p.addUserDebugParameter(
-        #     'extension', 0, 1, 0.0)
+            'delta', 1e-4, 1e-3, 1e-4)
         self.debug_parameters['rest_pos'] = p.addUserDebugParameter(
-            'rest_position', -np.pi/2, np.pi/2, 8.47793825e-01
+            'rest_position',
+            p.getJointInfo(self.animal, self.debug_joint_id)[8],
+            p.getJointInfo(self.animal, self.debug_joint_id)[9],
         )
-        self.debug_joint_id = self.joint_id[joint]
+        self.debug_muscle_act['flexion'] = p.addUserDebugParameter(
+            'flexion', 0, 1, 0.0)
+        self.debug_muscle_act['extension'] = p.addUserDebugParameter(
+            'extension', 0, 1, 0.0)
 
         ########## Data variables ###########
         self.torques = []
@@ -145,6 +148,12 @@ class DrosophilaSimulation(BulletSimulation):
             targetPositions=np.zeros((self.num_joints-1,))
         )
         #: Update muscle parameters
+        self.active_muscles[self.debug_joint].flexor_mn.value = p.readUserDebugParameter(
+            self.debug_muscle_act['flexion']
+        )
+        self.active_muscles[self.debug_joint].extensor_mn.value = p.readUserDebugParameter(
+            self.debug_muscle_act['extension']
+        )
         self.active_muscles[self.debug_joint].update_parameters(
             Parameters(**{
                 key: p.readUserDebugParameter(value)
@@ -160,6 +169,10 @@ class DrosophilaSimulation(BulletSimulation):
                 only_passive=False
             )
         )
+        # print(
+        #     self.active_muscles[self.debug_joint].active_torque.value,
+        #     self.active_muscles[self.debug_joint].passive_torque.value,
+        # )
 
     def feedback_to_controller(self):
         """ Implementation of abstractmethod. """
