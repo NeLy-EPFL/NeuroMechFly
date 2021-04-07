@@ -8,9 +8,9 @@ import numpy as np
 class Parameters:
     """ Muscle parameters class """
     alpha: float = 0.0
-    beta: float = 0.01
-    gamma: float = 0.01
-    delta: float = 0.005
+    beta: float = 0.0
+    gamma: float = 0.0
+    delta: float = 0.0
     rest_pos: float = 0.0
     f_mn_clip: float = 0.0
     e_mn_clip: float = 0.0
@@ -85,7 +85,6 @@ class SDAntagonistMuscle:
 
     def compute_torque(self, only_passive=False):
         """ Compute joint torque. """
-
         #: Passive forces
         _passive_stiff = self.beta.value*self.gamma.value*(
             self.rest_pos.value - self.jpos.value
