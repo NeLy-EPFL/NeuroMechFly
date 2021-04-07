@@ -359,8 +359,8 @@ class DrosophilaSimulation(BulletSimulation):
     def is_flying(self):
         dist_to_centroid = self.stance_polygon_dist()
         self.stability_coef += dist_to_centroid
-        #print(dist_to_centroid)
-        return dist_to_centroid > 0.25
+        # print(dist_to_centroid)
+        return dist_to_centroid > 2.25
 
     def optimization_check(self):
         """ Check optimization status. """
