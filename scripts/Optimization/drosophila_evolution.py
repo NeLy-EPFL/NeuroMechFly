@@ -90,7 +90,7 @@ class DrosophilaEvolution(FloatProblem):
     """Documentation for DrosophilaEvolution"""
     def __init__(self):
         super(DrosophilaEvolution, self).__init__()
-        self.number_of_variables = 71
+        self.number_of_variables = 80
         self.number_of_objectives = 2
         self.number_of_constraints = 0
 
@@ -102,17 +102,59 @@ class DrosophilaEvolution(FloatProblem):
         N = int(noscillators/4)
 
         #: Muscle parameters
+        # coxa : [1e-2, 1e-2, 1e-3, 1e-3], [1e0, 1e0, 1e0, 1e-2]
+        # Femur : [1e-2, 1e-2, 1e-3, 1e-3], [1e0, 1e0, 1e0, 1e-2]
+        # Tibia : [1e-2, 1e-2, 1e-3, 1e-4], [1e-1, 1e-1, 1e-1, 1e-3]
+
+        # muscle params with rest position being optimized
+        lower_bound_active_muscles = (
+                np.asarray(
+                    [# Front
+                    [1e-2, 1e-2, 1e-3, 1e-4, -0.11, 0.0, 0.0], # Coxa
+                    [1e-2, 1e-2, 1e-3, 1e-4, -2.67, 0.0, 0.0], # Femur
+                    [1e-2, 1e-2, 1e-3, 1e-5, 0.89, 0.0, 0.0], # Tibia
+                    # Mid
+                    [1e-2, 1e-2, 1e-3, 1e-4, -2.27, 0.0, 0.0], # Coxa_roll
+                    [1e-2, 1e-2, 1e-3, 1e-4, -2.35, 0.0, 0.0], # Femur
+                    [1e-2, 1e-2, 1e-3, 1e-5, 1.73, 0.0, 0.0], # Tibia
+                    # Hind
+                    [1e-2, 1e-2, 1e-3, 1e-4, -2.78, 0.0, 0.0], # Coxa_roll
+                    [1e-2, 1e-2, 1e-3, 1e-4, -2.46, 0.0, 0.0], # Femur
+                    [1e-2, 1e-2, 1e-3, 1e-5, 1.12, 0.0, 0.0], # Tibia
+                    ]
+                )
+        ).flatten()
+
+        upper_bound_active_muscles = (
+                np.asarray(
+                    [
+                    # Front
+                    [1e0, 1e0, 1e0, 1e-3, 0.80, 1.75, 1.75], # Coxa
+                    [1e0, 1e0, 1e0, 1e-3, -1.31, 1.75, 1.75], # Femur
+                    [1e-1, 1e-1, 1e-1, 1e-4, 2.44, 1.75, 1.75], # Tibia
+                    # Mid
+                    [1e0, 1e0, 1e0, 1e-3, -1.82, 1.75, 1.75], # Coxa_roll
+                    [1e0, 1e0, 1e0, 1e-3, -1.84, 1.75, 1.75], # Femur
+                    [1e-1, 1e-1, 1e-1, 1e-4, 2.63, 1.75, 1.75], # Tibia
+                    # Hind
+                    [1e0, 1e0, 1e0, 1e-3, -2.44, 1.75, 1.75], # Coxa_roll
+                    [1e0, 1e0, 1e0, 1e-3, -1.31, 1.75, 1.75], # Femur
+                    [1e-1, 1e-1, 1e-1, 1e-4, 2.79, 1.75, 1.75], # Tibia
+                    ]
+                )
+        ).flatten()
+
         #lower_bound_active_muscles = (
         #np.ones((N, 6))*np.array([1e-3, 1e-3, 1e-4, 1e-5, 0.5, 0.0]
         #    )).flatten()
-        lower_bound_active_muscles = (
-                np.ones((N, 6))*np.array([1e-3, 1e-3, 1e-4, 1e-5, 0.5, 0.0]
-            )).flatten()
-                   
+        # lower_bound_active_muscles = (
+        #         np.ones((N, 6))*np.array([1e-3, 1e-3, 1e-4, 1e-5, 0.5, 0.0]
+        #     )).flatten()
+
         #upper_bound_active_muscles = (
         #    np.ones((N, 6))*np.array([7e-1, 7e-1, 7e-2, 7e-3, 0.0, 0.0]
         #    )).flatten()
-        
+
         #upper_bound_active_muscles = [8e-3, 8e-3, 8e-4, 8e-5, 1.5, 2,
         #                              8e-3, 8e-3, 8e-4, 8e-5, 1.5, 2,
         #                              8e-3, 8e-3, 8e-4, 8e-5, 1.5, 2,
@@ -126,7 +168,7 @@ class DrosophilaEvolution(FloatProblem):
         #lower_bound_active_muscles = np.array([3e-3, 8e-3, 8e-4, 8e-5, 1.5, 2]*3 +
         #                                      [5e-2, 5e-2, 5e-3, 5e-4, 1.5, 2]*3 +
         #                                      [7e-2, 7e-2, 7e-3, 7e-4, 1.5, 2]*3)
-        
+
         #upper_bound_active_muscles = np.array([4e-1, 3e-2, 3e-3, 1e-3, 1.5, 2]*3 +
         #                                      [3e-1, 2e-2, 3e-3, 1e-3, 1.5, 2]*3 +
         #                                      [2e-1, 1e-2, 1e-3, 7e-4, 1.5, 2]*3)
@@ -134,11 +176,11 @@ class DrosophilaEvolution(FloatProblem):
         #upper_bound_active_muscles = np.array([6e-2, 3e-2, 3e-3, 1e-3, 1.5, 2]*3 +
         #                                      [6e-2, 3e-2, 3e-3, 1e-3, 1.5, 2]*3 +
         #                                      [6e-2, 3e-2, 3e-3, 1e-3, 1.5, 2]*3)
-        upper_bound_active_muscles = np.array([6e-2, 3e-2, 3e-3, 1e-3, 1.5, 2]*3 +
-                                              [6e-2, 3e-2, 3e-3, 1e-3, 1.5, 2]*3 +
-                                              [6e-2, 3e-2, 3e-3, 1e-3, 1.5, 2]*3)
+        # upper_bound_active_muscles = np.array([6e-2, 3e-2, 3e-3, 1e-3, 1.5, 2]*3 +
+        #                                       [6e-2, 3e-2, 3e-3, 1e-3, 1.5, 2]*3 +
+        #                                       [6e-2, 3e-2, 3e-3, 1e-3, 1.5, 2]*3)
         #F:[2e-2, 2e-2, 3e-3, 1e-3, 1.5, 2], M:[3e-2, 3e-2, 3e-3, 1e-3, 1.5, 2], H:[3e-2, 3e-2, 1e-3, 8e-4, 1.5, 2]
-        
+
         #: Phases
         lower_bound_phases = np.ones(
             (17,))*-np.pi
