@@ -409,10 +409,14 @@ class DrosophilaSimulation(BulletSimulation):
         for j, joint in enumerate(symmetry_joints):
             #print(joint,joint.replace('L', 'R', 1),6*j,6*(j+1))
             # print(joint, Parameters(*opti_active_muscle_gains[7*j:7*(j+1)]))
-            self.active_muscles[joint].update_parameters(
+            self.active_muscles[joint.replace('L', 'R', 1)].update_parameters(
                 Parameters(*opti_active_muscle_gains[7*j:7*(j+1)])
             )
-            self.active_muscles[joint.replace('L', 'R', 1)].update_parameters(
+            #: It is important to mirror the joint angles for rest position
+            #: especially for coxa
+            if "Coxa_roll" in joint:
+                opti_active_muscle_gains[(7*j)+5] *= -1
+            self.active_muscles[joint].update_parameters(
                 Parameters(*opti_active_muscle_gains[7*j:7*(j+1)])
             )
         #: Update phases
