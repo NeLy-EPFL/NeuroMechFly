@@ -16,7 +16,7 @@ class SDAntagonistMuscle:
     """
 
     def __init__(
-            self, container, name,joint_pos, joint_vel, rest_pos = 0.0,
+            self, container, name,joint_pos, joint_vel, rest_pos = 0,
             flexor_mn=None, extensor_mn=None,
             flexor_amp=None, extensor_amp=None,
             parameters=None

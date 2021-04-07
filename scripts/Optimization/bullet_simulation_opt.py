@@ -476,7 +476,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
 
     def add_ball(self, r):
         #####Create Fly ball
-        colSphereParent = p.createCollisionShape(p.GEOM_SPHERE, radius=r)
+        colSphereParent = p.createCollisionShape(p.GEOM_SPHERE, radius=r/100)
         colSphereId = p.createCollisionShape(p.GEOM_SPHERE, radius=r)
         
         massParent = 0
@@ -487,7 +487,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             #basePosition=[-0.025,0.005,0.568] ### Walking ball r= 0.55 NEW
             #basePosition=[-0.023, 0.0085, 0.6198] ### Walking ball r= 0.5
             #basePosition=[-0.0225, 0.007, 0.61973] ### Walking ball r= 0.5
-            basePosition = np.array([0.18e-3, 0.18e-3,-5.5e-3])*self.units.meters+self.MODEL_OFFSET
+            basePosition = np.array([0.02e-3, 0.0e-3,-5.11e-3])*self.units.meters+self.MODEL_OFFSET
         elif self.behavior == 'grooming':
             #basePosition=[0.0,-0.01,0.63] ### Grooming
             basePosition = np.array([0.0e-3, 0.0e-3,-5e-3])*self.units.meters+self.MODEL_OFFSET
@@ -500,7 +500,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         
         baseOrientation = [0,0,0,1]
         #link_Masses = [0.0000005,0.0000005,0.0000005]
-        link_Masses = np.array([5e-11,5e-11,5e-11])*self.units.kilograms
+        link_Masses = np.array([1e-11,1e-11,1e-11])*self.units.kilograms
         linkCollisionShapeIndices = [-1,-1,colSphereId]
         linkVisualShapeIndices = [-1,-1,-1]
         linkPositions = [[0, 0, 0],[0, 0, 0],[0, 0, 0]]
@@ -530,7 +530,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                                       
         #p.changeDynamics(sphereId,
         #               -1,
-        #               spinningFriction=100,
+        #               spinningFriction=0.001,
         #               linearDamping=0.0)
         textureBall = p.loadTexture('../../design/textures/ball/chequered_0048.jpg')
         p.changeVisualShape(sphereId, 2, rgbaColor=[225/255,225/255,210/255,1],specularColor=[0,0,0],textureUniqueId=textureBall)
