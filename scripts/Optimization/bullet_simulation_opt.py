@@ -131,6 +131,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         """ Setup the simulation. """
         ########## PYBULLET SETUP ##########
         if self.RECORD_MOVIE and self.GUI == p.GUI:
+            #synchronize the visualizer (rendering frames for the video mp4) with stepSimulation
             p.connect(
                 self.GUI,
                 options='--background_color_red={} --background_color_green={} --background_color_blue={} --mp4={} --mp4fps={}'.format(
@@ -138,7 +139,8 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                     self.VIS_OPTIONS_BACKGROUND_COLOR_GREEN,
                     self.VIS_OPTIONS_BACKGROUND_COLOR_RED,
                     self.MOVIE_NAME,
-                    self.movie_fps))
+                    int(1.0/self.TIME_STEP)))
+            p.configureDebugVisualizer(p.COV_ENABLE_SINGLE_STEP_RENDERING,1)
         elif self.GUI == p.GUI:
             p.connect(
                 self.GUI,
@@ -736,6 +738,8 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         self.TIME += self.TIME_STEP
         #: Step physics
         p.stepSimulation()
+        #: Rendering
+        p.configureDebugVisualizer(p.COV_ENABLE_SINGLE_STEP_RENDERING,1)
         #: Update logs
         self.update_logs()
         #: Update container log
