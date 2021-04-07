@@ -96,14 +96,14 @@ class SDAntagonistMuscle:
             return self.torque.value
         else:
             #: Active
-            self.flexor_act.value = self.r_fmn.value*(
+            self.flexor_act.value = 0.5*self.r_fmn.value*(
                 np.clip(
                     (1 + np.sin(self.flexor_mn.value)),
                     self.f_mn_clip.value,
                     2.0
                 )
             )
-            self.extensor_act.value = self.r_emn.value*(
+            self.extensor_act.value = 0.5*self.r_emn.value*(
                 np.clip(
                     (1 + np.sin(self.extensor_mn.value)),
                     self.e_mn_clip.value,
