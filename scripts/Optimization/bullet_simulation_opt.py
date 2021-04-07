@@ -30,7 +30,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         self.GUI = p.DIRECT if kwargs["headless"] else p.GUI
         self.GRAVITY = np.array(
             kwargs.get("gravity", [0, 0, -9.81])
-        )*self.units.gravity
+        )
         self.TIME_STEP = kwargs.get("time_step", 0.001)*self.units.seconds
         self.REAL_TIME = kwargs.get("real_time", 0)
         self.RUN_TIME = kwargs.get("run_time", 10)*self.units.seconds
@@ -108,7 +108,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
 
         #: Camera
         if self.GUI == p.GUI and not self.track_animal:
-            base = np.array(self.base_position)
+            base = np.array(self.base_position) * self.units.meters
             p.resetDebugVisualizerCamera(
                 self.camera_distance,
                 -90,
@@ -151,7 +151,9 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         p.resetSimulation()
         p.setAdditionalSearchPath(pybullet_data.getDataPath())
         #: everything should fall down
-        p.setGravity(self.GRAVITY[0], self.GRAVITY[1], self.GRAVITY[2])
+        p.setGravity(
+                *[g * self.units.gravity for g in self.GRAVITY]
+        )
         p.setPhysicsEngineParameter(
             fixedTimeStep=self.TIME_STEP,
             numSolverIterations=100,
@@ -432,7 +434,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             [pt[9]for pt in c], axis=0) / self.bodyweight if c else self.ZEROS_3x1
         force = self.normal * self.normal_dir
 
-        return force[2]
+        return force[2]/self.units.newtons
 
     def _get_contact_force_ball(self, link_id):
         c = p.getContactPoints(
@@ -449,7 +451,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         res_dir = np.arctan2(force[2], force[1])
         #print(len(c),self.normal_dir, self.normal,force)
         # return force[2]
-        return res_force, res_dir
+        return res_force/self.units.newtons, res_dir
 
     def get_contact_friction(self, link_id):
         c = p.getContactPoints(
@@ -460,7 +462,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             [pt[10]*np.asarray(pt[11]) for pt in c], axis=0) if c else self.ZEROS_3x1
         force2 = np.sum(
             [pt[12]*np.asarray(pt[13]) for pt in c], axis=0) if c else self.ZEROS_3x1
-        return force1, force2
+        return force1/self.units.newtons, force2/self.units.newtons
 
     def is_contact(self, link_name):
         """ Check if link is in contact with floor. """
@@ -483,7 +485,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
 
     def add_ball(self, r):
         # Create Fly ball
-        colSphereParent = p.createCollisionShape(p.GEOM_SPHERE, radius=r)
+        colSphereParent = p.createCollisionShape(p.GEOM_SPHERE, radius=r/100)
         colSphereId = p.createCollisionShape(p.GEOM_SPHERE, radius=r)
 
         massParent = 0
@@ -495,7 +497,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             # basePosition=[-0.023, 0.0085, 0.6198] ### Walking ball r= 0.5
             # basePosition=[-0.0225, 0.007, 0.61973] ### Walking ball r= 0.5
             basePosition = np.array(
-                [0.18e-3, 0.18e-3, -5.5e-3])*self.units.meters+self.MODEL_OFFSET
+                [0.18e-3, 0.18e-3, -5.1e-3])*self.units.meters+self.MODEL_OFFSET
         elif self.behavior == 'grooming':
             # basePosition=[0.0,-0.01,0.63] ### Grooming
             basePosition = np.array(
@@ -567,9 +569,9 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         """ Get the position of the animal  """
         if self.BASE_LINK and self.link_id[self.BASE_LINK] != -1:
             link_id = self.link_id[self.BASE_LINK]
-            return (p.getLinkState(self.animal, link_id))[0]
+            return np.array((p.getLinkState(self.animal, link_id))[0])/self.units.meters
         else:
-            return (p.getBasePositionAndOrientation(self.animal))[0]
+            return np.array((p.getBasePositionAndOrientation(self.animal))[0])/self.units.meters
 
     @property
     def joint_positions(self):
@@ -586,7 +588,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         """ Get the joint torques in the animal  """
         _joints = np.arange(0, p.getNumJoints(self.animal))
         return tuple(
-            state[-1] for state in p.getJointStates(
+            state[-1]/self.units.torques for state in p.getJointStates(
                 self.animal, _joints)
         )
 
@@ -603,17 +605,17 @@ class BulletSimulation(metaclass=abc.ABCMeta):
     @property
     def distance_x(self):
         """ Distance the animal has travelled in x-direction. """
-        return self.base_position[0]
+        return self.base_position[0]/self.units.meters
 
     @property
     def distance_y(self):
         """ Distance the animal has travelled in y-direction. """
-        return -self.base_position[1]
+        return -self.base_position[1]/self.units.meters
 
     @property
     def distance_z(self):
         """ Distance the animal has travelled in z-direction. """
-        return self.base_position[2]
+        return self.base_position[2]/self.units.meters
 
     @property
     def mechanical_work(self):
