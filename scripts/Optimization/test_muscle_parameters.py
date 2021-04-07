@@ -30,6 +30,7 @@ class DrosophilaSimulation(BulletSimulation):
         super().__init__(container, units, **sim_options)
         ########## Parameters ##########
         self.sides = ('L', 'R')
+        # FIXME: positions is a very bad name for this
         self.positions = ('F', 'M', 'H')
         self.feet_links = tuple([
             '{}{}Tarsus{}'.format(side, pos, seg)
@@ -38,16 +39,14 @@ class DrosophilaSimulation(BulletSimulation):
             for seg in range(1, 6)
         ])
         _joints = ('Coxa', 'Femur', 'Tibia')
-        self.actuated_joints = [
-            'joint_{}{}{}'.format(side, pos, joint)
+        self.actuated_joints = tuple([
+            f'joint_{side}{pos}{joint}_roll'
+            if (pos+joint == "MCoxa") or  (pos+joint == "HCoxa")
+            else f'joint_{side}{pos}{joint}'
             for side in self.sides
             for pos in self.positions
             for joint in _joints
-        ]
-        for j, joint in enumerate(self.actuated_joints):
-            pos = joint.split('_')[1][1]
-            if (('M' == pos) or ('H' == pos)) and ('Coxa' in joint):
-                self.actuated_joints[j] = joint.replace('Coxa', 'Coxa_roll')
+        ])
 
         self.num_oscillators = self.controller.graph.number_of_nodes()
         self.active_muscles = {}
@@ -55,7 +54,7 @@ class DrosophilaSimulation(BulletSimulation):
         self.physics = self.container.physics
         self.muscle = self.container.muscle
         ########## Initialize joint muscles ##########
-        self.debug_joint = 'joint_RFTibia'
+        self.debug_joint = 'joint_RFFemur'
         for joint in [self.debug_joint,]:
             fmn = self.neural.states.get_parameter(
                 'phase_' + joint + '_flexion')
@@ -113,22 +112,22 @@ class DrosophilaSimulation(BulletSimulation):
         self.debug_parameters = {}
         self.debug_muscle_act = {}
         self.debug_parameters['alpha'] = p.addUserDebugParameter(
-            'alpha', 1e-2, 1e-1, 1e-2)
+            'alpha', 1e-2, 1e-0, 1e-2)
         self.debug_parameters['beta'] = p.addUserDebugParameter(
-            'beta', 1e-2, 1e-1, 1e-2)
+            'beta', 1e-2, 1e-0, 1e-2)
         self.debug_parameters['gamma'] = p.addUserDebugParameter(
-            'gamma', 1e-3, 1e-1, 1e-3)
+            'gamma', 1e-3, 1e-0, 1e-3)
         self.debug_parameters['delta'] = p.addUserDebugParameter(
-            'delta', 1e-4, 1e-3, 1e-4)
+            'delta', 1e-4, 1e-2, 1e-4)
         self.debug_parameters['rest_pos'] = p.addUserDebugParameter(
             'rest_position',
             p.getJointInfo(self.animal, self.debug_joint_id)[8],
             p.getJointInfo(self.animal, self.debug_joint_id)[9],
         )
         self.debug_muscle_act['flexion'] = p.addUserDebugParameter(
-            'flexion', 0, 1, 0.0)
+            'flexion', 0, 2, 0.0)
         self.debug_muscle_act['extension'] = p.addUserDebugParameter(
-            'extension', 0, 1, 0.0)
+            'extension', 0, 2, 0.0)
 
         ########## Data variables ###########
         self.torques = []
@@ -212,7 +211,7 @@ class DrosophilaSimulation(BulletSimulation):
 
 def main():
     """ Main """
-    run_time = 5000.
+    run_time = 50.
     time_step = 0.001
 
     side = ['L', 'R']
@@ -274,7 +273,7 @@ def main():
         "model": "../../design/sdf/neuromechfly_limitsFromData.sdf",
         "model_offset": [0., 0., 11.2e-3],
         "run_time": run_time,
-        "pose": '../../config/pose_tripod.yaml',
+        "pose": '../../config/pose_optimization_2.yaml',
         "base_link": 'Thorax',
         "controller": '../../config/locomotion_ball.graphml',
         "ground_contacts": ground_contact,
@@ -285,7 +284,7 @@ def main():
         'track': False,
         'moviename': 'stability_'+exp+'_gen_'+gen+'.mp4',
         'moviefps': 50,
-        'slow_down': True,
+        'slow_down': False,
         'sleep_time': 0.001,
         'rot_cam': False,
         "is_ball": False
