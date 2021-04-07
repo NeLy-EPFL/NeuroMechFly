@@ -1,16 +1,18 @@
-from bullet_simulation_opt import BulletSimulation
+import os
+import pickle
+import time
+
+import numpy as np
+import pandas as pd
 from IPython import embed
+
 import pybullet as p
 import pybullet_data
-import pandas as pd
-import numpy as np
-import time
-import pickle
-import numpy as np
+from bullet_simulation_opt import BulletSimulation
 from NeuroMechFly.container import Container
-import os
-from spring_damper_muscles import SDAntagonistMuscle, Parameters
 from NeuroMechFly.sdf.units import SimulationUnitScaling
+from spring_damper_muscles import Parameters, SDAntagonistMuscle
+
 
 class DrosophilaSimulation(BulletSimulation):
     """Drosophila Simulation Class
