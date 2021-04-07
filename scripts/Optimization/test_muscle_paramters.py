@@ -125,7 +125,7 @@ class DrosophilaSimulation(BulletSimulation):
         self.debug_parameters['rest_pos'] = p.addUserDebugParameter(
             'rest_position', -np.pi/2, np.pi/2, 8.47793825e-01
         )
-        self.debug_joint_id = self.joint_id[joint]
+        self.debug_joint_id = self.joint_id[self.debug_joint]
 
         ########## Data variables ###########
         self.torques = []
@@ -199,7 +199,7 @@ class DrosophilaSimulation(BulletSimulation):
 
 def main():
     """ Main """
-    run_time = 5.
+    run_time = 5000.
     time_step = 0.001
 
     side = ['L', 'R']
