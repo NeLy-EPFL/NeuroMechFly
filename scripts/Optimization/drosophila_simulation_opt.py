@@ -154,10 +154,10 @@ class DrosophilaSimulation(BulletSimulation):
                 #    pos = np.deg2rad(-5)
                 #elif joint_name == 'joint_RFCoxa_yaw':
                 #    pos = np.deg2rad(5)
-                #elif joint_name == 'joint_LFCoxa_roll':
-                #    pos = np.deg2rad(-35)
-                #elif joint_name == 'joint_RFCoxa_roll':
-                #    pos = np.deg2rad(35)
+                elif joint_name == 'joint_LFCoxa_roll':
+                    pos = np.deg2rad(10)
+                elif joint_name == 'joint_RFCoxa_roll':
+                    pos = np.deg2rad(-10)
                 #elif joint_name == 'joint_LFFemur_roll':
                 #    pos = np.deg2rad(-26)
                 #elif joint_name == 'joint_RFFemur_roll':
@@ -165,11 +165,11 @@ class DrosophilaSimulation(BulletSimulation):
                 elif joint_name == 'joint_LFTarsus1':
                     pos = np.deg2rad(-39)#-44)
                 elif joint_name == 'joint_RFTarsus1':
-                    pos = np.deg2rad(-52)#-39)
+                    pos = np.deg2rad(-39)#-52)
                 elif joint_name == 'joint_LMCoxa_yaw':
                     pos = np.deg2rad(7.5)#-11)#12
                 elif joint_name == 'joint_RMCoxa_yaw':
-                    pos = np.deg2rad(-0.22)#12)#12
+                    pos = np.deg2rad(-1)#-0.22)#12
                 elif joint_name == 'joint_LMCoxa':
                     pos = np.deg2rad(-5.3)#-3)
                 elif joint_name == 'joint_RMCoxa':
@@ -195,9 +195,9 @@ class DrosophilaSimulation(BulletSimulation):
                 #elif joint_name == 'joint_RHFemur_roll':
                 #    pos = np.deg2rad(-9)
                 elif joint_name == 'joint_LHTarsus1':
-                    pos = np.deg2rad(-45)#-40)
+                    pos = np.deg2rad(-40)#-45)
                 elif joint_name == 'joint_RHTarsus1':
-                    pos = np.deg2rad(-51)#-34)
+                    pos = np.deg2rad(-34)#-51)
                 else:
                     pos = 0
 
@@ -358,7 +358,7 @@ class DrosophilaSimulation(BulletSimulation):
         dist_to_centroid = self.stance_polygon_dist()
         self.stability_coef += dist_to_centroid
         #print(dist_to_centroid)
-        return dist_to_centroid > 0.25
+        return dist_to_centroid > 0.30 #0.25
 
     def optimization_check(self):
         """ Check optimization status. """
@@ -582,8 +582,8 @@ def main():
         for link1 in body_segments:
             self_collision.append([link0,link1])
 
-    gen = '49'
-    exp = '1211_0208'        
+    gen = '10'
+    exp = 'run_Drosophila_var_71_obj_2_pop_20_gen_100_0407_1744'        
 
     sim_options = {
         "headless": False,
@@ -592,7 +592,7 @@ def main():
         "model_offset": [0., 0., 11.2e-3],
         "run_time": run_time,
     
-        "pose": '../../config/pose_tripod.yaml',
+        "pose": '../../config/pose_tripod_test.yaml',
         "base_link": 'Thorax',
         "controller": '../../config/locomotion_ball.graphml',
         "ground_contacts": ground_contact,
@@ -619,15 +619,15 @@ def main():
     #)
     '''
     fun, var = read_optimization_results(
-        "./optimization_results/run_Drosophila_var_71_obj_2_pop_20_gen_50_"+exp+"/FUN."+gen,
-        "./optimization_results/run_Drosophila_var_71_obj_2_pop_20_gen_50_"+exp+"/VAR."+gen
+        "./optimization_results/"+exp+"/FUN."+gen,
+        "./optimization_results/"+exp+"/VAR."+gen
     )
     '''
     fun, var = read_optimization_results(
-        "./FUN_old.ged3",
-        "./VAR_old_2.ged3"
+        "./FUN.ged3",
+        "./VAR.ged3"
     )
-
+    
     params = var[np.argmin(fun[:,0]*fun[:,1])]
     #params = var[np.argmin(fun[:,0])]
     params = np.array(params)

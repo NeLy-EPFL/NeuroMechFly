@@ -103,10 +103,10 @@ class DrosophilaEvolution(FloatProblem):
 
         #: Muscle parameters
         #lower_bound_active_muscles = (
-        #np.ones((N, 6))*np.array([1e-3, 1e-3, 1e-4, 1e-5, 0.5, 0.0]
+        #np.ones((N, 6))*np.array([1e-3, 1e-3, 1e-4, 1e-5, 1.0, 0.0]
         #    )).flatten()
         lower_bound_active_muscles = (
-                np.ones((N, 6))*np.array([1e-3, 1e-3, 1e-4, 1e-5, 0.5, 0.0]
+                np.ones((N, 6))*np.array([1e-2, 1e-2, 1e-4, 1e-4, 1.0, 0.0]
             )).flatten()
                    
         #upper_bound_active_muscles = (
@@ -134,13 +134,38 @@ class DrosophilaEvolution(FloatProblem):
         #upper_bound_active_muscles = np.array([6e-2, 3e-2, 3e-3, 1e-3, 1.5, 2]*3 +
         #                                      [6e-2, 3e-2, 3e-3, 1e-3, 1.5, 2]*3 +
         #                                      [6e-2, 3e-2, 3e-3, 1e-3, 1.5, 2]*3)
-        upper_bound_active_muscles = np.array([6e-2, 3e-2, 3e-3, 1e-3, 1.5, 2]*3 +
-                                              [6e-2, 3e-2, 3e-3, 1e-3, 1.5, 2]*3 +
-                                              [6e-2, 3e-2, 3e-3, 1e-3, 1.5, 2]*3)
+        '''
+        upper_bound_active_muscles = np.array([8e-2, 1.2e-2, 1e-3, 1.3e-3, 1.5, 2,
+                                               12e-2, 4e-2, 3e-3, 1e-3, 1.5, 2,
+                                               8e-2, 1e-2, 3e-3, 1e-3, 1.5, 2,
+                                               6e-2, 4e-2, 5e-3, 1.7e-3, 1.5, 2,
+                                               25e-2, 6e-2, 1e-3, 1.7e-3, 1.5, 2,
+                                               25e-2, 6e-2, 1e-3, 1.7e-3, 1.5, 2,
+                                               25e-2, 3e-2, 13e-3, 1.4e-3, 1.5, 2,
+                                               25e-2, 6e-2, 1e-3, 1.7e-3, 1.5, 2,
+                                               25e-2, 6e-2, 1e-3, 1.7e-3, 1.5, 2]
+                                               )
+        
+        upper_bound_active_muscles = np.array(
+            [8e-2, 1.2e-2, 1.0-3, 1.0e-3, 1.5, 2]*3 +
+            [50e-2, 6e-2, 1e-3, 1.2e-3, 1.5, 2]*3
+                                               )     
+        '''
+        upper_bound_active_muscles = np.array([8e-2, 1.2e-2, 1.0e-3, 1.0e-3, 1.5, 2,
+                                            8e-2, 1.2e-2, 1.0e-3, 1.0e-3, 1.5, 2,
+                                            8e-2, 1.2e-2, 1.0e-3, 1.0e-3, 1.5, 2,
+                                            50e-2, 6e-2, 1e-3, 1.7e-3, 1.5, 2,
+                                            8e-2, 1.2e-2, 1.0e-3, 1.0e-3, 1.5, 2,
+                                            50e-2, 6e-2, 1e-3, 1.7e-3, 1.5, 2,
+                                            50e-2, 6e-2, 1e-3, 1.7e-3, 1.5, 2,
+                                            8e-2, 1.2e-2, 1.0e-3, 1.0e-3, 1.5, 2,
+                                            50e-2, 6e-2, 1e-3, 1.7e-3, 1.5, 2]
+                                            )                                             
+        
         #F:[2e-2, 2e-2, 3e-3, 1e-3, 1.5, 2], M:[3e-2, 3e-2, 3e-3, 1e-3, 1.5, 2], H:[3e-2, 3e-2, 1e-3, 8e-4, 1.5, 2]
         
         #: Phases
-        lower_bound_phases = np.ones(
+        lower_bound_phases = np.ones(   
             (17,))*-np.pi
         upper_bound_phases = np.ones(
             (17,))*np.pi
@@ -189,13 +214,14 @@ class DrosophilaEvolution(FloatProblem):
 
     def evaluate(self, solution):
         #: SIMULATION RUN TIME
-        run_time = 5.
+        run_time = 7.0
         time_step = 0.001
         sim_options = {
             "headless": True,
             "model": "../../design/sdf/neuromechfly_limitsFromData.sdf",
             "model_offset": [0., 0., 11.2e-3],
-            "pose": "../../config/pose_tripod.yaml",
+            "pose": "../../config/pose_tripod_test.yaml",
+            #"pose": "../../config/pose_optimization.yaml",
             "run_time": run_time,
             "base_link": 'Thorax',
             "controller": '../../config/locomotion_ball.graphml',
@@ -205,7 +231,7 @@ class DrosophilaEvolution(FloatProblem):
         #: Set the variables
         fly.update_parameters(solution.variables)
         successful = fly.run(optimization=True)
-
+        
         if not successful:
             lava = fly.is_lava()
             flying = fly.is_flying()
@@ -227,8 +253,11 @@ class DrosophilaEvolution(FloatProblem):
             [m_out[:, j] for j, name in enumerate(m_names) if 'active' in name]
         )
         act = np.sum(act**2)*fly.TIME_STEP/fly.TIME
+        print("ACT**2: {}".format(act))
         #: Distance
         distance = -np.array(fly.ball_rotations())[0]*fly.ball_radius #fly.distance_y
+        print("DISTANCE: {}".format(distance))
+        print("FLY BALL ROTATIONS: {}".format(fly.ball_rotations()))
         
         #: Velocity
         #velocity = (
@@ -236,28 +265,37 @@ class DrosophilaEvolution(FloatProblem):
         #)*fly.TIME_STEP/fly.RUN_TIME
 
         #: Penalties
-        penalty_time = 1e2 + 1e2*(fly.RUN_TIME - fly.TIME)/fly.RUN_TIME if (lava or flying or touch or velocity_cap) else 0.0
-            
+        penalty_time = (fly.RUN_TIME - fly.TIME)/fly.RUN_TIME if (lava or flying or touch or velocity_cap) else 0.0
+        print("PENALTY TIME: {}".format(penalty_time))
+    
         expected_dist = 2*np.pi*fly.ball_radius
-        penalty_dist = 0.0 if expected_dist < distance else (1e1 + 40*abs(distance-expected_dist))
+        penalty_dist = 0.0 if expected_dist < distance else 1e-2*(1e1 + 40*abs(distance-expected_dist))
+        print("EXPECTED DISTANCE: {} PENALTY DISTANCE: {}".format(expected_dist, penalty_dist))
 
-        penalty_linearity = 2e3*fly.ball_radius*(abs(np.array(fly.ball_rotations()))[1]+abs(np.array(fly.ball_rotations()))[2])
+        penalty_linearity = 2e4*fly.ball_radius*(abs(np.array(fly.ball_rotations()))[1]+abs(np.array(fly.ball_rotations()))[2])
+        print("PENALTY LIN: {}".format(penalty_linearity))
 
         stability = fly.stability_coef*fly.TIME_STEP/fly.TIME
+        print("STABILITY: {}".format(stability))
 
         expected_stance_legs = 4
         min_legs = 3
         mean_stance_legs = fly.stance_count*fly.TIME_STEP/fly.TIME
+        print("MEN STANCE LEG: {}".format(mean_stance_legs))
         print(fly.stance_count,fly.TIME_STEP,fly.TIME,mean_stance_legs)
-        penalty_time_stance = 0.0 if min_legs <= mean_stance_legs <= expected_stance_legs else 1e2*abs(mean_stance_legs - min_legs)
+
+        penalty_time_stance = 0.0 if min_legs <= mean_stance_legs <= expected_stance_legs else 1e1*abs(mean_stance_legs - min_legs)
+        print("PENALTY TIME STANCE: {}".format(penalty_time_stance))
 
         print(-2e3*distance,penalty_linearity,penalty_time)
-        #print(1e4*act,penalty_dist,penalty_time_stance)
-        print(2e3*stability,penalty_dist,penalty_time_stance)
+        print(1e5*act,penalty_dist,penalty_time_stance)
+        #print(2e3*stability,penalty_dist,penalty_time_stance)
         # into a single objective
-        solution.objectives[0] = (-2e3*distance + penalty_linearity + penalty_time)
-        solution.objectives[1] = (1e4*act + penalty_dist + penalty_time_stance)
-        #solution.objectives[1] = (2e3*stability + penalty_dist + penalty_time_stance)
+        #solution.objectives[0] = (-2e3*distance + penalty_linearity + penalty_time)
+        solution.objectives[0] = (-1e3*distance)
+
+        #solution.objectives[1] = (1e4*act + penalty_dist + penalty_time_stance)
+        solution.objectives[1] = (2e2*stability + penalty_time_stance)
         print(solution.objectives)
         return solution
 
@@ -271,8 +309,8 @@ class DrosophilaEvolution(FloatProblem):
 def main():
     """ Main """
 
-    n_pop = 50
-    n_gen = 300
+    n_pop = 60
+    n_gen = 1000
 
     max_evaluations = n_pop*n_gen
 
