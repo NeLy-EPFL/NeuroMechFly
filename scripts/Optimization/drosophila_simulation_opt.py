@@ -165,41 +165,55 @@ class DrosophilaSimulation(BulletSimulation):
                 #elif joint_name == 'joint_RFFemur_roll':
                 #    pos = np.deg2rad(26)
                 elif joint_name == 'joint_LFTarsus1':
-                    pos = np.deg2rad(-39)#-44)
+                    pos = np.deg2rad(-43)
                 elif joint_name == 'joint_RFTarsus1':
+<<<<<<< HEAD
                     pos = np.deg2rad(-39)#-52)
+=======
+                    pos = np.deg2rad(-49)
+>>>>>>> 2deb6efa916ced85b352a22ce9c0fcfbfcced629
                 elif joint_name == 'joint_LMCoxa_yaw':
-                    pos = np.deg2rad(7.5)#-11)#12
+                    pos = np.deg2rad(4)
                 elif joint_name == 'joint_RMCoxa_yaw':
+<<<<<<< HEAD
                     pos = np.deg2rad(-1)#-0.22)#12
+=======
+                    pos = np.deg2rad(0.5)
+>>>>>>> 2deb6efa916ced85b352a22ce9c0fcfbfcced629
                 elif joint_name == 'joint_LMCoxa':
-                    pos = np.deg2rad(-5.3)#-3)
+                    pos = np.deg2rad(-2)
                 elif joint_name == 'joint_RMCoxa':
-                    pos = np.deg2rad(-8.7)#-5)
+                    pos = np.deg2rad(-4.5)
                 #elif joint_name == 'joint_LMFemur_roll':
                 #    pos = np.deg2rad(-7)
                 #elif joint_name == 'joint_RMFemur_roll':
                 #    pos = np.deg2rad(7)                    
                 elif joint_name == 'joint_LMTarsus1':
-                    pos = np.deg2rad(-55)#-53)
+                    pos = np.deg2rad(-52)
                 elif joint_name == 'joint_RMTarsus1':
-                    pos = np.deg2rad(-54)#-46)                    
+                    pos = np.deg2rad(-56)                   
                 elif joint_name == 'joint_LHCoxa_yaw':
-                    pos = np.deg2rad(3.44)#-13)
+                    pos = np.deg2rad(0.6)
                 elif joint_name == 'joint_RHCoxa_yaw':
-                    pos = np.deg2rad(0.7)
+                    pos = np.deg2rad(6.2)
                 elif joint_name == 'joint_LHCoxa':
-                    pos = np.deg2rad(6.2)#20)
+                    pos = np.deg2rad(13)
                 elif joint_name == 'joint_RHCoxa':
-                    pos = np.deg2rad(10)#13)
+                    pos = np.deg2rad(11.4)
                 #elif joint_name == 'joint_LHFemur_roll':
                 #    pos = np.deg2rad(9)
                 #elif joint_name == 'joint_RHFemur_roll':
                 #    pos = np.deg2rad(-9)
                 elif joint_name == 'joint_LHTarsus1':
+<<<<<<< HEAD
                     pos = np.deg2rad(-40)#-45)
                 elif joint_name == 'joint_RHTarsus1':
                     pos = np.deg2rad(-34)#-51)
+=======
+                    pos = np.deg2rad(-45)
+                elif joint_name == 'joint_RHTarsus1':
+                    pos = np.deg2rad(-50)
+>>>>>>> 2deb6efa916ced85b352a22ce9c0fcfbfcced629
                 else:
                     pos = 0
 
