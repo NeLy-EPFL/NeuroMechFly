@@ -2,7 +2,7 @@ import pybullet as p
 import numpy as np
 import pickle
 
-from bullet_simulation import BulletSimulation
+from NeuroMechFly.simulation.bullet_simulation import BulletSimulation
 from NeuroMechFly.container import Container
 from NeuroMechFly.sdf.units import SimulationUnitScaling
 
@@ -90,6 +90,10 @@ class DrosophilaSimulation(BulletSimulation):
         """ Update parameters. """
         pass
 
+    def optimization_check(self):
+        """ Optimization check. """
+        pass
+
 
 def main():
     """ Main """
@@ -122,7 +126,7 @@ def main():
 
     sim_options = {
         "headless": False,
-        "model": "../../design/sdf/neuromechfly_noLimits.sdf",
+        "model": "../../data/design/sdf/neuromechfly_noLimits.sdf",
         "model_offset": [0., -0.1e-3, 11.2e-3],
         "run_time": run_time,
         "base_link": 'Thorax',

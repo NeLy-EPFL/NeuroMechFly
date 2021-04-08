@@ -7,8 +7,7 @@ import numpy as np
 import time
 import yaml
 from NeuroMechFly.container import Container
-# FIXME: carry this to a folder
-from sdf import load_sdf
+from NeuroMechFly.sdf.bullet_load_sdf import load_sdf
 
 try:
     from NeuroMechFly.network.neural_system import NeuralSystem
@@ -515,7 +514,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                          linearDamping=0.0,
                          restitution=1.0)
         texture_ball = p.loadTexture(
-            '../../design/textures/ball/chequered_0048.jpg')
+            '../../data/design/textures/ball/chequered_0048.jpg')
         p.changeVisualShape(
             sphere_id,
             2,
