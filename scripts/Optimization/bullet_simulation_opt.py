@@ -50,9 +50,9 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         self.slow_down = kwargs.get("slow_down", False)
         self.sleep_time = kwargs.get("sleep_time", 0.001)
         self.VIS_OPTIONS_BACKGROUND_COLOR_RED = kwargs.get(
-            'background_color_red', 1)
+            'background_color_red', 0)
         self.VIS_OPTIONS_BACKGROUND_COLOR_GREEN = kwargs.get(
-            'background_color_GREEN', 1)
+            'background_color_GREEN', 0)
         self.VIS_OPTIONS_BACKGROUND_COLOR_BLUE = kwargs.get(
             'background_color_BLUE', 1.0)
         self.RECORD_MOVIE = kwargs.get('record', False)
@@ -138,7 +138,8 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                     self.VIS_OPTIONS_BACKGROUND_COLOR_GREEN,
                     self.VIS_OPTIONS_BACKGROUND_COLOR_RED,
                     self.MOVIE_NAME,
-                    self.movie_fps))
+                    int(1.0/self.TIME_STEP)))
+            p.configureDebugVisualizer(p.COV_ENABLE_SINGLE_STEP_RENDERING,1)
         elif self.GUI == p.GUI:
             p.connect(
                 self.GUI,
@@ -495,9 +496,9 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             # basePosition=[-0.025,0.01,0.566] ### Walking ball r= 0.55
             # basePosition=[-0.025,0.005,0.568] ### Walking ball r= 0.55 NEW
             # basePosition=[-0.023, 0.0085, 0.6198] ### Walking ball r= 0.5
-            # basePosition=[-0.0225, 0.007, 0.61973] ### Walking ball r= 0.5
+            # basePosition=[-0.0225, 0.007, 0.61973] ### Walking ball r= 0.
             basePosition = np.array(
-                [0.12e-3, 0.0e-3, -5.1e-3])*self.units.meters+self.MODEL_OFFSET
+                [-0.2e-3, 0.0e-3,-5.1e-3])*self.units.meters+self.MODEL_OFFSET
         elif self.behavior == 'grooming':
             # basePosition=[0.0,-0.01,0.63] ### Grooming
             basePosition = np.array(
@@ -734,6 +735,8 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         self.TIME += self.TIME_STEP
         #: Step physics
         p.stepSimulation()
+        #: Rendering
+        p.configureDebugVisualizer(p.COV_ENABLE_SINGLE_STEP_RENDERING,1)
         #: Update logs
         self.update_logs()
         #: Update container log

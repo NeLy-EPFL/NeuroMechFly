@@ -137,9 +137,9 @@ documentation/_templates
 **.swp
 
 # data
-scripts/
+# scripts/
 config/
-design/
+!design/
 data/
 build/
 

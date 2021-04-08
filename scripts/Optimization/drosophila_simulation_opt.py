@@ -1,16 +1,18 @@
-from bullet_simulation_opt import BulletSimulation
+import os
+import pickle
+import time
+
+import numpy as np
+import pandas as pd
 from IPython import embed
+
 import pybullet as p
 import pybullet_data
-import pandas as pd
-import numpy as np
-import time
-import pickle
-import numpy as np
+from bullet_simulation_opt import BulletSimulation
 from NeuroMechFly.container import Container
-import os
-from spring_damper_muscles import SDAntagonistMuscle, Parameters
 from NeuroMechFly.sdf.units import SimulationUnitScaling
+from spring_damper_muscles import Parameters, SDAntagonistMuscle
+
 
 class DrosophilaSimulation(BulletSimulation):
     """Drosophila Simulation Class
@@ -357,8 +359,8 @@ class DrosophilaSimulation(BulletSimulation):
     def is_flying(self):
         dist_to_centroid = self.stance_polygon_dist()
         self.stability_coef += dist_to_centroid
-        #print(dist_to_centroid)
-        return dist_to_centroid > 0.30 #0.25
+        # print(dist_to_centroid)
+        return dist_to_centroid > 2.25
 
     def optimization_check(self):
         """ Check optimization status. """
@@ -383,12 +385,12 @@ class DrosophilaSimulation(BulletSimulation):
         edges_joints = int(self.controller.graph.number_of_nodes()/3)
         edges_anta = int(self.controller.graph.number_of_nodes()/12)
 
-        opti_active_muscle_gains = params[:6*N]
-        opti_joint_phases = params[6*N:6*N+edges_joints]
+        opti_active_muscle_gains = params[:7*N]
+        opti_joint_phases = params[7*N:7*N+edges_joints]
         #opti_antagonist_phases = params[6*N+edges_joints:6*N+edges_joints+edges_anta]
         #opti_base_phases = params[6*N+edges_joints+edges_anta:]
 
-        opti_base_phases = params[6*N+edges_joints:]
+        opti_base_phases = params[7*N+edges_joints:]
 
         #print(
         #    "Opti active muscle gains {}".format(
@@ -403,23 +405,27 @@ class DrosophilaSimulation(BulletSimulation):
         symmetry_joints = filter(
             lambda x: x.split('_')[1][0] != 'R', self.actuated_joints
         )
-        
+
         for j, joint in enumerate(symmetry_joints):
             #print(joint,joint.replace('L', 'R', 1),6*j,6*(j+1))
-            self.active_muscles[joint].update_parameters(
-                Parameters(*opti_active_muscle_gains[6*j:6*(j+1)])
-            )
+            # print(joint, Parameters(*opti_active_muscle_gains[7*j:7*(j+1)]))
             self.active_muscles[joint.replace('L', 'R', 1)].update_parameters(
-                Parameters(*opti_active_muscle_gains[6*j:6*(j+1)])
+                Parameters(*opti_active_muscle_gains[7*j:7*(j+1)])
             )
-
+            #: It is important to mirror the joint angles for rest position
+            #: especially for coxa
+            if "Coxa_roll" in joint:
+                opti_active_muscle_gains[(7*j)+5] *= -1
+            self.active_muscles[joint].update_parameters(
+                Parameters(*opti_active_muscle_gains[7*j:7*(j+1)])
+            )
         #: Update phases
         #: Edges to set phases for
         phase_edges = [
             ['Coxa', 'Femur'],
             ['Femur', 'Tibia'],
         ]
-        
+
         for side in ('L', 'R'):
             for j0, pos in enumerate(('F', 'M', 'H')):
                 if pos != 'F':
@@ -454,17 +460,17 @@ class DrosophilaSimulation(BulletSimulation):
                 #parameters.get_parameter(
                 #    'phi_{}_to_{}'.format(node_2, node_1)
                 #).value = -1*opti_antagonist_phases[j0]
-                
+
 
         coxae_edges =[
             ['LFCoxa', 'RFCoxa'],
             ['LFCoxa', 'RMCoxa_roll'],
             ['RMCoxa_roll', 'LHCoxa_roll'],
             ['RFCoxa', 'LMCoxa_roll'],
-            ['LMCoxa_roll', 'RHCoxa_roll']        
+            ['LMCoxa_roll', 'RHCoxa_roll']
         ]
-        
-        for j1, ed in enumerate(coxae_edges):    
+
+        for j1, ed in enumerate(coxae_edges):
             for j2, action in enumerate(('flexion', 'extension')):
                 node_1 = "joint_{}_{}".format(ed[0], action)
                 node_2 = "joint_{}_{}".format(ed[1], action)
@@ -588,7 +594,7 @@ def main():
     sim_options = {
         "headless": False,
         # Scaled SDF model 
-        "model": "../../design/sdf/neuromechfly_limitsFromData.sdf", 
+        "model": "../../design/sdf/neuromechfly_limitsFromData_minMax.sdf", 
         "model_offset": [0., 0., 11.2e-3],
         "run_time": run_time,
     
