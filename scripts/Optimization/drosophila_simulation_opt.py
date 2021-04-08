@@ -1,5 +1,7 @@
-from bullet_simulation_opt import BulletSimulation
-from IPython import embed
+from NeuroMechFly.simulation.bullet_simulation import BulletSimulation
+from NeuroMechFly.sdf.units import SimulationUnitScaling
+from NeuroMechFly.container import Container
+
 import pybullet as p
 import pybullet_data
 import pandas as pd
@@ -7,10 +9,8 @@ import numpy as np
 import time
 import pickle
 import numpy as np
-from NeuroMechFly.container import Container
 import os
 from spring_damper_muscles import SDAntagonistMuscle, Parameters
-from NeuroMechFly.sdf.units import SimulationUnitScaling
 
 class DrosophilaSimulation(BulletSimulation):
     """Drosophila Simulation Class
@@ -109,7 +109,7 @@ class DrosophilaSimulation(BulletSimulation):
         ########## Data variables ###########
         self.torques=[]
         self.grf=[]
-        self.collision_forces=[]
+        #self.collision_forces=[]
         self.ball_rot=[]
         self.stability_coef = 0
         self.stance_count = 0
@@ -222,12 +222,13 @@ class DrosophilaSimulation(BulletSimulation):
         self.fixed_joints_controller()
 
         if t%10 == 0:
-            jointTorques = np.array(self.joint_torques())
+            jointTorques = np.array(self.joint_torques)
             #print(jointTorques.shape)
             self.torques.append(jointTorques)
-
+        '''
         if t%10 == 0:
             grf = self.ball_reaction_forces()
+            
             if self.draw_collisions:
                 ind = np.where(np.array(grf).transpose()[0]>0)[0]
                 draw=[]
@@ -242,9 +243,9 @@ class DrosophilaSimulation(BulletSimulation):
 
                 self.lastDraw = draw
             self.grf.append(grf)
-
+            '''
         if t%10 == 0:
-            ball_rot = np.array(self.ball_rotations())
+            ball_rot = np.array(self.ball_rotations)
             ball_rot[:2] = ball_rot[:2]*self.ball_radius*10 # Distance in mm
             self.ball_rot.append(ball_rot)
             #print(ball_rot)
@@ -254,27 +255,12 @@ class DrosophilaSimulation(BulletSimulation):
         """ Implementation of abstractmethod. """
         pass
 
-    
-    def joint_torques(self):
-        """ Get the joint torques in the animal  """
-        _joints = np.arange(0, p.getNumJoints(self.animal))
-        return tuple(
-            state[-1] for state in p.getJointStates(self.animal, _joints))
-
     def ball_reaction_forces(self):
         """Get the ground reaction forces.  """
         return list(
-            map(self._get_contact_force_ball, self.ground_sensors.values())
+            map(self._get_contact_normal_force, self.ground_sensors.values())
         )
 
-    
-    def ball_rotations(self):
-        return tuple(
-            state[0] for state in p.getJointStates(
-                self.ball_id,
-                np.arange(0, p.getNumJoints(self.ball_id))
-            )
-        )
 
     def stance_polygon_dist(self):
         contact_segments = [leg for leg in self.feet_links if self.is_contact_ball(leg)]
@@ -308,7 +294,7 @@ class DrosophilaSimulation(BulletSimulation):
     def is_lava(self):
         """ State of lava approaching the model. """
         #return (self.distance_y < (((self.TIME)/self.RUN_TIME)*2)-0.25)
-        ball_rot = np.array(self.ball_rotations())
+        ball_rot = np.array(self.ball_rotations)
         dist_traveled = -ball_rot[0]*self.ball_radius # Distance in mm
         #print(dist_traveled)
         moving_limit = (((self.TIME)/self.RUN_TIME)*3*np.pi)-0.5*np.pi
@@ -328,7 +314,7 @@ class DrosophilaSimulation(BulletSimulation):
         """ Check if certain links touch. """
         return np.any(
             [
-                self.is_contact_ball(link) for link in self.link_id.keys() if 'Tarsus' not in link
+                self.is_contact(link) for link in self.link_id.keys() if 'Tarsus' not in link
                 #self.is_contact(link) for link in [
                 #    'LTibia', 'RTibia', 'LRadius', 'RRadius'
                 #]
@@ -597,7 +583,7 @@ def main():
         "controller": '../../config/locomotion_ball.graphml',
         "ground_contacts": ground_contact,
         'self_collisions':self_collision,
-        "draw_collisions": False,
+        #"draw_collisions": False,
         "record": False,
         'camera_distance': 3.5,
         'track': False,
@@ -605,7 +591,8 @@ def main():
         'moviefps': 50,
         'slow_down': True,
         'sleep_time': 0.001,
-        'rot_cam': False
+        'rot_cam': False,
+        'ground': 'ball'
         }
     
     container = Container(run_time/time_step)
@@ -624,8 +611,8 @@ def main():
     )
     '''
     fun, var = read_optimization_results(
-        "./FUN_old.ged3",
-        "./VAR_old_2.ged3"
+        "./FUN.ged3",
+        "./VAR.ged3"
     )
 
     params = var[np.argmin(fun[:,0]*fun[:,1])]
@@ -636,9 +623,9 @@ def main():
     animal.run(optimization=False)
     animal.container.dump(overwrite=True)
 
-    name_data = 'optimization_gen_'+ gen
+    #name_data = 'optimization_gen_'+ gen
 
-    save_data(animal,name_data,exp)
+    #save_data(animal,name_data,exp)
 
 if __name__ == '__main__':
     main()
