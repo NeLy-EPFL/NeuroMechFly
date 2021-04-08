@@ -2632,6 +2632,51 @@
         <material/>
       </visual>
     </link>
+    <link name="world">
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <mass>0.0</mass>
+        <inertia>
+          <ixx>0.0</ixx>
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <iyy>0.0</iyy>
+          <iyz>0.0</iyz>
+          <izz>0.0</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <link name="prismatic_support_1">
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <mass>0.0</mass>
+        <inertia>
+          <ixx>0.0</ixx>
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <iyy>0.0</iyy>
+          <iyz>0.0</iyz>
+          <izz>0.0</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <link name="prismatic_support_2">
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <mass>0.0</mass>
+        <inertia>
+          <ixx>0.0</ixx>
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <iyy>0.0</iyy>
+          <iyz>0.0</iyz>
+          <izz>0.0</izz>
+        </inertia>
+      </inertial>
+    </link>
     <joint name="joint_A1A2" type="revolute">
       <parent>Thorax</parent>
       <child>A1A2</child>
@@ -2793,8 +2838,8 @@
       <axis>
         <xyz>0.0 1.0 0.0</xyz>
         <limit>
-          <lower>-3.1409534503861387</lower>
-          <upper>3.1409534503861387</upper>
+          <lower>-0.418771401887905</lower>
+          <upper>0.5825564356398562</upper>
           <effort>10000000000.0</effort>
           <velocity>628.3185307179587</velocity>
         </limit>
@@ -2835,8 +2880,8 @@
       <axis>
         <xyz>0.0 1.0 0.0</xyz>
         <limit>
-          <lower>-3.141592871232662</lower>
-          <upper>3.141592871232662</upper>
+          <lower>-2.6277700501715717</lower>
+          <upper>-1.102528319354965</upper>
           <effort>10000000000.0</effort>
           <velocity>628.3185307179587</velocity>
         </limit>
@@ -2933,8 +2978,8 @@
       <axis>
         <xyz>0.0 1.0 0.0</xyz>
         <limit>
-          <lower>-3.1415927410125732</lower>
-          <upper>3.1415927410125732</upper>
+          <lower>0.6539036926309434</lower>
+          <upper>2.4801036870459843</upper>
           <effort>10000000000.0</effort>
           <velocity>628.3185307179587</velocity>
         </limit>
@@ -2961,8 +3006,8 @@
       <axis>
         <xyz>0.0 0.0 1.0</xyz>
         <limit>
-          <lower>-3.1390842483815065</lower>
-          <upper>3.1390842483815065</upper>
+          <lower>2.342643179253425</lower>
+          <upper>2.8158416029418705</upper>
           <effort>10000000000.0</effort>
           <velocity>628.3185307179587</velocity>
         </limit>
@@ -2989,8 +3034,8 @@
       <axis>
         <xyz>0.0 1.0 0.0</xyz>
         <limit>
-          <lower>-3.141592871232662</lower>
-          <upper>3.141592871232662</upper>
+          <lower>-2.4611009381052775</lower>
+          <upper>-1.1812276854715846</upper>
           <effort>10000000000.0</effort>
           <velocity>628.3185307179587</velocity>
         </limit>
@@ -3087,8 +3132,8 @@
       <axis>
         <xyz>0.0 1.0 0.0</xyz>
         <limit>
-          <lower>-3.1415889959432577</lower>
-          <upper>3.1415889959432577</upper>
+          <lower>0.7479604584313031</lower>
+          <upper>2.7488187724023208</upper>
           <effort>10000000000.0</effort>
           <velocity>628.3185307179587</velocity>
         </limit>
@@ -3157,8 +3202,8 @@
       <axis>
         <xyz>0.0 0.0 1.0</xyz>
         <limit>
-          <lower>-3.1359473737307995</lower>
-          <upper>3.1359473737307995</upper>
+          <lower>1.5159681338302893</lower>
+          <upper>2.3280868205896708</upper>
           <effort>10000000000.0</effort>
           <velocity>628.3185307179587</velocity>
         </limit>
@@ -3185,8 +3230,8 @@
       <axis>
         <xyz>0.0 1.0 0.0</xyz>
         <limit>
-          <lower>-3.144733661753544</lower>
-          <upper>3.144733661753544</upper>
+          <lower>-2.363638739290062</lower>
+          <upper>-1.3052209635400511</upper>
           <effort>10000000000.0</effort>
           <velocity>628.3185307179587</velocity>
         </limit>
@@ -3283,8 +3328,8 @@
       <axis>
         <xyz>0.0 1.0 0.0</xyz>
         <limit>
-          <lower>-3.141590306717268</lower>
-          <upper>3.141590306717268</upper>
+          <lower>1.2528098167502257</lower>
+          <upper>2.612560417725856</upper>
           <effort>10000000000.0</effort>
           <velocity>628.3185307179587</velocity>
         </limit>
@@ -3367,8 +3412,8 @@
       <axis>
         <xyz>0.0 1.0 0.0</xyz>
         <limit>
-          <lower>-3.1409534503861387</lower>
-          <upper>3.1409534503861387</upper>
+          <lower>-0.32300265385296517</lower>
+          <upper>0.5813578033552602</upper>
           <effort>10000000000.0</effort>
           <velocity>628.3185307179587</velocity>
         </limit>
@@ -3409,8 +3454,8 @@
       <axis>
         <xyz>0.0 1.0 0.0</xyz>
         <limit>
-          <lower>-3.141592871232662</lower>
-          <upper>3.141592871232662</upper>
+          <lower>-2.7386677781352566</lower>
+          <upper>-1.0939176209126797</upper>
           <effort>10000000000.0</effort>
           <velocity>628.3185307179587</velocity>
         </limit>
@@ -3507,8 +3552,8 @@
       <axis>
         <xyz>0.0 1.0 0.0</xyz>
         <limit>
-          <lower>-3.1415927410125732</lower>
-          <upper>3.1415927410125732</upper>
+          <lower>0.6371849972349253</lower>
+          <upper>2.501319954861852</upper>
           <effort>10000000000.0</effort>
           <velocity>628.3185307179587</velocity>
         </limit>
@@ -3535,8 +3580,8 @@
       <axis>
         <xyz>0.0 0.0 1.0</xyz>
         <limit>
-          <lower>-3.132800398985696</lower>
-          <upper>3.132800398985696</upper>
+          <lower>-2.8665233073854983</lower>
+          <upper>-2.328081579351015</upper>
           <effort>10000000000.0</effort>
           <velocity>628.3185307179587</velocity>
         </limit>
@@ -3563,8 +3608,8 @@
       <axis>
         <xyz>0.0 1.0 0.0</xyz>
         <limit>
-          <lower>-3.141592871232662</lower>
-          <upper>3.141592871232662</upper>
+          <lower>-2.4822204407825286</lower>
+          <upper>-1.1429577335102055</upper>
           <effort>10000000000.0</effort>
           <velocity>628.3185307179587</velocity>
         </limit>
@@ -3661,8 +3706,8 @@
       <axis>
         <xyz>0.0 1.0 0.0</xyz>
         <limit>
-          <lower>-3.141590306717268</lower>
-          <upper>3.141590306717268</upper>
+          <lower>0.5528880925733279</lower>
+          <upper>2.73551351703156</upper>
           <effort>10000000000.0</effort>
           <velocity>628.3185307179587</velocity>
         </limit>
@@ -3731,8 +3776,8 @@
       <axis>
         <xyz>0.0 0.0 1.0</xyz>
         <limit>
-          <lower>-3.1359352154941056</lower>
-          <upper>3.1359352154941056</upper>
+          <lower>-2.3359206539121447</lower>
+          <upper>-1.7259474672990915</upper>
           <effort>10000000000.0</effort>
           <velocity>628.3185307179587</velocity>
         </limit>
@@ -3759,8 +3804,8 @@
       <axis>
         <xyz>0.0 1.0 0.0</xyz>
         <limit>
-          <lower>-3.1415922318581977</lower>
-          <upper>3.1415922318581977</upper>
+          <lower>-2.4202848346149346</lower>
+          <upper>-1.7404486219195796</upper>
           <effort>10000000000.0</effort>
           <velocity>628.3185307179587</velocity>
         </limit>
@@ -3857,8 +3902,8 @@
       <axis>
         <xyz>0.0 1.0 0.0</xyz>
         <limit>
-          <lower>-3.141590306717268</lower>
-          <upper>3.141590306717268</upper>
+          <lower>1.4121193778323615</lower>
+          <upper>2.6209316153196776</upper>
           <effort>10000000000.0</effort>
           <velocity>628.3185307179587</velocity>
         </limit>
@@ -3918,6 +3963,42 @@
           <effort>10000000000.0</effort>
           <velocity>628.3185307179587</velocity>
         </limit>
+      </axis>
+    </joint>
+    <joint name="prismatic_support_1" type="prismatic">
+      <parent>world</parent>
+      <child>prismatic_support_1</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>1.0 0.0 0.0</xyz>
+        <limit>
+          <lower>1.0</lower>
+          <upper>-1.0</upper>
+          <effort>0.0</effort>
+          <velocity>100.0</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="prismatic_support_2" type="prismatic">
+      <parent>prismatic_support_1</parent>
+      <child>prismatic_support_2</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 0.0 1.0</xyz>
+        <limit>
+          <lower>1.0</lower>
+          <upper>-1.0</upper>
+          <effort>0.0</effort>
+          <velocity>100.0</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="revolute_support_1" type="continuous">
+      <parent>prismatic_support_2</parent>
+      <child>Thorax</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 1.0 0.0</xyz>
       </axis>
     </joint>
   </model>
