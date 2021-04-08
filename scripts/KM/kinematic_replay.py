@@ -95,7 +95,7 @@ def main():
     """ Main """
     run_time = 4.0
     time_step = 0.001
-    behavior = 'grooming'
+    behavior = 'walking'
 
 
     #: Setting up the collision and ground sensors
