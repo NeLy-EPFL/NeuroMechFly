@@ -73,11 +73,11 @@ class DrosophilaSimulation(BulletSimulation):
         for joint in range(self.num_joints):
             p.setJointMotorControl2(
                 self.animal, joint,
-                controlMode = p.POSITION_CONTROL,
-                targetPosition = self.pose[joint],
-                targetVelocity = self.vel[joint],
-                positionGain = self.kp,
-                velocityGain = self.kv,
+                controlMode=p.POSITION_CONTROL,
+                targetPosition=self.pose[joint],
+                targetVelocity=self.vel[joint],
+                positionGain=self.kp,
+                velocityGain=self.kv,
             )
 
     def feedback_to_controller(self):
@@ -96,7 +96,6 @@ def main():
     run_time = 4.0
     time_step = 0.001
     behavior = 'walking'
-
 
     #: Setting up the collision and ground sensors
     side = ['L', 'R']
@@ -120,7 +119,6 @@ def main():
         s +
         p +
         name for s in side for p in pos for name in leg_segments if name != 'Tibia']
-
 
     sim_options = {
         "headless": False,
@@ -149,6 +147,7 @@ def main():
     animal.container.dump(
         dump_path="./kinematic_replay",
         overwrite=False)
+
 
 if __name__ == '__main__':
     main()

@@ -183,6 +183,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             self.plane = self.add_ball(self.ball_radius)
             #: When ball is used the plane id is 2 as the ball has 3 links
             self.link_plane = 2
+            self.sim_data.add_table('ball_rotations')
 
         ########## ADD ANIMAL #########
         if ".sdf" in self.MODEL:
@@ -198,13 +199,14 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         self.link_id[p.getBodyInfo(self.animal)[0].decode('UTF-8')] = -1
 
         #: Body colors
-        colorWings = [91/100,96/100,97/100,0.7]
-        colorEyes = [67/100,21/100,12/100,1]
-        colorBody = [140/255,100/255,30/255,1]
-        colorLegs = [170/255,130/255,50/255,1]
-        nospecular = [0.5,0.5,0.5]
+        colorWings = [91 / 100, 96 / 100, 97 / 100, 0.7]
+        colorEyes = [67 / 100, 21 / 100, 12 / 100, 1]
+        colorBody = [140 / 255, 100 / 255, 30 / 255, 1]
+        colorLegs = [170 / 255, 130 / 255, 50 / 255, 1]
+        nospecular = [0.5, 0.5, 0.5]
 
-        p.changeVisualShape(self.animal, -1, rgbaColor=colorBody,specularColor=nospecular)
+        p.changeVisualShape(self.animal, -
+                            1, rgbaColor=colorBody, specularColor=nospecular)
 
         self.joint_id = joints
         self.link_id = links
@@ -213,10 +215,19 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                 p.changeVisualShape(self.animal, _id, rgbaColor=colorWings)
             elif 'Eye' in link_name and 'Fake' not in link_name:
                 p.changeVisualShape(self.animal, _id, rgbaColor=colorEyes)
-            elif ('Tarsus' in link_name or 'Tibia' in link_name or 'Femur' in link_name or 'Coxa' in link_name):# and 'Fake' not in link_name:
-                p.changeVisualShape(self.animal, _id, rgbaColor=colorLegs,specularColor=nospecular)
+            # and 'Fake' not in link_name:
+            elif ('Tarsus' in link_name or 'Tibia' in link_name or 'Femur' in link_name or 'Coxa' in link_name):
+                p.changeVisualShape(
+                    self.animal,
+                    _id,
+                    rgbaColor=colorLegs,
+                    specularColor=nospecular)
             elif 'Fake' not in link_name:
-                p.changeVisualShape(self.animal, _id, rgbaColor=colorBody,specularColor=nospecular)
+                p.changeVisualShape(
+                    self.animal,
+                    _id,
+                    rgbaColor=colorBody,
+                    specularColor=nospecular)
 
             #print("Link name {} id {}".format(link_name, _id))
 
@@ -255,7 +266,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             )
 
         ########## ADD CONTAINER COLUMNS ##########
-        
+
         #: ADD ground reaction forces and friction forces
         for contact in self.GROUND_CONTACTS:
             self.ground_sensors[contact] = self.link_id[contact]
@@ -266,17 +277,20 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                     contact + '_' + axis)
                 self.sim_data.ground_friction_dir2.add_parameter(
                     contact + '_' + axis)
-        
+
         #: ADD self collision forces
         for link0, link1 in self.self_collisions:
             contact_links = '-'.join((link0, link1))
-            self.collision_sensors[contact_links] = [ self.link_id[link0], self.link_id[link1] ]
+            self.collision_sensors[contact_links] = [
+                self.link_id[link0], self.link_id[link1]]
             self.sim_data.collision_forces.add_parameter(contact_links)
 
         #: ADD base position parameters
         for axis in ['x', 'y', 'z']:
             self.sim_data.base_position.add_parameter(f"{axis}")
             self.sim_data.thorax_force.add_parameter(f"{axis}")
+            if self.GROUND is 'ball':
+                self.sim_data.ball_rotations.add_parameter(f"{axis}")
 
         #: ADD joint parameters
         for name, _ in self.joint_id.items():
@@ -437,12 +451,16 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         return force[2] / self.units.newtons
 
     def is_contact(self, link_name):
-        """ Check if link is in contact with floor. """
+        """ Check if link is in contact with floor or ball. """
         return True if p.getContactPoints(
             self.animal, self.plane,
             self.link_id[link_name],
-            -1
+            self.link_plane
         ) else False
+
+    def get_link_position(self, link_name):
+        return (p.getLinkState(self.animal, self.link_id[link_name]))[
+            0] / self.units.meters
 
     def add_ball(self, r):
         """ Create a ball of radius r. """
@@ -514,6 +532,15 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         )
 
         return sphere_id
+
+    @property
+    def ball_rotations(self):
+        return tuple(
+            state[0] for state in p.getJointStates(
+                self.plane,
+                np.arange(0, p.getNumJoints(self.plane))
+            )
+        )
 
     @property
     def joint_states(self):
@@ -645,6 +672,9 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             self.ground_lateral_friction_dir1).flatten()
         self.sim_data.ground_friction_dir2.values = np.asarray(
             self.ground_lateral_friction_dir2).flatten()
+        if self.GROUND is 'ball':
+            self.sim_data.ball_rotations.values = np.asarray(
+                self.ball_rotations).flatten()
         print("Container is updated!")
 
     @abc.abstractmethod
@@ -680,7 +710,17 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         """
         pass
 
-    def step(self, t, total, optimization=False):
+    @abc.abstractmethod
+    def update_parameters(self, params):
+        """ Update parameters. """
+        pass
+
+    @abc.abstractmethod
+    def optimization_check(self):
+        """ Optimization check. """
+        pass
+
+    def step(self, t, optimization=False):
         """ Step the simulation.
 
         Returns
@@ -787,7 +827,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         """ Run the full simulation. """
         total = int(self.RUN_TIME / self.TIME_STEP)
         for t in tqdm(range(0, total)):
-            status = self.step(t, total)
+            status = self.step(t, optimization=optimization)
             if not status:
                 return False
 
