@@ -2,7 +2,7 @@ import pybullet as p
 import numpy as np
 import pickle
 
-from bullet_simulation_kinematic_replay import BulletSimulation
+from bullet_simulation import BulletSimulation
 from NeuroMechFly.container import Container
 from NeuroMechFly.sdf.units import SimulationUnitScaling
 
