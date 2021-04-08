@@ -4,7 +4,6 @@ from tqdm import tqdm
 import pybullet as p
 import pybullet_data
 import numpy as np
-import os
 import time
 import yaml
 from NeuroMechFly.container import Container
@@ -148,7 +147,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             p.connect(self.GUI)
         p.resetSimulation()
         p.setAdditionalSearchPath(pybullet_data.getDataPath())
-        
+
         #: Everything should fall down
         p.setGravity(
             *[g * self.units.gravity for g in self.GRAVITY]
@@ -171,6 +170,8 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                 "plane.urdf", [0, 0, -0.],
                 globalScaling=0.01 * self.units.meters
             )
+            print(self.plane)
+            #: When plane is used the link id is -1
             self.link_plane = -1
         elif self.GROUND is "ball":
             ########## ADD FLOOR AND BALL ##########
@@ -180,6 +181,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             )
             self.ball_radius = 5e-3 * self.units.meters  # 1x (real size 10mm)
             self.plane = self.add_ball(self.ball_radius)
+            #: When ball is used the plane id is 2 as the ball has 3 links
             self.link_plane = 2
 
         ########## ADD ANIMAL #########
@@ -216,13 +218,9 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             elif 'Fake' not in link_name:
                 p.changeVisualShape(self.animal, _id, rgbaColor=colorBody,specularColor=nospecular)
 
-            print("Link name {} id {}".format(link_name, _id))
-            # self.link_names.append(link_name)
+            #print("Link name {} id {}".format(link_name, _id))
 
         ############### CONFIGURE CONTACTS ###############
-
-        self.set_collisions(self.link_id, group=1, mask=1)
-        self.set_collisions_whole_body()
 
         # Disable/Enable all self-collisions
         for link0 in self.link_id.keys():
@@ -249,17 +247,18 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         # Disable/Enable selected self-collisions
         for (link0, link1) in self.self_collisions:
             p.setCollisionFilterPair(
-                bodyUniqueIdA=int(self.animal),
-                bodyUniqueIdB=int(self.animal),
-                linkIndexA=int(self.link_id[link0]),
-                linkIndexB=int(self.link_id[link1]),
+                bodyUniqueIdA=self.animal,
+                bodyUniqueIdB=self.animal,
+                linkIndexA=self.link_id[link0],
+                linkIndexB=self.link_id[link1],
                 enableCollision=1,
             )
 
-        ########## ADD GROUND_CONTACTS ##########
+        ########## ADD CONTAINER COLUMNS ##########
+        
+        #: ADD ground reaction forces and friction forces
         for contact in self.GROUND_CONTACTS:
             self.ground_sensors[contact] = self.link_id[contact]
-            #: ADD ground reaction forces and friction forces
             for axis in ['x', 'y', 'z']:
                 self.sim_data.ground_contacts.add_parameter(
                     contact + '_' + axis)
@@ -267,15 +266,12 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                     contact + '_' + axis)
                 self.sim_data.ground_friction_dir2.add_parameter(
                     contact + '_' + axis)
-
-        ########## ADD MUSCLES ##########
-        if self.MUSCLES:
-            self.initialize_muscles()
-
-        ########## ADD CONTROLLER ##########
-        if self.CONTROLLER:
-            self.controller = NeuralSystem(
-                self.CONTROLLER, self.container)
+        
+        #: ADD self collision forces
+        for link0, link1 in self.self_collisions:
+            contact_links = '-'.join((link0, link1))
+            self.collision_sensors[contact_links] = [ self.link_id[link0], self.link_id[link1] ]
+            self.sim_data.collision_forces.add_parameter(contact_links)
 
         #: ADD base position parameters
         for axis in ['x', 'y', 'z']:
@@ -288,14 +284,14 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             self.sim_data.joint_velocities.add_parameter(name)
             self.sim_data.joint_torques.add_parameter(name)
 
-        for link0, link1 in self.self_collisions:
-            contact_links = '-'.join((link0, link1))
-            self.collision_sensors[contact_links] = [
-                self.link_id[link0], self.link_id[link1]]
-            #: ADD self collision forces
-            for axis in ['x', 'y', 'z']:
-                self.sim_data.collision_forces.add_parameter(
-                    contact_links + '_' + axis)
+        ########## ADD MUSCLES ##########
+        if self.MUSCLES:
+            self.initialize_muscles()
+
+        ########## ADD CONTROLLER ##########
+        if self.CONTROLLER:
+            self.controller = NeuralSystem(
+                self.CONTROLLER, self.container)
 
         ########## DISABLE DEFAULT BULLET CONTROLLERS  ##########
 
@@ -363,7 +359,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             self.muscles.setup_integrator()
 
         ########## ACTIVATE THE FORCE SENSOR ##########
-        self.thorax_id = 2
+        self.thorax_id = self.link_id['Thorax']
         p.enableJointForceTorqueSensor(self.animal, self.thorax_id, True)
 
     def initialize_muscles(self):
@@ -392,31 +388,8 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         else:
             return None
 
-    def add_ground_contact_sensor(self, link):
-        """Add new ground contact sensor
-
-        Parameters
-        ----------
-
-        Returns
-        -------
-        out :
-
-        """
-        self.ground_sensors[link] = self.link_id[link]
-
-    def get_contact_forces(self):
-        c = p.getContactPoints(self.plane, self.animal)
-        normal = np.sum(
-            [pt[9]for pt in c], axis=0) if c else self.ZEROS_3x1
-        return normal / self.units.newtons
-
-    def get_thorax_force(self):
-        thorax_info = p.getJointState(self.animal, self.thorax_id)
-        return np.array(thorax_info[2][:3]) / self.units.newtons
-
     def _get_contact_normal_force(self, link_id):
-        """Compute ground reaction force"""
+        """ Compute ground reaction force. """
         c = p.getContactPoints(
             self.animal, self.plane,
             link_id, self.link_plane)
@@ -430,16 +403,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         return contact_normal_force / self.units.newtons
 
     def _get_lateral_friction_force_dir1(self, link_id):
-        """Compute lateral friction force along direction 1
-
-        Parameters
-        ----------
-
-        Returns
-        -------
-        out :
-
-        """
+        """ Compute lateral friction force along direction 1. """
         c = p.getContactPoints(
             self.animal, self.plane,
             link_id, self.link_plane
@@ -449,16 +413,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         return lateral_friction_force / self.units.newtons
 
     def _get_lateral_friction_force_dir2(self, link_id):
-        """Compute lateral friction force along direction 1
-
-        Parameters
-        ----------
-
-        Returns
-        -------
-        out :
-
-        """
+        """ Compute lateral friction force along direction 2. """
         c = p.getContactPoints(
             self.animal, self.plane,
             link_id, self.link_plane
@@ -468,7 +423,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         return lateral_friction_force / self.units.newtons
 
     def _get_contact_force_self_collisions(self, link_ids):
-        #print(link_ids)
+        """ Compute self collision forces. """
         c = p.getContactPoints(
             self.animal, self.animal,
             link_ids[0], link_ids[1])
@@ -476,8 +431,8 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             [pt[5] for pt in c], axis=0) / len(c) if c else self.ZEROS_3x1
         self.normal_dir = 1 * np.sum(
             [pt[7]for pt in c], axis=0) / len(c) if c else self.ZEROS_3x1
-        self.normal = np.sum([pt[9]for pt in c], axis=0) / \
-            self.bodyweight if c else self.ZEROS_3x1
+        self.normal = np.sum([pt[9]for pt in c], axis=0) \
+            if c else self.ZEROS_3x1
         force = self.normal * self.normal_dir
         return force[2] / self.units.newtons
 
@@ -567,6 +522,12 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             self.animal,
             np.arange(0, p.getNumJoints(self.animal))
         )
+
+    @property
+    def get_thorax_force(self):
+        """ Compute forces measured on the Thorax. """
+        thorax_info = p.getJointState(self.animal, self.thorax_id)
+        return np.array(thorax_info[2][:3]) / self.units.newtons
 
     @property
     def ground_reaction_forces(self):
@@ -666,7 +627,6 @@ class BulletSimulation(metaclass=abc.ABCMeta):
 
     def update_logs(self):
         """ Update all the physics logs. """
-        #: Update log
         self.sim_data.base_position.values = np.asarray(
             self.base_position)
         self.sim_data.joint_positions.values = np.asarray(
@@ -676,7 +636,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         self.sim_data.joint_torques.values = np.asarray(
             self.joint_torques)
         self.sim_data.thorax_force.values = np.asarray(
-            self.get_thorax_force()).flatten()
+            self.get_thorax_force).flatten()
         self.sim_data.collision_forces.values = np.asarray(
             self.collision_forces).flatten()
         self.sim_data.ground_contacts.values = np.asarray(
