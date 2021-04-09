@@ -19,7 +19,7 @@ from jmetal.operator import (DifferentialEvolutionCrossover,
 from jmetal.util.evaluator import MultiprocessEvaluator
 from jmetal.util.observer import ProgressBarObserver, VisualizerObserver
 from jmetal.util.ranking import FastNonDominatedRanking
-from jmetal.util.solution import print_function_values_to_file  
+from jmetal.util.solution import print_function_values_to_file
 from jmetal.util.solution import print_variables_to_file
 from jmetal.util.termination_criterion import StoppingByEvaluations
 from drosophila_simulation_opt import DrosophilaSimulation
@@ -110,11 +110,11 @@ class DrosophilaEvolution(FloatProblem):
         lower_bound_active_muscles = (
                 np.asarray(
                     [# Front
-                    [1e-2, 1e-2, 1e-3, 1e-4, -0.11, 0.0, 0.0], # Coxa
-                    [1e-2, 1e-2, 1e-3, 1e-4, -2.67, 0.0, 0.0], # Femur
-                    [1e-2, 1e-2, 1e-3, 1e-5, 0.89, 0.0, 0.0], # Tibia
+                    [1e-2, 1e-2, 1e-3, 1e-4, -0.22, 0.0, 0.0], # Coxa
+                    [1e-2, 1e-2, 1e-3, 1e-4, -2.5, 0.0, 0.0], # Femur
+                    [1e-2, 1e-2, 1e-3, 1e-5, 0.76, 0.0, 0.0], # Tibia
                     # Mid
-                    [1e-2, 1e-2, 1e-3, 1e-4, -2.27, 0.0, 0.0], # Coxa_roll
+                    [1e-2, 1e-2, 1e-3, 1e-4, -2.2, 0.0, 0.0], # Coxa_roll
                     [1e-2, 1e-2, 1e-3, 1e-4, -2.35, 0.0, 0.0], # Femur
                     [1e-2, 1e-2, 1e-3, 1e-5, 1.73, 0.0, 0.0], # Tibia
                     # Hind
@@ -129,11 +129,11 @@ class DrosophilaEvolution(FloatProblem):
                 np.asarray(
                     [
                     # Front
-                    [1e0, 1e0, 1e0, 1e-3, 0.80, 1.75, 1.75], # Coxa
-                    [1e0, 1e0, 1e0, 1e-3, -1.31, 1.75, 1.75], # Femur
-                    [1e-1, 1e-1, 1e-1, 1e-4, 2.44, 1.75, 1.75], # Tibia
+                    [1e0, 1e0, 1e0, 1e-3, 0.69, 1.75, 1.75], # Coxa
+                    [1e0, 1e0, 1e0, 1e-3, -1.3, 1.75, 1.75], # Femur
+                    [1e-1, 1e-1, 1e-1, 1e-4, 2.19, 1.75, 1.75], # Tibia
                     # Mid
-                    [1e0, 1e0, 1e0, 1e-3, -1.82, 1.75, 1.75], # Coxa_roll
+                    [1e0, 1e0, 1e0, 1e-3, -1.75, 1.75, 1.75], # Coxa_roll
                     [1e0, 1e0, 1e0, 1e-3, -1.84, 1.75, 1.75], # Femur
                     [1e-1, 1e-1, 1e-1, 1e-4, 2.63, 1.75, 1.75], # Tibia
                     # Hind
@@ -260,7 +260,7 @@ class DrosophilaEvolution(FloatProblem):
             #bbox = False
             touch = False
             velocity_cap = False
-        
+
         #: Objectives
         #: Minimize activations
         m_out = np.asarray(container.muscle.outputs.log)
@@ -271,7 +271,7 @@ class DrosophilaEvolution(FloatProblem):
         act = np.sum(act**2)*fly.TIME_STEP/fly.TIME
         #: Distance
         distance = -np.array(fly.ball_rotations())[0]*fly.ball_radius #fly.distance_y
-        
+
         #: Velocity
         #velocity = (
         #    np.sum(np.asarray(container.physics.joint_velocities.log)**2)
@@ -279,7 +279,7 @@ class DrosophilaEvolution(FloatProblem):
 
         #: Penalties
         penalty_time = 1e2 + 1e2*(fly.RUN_TIME - fly.TIME)/fly.RUN_TIME if (lava or flying or touch or velocity_cap) else 0.0
-            
+
         expected_dist = 2*np.pi*fly.ball_radius
         penalty_dist = 0.0 if expected_dist < distance else (1e1 + 40*abs(distance-expected_dist))
 
@@ -313,14 +313,14 @@ class DrosophilaEvolution(FloatProblem):
 def main():
     """ Main """
 
-    n_pop = 50
-    n_gen = 300
+    n_pop = 20
+    n_gen = 10
 
     max_evaluations = n_pop*n_gen
 
     problem = DrosophilaEvolution()
-    # here change the genetic algorithm 
-    # plotting tools 
+    # here change the genetic algorithm
+    # plotting tools
     algorithm = NSGAII(
         problem=problem,
         population_size=n_pop,
@@ -330,7 +330,7 @@ def main():
             distribution_index=0.20  # 20
         ),
         crossover=SBXCrossover(probability=1.0, distribution_index=20),
-        population_evaluator=MultiprocessEvaluator(8),
+        population_evaluator=MultiprocessEvaluator(4),
         termination_criterion=StoppingByEvaluations(max_evaluations=max_evaluations),
         # dominance_comparator=DominanceComparator()
     )
