@@ -415,7 +415,7 @@ class DrosophilaSimulation(BulletSimulation):
             #: It is important to mirror the joint angles for rest position
             #: especially for coxa
             if "Coxa_roll" in joint:
-                opti_active_muscle_gains[(7*j)+5] *= -1
+                opti_active_muscle_gains[(7*j)+4] *= -1
             self.active_muscles[joint].update_parameters(
                 Parameters(*opti_active_muscle_gains[7*j:7*(j+1)])
             )
