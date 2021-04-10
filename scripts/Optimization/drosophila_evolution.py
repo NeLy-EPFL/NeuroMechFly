@@ -6,7 +6,6 @@ from pathlib import Path
 
 import numpy as np
 
-import pybullet as p
 from NeuroMechFly.container import Container
 from jmetal.algorithm.multiobjective.nsgaii import NSGAII
 from jmetal.core.observer import Observer
@@ -14,8 +13,10 @@ from jmetal.core.problem import FloatProblem
 from jmetal.core.problem import DynamicProblem
 from jmetal.core.solution import FloatSolution
 from jmetal.lab.visualization import InteractivePlot, Plot
-from jmetal.operator import (DifferentialEvolutionCrossover,
-                             PolynomialMutation, SBXCrossover)
+from jmetal.operator import (
+    PolynomialMutation,
+    SBXCrossover,
+)
 from jmetal.util.evaluator import MultiprocessEvaluator
 from jmetal.util.observer import ProgressBarObserver, VisualizerObserver
 from jmetal.util.ranking import FastNonDominatedRanking
@@ -26,7 +27,9 @@ from drosophila_simulation_opt import DrosophilaSimulation
 
 LOGGER = logging.getLogger('jmetal')
 
+
 class WriteFullFrontToFileObserver(Observer):
+    """ Write full front to file """
 
     def __init__(self, output_directory: str) -> None:
         """ Write function values of the front into files.
@@ -40,13 +43,17 @@ class WriteFullFrontToFileObserver(Observer):
         if Path(self.directory).is_dir():
             LOGGER.warning(
                 'Directory {} exists. Removing contents.'.format(
-                    self.directory))
+                    self.directory,
+                )
+            )
             for file in os.listdir(self.directory):
                 os.remove('{0}/{1}'.format(self.directory, file))
         else:
             LOGGER.warning(
                 'Directory {} does not exist. Creating it.'.format(
-                    self.directory))
+                    self.directory,
+                )
+            )
             Path(self.directory).mkdir(parents=True)
 
     def update(self, *args, **kwargs):
@@ -61,30 +68,40 @@ class WriteFullFrontToFileObserver(Observer):
                     print_variables_to_file(
                         solutions,
                         '{}/VAR.{}'.format(
-                            self.directory, self.counter)
+                            self.directory,
+                            self.counter,
+                        )
                     )
                     print_function_values_to_file(
                         solutions,
                         '{}/FUN.{}'.format(
-                            self.directory, self.counter)
+                            self.directory,
+                            self.counter,
+                        )
                     )
                     self.counter += 1
             else:
                 print_variables_to_file(
                     solutions,
                     '{}/VAR.{}'.format(
-                        self.directory, self.counter)
+                        self.directory,
+                        self.counter,
+                    )
                 )
                 print_function_values_to_file(
                     solutions,
                     '{}/FUN.{}'.format(
-                        self.directory, self.counter)
+                        self.directory,
+                        self.counter,
+                    )
                 )
                 self.counter += 1
+
 
 def read_optimization_results(fun, var):
     """ Read optimization results. """
     return (np.loadtxt(fun), np.loadtxt(var))
+
 
 class DrosophilaEvolution(FloatProblem):
     """Documentation for DrosophilaEvolution"""
@@ -228,14 +245,13 @@ class DrosophilaEvolution(FloatProblem):
         ).tolist() if not self._initial_solutions else self._initial_solutions.pop()
         return new_solution
 
-
     def evaluate(self, solution):
-        #: SIMULATION RUN TIME
+        #: SIMULATION RUN time
         run_time = 5.
         time_step = 0.001
         sim_options = {
             "headless": True,
-            "model": "../../design/sdf/neuromechfly_limitsFromData.sdf",
+            "model": "../../design/sdf/neuromechfly_limitsFromData_minMax.sdf",
             "model_offset": [0., 0., 11.2e-3],
             "pose": "../../config/pose_tripod.yaml",
             "run_time": run_time,
@@ -244,77 +260,126 @@ class DrosophilaEvolution(FloatProblem):
         }
         container = Container(run_time/time_step)
         fly = DrosophilaSimulation(container, sim_options)
-        #: Set the variables
+        # Set the variables
         fly.update_parameters(solution.variables)
         successful = fly.run(optimization=True)
 
-        if not successful:
-            lava = fly.is_lava()
-            flying = fly.is_flying()
-            #bbox = fly.is_in_not_bounds()
-            touch = fly.is_touch()
-            velocity_cap = fly.is_velocity_limit()
-        else:
-            lava = False
-            flying = False
-            #bbox = False
-            touch = False
-            velocity_cap = False
-
-        #: Objectives
-        #: Minimize activations
+        # Objectives
+        # Minimize activations
         m_out = np.asarray(container.muscle.outputs.log)
         m_names = container.muscle.outputs.names
-        act = np.asarray(
-            [m_out[:, j] for j, name in enumerate(m_names) if 'active' in name]
-        )
-        act = np.sum(act**2)*fly.TIME_STEP/fly.TIME
-        #: Distance
-        distance = -np.array(fly.ball_rotations())[0]*fly.ball_radius #fly.distance_y
 
-        #: Velocity
-        #velocity = (
+        # Activations
+        act = np.asarray([
+            m_out[:, j]
+            for j, name in enumerate(m_names)
+            if 'active' in name
+        ])
+        act = np.sum(act**2)*fly.time_step/fly.time
+
+        # Distance
+        distance = -np.array(
+            fly.ball_rotations()
+        )[0]*fly.ball_radius  # fly.distance_y
+        distance_lateral = np.array(
+            fly.ball_rotations()
+        )[1]*fly.ball_radius
+
+        # Velocity
+        # velocity = (
         #    np.sum(np.asarray(container.physics.joint_velocities.log)**2)
-        #)*fly.TIME_STEP/fly.RUN_TIME
+        # )*fly.time_step/fly.run_time
 
-        #: Penalties
-        penalty_time = 1e2 + 1e2*(fly.RUN_TIME - fly.TIME)/fly.RUN_TIME if (lava or flying or touch or velocity_cap) else 0.0
+        use_penalties = True
+        if use_penalties:
+            if not successful:
+                lava = fly.is_lava()
+                flying = fly.is_flying()
+                #bbox = fly.is_in_not_bounds()
+                touch = fly.is_touch()
+                velocity_cap = fly.is_velocity_limit()
+            else:
+                lava = False
+                flying = False
+                #bbox = False
+                touch = False
+                velocity_cap = False
 
-        expected_dist = 2*np.pi*fly.ball_radius
-        penalty_dist = 0.0 if expected_dist < distance else (1e1 + 40*abs(distance-expected_dist))
+            # Penalties
+            penalty_time = (
+                1e2 + 1e2*(fly.run_time - fly.time)/fly.run_time
+                if (lava or flying or touch or velocity_cap)
+                else 0.0
+            )
 
-        penalty_linearity = 2e3*fly.ball_radius*(abs(np.array(fly.ball_rotations()))[1]+abs(np.array(fly.ball_rotations()))[2])
+            expected_dist = 2*np.pi*fly.ball_radius
+            penalty_dist = 0.0 if expected_dist < distance else (
+                1e1 + 40*abs(distance-expected_dist))
 
-        stability = fly.stability_coef*fly.TIME_STEP/fly.TIME
+            penalty_linearity = 2e3*fly.ball_radius * \
+                (abs(np.array(fly.ball_rotations()))[
+                 1]+abs(np.array(fly.ball_rotations()))[2])
 
-        expected_stance_legs = 4
-        min_legs = 3
-        mean_stance_legs = fly.stance_count*fly.TIME_STEP/fly.TIME
-        print(fly.stance_count,fly.TIME_STEP,fly.TIME,mean_stance_legs)
-        penalty_time_stance = 0.0 if min_legs <= mean_stance_legs <= expected_stance_legs else 1e2*abs(mean_stance_legs - min_legs)
+            stability = fly.stability_coef*fly.time_step/fly.time
 
-        print(-2e3*distance,penalty_linearity,penalty_time)
-        #print(1e4*act,penalty_dist,penalty_time_stance)
-        print(2e3*stability,penalty_dist,penalty_time_stance)
-        # into a single objective
-        solution.objectives[0] = (-2e3*distance + penalty_linearity + penalty_time)
-        solution.objectives[1] = (1e4*act + penalty_dist + penalty_time_stance)
-        #solution.objectives[1] = (2e3*stability + penalty_dist + penalty_time_stance)
-        print(solution.objectives)
+            expected_stance_legs = 4
+            min_legs = 3
+            mean_stance_legs = fly.stance_count*fly.time_step/fly.time
+            # print(fly.stance_count, fly.time_step, fly.time, mean_stance_legs)
+            penalty_time_stance = (
+                0.0
+                if min_legs <= mean_stance_legs <= expected_stance_legs
+                else 1e2 * abs(mean_stance_legs - min_legs)
+            )
+
+            # print(-2e3*distance, penalty_linearity, penalty_time)
+            # print(1e4*act,penalty_dist,penalty_time_stance)
+            # print(2e3*stability, penalty_dist, penalty_time_stance)
+            solution.objectives[0] = (
+                -2e3*distance
+                + penalty_linearity
+                + penalty_time
+            )
+            # solution.objectives[1] = (
+            #     1e4*act
+            #     + penalty_dist
+            #     + penalty_time_stance
+            # )
+            solution.objectives[1] = (
+                2e3*stability
+                + penalty_dist
+                + penalty_time_stance
+            )
+        else:
+
+            # Torques
+            # torque_sum = (np.sum(
+            #     np.asarray(container.physics.joint_torques.log)**2
+            # ))*fly.time_step/fly.run_time
+            active_torque_sum = (np.sum(
+                np.asarray(container.muscle.active_torques.log)**2
+            ))*fly.time_step/fly.run_time
+
+            # Objectives
+            solution.objectives[0] = -distance + abs(distance_lateral)
+            solution.objectives[1] = active_torque_sum
+            # solution.objectives[1] = torque_sum
+
+        # print(solution.objectives)
         return solution
 
     def get_name(self):
         return 'Drosophila'
 
     def __del__(self):
-        print("Deleting fly simulation....")
+        print('Deleting fly simulation....')
 
 
 def main():
     """ Main """
 
-    n_pop = 20
-    n_gen = 10
+    n_pop = 50
+    n_gen = 300
 
     max_evaluations = n_pop*n_gen
 
@@ -330,8 +395,9 @@ def main():
             distribution_index=0.20  # 20
         ),
         crossover=SBXCrossover(probability=1.0, distribution_index=20),
-        population_evaluator=MultiprocessEvaluator(4),
-        termination_criterion=StoppingByEvaluations(max_evaluations=max_evaluations),
+        population_evaluator=MultiprocessEvaluator(8),
+        termination_criterion=StoppingByEvaluations(
+            max_evaluations=max_evaluations),
         # dominance_comparator=DominanceComparator()
     )
 
@@ -346,7 +412,7 @@ def main():
                 problem.number_of_objectives,
                 n_pop,
                 n_gen,
-                datetime.now().strftime("%m%d_%H%M"),
+                datetime.now().strftime('%m%d_%H%M'),
             )
         )
     )
@@ -367,7 +433,7 @@ def main():
     # Get results
     front = algorithm.get_result()
     ranking = FastNonDominatedRanking()
-    pareto_fronts = ranking.compute_ranking(front)
+    # pareto_fronts = ranking.compute_ranking(front)
 
     # Plot front
     plot_front = Plot(
@@ -385,7 +451,7 @@ def main():
 
     # Save results to file
     print_function_values_to_file(front, 'FUN.' + 'ged3')
-    print_variables_to_file(front, 'VAR.'+ 'ged3')
+    print_variables_to_file(front, 'VAR.' + 'ged3')
 
     print('Algorithm (continuous problem): ' + algorithm.get_name())
     print('Problem: ' + problem.get_name())
