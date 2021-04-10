@@ -398,7 +398,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             try:
                 with open(pose_file) as stream:
                     self.pose_data = yaml.load(stream, Loader=yaml.SafeLoader)
-                    self.pose_data = {k.lower(): v for k, v in self.data.items()}
+                    self.pose_data = {k.lower(): v for k, v in self.pose_data.items()}
             except FileNotFoundError:
                 print("Pose file {} not found".format(pose_file))
                 return
