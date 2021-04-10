@@ -56,7 +56,7 @@ class DrosophilaSimulation(BulletSimulation):
                 self.animal,
                 self.joint_id[joint],
                 controlMode=p.POSITION_CONTROL,
-                targetPosition= np.deg2rad(self.data['joints'].get(joint, 0))
+                targetPosition= np.deg2rad(self.pose_data['joints'].get(joint, 0))
             )
 
         #: set joint positions

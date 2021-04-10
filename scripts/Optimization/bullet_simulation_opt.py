@@ -397,13 +397,13 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         if pose_file:
             try:
                 with open(pose_file) as stream:
-                    self.data = yaml.load(stream, Loader=yaml.SafeLoader)
-                    self.data = {k.lower(): v for k, v in self.data.items()}
+                    self.pose_data = yaml.load(stream, Loader=yaml.SafeLoader)
+                    self.pose_data = {k.lower(): v for k, v in self.data.items()}
             except FileNotFoundError:
                 print("Pose file {} not found".format(pose_file))
                 return
             for joint, _id in self.joint_id.items():
-                _pose = np.deg2rad(self.data['joints'].get(joint, 0))
+                _pose = np.deg2rad(self.pose_data['joints'].get(joint, 0))
                 p.resetJointState(
                     self.animal, _id,
                     targetValue=_pose
