@@ -14,7 +14,7 @@ import yaml
 def main():
     """ Main. """
     controller_gen = AgnosticController(
-        ("../../design/sdf/drosophila_100x_noLimits.sdf"),
+        ("../../design/sdf/neuromechfly_limitsFromData.sdf"),
         connect_mutual=False,
         connect_closest_neighbors=False,
         connect_base_nodes=False
