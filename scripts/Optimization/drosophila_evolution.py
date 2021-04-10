@@ -162,7 +162,7 @@ class DrosophilaEvolution(FloatProblem):
         ).flatten()
 
         #lower_bound_active_muscles = (
-        #np.ones((N, 6))*np.array([1e-3, 1e-3, 1e-4, 1e-5, 0.5, 0.0]
+        #np.ones((N, 6))*np.array([1e-3, 1e-3, 1e-4, 1e-5, 1.0, 0.0]
         #    )).flatten()
         # lower_bound_active_muscles = (
         #         np.ones((N, 6))*np.array([1e-3, 1e-3, 1e-4, 1e-5, 0.5, 0.0]
@@ -193,6 +193,34 @@ class DrosophilaEvolution(FloatProblem):
         #upper_bound_active_muscles = np.array([6e-2, 3e-2, 3e-3, 1e-3, 1.5, 2]*3 +
         #                                      [6e-2, 3e-2, 3e-3, 1e-3, 1.5, 2]*3 +
         #                                      [6e-2, 3e-2, 3e-3, 1e-3, 1.5, 2]*3)
+        '''
+        upper_bound_active_muscles = np.array([8e-2, 1.2e-2, 1e-3, 1.3e-3, 1.5, 2,
+                                               12e-2, 4e-2, 3e-3, 1e-3, 1.5, 2,
+                                               8e-2, 1e-2, 3e-3, 1e-3, 1.5, 2,
+                                               6e-2, 4e-2, 5e-3, 1.7e-3, 1.5, 2,
+                                               25e-2, 6e-2, 1e-3, 1.7e-3, 1.5, 2,
+                                               25e-2, 6e-2, 1e-3, 1.7e-3, 1.5, 2,
+                                               25e-2, 3e-2, 13e-3, 1.4e-3, 1.5, 2,
+                                               25e-2, 6e-2, 1e-3, 1.7e-3, 1.5, 2,
+                                               25e-2, 6e-2, 1e-3, 1.7e-3, 1.5, 2]
+                                               )
+
+        upper_bound_active_muscles = np.array(
+            [8e-2, 1.2e-2, 1.0-3, 1.0e-3, 1.5, 2]*3 +
+            [50e-2, 6e-2, 1e-3, 1.2e-3, 1.5, 2]*3
+                                               )
+
+        upper_bound_active_muscles = np.array([8e-2, 1.2e-2, 1.0e-3, 1.0e-3, 1.5, 2,
+                                            8e-2, 1.2e-2, 1.0e-3, 1.0e-3, 1.5, 2,
+                                            8e-2, 1.2e-2, 1.0e-3, 1.0e-3, 1.5, 2,
+                                            50e-2, 6e-2, 1e-3, 1.7e-3, 1.5, 2,
+                                            8e-2, 1.2e-2, 1.0e-3, 1.0e-3, 1.5, 2,
+                                            50e-2, 6e-2, 1e-3, 1.7e-3, 1.5, 2,
+                                            50e-2, 6e-2, 1e-3, 1.7e-3, 1.5, 2,
+                                            8e-2, 1.2e-2, 1.0e-3, 1.0e-3, 1.5, 2,
+                                            50e-2, 6e-2, 1e-3, 1.7e-3, 1.5, 2]
+                                            )
+        '''
         # upper_bound_active_muscles = np.array([6e-2, 3e-2, 3e-3, 1e-3, 1.5, 2]*3 +
         #                                       [6e-2, 3e-2, 3e-3, 1e-3, 1.5, 2]*3 +
         #                                       [6e-2, 3e-2, 3e-3, 1e-3, 1.5, 2]*3)
@@ -253,7 +281,8 @@ class DrosophilaEvolution(FloatProblem):
             "headless": True,
             "model": "../../design/sdf/neuromechfly_limitsFromData_minMax.sdf",
             "model_offset": [0., 0., 11.2e-3],
-            "pose": "../../config/pose_tripod.yaml",
+            "pose": "../../config/pose_tripod_test.yaml",
+            #"pose": "../../config/pose_optimization.yaml",
             "run_time": run_time,
             "base_link": 'Thorax',
             "controller": '../../config/locomotion_ball.graphml',

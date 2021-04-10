@@ -45,7 +45,7 @@ class DrosophilaSimulation(BulletSimulation):
             pos = joint.split('_')[1][1]
             if (('M' == pos) or ('H' == pos)) and ('Coxa' in joint):
                 self.actuated_joints[j] = joint.replace('Coxa', 'Coxa_roll')
-                
+
 
         self.num_oscillators = self.controller.graph.number_of_nodes()
         self.active_muscles = {}
@@ -107,7 +107,7 @@ class DrosophilaSimulation(BulletSimulation):
         #)
         ########## DEBUG PARAMETER ##########
         self.debug = p.addUserDebugParameter('debug', -1, 1, 0.0)
-        
+
         ########## Data variables ###########
         self.torques=[]
         self.grf=[]
@@ -127,13 +127,13 @@ class DrosophilaSimulation(BulletSimulation):
                 controlMode=p.TORQUE_CONTROL,
                 force=value.compute_torque(only_passive=False)
             )
-            
+
 
     def fixed_joints_controller(self):
         """Controller for fixed joints"""
         for joint in range(self.num_joints):
             joint_name = [name for name, ind_num in self.joint_id.items() if joint == ind_num][0]
-            if joint_name not in self.actuated_joints:# and 'support' not in joint_name:          
+            if joint_name not in self.actuated_joints:# and 'support' not in joint_name:
                 if joint_name == 'joint_A3' or joint_name == 'joint_A4' or joint_name == 'joint_A5' or joint_name == 'joint_A6':
                     pos = np.deg2rad(-15)
                 elif joint_name == 'joint_LAntenna':
@@ -156,10 +156,10 @@ class DrosophilaSimulation(BulletSimulation):
                 #    pos = np.deg2rad(-5)
                 #elif joint_name == 'joint_RFCoxa_yaw':
                 #    pos = np.deg2rad(5)
-                #elif joint_name == 'joint_LFCoxa_roll':
-                #    pos = np.deg2rad(-35)
-                #elif joint_name == 'joint_RFCoxa_roll':
-                #    pos = np.deg2rad(35)
+                elif joint_name == 'joint_LFCoxa_roll':
+                    pos = np.deg2rad(10)
+                elif joint_name == 'joint_RFCoxa_roll':
+                    pos = np.deg2rad(-10)
                 #elif joint_name == 'joint_LFFemur_roll':
                 #    pos = np.deg2rad(-26)
                 #elif joint_name == 'joint_RFFemur_roll':
@@ -179,11 +179,11 @@ class DrosophilaSimulation(BulletSimulation):
                 #elif joint_name == 'joint_LMFemur_roll':
                 #    pos = np.deg2rad(-7)
                 #elif joint_name == 'joint_RMFemur_roll':
-                #    pos = np.deg2rad(7)                    
+                #    pos = np.deg2rad(7)
                 elif joint_name == 'joint_LMTarsus1':
                     pos = np.deg2rad(-52)
                 elif joint_name == 'joint_RMTarsus1':
-                    pos = np.deg2rad(-56)                   
+                    pos = np.deg2rad(-56)
                 elif joint_name == 'joint_LHCoxa_yaw':
                     pos = np.deg2rad(0.6)
                 elif joint_name == 'joint_RHCoxa_yaw':
@@ -209,14 +209,14 @@ class DrosophilaSimulation(BulletSimulation):
                 #print('Ball rotations: ', self.ball_rotations(),'\n')
                 #print('Dist stance_polygon:', self.stance_polygon_dist())
                 #print(np.array(self.get_link_position('Thorax')[:2]))
-                
-                
+
+
                 p.setJointMotorControl2(
                     self.animal, joint,
                     controlMode=p.POSITION_CONTROL,
                     targetPosition=pos,
                     force=1e36)
-        
+
 
     def controller_to_actuator(self, t):
         """ Implementation of abstractmethod. """
@@ -250,13 +250,13 @@ class DrosophilaSimulation(BulletSimulation):
             ball_rot[:2] = ball_rot[:2]*self.ball_radius*10 # Distance in mm
             self.ball_rot.append(ball_rot)
             #print(ball_rot)
-            
+
 
     def feedback_to_controller(self):
         """ Implementation of abstractmethod. """
         pass
 
-    
+
     def joint_torques(self):
         """ Get the joint torques in the animal  """
         _joints = np.arange(0, p.getNumJoints(self.animal))
@@ -269,7 +269,7 @@ class DrosophilaSimulation(BulletSimulation):
             map(self._get_contact_force_ball, self.ground_sensors.values())
         )
 
-    
+
     def ball_rotations(self):
         return tuple(
             state[0] for state in p.getJointStates(
@@ -304,7 +304,7 @@ class DrosophilaSimulation(BulletSimulation):
                 dist = 0.5
         else:
             dist = 1 - len(contact_legs)*0.25
-            
+
         return dist
 
     def is_lava(self):
@@ -316,7 +316,7 @@ class DrosophilaSimulation(BulletSimulation):
         moving_limit = (((self.TIME)/self.RUN_TIME)*3*np.pi)-0.5*np.pi
         return dist_traveled < moving_limit
         #return (dist_traveled < (((self.TIME)/self.RUN_TIME)*2)-0.25)
-    
+
 
     def is_in_not_bounds(self):
         """ Bounds of the pelvis. """
@@ -341,7 +341,7 @@ class DrosophilaSimulation(BulletSimulation):
         """ Check velocity limits. """
         return np.any(np.array(self.joint_velocities) > 10000)
 
-    
+
     #def is_flying(self):
     #    """Check if no leg of the model is in contact """
     #    contact_segments = [leg for leg in self.feet_links if self.is_contact_ball(leg)]
@@ -449,7 +449,7 @@ class DrosophilaSimulation(BulletSimulation):
                         parameters.get_parameter(
                             'phi_{}_to_{}'.format(node_2, node_1)
                         ).value = -1*opti_joint_phases[4*j0 + 2*j1 + j2]
-        
+
                 #node_1 = "joint_{}{}{}_{}".format(side, pos, coxa_label, 'flexion')
                 #node_2 = "joint_{}{}{}_{}".format(side, pos, coxa_label, 'extension')
                 ##print(node_1,node_2)
@@ -481,7 +481,7 @@ class DrosophilaSimulation(BulletSimulation):
                 parameters.get_parameter(
                     'phi_{}_to_{}'.format(node_2, node_1)
                 ).value = -1*opti_base_phases[j1]
-        
+
 
 def read_optimization_results(fun, var):
     """ Read optimization results. """
@@ -518,7 +518,7 @@ def save_data(fly, filename, exp=''):
         os.makedirs(path_grf)
     if not os.path.exists(path_ball_rot):
         os.makedirs(path_ball_rot)
-        
+
     #with open(path_torque+'/torques_'+filename,'wb') as f:
     #    pickle.dump(torques_dict,f)
 
@@ -564,7 +564,7 @@ def main():
             self_collision.append([link0,link1])
     for link0 in left_front_leg:
         for link1 in body_segments:
-            self_collision.append([link0,link1])        
+            self_collision.append([link0,link1])
     for link0 in left_middle_leg:
         for link1 in body_segments:
             self_collision.append([link0,link1])
@@ -588,17 +588,17 @@ def main():
         for link1 in body_segments:
             self_collision.append([link0,link1])
 
-    gen = '49'
-    exp = '1211_0208'        
+    gen = '10'
+    exp = 'run_Drosophila_var_71_obj_2_pop_20_gen_100_0407_1744'
 
     sim_options = {
         "headless": False,
-        # Scaled SDF model 
-        "model": "../../design/sdf/neuromechfly_limitsFromData.sdf", 
+        # Scaled SDF model
+        "model": "../../design/sdf/neuromechfly_limitsFromData_minMax.sdf",
         "model_offset": [0., 0., 11.2e-3],
         "run_time": run_time,
-    
-        "pose": '../../config/pose_tripod.yaml',
+
+        "pose": '../../config/pose_tripod_test.yaml',
         "base_link": 'Thorax',
         "controller": '../../config/locomotion_ball.graphml',
         "ground_contacts": ground_contact,
@@ -613,7 +613,7 @@ def main():
         'sleep_time': 0.001,
         'rot_cam': False
         }
-    
+
     container = Container(run_time/time_step)
     animal = DrosophilaSimulation(container, sim_options)
 
@@ -625,13 +625,13 @@ def main():
     #)
     '''
     fun, var = read_optimization_results(
-        "./optimization_results/run_Drosophila_var_71_obj_2_pop_20_gen_50_"+exp+"/FUN."+gen,
-        "./optimization_results/run_Drosophila_var_71_obj_2_pop_20_gen_50_"+exp+"/VAR."+gen
+        "./optimization_results/"+exp+"/FUN."+gen,
+        "./optimization_results/"+exp+"/VAR."+gen
     )
     '''
     fun, var = read_optimization_results(
-        "./FUN_old.ged3",
-        "./VAR_old_2.ged3"
+        "./FUN.ged3",
+        "./VAR.ged3"
     )
 
     params = var[np.argmin(fun[:,0]*fun[:,1])]

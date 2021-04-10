@@ -74,6 +74,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         self.joint_type = {}
         self.link_id = {}
         self.ground_sensors = {}
+        self.data = {}
 
         ##################
         self.link_names = []
@@ -131,7 +132,6 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         """ Setup the simulation. """
         ########## PYBULLET SETUP ##########
         if self.RECORD_MOVIE and self.GUI == p.GUI:
-            #synchronize the visualizer (rendering frames for the video mp4) with stepSimulation
             p.connect(
                 self.GUI,
                 options='--background_color_red={} --background_color_green={} --background_color_blue={} --mp4={} --mp4fps={}'.format(
@@ -397,13 +397,13 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         if pose_file:
             try:
                 with open(pose_file) as stream:
-                    data = yaml.load(stream, Loader=yaml.SafeLoader)
-                    data = {k.lower(): v for k, v in data.items()}
+                    self.data = yaml.load(stream, Loader=yaml.SafeLoader)
+                    self.data = {k.lower(): v for k, v in self.data.items()}
             except FileNotFoundError:
                 print("Pose file {} not found".format(pose_file))
                 return
             for joint, _id in self.joint_id.items():
-                _pose = np.deg2rad(data['joints'].get(joint, 0))
+                _pose = np.deg2rad(self.data['joints'].get(joint, 0))
                 p.resetJointState(
                     self.animal, _id,
                     targetValue=_pose
@@ -497,11 +497,9 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             # basePosition=[-0.025,0.01,0.566] ### Walking ball r= 0.55
             # basePosition=[-0.025,0.005,0.568] ### Walking ball r= 0.55 NEW
             # basePosition=[-0.023, 0.0085, 0.6198] ### Walking ball r= 0.5
-            # basePosition=[-0.0225, 0.007, 0.61973] ### Walking ball r= 0.5
+            # basePosition=[-0.0225, 0.007, 0.61973] ### Walking ball r= 0.
             basePosition = np.array(
-                [0.18e-3, 0.18e-3, -5.1e-3])*self.units.meters+self.MODEL_OFFSET
-            basePosition = np.array(
-                [-0.2e-3, 0.0e-3,-5.08e-3])*self.units.meters+self.MODEL_OFFSET
+                [0.2e-3, 0.0e-3,-5.1e-3])*self.units.meters+self.MODEL_OFFSET
         elif self.behavior == 'grooming':
             # basePosition=[0.0,-0.01,0.63] ### Grooming
             basePosition = np.array(

@@ -51,13 +51,14 @@ class DrosophilaSimulation(BulletSimulation):
 
     def controller_to_actuator(self, t):
         """ Implementation of abstractmethod. """
+        for joint in self.fixed_joints:
+            p.setJointMotorControl2(
+                self.animal,
+                self.joint_id[joint],
+                controlMode=p.POSITION_CONTROL,
+                targetPosition= np.deg2rad(self.data['joints'].get(joint, 0))
+            )
 
-        p.setJointMotorControlArray(
-            self.animal,
-            [self.joint_id[joint] for joint in self.fixed_joints],
-            controlMode=p.POSITION_CONTROL,
-            targetPositions=np.zeros((self.num_fixed_joints,))
-        )
         #: set joint positions
         p.setJointMotorControlArray(
             self.animal,
@@ -116,7 +117,7 @@ def main():
         "model": "../../design/sdf/neuromechfly_limitsFromData.sdf",
         "model_offset": [0., 0., 11.2e-3],
         "run_time": run_time,
-        "pose": '../../config/pose_optimization_2.yaml',
+        "pose": '../../config/test_pose_tripod_with_nonactuated.yaml',
         "record": False,
         'camera_distance': 3.5,
         'track': False,
@@ -124,7 +125,7 @@ def main():
         'slow_down': False,
         'sleep_time': 0.001,
         'rot_cam': False,
-        "is_ball": False
+        "is_ball": True
     }
 
     container = Container(run_time/time_step)
