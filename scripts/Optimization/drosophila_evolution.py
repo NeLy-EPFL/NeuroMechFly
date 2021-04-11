@@ -361,14 +361,30 @@ class DrosophilaEvolution(FloatProblem):
                 else 1e2 * abs(mean_stance_legs - min_legs)
             )
 
-            # print(-2e3*distance, penalty_linearity, penalty_time)
-            # print(1e4*act,penalty_dist,penalty_time_stance)
-            # print(2e3*stability, penalty_dist, penalty_time_stance)
+            ### PRINT PENALTIES AND OBJECTIVES ###
+            print(
+                "OBJECTIVES\n===========\n\
+                    Distance: {} \n \
+                    Stability: {} \n \
+                PENALTIES\n=========\n \
+                    Penalty linearity: {} \n \
+                    Penalty time: {} \n \
+                    Penalty distance: {} \n \
+                    Penalty time stance: {} \n \
+                ".format(
+                    -2e3*distance, 
+                    2e3*stability,
+                    penalty_linearity,
+                    penalty_time,
+                    penalty_dist,
+                    penalty_time_stance)
+                )
+
             solution.objectives[0] = (
-                -2e3*distance
-                + penalty_linearity
-                + penalty_time
-            )
+                -2e3*distance )
+            #    + penalty_linearity
+            #    + penalty_time
+            #)
             # solution.objectives[1] = (
             #     1e4*act
             #     + penalty_dist
@@ -390,8 +406,8 @@ class DrosophilaEvolution(FloatProblem):
             ))*fly.time_step/fly.run_time
 
             # Objectives
-            solution.objectives[0] = -distance + abs(distance_lateral)
-            solution.objectives[1] = active_torque_sum
+            #solution.objectives[0] = -distance + abs(distance_lateral)
+            #solution.objectives[1] = active_torque_sum
             # solution.objectives[1] = torque_sum
 
         # print(solution.objectives)
@@ -407,8 +423,8 @@ class DrosophilaEvolution(FloatProblem):
 def main():
     """ Main """
 
-    n_pop = 50
-    n_gen = 300
+    n_pop = 10
+    n_gen = 10
 
     max_evaluations = n_pop*n_gen
 
@@ -424,7 +440,7 @@ def main():
             distribution_index=0.20  # 20
         ),
         crossover=SBXCrossover(probability=1.0, distribution_index=20),
-        population_evaluator=MultiprocessEvaluator(8),
+        population_evaluator=MultiprocessEvaluator(4),
         termination_criterion=StoppingByEvaluations(
             max_evaluations=max_evaluations),
         # dominance_comparator=DominanceComparator()

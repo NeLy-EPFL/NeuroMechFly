@@ -313,7 +313,7 @@ class DrosophilaSimulation(BulletSimulation):
         ball_rot = np.array(self.ball_rotations())
         dist_traveled = -ball_rot[0]*self.ball_radius # Distance in mm
         #print(dist_traveled)
-        moving_limit = (((self.TIME)/self.RUN_TIME)*3*np.pi)-0.5*np.pi
+        moving_limit = (((self.time)/self.run_time)*3*np.pi)-0.5*np.pi
         return dist_traveled < moving_limit
         #return (dist_traveled < (((self.TIME)/self.RUN_TIME)*2)-0.25)
 
