@@ -234,13 +234,13 @@ class DrosophilaSimulation(BulletSimulation):
                 ind = np.where(np.array(grf).transpose()[0]>0)[0]
                 draw=[]
                 for i in ind:
-                    link1 = self.GROUND_CONTACTS[i][:-1]
+                    link1 = self.ground_contacts[i][:-1]
                     if link1 not in draw:
                         draw.append(link1)
-                        p.changeVisualShape(self.animal, self.link_id[link1+'5'],rgbaColor=self.colorCollision)
+                        p.changeVisualShape(self.animal, self.link_id[link1+'5'],rgbaColor=self.color_collision)
                 for link in self.lastDraw:
                     if link not in draw:
-                        p.changeVisualShape(self.animal, self.link_id[link+'5'], rgbaColor=self.colorLegs)
+                        p.changeVisualShape(self.animal, self.link_id[link+'5'], rgbaColor=self.color_legs)
 
                 self.lastDraw = draw
             self.grf.append(grf)
@@ -499,7 +499,7 @@ def save_data(fly, filename, exp=''):
     #for i, joint in enumerate(fly.joint_id.keys()):
     #    torques_dict[joint] = data_torque[i]
 
-    for i, joint in enumerate(fly.GROUND_CONTACTS):
+    for i, joint in enumerate(fly.ground_contacts):
         grf_dict[joint] = data_grf[i]
 
     path_muscles = os.path.join(currentDirectory,'Results/muscle/outputs.h5')
@@ -597,13 +597,12 @@ def main():
         "model": "../../design/sdf/neuromechfly_limitsFromData_minMax.sdf",
         "model_offset": [0., 0., 11.2e-3],
         "run_time": run_time,
-
         "pose": '../../config/pose_tripod_test.yaml',
         "base_link": 'Thorax',
         "controller": '../../config/locomotion_ball.graphml',
         "ground_contacts": ground_contact,
         'self_collisions':self_collision,
-        "draw_collisions": False,
+        "draw_collisions": True,
         "record": False,
         'camera_distance': 3.5,
         'track': False,
