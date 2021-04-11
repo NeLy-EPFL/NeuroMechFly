@@ -43,6 +43,7 @@ setuptools.setup(
     license='MIT',
     packages=setuptools.find_packages(),
     install_requires=[
+        'farms_pylog',
         'numpy',
         'pandas',
         'matplotlib==3.0.2',
@@ -60,6 +61,9 @@ setuptools.setup(
         'jmetalpy',
         'tables',
         'pillow'
+    ],
+    dependency_links=[
+        'https://gitlab.com/FARMSIM/farms_pylog.git',
     ],
     zip_safe=False,
     ext_modules=cythonize(extensions),
