@@ -331,33 +331,20 @@ class DrosophilaSimulation(BulletSimulation):
         """ Check if certain links touch. """
         return np.any(
             [
-                self.is_contact_ball(link) for link in self.link_id.keys() if 'Tarsus' not in link
-                #self.is_contact(link) for link in [
-                #    'LTibia', 'RTibia', 'LRadius', 'RRadius'
-                #]
+                self.is_contact_ball(link)
+                for link in self.link_id.keys()
+                if 'Tarsus' not in link
             ]
         )
 
     def is_velocity_limit(self):
         """ Check velocity limits. """
-        return np.any(np.array(self.joint_velocities) > 10000)
-
-
-    #def is_flying(self):
-    #    """Check if no leg of the model is in contact """
-    #    contact_segments = [leg for leg in self.feet_links if self.is_contact_ball(leg)]
-    #    contact_legs = []
-    #    for seg in contact_segments:
-    #        if seg[:2] not in contact_legs:
-    #            contact_legs.append(seg[:2])
-    #    #print(contact_legs)
-    #    #print(num_legs < 2)
-    #    return len(contact_legs) < 3
-    #    #return not(
-    #    #    np.any([self.is_contact_ball(leg) for leg in self.feet_links])
-    #    #)
+        return np.any(
+            np.array(self.joint_velocities) > 1e3
+        )
 
     def is_flying(self):
+        # FIXME: This function does two things at the same time
         dist_to_centroid = self.stance_polygon_dist()
         self.stability_coef += dist_to_centroid
         # print(dist_to_centroid)
@@ -366,7 +353,6 @@ class DrosophilaSimulation(BulletSimulation):
     def optimization_check(self):
         """ Check optimization status. """
         lava = self.is_lava()
-        #bounding_box = self.is_in_not_bounds()
         flying = self.is_flying()
         velocity_cap = self.is_velocity_limit()
         touch = self.is_touch()
