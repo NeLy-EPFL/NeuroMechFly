@@ -299,9 +299,10 @@ class DrosophilaEvolution(FloatProblem):
         act = np.asarray([
             m_out[:, j]
             for j, name in enumerate(m_names)
-            if 'active' in name
+            if 'flexor_act' in name or 'extensor_act' in name
         ])
-        act = np.sum(act**2)*fly.time_step/fly.time
+        # normalize it by the maximum activation possible [0- ~2]
+        act = np.sum(act**2)/1e5
 
         # Distance
         distance = -np.array(
