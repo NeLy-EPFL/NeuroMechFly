@@ -104,7 +104,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
 
         #: Camera
         if self.gui == p.GUI and not self.track_animal:
-            base = np.array(self.base_position)
+            base = np.array(self.base_position) * self.units.meters
             p.resetDebugVisualizerCamera(
                 self.camera_distance,
                 0,
@@ -373,7 +373,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         self.total_mass = 0.0
 
         for j in np.arange(-1, p.getNumJoints(self.animal)):
-            self.total_mass += p.getDynamicsInfo(self.animal, j)[0]
+            self.total_mass += p.getDynamicsInfo(self.animal, j)[0] / self.units.kilograms
 
         self.bodyweight = -1 * self.total_mass * self.gravity[2]
         #print('Total mass = {}'.format(self.total_mass))
@@ -449,7 +449,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         self.normal_dir = -1 * np.sum(
             [pt[7]for pt in c], axis=0) / len(c) if c else self.ZEROS_3x1
         self.normal = np.sum(
-            [pt[9]for pt in c], axis=0) / self.bodyweight if c else self.ZEROS_3x1
+            [pt[9]for pt in c], axis=0) if c else self.ZEROS_3x1
         force = self.normal * self.normal_dir
 
         return force[2]/self.units.newtons
@@ -463,7 +463,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         self.normal_dir = 1 * np.sum(
             [pt[7]for pt in c], axis=0) / len(c) if c else self.ZEROS_3x1
         self.normal = np.sum(
-            [pt[9]for pt in c], axis=0) / self.bodyweight if c else self.ZEROS_3x1
+            [pt[9]for pt in c], axis=0) if c else self.ZEROS_3x1
         force = self.normal * self.normal_dir
         res_force = np.linalg.norm(force)
         res_dir = np.arctan2(force[2], force[1])
@@ -622,7 +622,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
     def joint_velocities(self):
         """ Get the joint velocities in the animal  """
         return tuple(
-            state[1]/self.units.velocity for state in p.getJointStates(
+            state[1] for state in p.getJointStates(
                 self.animal,
                 np.arange(0, p.getNumJoints(self.animal))
             )
@@ -631,17 +631,17 @@ class BulletSimulation(metaclass=abc.ABCMeta):
     @property
     def distance_x(self):
         """ Distance the animal has travelled in x-direction. """
-        return self.base_position[0]/self.units.meters
+        return self.base_position[0]
 
     @property
     def distance_y(self):
         """ Distance the animal has travelled in y-direction. """
-        return -self.base_position[1]/self.units.meters
+        return -self.base_position[1]
 
     @property
     def distance_z(self):
         """ Distance the animal has travelled in z-direction. """
-        return self.base_position[2]/self.units.meters
+        return self.base_position[2]
 
     @property
     def mechanical_work(self):
@@ -726,7 +726,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         """
         #: Camera
         if self.gui == p.GUI and self.track_animal:
-            base = np.array(self.base_position)
+            base = np.array(self.base_position) * self.units.meters
             p.resetDebugVisualizerCamera(
                 self.camera_distance,
                 -90,
@@ -735,7 +735,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
 
         ######Optimization camera sequence#######
         if self.gui == p.GUI and self.rotate_camera:
-            base = np.array(self.base_position)
+            base = np.array(self.base_position) * self.units.meters
             yaw = (t-4500)/4500*360-90
             pitch = -10
             p.resetDebugVisualizerCamera(
