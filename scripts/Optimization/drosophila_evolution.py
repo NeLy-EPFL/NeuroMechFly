@@ -1,29 +1,26 @@
 """ Drosophila Evolution. """
-from datetime import datetime
 import logging
 import os
+from datetime import datetime
 from pathlib import Path
 
+import farms_pylog as pylog
 import numpy as np
-
-from NeuroMechFly.container import Container
 from jmetal.algorithm.multiobjective.nsgaii import NSGAII
 from jmetal.core.observer import Observer
-from jmetal.core.problem import FloatProblem
-from jmetal.core.problem import DynamicProblem
+from jmetal.core.problem import DynamicProblem, FloatProblem
 from jmetal.core.solution import FloatSolution
 from jmetal.lab.visualization import InteractivePlot, Plot
-from jmetal.operator import (
-    PolynomialMutation,
-    SBXCrossover,
-)
+from jmetal.operator import PolynomialMutation, SBXCrossover
 from jmetal.util.evaluator import MultiprocessEvaluator
 from jmetal.util.observer import ProgressBarObserver, VisualizerObserver
 from jmetal.util.ranking import FastNonDominatedRanking
-from jmetal.util.solution import print_function_values_to_file
-from jmetal.util.solution import print_variables_to_file
+from jmetal.util.solution import (print_function_values_to_file,
+                                  print_variables_to_file)
 from jmetal.util.termination_criterion import StoppingByEvaluations
+
 from drosophila_simulation_opt import DrosophilaSimulation
+from NeuroMechFly.container import Container
 
 LOGGER = logging.getLogger('jmetal')
 
@@ -281,7 +278,7 @@ class DrosophilaEvolution(FloatProblem):
             "headless": True,
             "model": "../../design/sdf/neuromechfly_limitsFromData_minMax.sdf",
             "model_offset": [0., 0., 11.2e-3],
-            "pose": "../../config/pose_tripod_test.yaml",
+            "pose": "../../config/test_pose_tripod.yaml",
             #"pose": "../../config/pose_optimization.yaml",
             "run_time": run_time,
             "base_link": 'Thorax',
@@ -362,7 +359,7 @@ class DrosophilaEvolution(FloatProblem):
             )
 
             ### PRINT PENALTIES AND OBJECTIVES ###
-            print(
+            pylog.debug(
                 "OBJECTIVES\n===========\n\
                     Distance: {} \n \
                     Stability: {} \n \
@@ -372,7 +369,7 @@ class DrosophilaEvolution(FloatProblem):
                     Penalty distance: {} \n \
                     Penalty time stance: {} \n \
                 ".format(
-                    -2e3*distance, 
+                    -2e3*distance,
                     2e3*stability,
                     penalty_linearity,
                     penalty_time,
@@ -424,7 +421,7 @@ def main():
     """ Main """
 
     n_pop = 10
-    n_gen = 10
+    n_gen = 4
 
     max_evaluations = n_pop*n_gen
 

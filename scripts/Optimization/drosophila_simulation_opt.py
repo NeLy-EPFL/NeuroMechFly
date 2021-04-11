@@ -2,6 +2,7 @@ import os
 import pickle
 import time
 
+import farms_pylog as pylog
 import numpy as np
 import pandas as pd
 from IPython import embed
@@ -370,7 +371,7 @@ class DrosophilaSimulation(BulletSimulation):
         velocity_cap = self.is_velocity_limit()
         touch = self.is_touch()
         if lava or velocity_cap or touch or flying:
-            print(
+            pylog.debug(
                 "Lava {} | Flying {} | Vel {} | Touch {}".format(
                 lava, flying, velocity_cap, touch
                 )
@@ -597,7 +598,7 @@ def main():
         "model": "../../design/sdf/neuromechfly_limitsFromData_minMax.sdf",
         "model_offset": [0., 0., 11.2e-3],
         "run_time": run_time,
-        "pose": '../../config/pose_tripod_test.yaml',
+        "pose": '../../config/test_pose_tripod.yaml',
         "base_link": 'Thorax',
         "controller": '../../config/locomotion_ball.graphml',
         "ground_contacts": ground_contact,
@@ -608,8 +609,8 @@ def main():
         'track': False,
         'moviename': 'stability_'+exp+'_gen_'+gen+'.mp4',
         'moviefps': 50,
-        'slow_down': True,
-        'sleep_time': 0.001,
+        'slow_down': False,
+        'sleep_time': 10.0,
         'rot_cam': False
         }
 
@@ -629,8 +630,13 @@ def main():
     )
     '''
     fun, var = read_optimization_results(
+        "./release/run_Drosophila_var_80_obj_2_pop_10_gen_10_0411_1451/FUN.9",
+        "./release/run_Drosophila_var_80_obj_2_pop_10_gen_10_0411_1451/VAR.9",
+    )
+
+    fun, var = read_optimization_results(
         "./FUN.ged3",
-        "./VAR.ged3"
+        "./VAR.ged3",
     )
 
     params = var[np.argmin(fun[:,0]*fun[:,1])]
