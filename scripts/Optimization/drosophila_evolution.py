@@ -379,22 +379,20 @@ class DrosophilaEvolution(FloatProblem):
                 )
 
             solution.objectives[0] = (
-                -2e3*distance )
-            #    + penalty_linearity
-            #    + penalty_time
-            #)
+                -distance
+               # + penalty_linearity
+               # + penalty_time
+            )
+            solution.objectives[1] = (
+                act
+                # + penalty_time
+            )
             # solution.objectives[1] = (
-            #     1e4*act
+            #     2e3*stability
             #     + penalty_dist
             #     + penalty_time_stance
             # )
-            solution.objectives[1] = (
-                2e3*stability
-                + penalty_dist
-                + penalty_time_stance
-            )
         else:
-
             # Torques
             # torque_sum = (np.sum(
             #     np.asarray(container.physics.joint_torques.log)**2
