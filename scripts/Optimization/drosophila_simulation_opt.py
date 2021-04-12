@@ -391,12 +391,12 @@ class DrosophilaSimulation(BulletSimulation):
         edges_joints = int(self.controller.graph.number_of_nodes()/3)
         edges_anta = int(self.controller.graph.number_of_nodes()/12)
 
-        opti_active_muscle_gains = params[:7*N]
-        opti_joint_phases = params[7*N:7*N+edges_joints]
+        opti_active_muscle_gains = params[:5*N]
+        opti_joint_phases = params[5*N:5*N+edges_joints]
         #opti_antagonist_phases = params[6*N+edges_joints:6*N+edges_joints+edges_anta]
         #opti_base_phases = params[6*N+edges_joints+edges_anta:]
 
-        opti_base_phases = params[7*N+edges_joints:]
+        opti_base_phases = params[5*N+edges_joints:]
 
         #print(
         #    "Opti active muscle gains {}".format(
@@ -416,14 +416,14 @@ class DrosophilaSimulation(BulletSimulation):
             #print(joint,joint.replace('L', 'R', 1),6*j,6*(j+1))
             # print(joint, Parameters(*opti_active_muscle_gains[7*j:7*(j+1)]))
             self.active_muscles[joint.replace('L', 'R', 1)].update_parameters(
-                Parameters(*opti_active_muscle_gains[7*j:7*(j+1)])
+                Parameters(*opti_active_muscle_gains[5*j:5*(j+1)])
             )
             #: It is important to mirror the joint angles for rest position
             #: especially for coxa
             if "Coxa_roll" in joint:
-                opti_active_muscle_gains[(7*j)+4] *= -1
+                opti_active_muscle_gains[(5*j)+4] *= -1
             self.active_muscles[joint].update_parameters(
-                Parameters(*opti_active_muscle_gains[7*j:7*(j+1)])
+                Parameters(*opti_active_muscle_gains[5*j:5*(j+1)])
             )
         #: Update phases
         #: Edges to set phases for
