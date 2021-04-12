@@ -40,19 +40,32 @@ def generate_videos(export_path, results_path, frequency, ncores):
     population = int(opti_options[7])
     generations = int(opti_options[9])
 
-    # Run the simulations
-    for gen in np.arange(0, generations, frequency):
-        fun, var = read_optimization_results(
-            results_folder_path.joinpath(f"FUN.{gen}"),
-            results_folder_path.joinpath(f"VAR.{gen}"),
-        )
-        params = np.asarray(var[np.argmin(fun[:,0]*fun[:,1])])
-        run_simulation(
-            params, export_path.joinpath(f"gen_{gen}.mp4")
+    #: Parallelize
+    with Pool(processes=ncores) as pool:
+        pool.starmap(
+            run_simulation,
+            [
+                (get_params_from_optimization_results(
+                    results_folder_path.joinpath(f"FUN.{gen}"),
+                    results_folder_path.joinpath(f"VAR.{gen}"),
+                ), export_path.joinpath(f"gen_{gen}.mp4"))
+                for gen in np.arange(0, generations, frequency)
+            ]
         )
 
+    # # Run the simulations
+    # for gen in np.arange(0, generations, frequency):
+    #     fun, var = read_optimization_results(
+    #         results_folder_path.joinpath(f"FUN.{gen}"),
+    #         results_folder_path.joinpath(f"VAR.{gen}"),
+    #     )
+    #     params = np.asarray(var[np.argmin(fun[:,0]*fun[:,1])])
+    #     run_simulation(
+    #         params, export_path.joinpath(f"gen_{gen}.mp4")
+    #     )
 
-def read_optimization_results(fun, var):
+
+def get_params_from_optimization_results(fun, var):
     """ Read optimization results.
     Parameters
     ----------
@@ -62,7 +75,9 @@ def read_optimization_results(fun, var):
         Path to the var file location
 
     """
-    return (np.loadtxt(fun), np.loadtxt(var))
+    fun, var = np.loadtxt(fun), np.loadtxt(var)
+    params = np.asarray(var[np.argmin(fun[:,0]* fun[:,1])])
+    return params
 
 
 def run_simulation(params, export_path):
@@ -175,7 +190,7 @@ def parse_args():
         "--ncores", "-n", type=int, dest="ncores",
         required=False, default=1
     )
-    return dict(parser.parse_args())
+    return vars(parser.parse_args())
 
 
 if __name__ == '__main__':
