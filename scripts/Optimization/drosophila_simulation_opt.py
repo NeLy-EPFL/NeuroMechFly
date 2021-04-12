@@ -369,6 +369,7 @@ class DrosophilaSimulation(BulletSimulation):
         flying = self.is_flying()
         velocity_cap = self.is_velocity_limit()
         touch = self.is_touch()
+        self.is_using_all_legs()
         if lava or velocity_cap or touch or flying:
             pylog.debug(
                 "Lava {} | Flying {} | Vel {} | Touch {}".format(
