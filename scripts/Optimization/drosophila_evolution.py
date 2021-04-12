@@ -334,7 +334,7 @@ class DrosophilaEvolution(FloatProblem):
 
             # Penalties
             penalty_time = (
-                1e2 + 1e2*(fly.run_time - fly.time)/fly.run_time
+                1e0 + 1e0*(fly.run_time - fly.time)/fly.run_time
                 if (lava or flying or touch or velocity_cap)
                 else 0.0
             )
@@ -366,7 +366,7 @@ class DrosophilaEvolution(FloatProblem):
             pylog.debug(
                 "OBJECTIVES\n===========\n\
                     Distance: {} \n \
-                    Stability: {} \n \
+                    Activations: {} \n \
                 PENALTIES\n=========\n \
                     Penalty linearity: {} \n \
                     Penalty time: {} \n \
@@ -374,8 +374,8 @@ class DrosophilaEvolution(FloatProblem):
                     Penalty time stance: {} \n \
                     Penalty all legs: {} \n \
                 ".format(
-                    -2e3*distance,
-                    2e3*stability,
+                    -distance,
+                    act,
                     penalty_linearity,
                     penalty_time,
                     penalty_dist,
@@ -392,8 +392,8 @@ class DrosophilaEvolution(FloatProblem):
             )
             solution.objectives[1] = (
                 act
-                + penalty_all_legs
-                # + penalty_time
+                # + penalty_all_legs**2
+                + penalty_time
             )
             # solution.objectives[1] = (
             #     2e3*stability
