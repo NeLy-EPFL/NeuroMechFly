@@ -10,40 +10,49 @@ from IPython import embed
 import pybullet_data
 import pandas as pd
 import time
-from df3dPostProcessing import df3dPostProcess
+from pathlib import Path
+import pkgutil
+import glob
 from NeuroMechFly.container import Container
 from NeuroMechFly.sdf.units import SimulationUnitScaling
-
+try:
+    from df3dPostProcessing import df3dPostProcess
+    df3dPP = True
+except ImportError:
+    df3dPP = False
+    
 
 class DrosophilaSimulation(BulletSimulation):
     
-    def __init__(self, container, sim_options, units=SimulationUnitScaling()):
+    def __init__(self, container, sim_options, units=SimulationUnitScaling(meters=1000,kilograms=1000)):
         super().__init__(container, units, **sim_options)
         self.torques=[]
         self.grf=[]
         self.collision_forces=[]
         self.ball_rot=[]
-        self.angles = self.calculate_angles(self.behavior)
-
-    def calculate_angles(self, behavior):
-
-        if behavior == 'walking':
-            experiment = '/home/nely/Desktop/DF3D_data/180921_aDN_PR_Fly8_005_SG1_behData_images/images/df3d/pose_result__home_nely_Desktop_animationSimfly_video2_180921_aDN_PR_Fly8_005_SG1_behData_images_images.pkl' # Walking
-            #experiment = '/home/nely/Desktop/DF3D_data/190703-SS42740-fly2-005-CLC/images/df3d/pose_result__home_nely_Desktop_DF3D_data_190703-SS42740-fly2-005-CLC_images.pkl'
-
-        elif behavior == 'grooming':        
-            experiment = '/home/nely/Desktop/DF3D_data/180921_aDN_CsCh_Fly6_003_SG1_behData_images/images/df3d/pose_result__home_nely_Desktop_DF3D_data_180921_aDN_CsCh_Fly6_003_SG1_behData_images_images.pkl' # Grooming
-
-        df3d = df3dPostProcess(experiment)
-        align = df3d.align_3d_data()
-        angles = df3d.calculate_leg_angles()
-
-        ########PRISM#########################
-        #experiment = '/home/nely/Desktop/prismData/prismData_LiftFly3d_axes.pkl' # Prism
-
-        #df3d = df3dPostProcess(experiment,skeleton='prism')
-        #align = df3d.align_3d_data(rescale=False)
-        #angles = df3d.calculate_leg_angles(begin=690,end=1590)
+        self.lastDraw=[]
+        pkg_path = Path(pkgutil.get_loader("NeuroMechFly").get_filename())
+        data_path = os.path.join(pkg_path.parents[1],'data',self.behavior,'df3d')
+        if df3dPP:
+            self.angles = self.calculate_angles(data_path,overwrite_angles=False)
+        else:
+            angles_path = glob.glob(data_path + '/joint_angles*.pkl')[0]
+            with open(angles_path, 'rb') as f:
+                self.angles = pickle.load(f)
+            
+    def calculate_angles(self, data_path, overwrite_angles=False):
+        
+        experiment = glob.glob(data_path + '/pose_result*.pkl')[0]
+        angles_path = glob.glob(data_path + '/joint_angles*.pkl')
+        
+        if angles_path and not overwrite_angles:
+            with open(angles_path[0], 'rb') as f:
+                angles = pickle.load(f)
+        else:
+            df3d = df3dPostProcess(experiment, calculate_3d=True)
+            align = df3d.align_to_template(interpolate=True, smoothing=True)
+            print("Calculating angles...")
+            angles = df3d.calculate_leg_angles(save_angles=True)
         
         return angles
         
@@ -62,31 +71,32 @@ class DrosophilaSimulation(BulletSimulation):
         pose[self.joint_id['joint_A5']] = np.deg2rad(-15)
         pose[self.joint_id['joint_A6']] = np.deg2rad(-15)
 
-        pose[self.joint_id['joint_LAntenna']] = np.deg2rad(32)
-        pose[self.joint_id['joint_RAntenna']] = np.deg2rad(-32)
+        pose[self.joint_id['joint_LAntenna']] = np.deg2rad(35)
+        pose[self.joint_id['joint_RAntenna']] = np.deg2rad(-35)
    
-        pose[self.joint_id['joint_Proboscis']] = np.deg2rad(90)
-        pose[self.joint_id['joint_Labellum']] = np.deg2rad(-60)
+        pose[self.joint_id['joint_Rostrum']] = np.deg2rad(90)
+        pose[self.joint_id['joint_Haustellum']] = np.deg2rad(-60)
 
-        pose[self.joint_id['joint_LWing_roll']] = np.deg2rad(-90)
+        pose[self.joint_id['joint_LWing_roll']] = np.deg2rad(90)
         pose[self.joint_id['joint_LWing_yaw']] = np.deg2rad(-17)
-        pose[self.joint_id['joint_RWing_roll']] = np.deg2rad(90)
+        pose[self.joint_id['joint_RWing_roll']] = np.deg2rad(-90)
         pose[self.joint_id['joint_RWing_yaw']] = np.deg2rad(17)
 
-        pose[self.joint_id['joint_Head']] = np.deg2rad(25)
+        pose[self.joint_id['joint_Head']] = np.deg2rad(10)
 
-        ind = t//10
-
-        #######Walk on floor#########
-        if ind<5:
-            pose[1] = 0.2-ind*0.04
+        ind = t
+        
+        #######Moving up#########
+        init_lim = 25
+        if ind<init_lim:
+            pose[self.joint_id['prismatic_support_2']] = (1.01*self.MODEL_OFFSET[2]-ind*self.MODEL_OFFSET[2]/init_lim)*self.units.meters
         else:
-            pose[1] = 0
+            pose[self.joint_id['prismatic_support_2']] = 0
         #############################
         
         ####LEFT LEGS#######
         pose[self.joint_id['joint_LFCoxa_roll']] = self.angles['LF_leg']['roll'][ind]
-        pose[self.joint_id['joint_LFCoxa_yaw']] = self.angles['LF_leg']['yaw'][ind]
+        pose[self.joint_id['joint_LFCoxa_yaw']] = self.angles['LF_leg']['yaw'][ind]#+np.deg2rad(5)
         pose[self.joint_id['joint_LFCoxa']] = self.angles['LF_leg']['pitch'][ind]
         pose[self.joint_id['joint_LFFemur_roll']] = self.angles['LF_leg']['roll_tr'][ind]
         pose[self.joint_id['joint_LFFemur']] = self.angles['LF_leg']['th_fe'][ind]
@@ -101,7 +111,7 @@ class DrosophilaSimulation(BulletSimulation):
         pose[self.joint_id['joint_LMTibia']] = self.angles['LM_leg']['th_ti'][ind]
         pose[self.joint_id['joint_LMTarsus1']] = self.angles['LM_leg']['th_ta'][ind]
 
-        pose[self.joint_id['joint_LHCoxa_roll']] = self.angles['LH_leg']['roll'][ind] 
+        pose[self.joint_id['joint_LHCoxa_roll']] = self.angles['LH_leg']['roll'][ind]
         pose[self.joint_id['joint_LHCoxa_yaw']] = self.angles['LH_leg']['yaw'][ind]
         pose[self.joint_id['joint_LHCoxa']] = self.angles['LH_leg']['pitch'][ind]
         pose[self.joint_id['joint_LHFemur_roll']] = self.angles['LH_leg']['roll_tr'][ind]
@@ -112,14 +122,14 @@ class DrosophilaSimulation(BulletSimulation):
         
         #####RIGHT LEGS######
         pose[self.joint_id['joint_RFCoxa_roll']] = self.angles['RF_leg']['roll'][ind]
-        pose[self.joint_id['joint_RFCoxa_yaw']] = self.angles['RF_leg']['yaw'][ind]
+        pose[self.joint_id['joint_RFCoxa_yaw']] = self.angles['RF_leg']['yaw'][ind]#-np.deg2rad(5)
         pose[self.joint_id['joint_RFCoxa']] = self.angles['RF_leg']['pitch'][ind]
         pose[self.joint_id['joint_RFFemur_roll']] = self.angles['RF_leg']['roll_tr'][ind]
         pose[self.joint_id['joint_RFFemur']] = self.angles['RF_leg']['th_fe'][ind]
         pose[self.joint_id['joint_RFTibia']] = self.angles['RF_leg']['th_ti'][ind]
         pose[self.joint_id['joint_RFTarsus1']] = self.angles['RF_leg']['th_ta'][ind]
 
-        pose[self.joint_id['joint_RMCoxa_roll']] = self.angles['RM_leg']['roll'][ind] 
+        pose[self.joint_id['joint_RMCoxa_roll']] = self.angles['RM_leg']['roll'][ind]
         pose[self.joint_id['joint_RMCoxa_yaw']] = self.angles['RM_leg']['yaw'][ind]
         pose[self.joint_id['joint_RMCoxa']] = self.angles['RM_leg']['pitch'][ind]
         pose[self.joint_id['joint_RMFemur_roll']] = self.angles['RM_leg']['roll_tr'][ind]
@@ -127,7 +137,7 @@ class DrosophilaSimulation(BulletSimulation):
         pose[self.joint_id['joint_RMTibia']] = self.angles['RM_leg']['th_ti'][ind]
         pose[self.joint_id['joint_RMTarsus1']] = self.angles['RM_leg']['th_ta'][ind]
 
-        pose[self.joint_id['joint_RHCoxa_roll']] = self.angles['RH_leg']['roll'][ind] 
+        pose[self.joint_id['joint_RHCoxa_roll']] = self.angles['RH_leg']['roll'][ind]
         pose[self.joint_id['joint_RHCoxa_yaw']] = self.angles['RH_leg']['yaw'][ind]
         pose[self.joint_id['joint_RHCoxa']] = self.angles['RH_leg']['pitch'][ind]
         pose[self.joint_id['joint_RHFemur_roll']] = self.angles['RH_leg']['roll_tr'][ind]
@@ -146,28 +156,54 @@ class DrosophilaSimulation(BulletSimulation):
                     p.setJointMotorControl2(
                     self.animal, joint,
                     controlMode=p.POSITION_CONTROL,
-                    targetPosition=pose[joint])
+                    targetPosition=pose[joint],
+                    #force=1e16,
+                    positionGain=0.4,
+                    velocityGain=0.9)
         
-        if t%10 == 0:
-            jointTorques = np.array(self.joint_torques())
-            #print(jointTorques.shape)
-            self.torques.append(jointTorques)
+        #if t%10 == 0:
+        jointTorques = np.array(self.joint_torques())
+        #print(jointTorques.shape)
+        self.torques.append(jointTorques)
 
-        if t%10 == 0:
-            grf = self.ball_reaction_forces()
-            #print(grf.shape)
-            self.grf.append(grf)
+        #if t%10 == 0:
+        grf = self.ball_reaction_forces()
+        #print(grf.shape)
+        self.grf.append(grf)
 
-        if t%10 == 0:
-            ball_rot = np.array(self.ball_rotations())
-            ball_rot[:2] = ball_rot[:2]*self.ball_radius*10 # Distance in mm
-            self.ball_rot.append(ball_rot)
-            #print(ball_rot)
+        #if t%10 == 0:
+        ball_rot = np.array(self.ball_rotations())
+        ball_rot[:2] = ball_rot[:2]*self.ball_radius*10 # Distance in mm
+        self.ball_rot.append(ball_rot)
+        #print(ball_rot)
 
 
-        if t%10 == 0:
-            coll_forces = self.selfCollision_reaction_forces(self.self_collisions)
-            self.collision_forces.append(coll_forces)
+        #if t%10 == 0:
+        coll_forces = self.selfCollision_reaction_forces(self.self_collisions)
+        if self.draw_collisions:
+            ind = np.where(np.array(coll_forces).transpose()[0]>0)[0]                
+            draw=[]
+            for i in ind:
+                link1 = self.self_collisions[i][0]
+                link2 = self.self_collisions[i][1]
+
+                if link1 not in draw:
+                    draw.append(link1)
+                    p.changeVisualShape(self.animal, self.link_id[link1],rgbaColor=self.colorCollision)
+                if link2 not in draw:
+                    draw.append(link2)
+                    p.changeVisualShape(self.animal, self.link_id[link2],rgbaColor=self.colorCollision)
+
+            for link in self.lastDraw:
+                if link not in draw:
+                    if 'Antenna' in link:
+                        p.changeVisualShape(self.animal, self.link_id[link], rgbaColor=self.colorBody)
+                    else:
+                        p.changeVisualShape(self.animal, self.link_id[link], rgbaColor=self.colorLegs)
+
+            self.lastDraw = draw
+
+        self.collision_forces.append(coll_forces)
 
         #print(self.antennae_pos())
         
@@ -267,7 +303,7 @@ def save_data(fly, filename):
 
 def main():
     """ Main """
-    run_time = 9.0
+    run_time = 8.97
     time_step = 0.001
     behavior = 'grooming'
     
@@ -276,7 +312,7 @@ def main():
     leg_segments = ['Tibia']+['Tarsus' + str(i) for i in range(1, 6)]
     left_front_leg = ['LF'+name for name in leg_segments]
     right_front_leg = ['RF'+name for name in leg_segments]
-    body_segments = [s+b for s in side for b in ['Eye','Antenna']]
+    body_segments = [s+b for s in side for b in ['Antenna']]
 
     ground_contact = [s+p+name for s in side for p in pos for name in leg_segments if name != 'Tibia']
 
@@ -292,18 +328,20 @@ def main():
 
     sim_options = {
         "headless": False,
-        "model": "/home/nely/SimFly/GIT/farms_models_data/drosophila_v3/design/sdf/drosophila_100x_noLimits.sdf",
-        "model_offset": [0., 0., 1.12],
+        "model": "../../design/sdf/neuromechfly_noLimits.sdf",
+        "model_offset": [0., 0., 11.2e-3],
         "run_time": run_time,
         #"pose": '../config/pose.yaml',
         "base_link": 'Thorax',
         #"controller": '../config/locomotion_trot.graphml',
         "ground_contacts": ground_contact,
         "self_collisions": self_collision,
+        "draw_collisions": True,
         "record": False,
-        'camera_distance': 0.35,
+        'camera_distance': 3.5,
         'track': False,
-        'moviename': 'KM_grooming.mp4',
+        'moviename': 'videos/KM_1x_grooming_realTime.mp4',
+        'movieSpeed': 0.2,
         'slow_down': True,
         'sleep_time': 0.001,
         'rot_cam': False,

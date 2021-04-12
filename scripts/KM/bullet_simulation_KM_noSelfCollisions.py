@@ -53,7 +53,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             'background_color_BLUE', 1)
         self.RECORD_MOVIE = kwargs.get('record', False)
         self.MOVIE_NAME = kwargs.get('moviename', 'default_movie.mp4')
-        self.movie_fps = kwargs.get('moviefps', 60)
+        self.movie_speed = kwargs.get('movieSpeed', 1)
         self.rotate_camera = kwargs.get('rot_cam', False)
         self.behavior = kwargs.get('behavior', 'walking')
         self.self_collisions = kwargs.get('self_collisions', [])
@@ -135,7 +135,8 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                     self.VIS_OPTIONS_BACKGROUND_COLOR_GREEN,
                     self.VIS_OPTIONS_BACKGROUND_COLOR_RED,
                     self.MOVIE_NAME,
-                    self.movie_fps))
+                    int(self.movie_speed/self.TIME_STEP)))
+            p.configureDebugVisualizer(p.COV_ENABLE_SINGLE_STEP_RENDERING,1)
         elif self.GUI == p.GUI:
             p.connect(
                 self.GUI,
@@ -466,15 +467,16 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             #basePosition = [-0.02, -0.015, 0.632]###GOOD
             #basePosition = [-0.018, -0.018, 0.632]###GOOD
             #basePosition = np.array([0.18e-3, 0.18e-3,-4.88e-3])*self.units.meters+self.MODEL_OFFSET
-            basePosition = np.array([0.18e-3, 0.18e-3,-4.92e-3])*self.units.meters+self.MODEL_OFFSET
+            basePosition = np.array([0.28e-3, -0.2e-3,-4.965e-3])*self.units.meters+self.MODEL_OFFSET
+            #basePosition = np.array([0.39e-3, -0.14e-3,-5.01e-3])*self.units.meters+self.MODEL_OFFSET
         elif self.behavior == 'grooming':
-            basePosition=[0.0,-0.01,0.63] ### Grooming        
+            #basePosition=[0.0,-0.01,0.63] ### Grooming        
             basePosition = np.array([0.0e-3, 0.0e-3,-5e-3])*self.units.meters+self.MODEL_OFFSET
             
         baseOrientation = [0,0,0,1]
 
         #link_Masses = [0.0000005,0.0000005,0.0000005]
-        link_Masses = np.array([5e-11,5e-11,5e-11])*self.units.kilograms
+        link_Masses = np.array([1e-11,1e-11,1e-11])*self.units.kilograms
         linkCollisionShapeIndices = [-1,-1,colSphereId]
         linkVisualShapeIndices = [-1,-1,-1]
         linkPositions = [[0, 0, 0],[0, 0, 0],[0, 0, 0]]
@@ -702,17 +704,17 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         ######Grooming camera sequence#######
         if self.GUI == p.GUI and self.rotate_camera and self.behavior=='grooming':
             base = np.array(self.base_position)
-            if t < 250:
-                yaw = -90
+            if t < 500:
+                yaw = 0
                 pitch = -10
-            elif t >=250 and t < 2000:
-                yaw = (t-250)/1750*150-90
-                pitch = -10
-            elif t >=2000 and t < 3500:
-                yaw = 60-(t-2000)/1500*120
-                pitch = -10
+            elif t >=500 and t < 1750:
+                yaw = (t-500)/1250*110
+                pitch = (t-500)/1250*30-10
+            elif t >=1750 and t < 3000:
+                yaw = 110-(t-1750)/1250*70
+                pitch = 20-(t-1750)/1250*30
             else:
-                yaw = 300
+                yaw = 40
                 pitch = -10
             p.resetDebugVisualizerCamera(
                 self.camera_distance,
@@ -739,6 +741,8 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         self.TIME += self.TIME_STEP
         #: Step physics
         p.stepSimulation()
+        #: Rendering
+        p.configureDebugVisualizer(p.COV_ENABLE_SINGLE_STEP_RENDERING,1)
         #: Update logs
         #self.update_logs()
         #: Update container log

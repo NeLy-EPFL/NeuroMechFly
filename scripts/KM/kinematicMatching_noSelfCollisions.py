@@ -50,7 +50,8 @@ class DrosophilaSimulation(BulletSimulation):
                 angles = pickle.load(f)
         else:
             df3d = df3dPostProcess(experiment, calculate_3d=True)
-            align = df3d.align_to_template(interpolate=True)
+            align = df3d.align_to_template(interpolate=True, smoothing=True)
+            print("Calculating angles...")
             angles = df3d.calculate_leg_angles(save_angles=True)
         
         return angles
@@ -70,8 +71,8 @@ class DrosophilaSimulation(BulletSimulation):
         pose[self.joint_id['joint_A5']] = np.deg2rad(-15)
         pose[self.joint_id['joint_A6']] = np.deg2rad(-15)
 
-        pose[self.joint_id['joint_LAntenna']] = np.deg2rad(33)
-        pose[self.joint_id['joint_RAntenna']] = np.deg2rad(-33)
+        pose[self.joint_id['joint_LAntenna']] = np.deg2rad(35)
+        pose[self.joint_id['joint_RAntenna']] = np.deg2rad(-35)
    
         pose[self.joint_id['joint_Rostrum']] = np.deg2rad(90)
         pose[self.joint_id['joint_Haustellum']] = np.deg2rad(-60)
@@ -157,7 +158,8 @@ class DrosophilaSimulation(BulletSimulation):
                     controlMode=p.POSITION_CONTROL,
                     targetPosition=pose[joint],
                     #force=1e16,
-                    positionGain=0.4)
+                    positionGain=0.4,
+                    velocityGain=0.9)
         
         jointTorques = np.array(self.joint_torques())
         #print(jointTorques.shape)
@@ -289,6 +291,7 @@ def save_data(fly, filename):
 def main():
     """ Main """
     run_time = 8.97
+    #run_time = 7.0
     time_step = 0.001
     behavior = 'walking'
     
@@ -326,11 +329,11 @@ def main():
         "record": False,
         'camera_distance': 3.5,
         'track': False,
-        'moviename': 'videos/KM_1x_walking_interpolate.mp4',
-        'moviefps': 50,
+        'moviename': 'videos/test.mp4',
+        'movieSpeed': 0.2,
         'slow_down': True,
         'sleep_time': 0.001,
-        'rot_cam': False,
+        'rot_cam': True,
         'behavior': behavior,
         }
     container = Container(run_time/time_step)
