@@ -124,17 +124,17 @@ class DrosophilaEvolution(FloatProblem):
         lower_bound_active_muscles = (
                 np.asarray(
                     [# Front
-                    [1e-2, 1e-2, 1e-3, 1e-4, -0.22, 0.0, 0.0], # Coxa
-                    [1e-2, 1e-2, 1e-3, 1e-4, -2.5, 0.0, 0.0], # Femur
-                    [1e-2, 1e-2, 1e-3, 5e-4, 0.76, 0.0, 0.0], # Tibia
+                    [1e-2, 1e-2, 1e-3, 1e-4, -0.22, 0.1, 0.1], # Coxa
+                    [1e-2, 1e-2, 1e-3, 1e-4, -2.5, 0.1, 0.1], # Femur
+                    [1e-2, 1e-2, 1e-3, 5e-4, 0.76, 0.1, 0.1], # Tibia
                     # Mid
-                    [1e-2, 1e-2, 1e-3, 1e-4, -2.2, 0.0, 0.0], # Coxa_roll
-                    [1e-2, 1e-2, 1e-3, 1e-4, -2.35, 0.0, 0.0], # Femur
-                    [1e-2, 1e-2, 1e-3, 5e-4, 1.73, 0.0, 0.0], # Tibia
+                    [1e-2, 1e-2, 1e-3, 1e-4, -2.2, 0.1, 0.1], # Coxa_roll
+                    [1e-2, 1e-2, 1e-3, 1e-4, -2.35, 0.1, 0.1], # Femur
+                    [1e-2, 1e-2, 1e-3, 5e-4, 1.73, 0.1, 0.1], # Tibia
                     # Hind
-                    [1e-2, 1e-2, 1e-3, 1e-4, -2.78, 0.0, 0.0], # Coxa_roll
-                    [1e-2, 1e-2, 1e-3, 1e-4, -2.46, 0.0, 0.0], # Femur
-                    [1e-2, 1e-2, 1e-3, 5e-4, 1.12, 0.0, 0.0], # Tibia
+                    [1e-2, 1e-2, 1e-3, 1e-4, -2.78, 0.1, 0.1], # Coxa_roll
+                    [1e-2, 1e-2, 1e-3, 1e-4, -2.46, 0.1, 0.1], # Femur
+                    [1e-2, 1e-2, 1e-3, 5e-4, 1.12, 0.1, 0.1], # Tibia
                     ]
                 )
         ).flatten()
@@ -334,7 +334,7 @@ class DrosophilaEvolution(FloatProblem):
 
             # Penalties
             penalty_time = (
-                1e2 + 1e2*(fly.run_time - fly.time)/fly.run_time
+                1e0 + 1e0*(fly.run_time - fly.time)/fly.run_time
                 if (lava or flying or touch or velocity_cap)
                 else 0.0
             )
@@ -366,7 +366,7 @@ class DrosophilaEvolution(FloatProblem):
             pylog.debug(
                 "OBJECTIVES\n===========\n\
                     Distance: {} \n \
-                    Stability: {} \n \
+                    Activations: {} \n \
                 PENALTIES\n=========\n \
                     Penalty linearity: {} \n \
                     Penalty time: {} \n \
@@ -374,8 +374,8 @@ class DrosophilaEvolution(FloatProblem):
                     Penalty time stance: {} \n \
                     Penalty all legs: {} \n \
                 ".format(
-                    -2e3*distance,
-                    2e3*stability,
+                    -distance,
+                    act,
                     penalty_linearity,
                     penalty_time,
                     penalty_dist,
@@ -392,8 +392,8 @@ class DrosophilaEvolution(FloatProblem):
             )
             solution.objectives[1] = (
                 act
-                + penalty_all_legs
-                # + penalty_time
+                # + penalty_all_legs**2
+                + penalty_time
             )
             # solution.objectives[1] = (
             #     2e3*stability

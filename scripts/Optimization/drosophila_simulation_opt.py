@@ -118,7 +118,10 @@ class DrosophilaSimulation(BulletSimulation):
         self.stance_count = 0
         self.lastDraw=[]
         self.check_is_all_legs = np.asarray(
-            [False for j in range(len(self.feet_links))]
+            [False
+             for leg in self.feet_links
+             if "Tarsus5" in leg
+             ]
         )
 
 
@@ -314,7 +317,9 @@ class DrosophilaSimulation(BulletSimulation):
     def is_using_all_legs(self):
         """Check if the fly uses all its legs to locomote"""
         contact_segments = [
-            self.is_contact_ball(leg) for leg in self.feet_links
+            self.is_contact_ball(leg)
+            for leg in self.feet_links
+            if "Tarsus5" in leg
         ]
         self.check_is_all_legs += np.asarray(contact_segments)
 
