@@ -117,6 +117,9 @@ class DrosophilaSimulation(BulletSimulation):
         self.stability_coef = 0
         self.stance_count = 0
         self.lastDraw=[]
+        self.check_is_all_legs = np.asarray(
+            [False for j in range(len(self.feet_links))]
+        )
 
 
     def muscle_controller(self):
@@ -307,6 +310,13 @@ class DrosophilaSimulation(BulletSimulation):
             dist = 1 - len(contact_legs)*0.25
 
         return dist
+
+    def is_using_all_legs(self):
+        """Check if the fly uses all its legs to locomote"""
+        contact_segments = [
+            self.is_contact_ball(leg) for leg in self.feet_links
+        ]
+        self.check_is_all_legs += np.asarray(contact_segments)
 
     def is_lava(self):
         """ State of lava approaching the model. """
