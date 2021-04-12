@@ -634,18 +634,24 @@ def main():
         "./optimization_results/"+exp+"/VAR."+gen
     )
     '''
+
     fun, var = read_optimization_results(
-        "./release/run_Drosophila_var_80_obj_2_pop_10_gen_10_0411_1451/FUN.9",
-        "./release/run_Drosophila_var_80_obj_2_pop_10_gen_10_0411_1451/VAR.9",
+        "./release/run_Drosophila_var_80_obj_2_pop_100_gen_30_0411_1725/FUN.29",
+        "./release/run_Drosophila_var_80_obj_2_pop_100_gen_30_0411_1725/VAR.29",
     )
 
     fun, var = read_optimization_results(
-        "./FUN.ged3",
-        "./VAR.ged3",
+        "./FUN.1",
+        "./VAR.1",
     )
+
+    # fun, var = read_optimization_results(
+    #     "./optimization_results/run_Drosophila_var_80_obj_2_pop_10_gen_4_0412_0316/FUN.3",
+    #     "./optimization_results/run_Drosophila_var_80_obj_2_pop_10_gen_4_0412_0316/VAR.3",
+    # )
 
     params = var[np.argmin(fun[:,0]*fun[:,1])]
-    #params = var[np.argmin(fun[:,0])]
+    # params = var[np.argmin(fun[:,0])]
     params = np.array(params)
     animal.update_parameters(params)
 
