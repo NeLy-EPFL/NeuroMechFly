@@ -349,6 +349,10 @@ class DrosophilaEvolution(FloatProblem):
 
             stability = fly.stability_coef*fly.time_step/fly.time
 
+            penalty_all_legs = 0.0 if self.is_using_all_legs else (
+                5.0
+            )
+
             expected_stance_legs = 4
             min_legs = 3
             mean_stance_legs = fly.stance_count*fly.time_step/fly.time
@@ -380,11 +384,13 @@ class DrosophilaEvolution(FloatProblem):
 
             solution.objectives[0] = (
                 -distance
+                + penalty_all_legs
                # + penalty_linearity
                # + penalty_time
             )
             solution.objectives[1] = (
                 act
+                + penalty_all_legs
                 # + penalty_time
             )
             # solution.objectives[1] = (
