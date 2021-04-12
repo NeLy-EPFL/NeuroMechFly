@@ -323,8 +323,11 @@ class DrosophilaSimulation(BulletSimulation):
         #return (self.distance_y < (((self.TIME)/self.RUN_TIME)*2)-0.25)
         ball_rot = np.array(self.ball_rotations())
         dist_traveled = -ball_rot[0]*self.ball_radius # Distance in mm
+        # ball_rot_speed = -ball_rot[0]/self.time
         #print(dist_traveled)
         moving_limit = (((self.time)/self.run_time)*3*np.pi)-0.5*np.pi
+        # moving_limit = (((self.time)/self.run_time)*1.0) - 0.25
+        # return ball_rot_speed < moving_limit
         return dist_traveled < moving_limit
         #return (dist_traveled < (((self.TIME)/self.RUN_TIME)*2)-0.25)
 
@@ -366,6 +369,7 @@ class DrosophilaSimulation(BulletSimulation):
         flying = self.is_flying()
         velocity_cap = self.is_velocity_limit()
         touch = self.is_touch()
+        self.is_using_all_legs()
         if lava or velocity_cap or touch or flying:
             pylog.debug(
                 "Lava {} | Flying {} | Vel {} | Touch {}".format(
