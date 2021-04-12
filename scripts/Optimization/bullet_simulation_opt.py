@@ -135,9 +135,10 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                     self.vis_options_background_color_green,
                     self.vis_options_background_color_red,
                     self.movie_name,
-                    self.movie_fps
+                    int(1.0/self.time_step)
                 )
             )
+            p.configureDebugVisualizer(p.COV_ENABLE_SINGLE_STEP_RENDERING,1)
         elif self.gui == p.GUI:
             p.connect(
                 self.gui,
@@ -566,9 +567,10 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         #               linearDamping=0.0)
         textureBall = p.loadTexture(
             '../../design/textures/ball/chequered_0048.jpg')
-        p.changeVisualShape(sphereId, 2, rgbaColor=[
-                            225/255, 225/255, 210/255, 1], specularColor=[0, 0, 0], textureUniqueId=textureBall)
-
+        p.changeVisualShape(
+            sphereId, 2, rgbaColor=[225/255, 225/255, 210/255, 1],
+            specularColor=[0, 0, 0], textureUniqueId=textureBall
+        )
         return sphereId
 
     @property
