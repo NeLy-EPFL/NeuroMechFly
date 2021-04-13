@@ -12,8 +12,8 @@ class Parameters:
     gamma: float = 0.0
     delta: float = 0.0
     rest_pos: float = 0.0
-    f_mn_clip: float = 0.0
-    e_mn_clip: float = 0.0
+    # f_mn_clip: float = 0.0
+    # e_mn_clip: float = 0.0
 
 
 class SDAntagonistMuscle:
@@ -44,12 +44,12 @@ class SDAntagonistMuscle:
         self.rest_pos = container.muscle.parameters.add_parameter(
             '{}_rest_pos'.format(name), params.rest_pos
         )[0]
-        self.f_mn_clip = container.muscle.parameters.add_parameter(
-            '{}_f_mn_clip'.format(name), params.f_mn_clip
-        )[0]
-        self.e_mn_clip = container.muscle.parameters.add_parameter(
-            '{}_e_mn_clip'.format(name), params.e_mn_clip
-        )[0]
+        # self.f_mn_clip = container.muscle.parameters.add_parameter(
+        #     '{}_f_mn_clip'.format(name), params.f_mn_clip
+        # )[0]
+        # self.e_mn_clip = container.muscle.parameters.add_parameter(
+        #     '{}_e_mn_clip'.format(name), params.e_mn_clip
+        # )[0]
         self.flexor_act = container.muscle.outputs.add_parameter(
             '{}_flexor_act'.format(name)
         )[0]
@@ -80,8 +80,8 @@ class SDAntagonistMuscle:
         self.gamma.value = params.gamma
         self.delta.value = params.delta
         self.rest_pos.value = params.rest_pos
-        self.f_mn_clip.value = params.f_mn_clip
-        self.e_mn_clip.value = params.e_mn_clip
+        # self.f_mn_clip.value = params.f_mn_clip
+        # self.e_mn_clip.value = params.e_mn_clip
 
     def compute_torque(self, only_passive=False):
         """ Compute joint torque. """
@@ -96,19 +96,11 @@ class SDAntagonistMuscle:
             return self.torque.value
         else:
             #: Active
-            self.flexor_act.value = 0.5*self.r_fmn.value*(
-                np.clip(
-                    (1 + np.sin(self.flexor_mn.value)),
-                    self.f_mn_clip.value,
-                    2.0
-                )
+            self.flexor_act.value = self.r_fmn.value*(
+                    1 + np.sin(self.flexor_mn.value)
             )
-            self.extensor_act.value = 0.5*self.r_emn.value*(
-                np.clip(
-                    (1 + np.sin(self.extensor_mn.value)),
-                    self.e_mn_clip.value,
-                    2.0
-                )
+            self.extensor_act.value = self.r_emn.value*(
+                    1 + np.sin(self.extensor_mn.value)
             )
             _co = self.alpha.value*(
                 self.flexor_act.value - self.extensor_act.value

@@ -106,7 +106,7 @@ class DrosophilaEvolution(FloatProblem):
     """Documentation for DrosophilaEvolution"""
     def __init__(self):
         super(DrosophilaEvolution, self).__init__()
-        self.number_of_variables = 80
+        self.number_of_variables = 57
         self.number_of_objectives = 2
         self.number_of_constraints = 0
 
@@ -126,17 +126,17 @@ class DrosophilaEvolution(FloatProblem):
         lower_bound_active_muscles = (
                 np.asarray(
                     [# Front
-                    [1e-2, 1e-2, 1e-3, 1e-4, -0.22, 0.1, 0.1], # Coxa
-                    [1e-2, 1e-2, 1e-3, 1e-4, -2.5, 0.1, 0.1], # Femur
-                    [1e-2, 1e-2, 1e-3, 5e-4, 0.76, 0.1, 0.1], # Tibia
+                    [1e-2, 1e-2, 1e-3, 1e-4, -0.22], # Coxa
+                    [1e-2, 1e-2, 1e-3, 1e-4, -2.5], # Femur
+                    [1e-2, 1e-2, 1e-3, 5e-4, 0.76], # Tibia
                     # Mid
-                    [1e-2, 1e-2, 1e-3, 1e-4, -2.2, 0.1, 0.1], # Coxa_roll
-                    [1e-2, 1e-2, 1e-3, 1e-4, -2.35, 0.1, 0.1], # Femur
-                    [1e-2, 1e-2, 1e-3, 5e-4, 1.73, 0.1, 0.1], # Tibia
+                    [1e-2, 1e-2, 1e-3, 1e-4, -2.2], # Coxa_roll
+                    [1e-2, 1e-2, 1e-3, 1e-4, -2.35], # Femur
+                    [1e-2, 1e-2, 1e-3, 5e-4, 1.73], # Tibia
                     # Hind
-                    [1e-2, 1e-2, 1e-3, 1e-4, -2.78, 0.1, 0.1], # Coxa_roll
-                    [1e-2, 1e-2, 1e-3, 1e-4, -2.46, 0.1, 0.1], # Femur
-                    [1e-2, 1e-2, 1e-3, 5e-4, 1.12, 0.1, 0.1], # Tibia
+                    [1e-2, 1e-2, 1e-3, 1e-4, -2.78], # Coxa_roll
+                    [1e-2, 1e-2, 1e-3, 1e-4, -2.46], # Femur
+                    [1e-2, 1e-2, 1e-3, 5e-4, 1.12], # Tibia
                     ]
                 )
         ).flatten()
@@ -145,17 +145,17 @@ class DrosophilaEvolution(FloatProblem):
                 np.asarray(
                     [
                     # Front
-                    [1e0, 1e0, 1e0, 1e-3, 0.69, 1.75, 1.75], # Coxa
-                    [1e0, 1e0, 1e0, 1e-3, -1.3, 1.75, 1.75], # Femur
-                    [1e-1, 1e-1, 1e-1, 1e-3, 2.19, 1.75, 1.75], # Tibia
+                    [1e0, 1e0, 1e0, 1e-3, 0.69], # Coxa
+                    [1e0, 1e0, 1e0, 1e-3, -1.3], # Femur
+                    [1e-1, 1e-1, 1e-1, 1e-3, 2.19], # Tibia
                     # Mid
-                    [1e0, 1e0, 1e0, 1e-3, -1.75, 1.75, 1.75], # Coxa_roll
-                    [1e0, 1e0, 1e0, 1e-3, -1.84, 1.75, 1.75], # Femur
-                    [1e-1, 1e-1, 1e-1, 1e-3, 2.63, 1.75, 1.75], # Tibia
+                    [1e0, 1e0, 1e0, 1e-3, -1.75], # Coxa_roll
+                    [1e0, 1e0, 1e0, 1e-3, -1.84], # Femur
+                    [1e-1, 1e-1, 1e-1, 1e-3, 2.63], # Tibia
                     # Hind
-                    [1e0, 1e0, 1e0, 1e-3, -2.44, 1.75, 1.75], # Coxa_roll
-                    [1e0, 1e0, 1e0, 1e-3, -1.31, 1.75, 1.75], # Femur
-                    [1e-1, 1e-1, 1e-1, 1e-3, 2.79, 1.75, 1.75], # Tibia
+                    [1e0, 1e0, 1e0, 1e-3, -2.44], # Coxa_roll
+                    [1e0, 1e0, 1e0, 1e-3, -1.31], # Femur
+                    [1e-1, 1e-1, 1e-1, 1e-3, 2.79], # Tibia
                     ]
                 )
         ).flatten()
@@ -227,9 +227,9 @@ class DrosophilaEvolution(FloatProblem):
 
         #: Phases
         lower_bound_phases = np.ones(
-            (17,))*-np.pi
+            (12,))*-np.pi
         upper_bound_phases = np.ones(
-            (17,))*np.pi
+            (12,))*np.pi
 
         self.lower_bound = np.hstack(
             (
