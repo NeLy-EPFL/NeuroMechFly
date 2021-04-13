@@ -1,15 +1,17 @@
 """ Generate a template network. """
 
-import networkx as nx
-from .neural_system import NeuralSystem
-from ..sdf.sdf import ModelSDF
-from ..sdf import utils as sdf_utils
-import matplotlib.pyplot as plt
-import os
-import numpy as np
-import matplotlib.pyplot as plt
 import itertools
+import os
+
+import farms_pylog as pylog
+import matplotlib.pyplot as plt
+import networkx as nx
+import numpy as np
+
 from ..container.container import Container
+from ..sdf import utils as sdf_utils
+from ..sdf.sdf import ModelSDF
+from .neural_system import NeuralSystem
 
 
 class AgnosticBaseController:
@@ -215,14 +217,17 @@ class AgnosticController:
             connect_mutual=True,
             connect_closest_neighbors=True,
             connect_base_nodes=True,
-            remove_joint_types=[]
+            remove_joints=None
     ):
         super().__init__()
         self.model = self.read_sdf(sdf_path)[0]
         #: Remove certain joint types
-        for j in remove_joint_types:
-            self.model.joints = sdf_utils.remove_joint_type(
-                self.model, j)
+        if remove_joints:
+            self.model.joints = [
+                joint
+                for joint in self.model.joints
+                if joint.name not in remove_joints
+            ]
         self.connect_flexion_extension = connect_mutual
         self.connect_closest_neighbors = connect_closest_neighbors
         self.connect_base_nodes = connect_base_nodes
@@ -263,8 +268,8 @@ class AgnosticController:
         Add mutual connection between two nodes
         """
         weight = kwargs.pop('weight', 1.0)
-        phi = kwargs.pop('phi', 0.0)        
-        
+        phi = kwargs.pop('phi', 0.0)
+
         AgnosticController.add_mutual_connection(
             network,
             node_1 + '_flexion',
@@ -421,7 +426,7 @@ def main():
     names = container.neural.outputs.names
     parameters = container.neural.parameters
     #: Show graph
-    #print(net.graph.number_of_edges())
+    # print(net.graph.number_of_edges())
     net.visualize_network(edge_labels=False)
     nosc = net.network.graph.number_of_nodes()
     plt.figure()
