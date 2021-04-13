@@ -104,7 +104,7 @@ class DrosophilaEvolution(FloatProblem):
     """Documentation for DrosophilaEvolution"""
     def __init__(self):
         super(DrosophilaEvolution, self).__init__()
-        self.number_of_variables = 62
+        self.number_of_variables = 57
         self.number_of_objectives = 2
         self.number_of_constraints = 0
 
@@ -225,9 +225,9 @@ class DrosophilaEvolution(FloatProblem):
 
         #: Phases
         lower_bound_phases = np.ones(
-            (17,))*-np.pi
+            (12,))*-np.pi
         upper_bound_phases = np.ones(
-            (17,))*np.pi
+            (12,))*np.pi
 
         self.lower_bound = np.hstack(
             (

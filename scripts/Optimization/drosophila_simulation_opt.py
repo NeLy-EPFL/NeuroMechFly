@@ -396,7 +396,7 @@ class DrosophilaSimulation(BulletSimulation):
         #opti_antagonist_phases = params[6*N+edges_joints:6*N+edges_joints+edges_anta]
         #opti_base_phases = params[6*N+edges_joints+edges_anta:]
 
-        opti_base_phases = params[5*N+edges_joints:]
+        # opti_base_phases = params[5*N+edges_joints:]
 
         #print(
         #    "Opti active muscle gains {}".format(
@@ -468,25 +468,25 @@ class DrosophilaSimulation(BulletSimulation):
                 #).value = -1*opti_antagonist_phases[j0]
 
 
-        coxae_edges =[
-            ['LFCoxa', 'RFCoxa'],
-            ['LFCoxa', 'RMCoxa_roll'],
-            ['RMCoxa_roll', 'LHCoxa_roll'],
-            ['RFCoxa', 'LMCoxa_roll'],
-            ['LMCoxa_roll', 'RHCoxa_roll']
-        ]
+        # coxae_edges =[
+        #     ['LFCoxa', 'RFCoxa'],
+        #     ['LFCoxa', 'RMCoxa_roll'],
+        #     ['RMCoxa_roll', 'LHCoxa_roll'],
+        #     ['RFCoxa', 'LMCoxa_roll'],
+        #     ['LMCoxa_roll', 'RHCoxa_roll']
+        # ]
 
-        for j1, ed in enumerate(coxae_edges):
-            for j2, action in enumerate(('flexion', 'extension')):
-                node_1 = "joint_{}_{}".format(ed[0], action)
-                node_2 = "joint_{}_{}".format(ed[1], action)
-                #print(node_1, node_2, j1)
-                parameters.get_parameter(
-                    'phi_{}_to_{}'.format(node_1, node_2)
-                ).value = opti_base_phases[j1]
-                parameters.get_parameter(
-                    'phi_{}_to_{}'.format(node_2, node_1)
-                ).value = -1*opti_base_phases[j1]
+        # for j1, ed in enumerate(coxae_edges):
+        #     for j2, action in enumerate(('flexion', 'extension')):
+        #         node_1 = "joint_{}_{}".format(ed[0], action)
+        #         node_2 = "joint_{}_{}".format(ed[1], action)
+        #         #print(node_1, node_2, j1)
+        #         parameters.get_parameter(
+        #             'phi_{}_to_{}'.format(node_1, node_2)
+        #         ).value = opti_base_phases[j1]
+        #         parameters.get_parameter(
+        #             'phi_{}_to_{}'.format(node_2, node_1)
+        #         ).value = -1*opti_base_phases[j1]
 
 
 def read_optimization_results(fun, var):
