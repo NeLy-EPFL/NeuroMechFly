@@ -1,6 +1,9 @@
+"""Optimisation simulation"""
+
 import os
 import pickle
 import time
+import argparse
 
 import farms_pylog as pylog
 import numpy as np
@@ -540,10 +543,47 @@ def save_data(fly, filename, exp=''):
     angles_data = pd.read_hdf(path_joint_pos)
     angles_data.to_hdf(path_angles+'/jointpos_'+filename+'.h5','angles',mode='w')
 
+
+def parse_args():
+    """Argument parser"""
+    parser = argparse.ArgumentParser(
+        description='Neuromechfly simulation of evolution results',
+        formatter_class=(
+            lambda prog:
+            argparse.HelpFormatter(prog, max_help_position=50)
+        ),
+    )
+    parser.add_argument(
+        '--output_fun',
+        type=str,
+        default='FUN.txt',
+        help='Results output of functions',
+    )
+    parser.add_argument(
+        '--output_var',
+        type=str,
+        default='VAR.txt',
+        help='Results output of variables',
+    )
+    parser.add_argument(
+        '--runtime',
+        type=float,
+        default=5.,
+        help='Simulation run time',
+    )
+    parser.add_argument(
+        '--timestep',
+        type=float,
+        default=0.001,
+        help='Simulation timestep',
+    )
+    return parser.parse_args()
+
+
 def main():
     """ Main """
-    run_time = 5.
-    time_step = 0.001
+
+    clargs = parse_args()
 
     side = ['L','R']
     pos = ['F','M','H']
@@ -602,7 +642,7 @@ def main():
         # Scaled SDF model
         "model": "../../design/sdf/neuromechfly_limitsFromData_minMax.sdf",
         "model_offset": [0., 0., 11.2e-3],
-        "run_time": run_time,
+        "run_time": clargs.runtime,
         "pose": '../../config/test_pose_tripod.yaml',
         "base_link": 'Thorax',
         "controller": '../../config/locomotion_ball.graphml',
@@ -619,7 +659,7 @@ def main():
         'rot_cam': False
         }
 
-    container = Container(run_time/time_step)
+    container = Container(clargs.runtime/clargs.timestep)
     animal = DrosophilaSimulation(container, sim_options)
 
     #: read results
@@ -641,8 +681,8 @@ def main():
     )
 
     fun, var = read_optimization_results(
-        "./FUN.1",
-        "./VAR.1",
+        "./FUN.txt",
+        "./VAR.txt",
     )
 
     # fun, var = read_optimization_results(
