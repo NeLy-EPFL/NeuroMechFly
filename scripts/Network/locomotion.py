@@ -55,7 +55,7 @@ def main():
         connect_base_nodes=False,
         remove_joints=joints_to_remove
     )
-    net_dir = "../../config/locomotion_ball_f6.graphml"
+    net_dir = "../../config/locomotion_tripod.graphml"
     network = controller_gen.network
     #: EDIT THE GENERIC CONTROLLER
 
@@ -98,9 +98,9 @@ def main():
     weight = 100.0
     base_connections = [
         ['LFCoxa', 'RFCoxa', {'weight':weight, 'phi': np.pi}],
-        ['LFCoxa', 'RMCoxa_roll', {'weight':weight, 'phi': np.pi}],
+        ['LFCoxa', 'RMCoxa_roll', {'weight':weight, 'phi': 0.0}],
         ['RMCoxa_roll', 'LHCoxa_roll', {'weight':weight, 'phi': 0.0}],
-        ['RFCoxa', 'LMCoxa_roll', {'weight':weight, 'phi': np.pi}],
+        ['RFCoxa', 'LMCoxa_roll', {'weight':weight, 'phi': 0.0}],
         ['LMCoxa_roll', 'RHCoxa_roll', {'weight':weight, 'phi': 0.0}],
     ]
 

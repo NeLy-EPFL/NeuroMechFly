@@ -340,7 +340,7 @@
     </edge>
     <edge source="joint_LFCoxa_flexion" target="joint_RMCoxa_roll_flexion">
       <data key="d7">100.0</data>
-      <data key="d8">3.141592653589793</data>
+      <data key="d8">0.0</data>
     </edge>
     <edge source="joint_LFCoxa_flexion" target="joint_LFFemur_flexion">
       <data key="d7">100.0</data>
@@ -356,7 +356,7 @@
     </edge>
     <edge source="joint_LFCoxa_extension" target="joint_RMCoxa_roll_extension">
       <data key="d7">100.0</data>
-      <data key="d8">3.141592653589793</data>
+      <data key="d8">0.0</data>
     </edge>
     <edge source="joint_LFCoxa_extension" target="joint_LFFemur_extension">
       <data key="d7">100.0</data>
@@ -440,7 +440,7 @@
     </edge>
     <edge source="joint_LMCoxa_roll_flexion" target="joint_RFCoxa_flexion">
       <data key="d7">100.0</data>
-      <data key="d8">-3.141592653589793</data>
+      <data key="d8">-0.0</data>
     </edge>
     <edge source="joint_LMCoxa_roll_flexion" target="joint_RHCoxa_roll_flexion">
       <data key="d7">100.0</data>
@@ -456,7 +456,7 @@
     </edge>
     <edge source="joint_LMCoxa_roll_extension" target="joint_RFCoxa_extension">
       <data key="d7">100.0</data>
-      <data key="d8">-3.141592653589793</data>
+      <data key="d8">-0.0</data>
     </edge>
     <edge source="joint_LMCoxa_roll_extension" target="joint_RHCoxa_roll_extension">
       <data key="d7">100.0</data>
@@ -500,7 +500,7 @@
     </edge>
     <edge source="joint_RFCoxa_flexion" target="joint_LMCoxa_roll_flexion">
       <data key="d7">100.0</data>
-      <data key="d8">3.141592653589793</data>
+      <data key="d8">0.0</data>
     </edge>
     <edge source="joint_RFCoxa_flexion" target="joint_RFFemur_flexion">
       <data key="d7">100.0</data>
@@ -516,7 +516,7 @@
     </edge>
     <edge source="joint_RFCoxa_extension" target="joint_LMCoxa_roll_extension">
       <data key="d7">100.0</data>
-      <data key="d8">3.141592653589793</data>
+      <data key="d8">0.0</data>
     </edge>
     <edge source="joint_RFCoxa_extension" target="joint_RFFemur_extension">
       <data key="d7">100.0</data>
@@ -600,7 +600,7 @@
     </edge>
     <edge source="joint_RMCoxa_roll_flexion" target="joint_LFCoxa_flexion">
       <data key="d7">100.0</data>
-      <data key="d8">-3.141592653589793</data>
+      <data key="d8">-0.0</data>
     </edge>
     <edge source="joint_RMCoxa_roll_flexion" target="joint_LHCoxa_roll_flexion">
       <data key="d7">100.0</data>
@@ -616,7 +616,7 @@
     </edge>
     <edge source="joint_RMCoxa_roll_extension" target="joint_LFCoxa_extension">
       <data key="d7">100.0</data>
-      <data key="d8">-3.141592653589793</data>
+      <data key="d8">-0.0</data>
     </edge>
     <edge source="joint_RMCoxa_roll_extension" target="joint_LHCoxa_roll_extension">
       <data key="d7">100.0</data>
