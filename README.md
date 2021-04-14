@@ -42,7 +42,9 @@ Before running the scripts please make sure that you activate the virtual enviro
 - Make sure in */data* folder, there are */walking/df3d* and *grooming/df3d* folders that contain a .pkl file starting with "joint_angles_..".
 - Navigate to */scripts/KM* folder.
 - Run ```$ python kinematicMatching_noSelfCollisions.py``` for simulating the locomotion behavior. 
-- Change the behavior in ```main()```to "grooming" to simulate the grooming behavior. Note: Collisions are disabled in this script, but use this for now because *kinematicMatching.py* needs to be modified for the new scale. 
+- Run ```$ python kinematicMatching.py``` for simulating the forleg/antennal grooming behavior. 
+
+**NOTE:** To obtain new pose estimates from the [DeepFly3D Database](https://dataverse.harvard.edu/dataverse/DeepFly3D), please refer to [DeepFly3D repository](https://github.com/NeLy-EPFL/DeepFly3D). After running the pose estimator on the recordings, you can follow the instructions for computing joint angles to control NeuroMechFly [here.](https://github.com/NeLy-EPFL/NeuroMechFly/blob/km-refactor/docs/angleprocessing.md)
 
 **2. Optimization** 
 - To simulate the results of the last evolution, run ```$ python drosophila_simulation_opt.py```. This script will run the best result from *FUN.ged3* and *VAR.ged3*. 
