@@ -238,7 +238,7 @@ class DrosophilaSimulation(BulletSimulation):
     def stance_polygon_dist(self):
         contact_segments = [
             leg for leg in self.feet_links
-            if self.is_contact_ball(leg)
+            if self.is_contact(leg)
         ]
         contact_legs = []
         sum_x = 0
@@ -507,7 +507,8 @@ def main():
         'moviefps': 50,
         'slow_down': False,
         'sleep_time': 1.0,
-        'rot_cam': False
+        'rot_cam': False,
+        'is_ball': False
         }
 
     container = Container(run_time/time_step)

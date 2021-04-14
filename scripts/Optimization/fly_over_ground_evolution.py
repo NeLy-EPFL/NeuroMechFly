@@ -217,6 +217,7 @@ class DrosophilaEvolution(FloatProblem):
             "run_time": run_time,
             "base_link": 'Thorax',
             "controller": '../../config/locomotion_tripod.graphml',
+            "is_ball" : False
         }
         container = Container(run_time/time_step)
         fly = DrosophilaSimulation(container, sim_options)
@@ -246,6 +247,7 @@ class DrosophilaEvolution(FloatProblem):
                     Distance: {-distance} \n \
                     Active torques: {active_torque_sum} \n \
                   PENALTIES\n=========\n \
+                    Penalty time: {penalty_time} \n \
                     Penalty movement: {fly.opti_movement} \n \
                     Penalty bounds: {fly.opti_bounds} \n \
                     Penalty velocity: {fly.opti_velocity} \n \
@@ -254,14 +256,16 @@ class DrosophilaEvolution(FloatProblem):
             )
             #: penalties
             penalties = (
-                penalty_time + fly.opti_movement + fly.opti_bounds + \
-                fly.opti_velocity + fly.opti_stability
+                penalty_time + (
+                    fly.opti_movement + fly.opti_bounds + \
+                    fly.opti_velocity + fly.opti_stability
+                )*(fly.run_time - fly.time)/fly.run_time
             )
             solution.objectives[0] = (
-                -distance + penalties
+                -distance + 1e-2*penalties
             )
             solution.objectives[1] = (
-                active_torque_sum + penalties
+                active_torque_sum + 1e-2*penalties
             )
         else:
             # Torques
