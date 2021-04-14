@@ -274,17 +274,17 @@ class DrosophilaSimulation(BulletSimulation):
 
         """
         self.opti_movement += 1.0 if (
-            self.distance_x < -20e-3 + 10e-3*self.time
+            self.distance_x < -5e-3 + 3e-3*self.time
         ) else 0.0
 
     def check_bounds(self):
         """ Bounds of the Thorax. """
         self.opti_bounds += (
-            self.distance_z if 1.5e-3 < self.distance_z else 0
+            abs(self.distance_z-1.5e-3) if 1.5e-3 < self.distance_z else 0
         ) + (
-            self.distance_y if -5e-4 < self.distance_y < 5e-4 else 0
+            (abs(self.distance_y) - 5e-4) if not (-5e-4 < self.distance_y < 5e-4) else 0
         ) + (
-            self.distance_x if -5e-4 < self.distance_x else 0
+            abs(self.distance_x+5e-4) if -5e-4 > self.distance_x else 0
         )
 
     def check_velocity_limit(self):
