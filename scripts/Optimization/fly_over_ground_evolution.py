@@ -189,7 +189,7 @@ class DrosophilaEvolution(FloatProblem):
         #)
 
         #self.initial_solutions =  list(var) # [var[np.argmin(fun[:, 0])]]
-        self.initial_solutions = []
+        self.initial_solutions = [self.lower_bound]
         self._initial_solutions = self.initial_solutions.copy()
 
     def create_solution(self):
