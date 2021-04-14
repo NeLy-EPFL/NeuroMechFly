@@ -177,11 +177,16 @@ class DrosophilaSimulation(BulletSimulation):
         outputs = self.container.neural.outputs
         for name in outputs.names:
             if "flexion" in name:
+                joint_id = self.joint_id['_'.join(name.split('_')[1:-1])]
+                min_val, max_val = p.getJointInfo(self.animal, joint_id)[8:10]
+                position = min_val + (max_val-min_val)*(
+                    1+np.sin(outputs.values[outputs.name_index[name]])
+                )
                 p.setJointMotorControl2(
                     self.animal,
-                    self.joint_id['_'.join(name.split('_')[1:-1])],
+                    joint_id,
                     p.POSITION_CONTROL,
-                    targetPosition=1+np.sin(outputs.values[outputs.name_index[name]])
+                    targetPosition=position
                 )
 
     def feedback_to_controller(self):
