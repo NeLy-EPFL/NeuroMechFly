@@ -273,7 +273,7 @@ def main():
         "run_time": run_time,
         "pose": '../../config/test_pose_tripod.yaml',
         "base_link": 'Thorax',
-        "controller": "../../config/locomotion_ball_f6.graphml",
+        "controller": "../../config/locomotion_tripod.graphml",
         "ground_contacts": ground_contact,
         'self_collisions':self_collision,
         "draw_collisions": True,
