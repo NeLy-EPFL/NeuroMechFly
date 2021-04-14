@@ -1,4 +1,5 @@
-""" Drosophila Evolution. """
+""" Drosophila Evolution for overground locomotion """
+import argparse
 import logging
 import os
 from datetime import datetime
@@ -285,45 +286,121 @@ class DrosophilaEvolution(FloatProblem):
         print('Deleting fly simulation....')
 
 
+def parse_args(problem):
+    """Argument parser"""
+    parser = argparse.ArgumentParser(
+        description='FARMS simulation with Pybullet',
+        formatter_class=(
+            lambda prog:
+            argparse.HelpFormatter(prog, max_help_position=50)
+        ),
+    )
+    parser.add_argument(
+        '--n_pop',
+        type=int,
+        default=10,
+        help='Population size',
+    )
+    parser.add_argument(
+        '--n_gen',
+        type=int,
+        default=4,
+        help='Number of generations',
+    )
+    parser.add_argument(
+        '--n_cpu',
+        type=int,
+        default=4,
+        help='Number of CPUs',
+    )
+    parser.add_argument(
+        '--output_directory',
+        type=str,
+        default=(
+            # './optimization_results/run_{}_var_{}_obj_{}_pop_{}_gen_{}_{}'
+            './optimization_results/run_{}_var_{}_obj_{}_{}'
+        ).format(
+            problem.get_name(),
+            problem.number_of_variables,
+            problem.number_of_objectives,
+            # n_pop,
+            # n_gen,
+            datetime.now().strftime('%m%d_%H%M'),
+        ),
+        help='Output directory',
+    )
+    parser.add_argument(
+        '--output_fun',
+        type=str,
+        default='FUN.txt',
+        help='Results output of functions',
+    )
+    parser.add_argument(
+        '--output_var',
+        type=str,
+        default='VAR.txt',
+        help='Results output of variables',
+    )
+    parser.add_argument(
+        '--mutation_probability',
+        type=float,
+        default=1.0 / problem.number_of_variables,
+        help='Mutation probability',
+    )
+    parser.add_argument(
+        '--mutation_distribution',
+        type=float,
+        default=0.2,  # 20
+        help='Mutation probability',
+    )
+    parser.add_argument(
+        '--crossover_probability',
+        type=float,
+        default=1.0,
+        help='Crossover probability',
+    )
+    parser.add_argument(
+        '--crossover_distribution',
+        type=float,
+        default=20,
+        help='Crossover probability',
+    )
+    return parser.parse_args()
+
+
 def main():
     """ Main """
-
-    n_pop = 8
-    n_gen = 10
-
-    max_evaluations = n_pop*n_gen
-
+    # Problem
     problem = DrosophilaEvolution()
-    # here change the genetic algorithm
-    # plotting tools
+
+    # Parse command line arguments
+    clargs = parse_args(problem=problem)
+    max_evaluations = clargs.n_pop*clargs.n_gen
+
+    # Algorithm
     algorithm = NSGAII(
         problem=problem,
-        population_size=n_pop,
-        offspring_population_size=n_pop,
+        population_size=clargs.n_pop,
+        offspring_population_size=clargs.n_pop,
         mutation=PolynomialMutation(
-            probability=1.0 / problem.number_of_variables,
-            distribution_index=0.20  # 20
+            probability=clargs.mutation_probability,
+            distribution_index=clargs.mutation_distribution,
         ),
-        crossover=SBXCrossover(probability=1.0, distribution_index=20),
-        population_evaluator=MultiprocessEvaluator(4),
+        crossover=SBXCrossover(
+            probability=clargs.crossover_probability,
+            distribution_index=clargs.crossover_distribution,
+        ),
+        population_evaluator=MultiprocessEvaluator(clargs.n_cpu),
         termination_criterion=StoppingByEvaluations(
-            max_evaluations=max_evaluations),
+            max_evaluations=max_evaluations
+        ),
         # dominance_comparator=DominanceComparator()
     )
 
     # Results Dumping
     algorithm.observable.register(
         observer=WriteFullFrontToFileObserver(
-            output_directory=(
-                './optimization_results/run_{}_var_{}_obj_{}_pop_{}_gen_{}_{}'
-            ).format(
-                problem.get_name(),
-                problem.number_of_variables,
-                problem.number_of_objectives,
-                n_pop,
-                n_gen,
-                datetime.now().strftime('%m%d_%H%M'),
-            )
+            output_directory=clargs.output_directory,
         )
     )
 
