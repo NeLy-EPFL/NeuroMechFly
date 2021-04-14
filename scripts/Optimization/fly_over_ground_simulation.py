@@ -541,7 +541,7 @@ def main():
     params = var[np.argmin(fun[:,0]*fun[:,1])]
     # params = var[np.argmin(fun[:,0])]
     params = np.array(params)
-    # animal.update_parameters(params)
+    animal.update_parameters(params)
 
     animal.run(optimization=False)
     animal.container.dump(overwrite=True)
