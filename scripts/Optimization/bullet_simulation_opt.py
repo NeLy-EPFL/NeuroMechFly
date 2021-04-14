@@ -174,8 +174,10 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         )
 
         ########## ADD BALL ######################
-        self.ball_radius = 5e-03*self.units.meters  # 100x (real size d=10mm)
-        self.ball_id = self.add_ball(self.ball_radius)
+        # TODO:  This should go out to make this script generic
+        if self.is_ball:
+            self.ball_radius = 5e-03*self.units.meters  # 100x (real size d=10mm)
+            self.ball_id = self.add_ball(self.ball_radius)
 
         ########## ADD ANIMAL #########
         if '.sdf' in self.model:
