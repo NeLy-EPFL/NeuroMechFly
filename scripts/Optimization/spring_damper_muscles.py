@@ -59,10 +59,10 @@ class SDAntagonistMuscle:
         self.torque = container.muscle.outputs.add_parameter(
             '{}_torque'.format(name)
         )[0]
-        self.active_torque = container.muscle.outputs.add_parameter(
+        self.active_torque = container.muscle.active_torques.add_parameter(
             '{}_active_torque'.format(name)
         )[0]
-        self.passive_torque = container.muscle.outputs.add_parameter(
+        self.passive_torque = container.muscle.passive_torques.add_parameter(
             '{}_passive_torque'.format(name)
         )[0]
 

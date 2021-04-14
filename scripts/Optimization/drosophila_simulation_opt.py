@@ -24,6 +24,8 @@ class DrosophilaSimulation(BulletSimulation):
         container.add_namespace('muscle')
         container.muscle.add_table('parameters', table_type='CONSTANT')
         container.muscle.add_table('outputs')
+        container.muscle.add_table('active_torques')
+        container.muscle.add_table('passive_torques')
         ########## Initialize bullet simulation ##########
         super().__init__(container, units, **sim_options)
         ########## Parameters ##########
