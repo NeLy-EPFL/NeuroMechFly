@@ -134,11 +134,11 @@ class DrosophilaSimulation(BulletSimulation):
                 force=value.compute_torque(only_passive=False)
             )
 
-def fixed_joints_controller(self):
+    def fixed_joints_controller(self):
         """Controller for fixed joints"""
         for joint in range(self.num_joints):
             joint_name = [name for name, ind_num in self.joint_id.items() if joint == ind_num][0]
-            if joint_name not in self.actuated_joints:# and 'support' not in joint_name:
+            if joint_name not in self.actuated_joints and 'support' not in joint_name:
                 if joint_name == 'joint_A3' or joint_name == 'joint_A4' or joint_name == 'joint_A5' or joint_name == 'joint_A6':
                     pos = np.deg2rad(-15)
                 elif joint_name == 'joint_LAntenna':
