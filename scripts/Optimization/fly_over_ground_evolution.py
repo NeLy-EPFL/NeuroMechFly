@@ -235,39 +235,31 @@ class DrosophilaEvolution(FloatProblem):
         # TODO: Add this as an argument from cli
         use_penalties = True
         if use_penalties:
-            print("Completed simulation")
-            penalty_time = (
-                1e1 + 5e0*(fly.run_time - fly.time)/fly.run_time
-                if not successful
-                else 0.0
+            #: penalties
+            movement_weight = 1.0
+            bounds_weight = 1e3
+            velocity_weight = 1e-1
+            stability_weight = 1e-2
+            penalties = (
+                movement_weight * fly.opti_movement + \
+                bounds_weight * fly.opti_bounds + \
+                velocity_weight * fly.opti_velocity + \
+                stability_weight * fly.opti_stability
             )
-
-            ### PRINT PENALTIES AND OBJECTIVES ###
-            print(
+            pylog.debug(
                 f"OBJECTIVES\n===========\n\
                     Distance: {-distance} \n \
                     Active torques: {active_torque_sum} \n \
                   PENALTIES\n=========\n \
-                    Penalty time: {penalty_time} \n \
-                    Penalty movement: {fly.opti_movement} \n \
-                    Penalty bounds: {fly.opti_bounds} \n \
-                    Penalty velocity: {fly.opti_velocity} \n \
-                    Penalty stability_coef: {fly.opti_stability} \n \
+                    Penalty movement: {movement_weight*fly.opti_movement} \n \
+                    Penalty bounds: {bounds_weight*fly.opti_bounds} \n \
+                    Penalty velocity: {velocity_weight*fly.opti_velocity} \n \
+                    Penalty stability_coef: {stability_weight*fly.opti_stability} \n \
                 "
             )
-            #: penalties
-            penalties = (
-                penalty_time + (
-                    fly.opti_movement + fly.opti_bounds + \
-                    fly.opti_velocity + fly.opti_stability
-                )*(fly.run_time - fly.time)/fly.run_time
-            )
-            solution.objectives[0] = (
-                -distance + 1e-2*penalties
-            )
-            solution.objectives[1] = (
-                active_torque_sum + 1e-2*penalties
-            )
+            solution.objectives[0] = -distance + penalties
+            solution.objectives[1] = active_torque_sum + penalties
+
         else:
             # Torques
             # torque_sum = (np.sum(

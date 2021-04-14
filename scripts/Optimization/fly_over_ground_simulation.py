@@ -265,24 +265,32 @@ class DrosophilaSimulation(BulletSimulation):
         return dist
 
     def check_movement(self):
-        """ State of lava approaching the model. """
+        """ State of lava approaching the model.
+
+        slow walk (0–10.2 mm/s), medium walk (10.2–19 mm/s),
+        and fast walk (>19 mm/s). (https://elifesciences.org/articles/46409)
+
+        Considering slow walk here
+
+        """
         self.opti_movement += 1.0 if (
-            self.distance_x < (self.time/self.run_time) - 8e-3
+            self.distance_x < -20e-3 + 10e-3*self.time
         ) else 0.0
 
     def check_bounds(self):
         """ Bounds of the Thorax. """
-        self.opti_bounds += 1.0 if (
-            (self.distance_z > 1.5e-3) or \
-            (self.distance_y > 5e-4) or \
-            (self.distance_y < -5e-4) or \
-            (self.distance_x < -5e-4)
-        ) else 0.0
+        self.opti_bounds += (
+            self.distance_z if 1.5e-3 < self.distance_z else 0
+        ) + (
+            self.distance_y if -5e-4 < self.distance_y < 5e-4 else 0
+        ) + (
+            self.distance_x if -5e-4 < self.distance_x else 0
+        )
 
     def check_velocity_limit(self):
         """ Check velocity limits. """
         self.opti_velocity += 1.0 if np.any(
-            np.array(self.joint_velocities) > 200
+            np.array(self.joint_velocities) > 100
         ) else 0.0
 
     def check_stability_coef(self):
@@ -315,8 +323,8 @@ class DrosophilaSimulation(BulletSimulation):
         self.check_velocity_limit()
         self.check_stability_coef()
         #: Check if the model is exploding
-        if self.is_exploding():
-            return False
+        # if self.is_exploding():
+        #     return False
         return True
 
     def update_parameters(self, params):
