@@ -134,18 +134,17 @@ class DrosophilaSimulation(BulletSimulation):
                 force=value.compute_torque(only_passive=False)
             )
 
-    def fixed_joints_controller(self):
+def fixed_joints_controller(self):
         """Controller for fixed joints"""
         for joint in range(self.num_joints):
             joint_name = [name for name, ind_num in self.joint_id.items() if joint == ind_num][0]
-            # FIXME: Resort to the pose file
-            if joint_name not in self.actuated_joints and 'support' not in joint_name:
+            if joint_name not in self.actuated_joints:# and 'support' not in joint_name:
                 if joint_name == 'joint_A3' or joint_name == 'joint_A4' or joint_name == 'joint_A5' or joint_name == 'joint_A6':
                     pos = np.deg2rad(-15)
                 elif joint_name == 'joint_LAntenna':
-                    pos = np.deg2rad(33)
+                    pos = np.deg2rad(35)
                 elif joint_name == 'joint_RAntenna':
-                    pos = np.deg2rad(-33)
+                    pos = np.deg2rad(-35)
                 elif joint_name == 'joint_Rostrum' or joint_name == 'joint_LWing_roll':
                     pos = np.deg2rad(90)
                 elif joint_name == 'joint_Haustellum':
@@ -171,43 +170,44 @@ class DrosophilaSimulation(BulletSimulation):
                 #elif joint_name == 'joint_RFFemur_roll':
                 #    pos = np.deg2rad(26)
                 elif joint_name == 'joint_LFTarsus1':
-                    pos = np.deg2rad(-43)
+                    pos = np.deg2rad(-46) #43
                 elif joint_name == 'joint_RFTarsus1':
-                    pos = np.deg2rad(-49)
+                    pos = np.deg2rad(-46) #49
                 elif joint_name == 'joint_LMCoxa_yaw':
-                    pos = np.deg2rad(4)
+                    pos = np.deg2rad(2) #4
                 elif joint_name == 'joint_RMCoxa_yaw':
-                    pos = np.deg2rad(0.5)
+                    pos = np.deg2rad(2) #4
                 elif joint_name == 'joint_LMCoxa':
-                    pos = np.deg2rad(-2)
+                    pos = np.deg2rad(-3) #-2
                 elif joint_name == 'joint_RMCoxa':
-                    pos = np.deg2rad(-4.5)
+                    pos = np.deg2rad(-3) #-4.5
                 #elif joint_name == 'joint_LMFemur_roll':
                 #    pos = np.deg2rad(-7)
                 #elif joint_name == 'joint_RMFemur_roll':
                 #    pos = np.deg2rad(7)
                 elif joint_name == 'joint_LMTarsus1':
-                    pos = np.deg2rad(-52)
+                    pos = np.deg2rad(-56) #-52
                 elif joint_name == 'joint_RMTarsus1':
                     pos = np.deg2rad(-56)
                 elif joint_name == 'joint_LHCoxa_yaw':
-                    pos = np.deg2rad(0.6)
+                    pos = np.deg2rad(3)
                 elif joint_name == 'joint_RHCoxa_yaw':
-                    pos = np.deg2rad(6.2)
+                    pos = np.deg2rad(3) #6.2
                 elif joint_name == 'joint_LHCoxa':
-                    pos = np.deg2rad(13)
+                    pos = np.deg2rad(11) #13
                 elif joint_name == 'joint_RHCoxa':
-                    pos = np.deg2rad(11.4)
+                    pos = np.deg2rad(11)
                 #elif joint_name == 'joint_LHFemur_roll':
                 #    pos = np.deg2rad(9)
                 #elif joint_name == 'joint_RHFemur_roll':
                 #    pos = np.deg2rad(-9)
                 elif joint_name == 'joint_LHTarsus1':
-                    pos = np.deg2rad(-45)
+                    pos = np.deg2rad(-50) #-45
                 elif joint_name == 'joint_RHTarsus1':
                     pos = np.deg2rad(-50)
                 else:
                     pos = 0
+
 
                 p.setJointMotorControl2(
                     self.animal, joint,
