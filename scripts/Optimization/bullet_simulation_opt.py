@@ -3,11 +3,14 @@
 import abc
 import time
 
-from tqdm import tqdm
-import pybullet as p
-import pybullet_data
+import farms_pylog as pylog
 import numpy as np
 import yaml
+from tqdm import tqdm
+
+import pybullet as p
+import pybullet_data
+
 try:
     from NeuroMechFly.network.neural_system import NeuralSystem
 except ImportError:
@@ -116,7 +119,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         self.initialize_simulation()
 
     def __del__(self):
-        print('Disconnecting pybullet')
+        pylog.debug('Disconnecting pybullet')
         p.disconnect()
 
     def rendering(self, render=1):
