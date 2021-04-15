@@ -190,7 +190,6 @@ class DrosophilaSimulation(BulletSimulation):
         #kv = p.readUserDebugParameter(self.kpId)
              
         for joint in range(self.num_joints):
-            #if joint!=19 and joint!=58:
             if joint in joint_control:
                 p.setJointMotorControl2(
                 self.animal, joint,
@@ -202,38 +201,12 @@ class DrosophilaSimulation(BulletSimulation):
                 #maxVelocity = 50
                 #force = 0.55
                 )
-
             else:
-                if ind < 2120:
-                    p.setJointMotorControl2(
-                    self.animal, joint,
-                    controlMode=p.POSITION_CONTROL,
-                    targetPosition=pose[joint],
-                    )
-                else:
-                    p.setJointMotorControl2(
-                    self.animal, joint,
-                    controlMode=p.POSITION_CONTROL,
-                    force = 0
-                    )
-                    p.setJointMotorControl2(
-                    self.animal, joint,
-                    controlMode=p.VELOCITY_CONTROL,
-                    targetVelocity = 0,
-                    force = 0
-                    )
-                    p.setJointMotorControl2(
-                    self.animal, joint,
-                    controlMode=p.TORQUE_CONTROL,
-                    force = 0,
-                    #targetPosition=pose[joint],
-                    )   
-            
-
-        
-    
-        
-
+                p.setJointMotorControl2(
+                self.animal, joint,
+                controlMode=p.POSITION_CONTROL,
+                targetPosition=pose[joint],
+                )
 
     def feedback_to_controller(self):
         """
@@ -346,9 +319,9 @@ def main():
                 "headless": False,
                 "model": "../../design/sdf/neuromechfly_noLimits_noSupport.sdf",
                 #"model_offset": [0., -0.1, 1.12],
-                "model_offset": [0, 0.,2.0e-3],
+                "model_offset": [0, 0.,2.5e-3],
                 "run_time": run_time,
-                #"pose": '../config/pose.yaml',
+                "pose": '../config/pose_optimization.yaml',
                 "base_link": 'Thorax',
                 #"controller": '../config/locomotion_trot.graphml',
                 "ground_contacts": ground_contact,
