@@ -429,8 +429,8 @@ def main():
     plot_front.plot(front, filename=algorithm.get_name())
 
     # Save results to file
-    print_function_values_to_file(front, 'FUN.' + 'ged3')
-    print_variables_to_file(front, 'VAR.' + 'ged3')
+    print_function_values_to_file(front, clargs.output_fun)
+    print_variables_to_file(front, clargs.output_var)
 
     print('Algorithm (continuous problem): ' + algorithm.get_name())
     print('Problem: ' + problem.get_name())
