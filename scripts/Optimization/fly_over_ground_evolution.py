@@ -269,6 +269,10 @@ class DrosophilaEvolution(FloatProblem):
                 np.asarray(container.muscle.active_torques.log)**2
             ))*fly.time_step/fly.run_time
 
+        if np.isnan(solution.objectives).any():
+            solution.objectives[0] = 1e9
+            solution.objectives[1] = 1e9
+
         return solution
 
     def get_name(self):
