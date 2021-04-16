@@ -26,6 +26,8 @@ class DrosophilaSimulation(BulletSimulation):
         container.add_namespace('muscle')
         container.muscle.add_table('parameters', table_type='CONSTANT')
         container.muscle.add_table('outputs')
+        container.muscle.add_table('active_torques')
+        container.muscle.add_table('passive_torques')
         ########## Initialize bullet simulation ##########
         super().__init__(container, units, **sim_options)
         ########## Parameters ##########
@@ -54,7 +56,7 @@ class DrosophilaSimulation(BulletSimulation):
         self.physics = self.container.physics
         self.muscle = self.container.muscle
         ########## Initialize joint muscles ##########
-        self.debug_joint = 'joint_RFFemur'
+        self.debug_joint = 'joint_RFCoxa'
         for joint in [self.debug_joint,]:
             fmn = self.neural.states.get_parameter(
                 'phase_' + joint + '_flexion')
@@ -91,7 +93,7 @@ class DrosophilaSimulation(BulletSimulation):
                 self.animal,
                 idx,
                 lateralFriction=1.0,
-                restitution=0.1,
+                restitution=1e-3,
                 spinningFriction=0.0,
                 rollingFriction=0.0,
                 linearDamping=0.0,
@@ -112,22 +114,22 @@ class DrosophilaSimulation(BulletSimulation):
         self.debug_parameters = {}
         self.debug_muscle_act = {}
         self.debug_parameters['alpha'] = p.addUserDebugParameter(
-            'alpha', 1e-2, 1e-0, 1e-2)
+            'alpha', 1e-2, 1e1, 1e-1)
         self.debug_parameters['beta'] = p.addUserDebugParameter(
-            'beta', 1e-2, 1e-0, 1e-2)
+            'beta', 1e-2, 1e1, 1e-1)
         self.debug_parameters['gamma'] = p.addUserDebugParameter(
-            'gamma', 1e-3, 1e-0, 1e-3)
+            'gamma', 1e-3, 1e1, 1e-3)
         self.debug_parameters['delta'] = p.addUserDebugParameter(
-            'delta', 1e-4, 1e-2, 1e-4)
+            'delta', 1e-5, 1e-3, 1e-5)
         self.debug_parameters['rest_pos'] = p.addUserDebugParameter(
             'rest_position',
             p.getJointInfo(self.animal, self.debug_joint_id)[8],
             p.getJointInfo(self.animal, self.debug_joint_id)[9],
         )
         self.debug_muscle_act['flexion'] = p.addUserDebugParameter(
-            'flexion', 0, 2, 0.0)
+            'flexion', 0, 2, 0.5)
         self.debug_muscle_act['extension'] = p.addUserDebugParameter(
-            'extension', 0, 2, 0.0)
+            'extension', 0, 2, 0.5)
 
         ########## Data variables ###########
         self.torques = []
@@ -138,14 +140,98 @@ class DrosophilaSimulation(BulletSimulation):
         self.stance_count = 0
         self.lastDraw = []
 
+    def fixed_joints_controller(self):
+        """Controller for fixed joints"""
+        for joint in range(self.num_joints):
+            joint_name = [name for name, ind_num in self.joint_id.items() if joint == ind_num][0]
+            # FIXME: Resort to the pose file
+            if joint_name not in self.actuated_joints and 'support' not in joint_name:
+                if joint_name == 'joint_A3' or joint_name == 'joint_A4' or joint_name == 'joint_A5' or joint_name == 'joint_A6':
+                    pos = np.deg2rad(-15)
+                elif joint_name == 'joint_LAntenna':
+                    pos = np.deg2rad(33)
+                elif joint_name == 'joint_RAntenna':
+                    pos = np.deg2rad(-33)
+                elif joint_name == 'joint_Rostrum' or joint_name == 'joint_LWing_roll':
+                    pos = np.deg2rad(90)
+                elif joint_name == 'joint_Haustellum':
+                    pos = np.deg2rad(-60)
+                elif joint_name == 'joint_RWing_roll':
+                    pos = np.deg2rad(-90)
+                elif joint_name == 'joint_LWing_yaw':
+                    pos = np.deg2rad(-17)
+                elif joint_name == 'joint_RWing_yaw':
+                    pos = np.deg2rad(17)
+                elif joint_name == 'joint_Head':
+                    pos = np.deg2rad(10)
+                #elif joint_name == 'joint_LFCoxa_yaw':
+                #    pos = np.deg2rad(-5)
+                #elif joint_name == 'joint_RFCoxa_yaw':
+                #    pos = np.deg2rad(5)
+                elif joint_name == 'joint_LFCoxa_roll':
+                    pos = np.deg2rad(10)
+                elif joint_name == 'joint_RFCoxa_roll':
+                    pos = np.deg2rad(-10)
+                #elif joint_name == 'joint_LFFemur_roll':
+                #    pos = np.deg2rad(-26)
+                #elif joint_name == 'joint_RFFemur_roll':
+                #    pos = np.deg2rad(26)
+                elif joint_name == 'joint_LFTarsus1':
+                    pos = np.deg2rad(-43)
+                elif joint_name == 'joint_RFTarsus1':
+                    pos = np.deg2rad(-49)
+                elif joint_name == 'joint_LMCoxa_yaw':
+                    pos = np.deg2rad(4)
+                elif joint_name == 'joint_RMCoxa_yaw':
+                    pos = np.deg2rad(0.5)
+                elif joint_name == 'joint_LMCoxa':
+                    pos = np.deg2rad(-2)
+                elif joint_name == 'joint_RMCoxa':
+                    pos = np.deg2rad(-4.5)
+                #elif joint_name == 'joint_LMFemur_roll':
+                #    pos = np.deg2rad(-7)
+                #elif joint_name == 'joint_RMFemur_roll':
+                #    pos = np.deg2rad(7)
+                elif joint_name == 'joint_LMTarsus1':
+                    pos = np.deg2rad(-52)
+                elif joint_name == 'joint_RMTarsus1':
+                    pos = np.deg2rad(-56)
+                elif joint_name == 'joint_LHCoxa_yaw':
+                    pos = np.deg2rad(0.6)
+                elif joint_name == 'joint_RHCoxa_yaw':
+                    pos = np.deg2rad(6.2)
+                elif joint_name == 'joint_LHCoxa':
+                    pos = np.deg2rad(13)
+                elif joint_name == 'joint_RHCoxa':
+                    pos = np.deg2rad(11.4)
+                #elif joint_name == 'joint_LHFemur_roll':
+                #    pos = np.deg2rad(9)
+                #elif joint_name == 'joint_RHFemur_roll':
+                #    pos = np.deg2rad(-9)
+                elif joint_name == 'joint_LHTarsus1':
+                    pos = np.deg2rad(-45)
+                elif joint_name == 'joint_RHTarsus1':
+                    pos = np.deg2rad(-50)
+                else:
+                    pos = 0
+
+                p.setJointMotorControl2(
+                    self.animal, joint,
+                    controlMode=p.POSITION_CONTROL,
+                    targetPosition=pos,
+                    force=1e36)
+
     def controller_to_actuator(self, t):
         """ Implementation of abstractmethod. """
-        p.setJointMotorControlArray(
-            self.animal,
-            [j for j in range(self.num_joints) if j != self.debug_joint_id],
-            controlMode=p.POSITION_CONTROL,
-            targetPositions=np.zeros((self.num_joints-1,))
-        )
+
+        self.fixed_joints_controller()
+
+        # p.setJointMotorControlArray(
+        #     self.animal,
+        #     [j for j in range(self.num_joints) if j != self.debug_joint_id],
+        #     controlMode=p.POSITION_CONTROL,
+        #     targetPositions=np.zeros((self.num_joints-1,))
+        # )
         #: Update muscle parameters
         self.active_muscles[self.debug_joint].flexor_mn.value = p.readUserDebugParameter(
             self.debug_muscle_act['flexion']
@@ -159,15 +245,16 @@ class DrosophilaSimulation(BulletSimulation):
                 for key, value in self.debug_parameters.items()
             })
         )
-
+        torque = self.active_muscles[self.debug_joint].compute_torque(
+            only_passive=False
+        )
         p.setJointMotorControl2(
             self.animal,
             self.debug_joint_id,
             controlMode=p.TORQUE_CONTROL,
-            force=self.active_muscles[self.debug_joint].compute_torque(
-                only_passive=False
-            )
+            force=torque
         )
+        # print(torque)
         # print(
         #     self.active_muscles[self.debug_joint].active_torque.value,
         #     self.active_muscles[self.debug_joint].passive_torque.value,
@@ -270,12 +357,13 @@ def main():
     sim_options = {
         "headless": False,
         # Scaled SDF model
-        "model": "../../design/sdf/neuromechfly_limitsFromData.sdf",
-        "model_offset": [0., 0., 11.2e-3],
+        "model": "../../design/sdf/neuromechfly_limitsFromData_minMax.sdf",
+        "model_offset": [0., 0., 4e-4],
         "run_time": run_time,
-        "pose": '../../config/pose_optimization_2.yaml',
+        "time_step" : 5e-4,
+        "pose": '../../config/test_pose_tripod.yaml',
         "base_link": 'Thorax',
-        "controller": '../../config/locomotion_ball.graphml',
+        "controller": '../../config/locomotion_tripod.graphml',
         "ground_contacts": ground_contact,
         'self_collisions': self_collision,
         "draw_collisions": False,
@@ -285,7 +373,7 @@ def main():
         'moviename': 'stability_'+exp+'_gen_'+gen+'.mp4',
         'moviefps': 50,
         'slow_down': False,
-        'sleep_time': 0.001,
+        'sleep_time': 0.1,
         'rot_cam': False,
         "is_ball": False
     }
