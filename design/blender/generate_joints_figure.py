@@ -1,23 +1,5 @@
 """ Generate joints figure """
 
-from farms_blender.core.utils import clear_world
-from farms_blender.core.objects import objs_of_farms_types
-from farms_blender.core.sdf import get_base_link, load_sdf
-from farms_blender.core.scene import set_scene_settings
-from farms_blender.core.resources import get_resource_object
-from farms_blender.core.pose import set_model_pose
-from farms_blender.core.primitives import create_sphere
-from farms_blender.core.materials import farms_material, flat_shade_material
-from farms_blender.core.freestyle import (configure_lineset, create_lineset,
-                                          default_lineset_config,
-                                          enable_freestyle, remove_lineset,
-                                          set_freestyle_setting)
-from farms_blender.core.display import display_farms_types
-from farms_blender.core.collections import add_object_to_collection
-from farms_blender.core.camera import create_multiview_camera
-from farms_models.utils import get_sdf_path
-
-import mathutils
 import os
 import pathlib
 import sys
@@ -26,6 +8,25 @@ import numpy as np
 import yaml
 
 import bpy
+import mathutils
+from farms_blender.core.camera import create_multiview_camera
+from farms_blender.core.collections import add_object_to_collection
+from farms_blender.core.display import display_farms_types
+from farms_blender.core.freestyle import (configure_lineset, create_lineset,
+                                          default_lineset_config,
+                                          enable_freestyle, remove_lineset,
+                                          set_freestyle_setting)
+from farms_blender.core.materials import farms_material, flat_shade_material
+from farms_blender.core.objects import objs_of_farms_types
+from farms_blender.core.materials import create_material
+from farms_blender.core.pose import set_model_pose
+from farms_blender.core.primitives import create_sphere
+from farms_blender.core.resources import get_resource_object
+from farms_blender.core.scene import set_scene_settings
+from farms_blender.core.sdf import get_base_link, load_sdf
+from farms_blender.core.utils import clear_world
+from farms_models.utils import get_sdf_path
+
 sys.path.append(bpy.data.filepath)
 SCRIPT_PATH = pathlib.Path(__file__).parent.absolute()
 
@@ -163,18 +164,45 @@ def load_fly(**kwargs):
     return model_name, objs
 
 
+def apply_materials():
+    """ Apply default materials to the model."""
+
+    wings = create_material(name="wings", color=(0.4, 0.4, 0.4, 0.4))
+    eyes = create_material(name="eyes", color=(0.47, 0.035, 0.015, 1.0))
+    body = create_material(name="body", color=(0.41, 0.2, 0.033, 1.0))
+    legs = create_material(name="legs", color=(0.55, 0.3, 0.08, 1.0))
+
+    # Get visual objects
+    objs = {
+        obj.name: obj
+        for obj, _ in objs_of_farms_types(visual=True)
+    }
+
+    for name, obj in objs.items():
+        if 'Wing' in name:
+            obj.active_material = wings
+        elif 'Eye' in name:
+            obj.active_material = eyes
+        elif any([link in name for link in ('Tarsus', 'Tibia', 'Femur', 'Coxa')]):
+            obj.active_material = legs
+        else:
+            obj.active_material = body
+
+
 def configure_scene(**kwargs):
     """ Configure scene. """
     #: Disable background
     bpy.data.scenes['Scene'].render.film_transparent = True
     #: Enable freestyle
-    enable_freestyle()
+    if kwargs.pop("freestyle", False):
+        enable_freestyle()
+
 
 def add_cameras():
     """Add cameras """
     camera_options = {
         "loc": (12.4, -0.165, -0.035), "rot": (np.pi/2, 0., np.pi/2.),
-        "type": 'PERSP', "lens" : 50, "scale" : 1.0
+        "type": 'PERSP', "lens": 50, "scale": 1.0
     }
     #: Create camera 0
     camera_front = create_multiview_camera(
@@ -199,7 +227,7 @@ def render_leg(side='R', leg='F', cameras=None, camera_options=None):
     ]
 
     objs = {
-        obj.name : obj
+        obj.name: obj
         for obj, _ in objs_of_farms_types(visual=True, joint_axis=True)
         if f"{side}{leg}" in obj.name
     }
@@ -211,38 +239,46 @@ def render_leg(side='R', leg='F', cameras=None, camera_options=None):
         bpy.data.scenes['Scene'].camera = camera
 
         # render settings
-        bpy.context.scene.render.filepath =  os.path.join(
+        bpy.context.scene.render.filepath = os.path.join(
             SCRIPT_PATH,
             f"./leg_joints_{camera.name}.png"
         )
         bpy.ops.render.render(write_still=1)
 
+
 def render_whole_body(cameras=None, camera_options=None):
     """ Render leg """
 
     objs = {
-        obj.name : obj
+        obj.name: obj
         for obj, _ in objs_of_farms_types(visual=True, joint_axis=True)
     }
 
     display_farms_types(objs=objs.values(), visual=True, joint_axis=True)
+
+    # Hide prismatic joints
+    for name, obj in objs.items():
+        if 'support' in name:
+            obj.hide_set(False)
+            obj.hide_render = False
 
     for camera in cameras:
         #: Choose camera
         bpy.data.scenes['Scene'].camera = camera
 
         # render settings
-        bpy.context.scene.render.filepath =  os.path.join(
+        bpy.context.scene.render.filepath = os.path.join(
             SCRIPT_PATH,
             f"./whole_body_{camera.name}.png"
         )
         bpy.ops.render.render(write_still=1)
 
+
 def main():
     """ main """
     #: Load default scene
     scene(
-        add_floor=False, scale=1e-2, resolution_x= 1920, resolution_y=1080,
+        add_floor=False, scale=1e-2, resolution_x=1920, resolution_y=1080,
         render_samples=16
     )
     #: Configure scene
@@ -252,23 +288,23 @@ def main():
     ])
     #: Load model
     model_name, objs = load_fly(
-        model_offset=(0.0, 0.0, 0.0), resources_scale=0.15
+        model_offset=(0.0, 0.0, 0.0), resources_scale=0.2
     )
     #: add cameras
-    cameras=add_cameras()
+    cameras = add_cameras()
     #: Add resource object
     world_axis = get_resource_object(resource_object='link', name="world")
     world_axis.scale = [0.25]*3
     world_axis.location = (0.71, -0.73, -1.13)
     #: Configure freestyle
-    configure_freestyle(
-        objs=[
-            world_axis, *[
-                obj
-                for obj, _ in objs_of_farms_types(joint_axis=True)
-            ]
-        ]
-    )
+    # configure_freestyle(
+    #     objs=[
+    #         world_axis, *[
+    #             obj
+    #             for obj, _ in objs_of_farms_types(joint_axis=True)
+    #         ]
+    #     ]
+    # )
     #: Display
     display = {
         'link': False,
@@ -280,6 +316,8 @@ def main():
         'joint': False,
         'joint_axis': False,
     }
+    #: Apply materials and color
+    apply_materials()
     #: Hide all
     display_farms_types(objs=objs, **display)
     #: Render leg
