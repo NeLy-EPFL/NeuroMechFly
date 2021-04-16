@@ -16,6 +16,54 @@ from NeuroMechFly.container import Container
 from NeuroMechFly.sdf.units import SimulationUnitScaling
 
 
+def add_perturbation(
+        size, initial_position, target_position, time, units
+):
+    """ Shoot a ball to perturb the target system at a specified
+    velocity
+
+    Parameters
+    ----------
+    size: <float>
+        Radius of the ball
+    initial_position: <array>
+        3D position of the ball
+    target_position: <array>
+        3D position of the target
+    target_velocity: <float>
+        Final velocity during impact
+
+    Returns
+    -------
+    out :
+
+    """
+    # Init
+    initial_position = np.asarray(initial_position)*units.meters
+    target_position = np.asarray(target_position)*units.meters
+    # Load ball
+    ball = p.loadURDF(
+        "../../design/sdf/sphere_1cm.urdf", initial_position,
+        globalScaling=size*units.meters
+    )
+    p.changeDynamics(
+        ball, -1, linearDamping=0, angularDamping=0,
+        rollingFriction=1e-5, spinningFriction=1e-4
+    )
+    p.changeVisualShape(ball, -1, rgbaColor=[0.8, 0.8, 0.8, 1])
+    # Compute distance
+    dist = np.linalg.norm(initial_position -target_position)
+    # Compute direction vector
+    dir_vector = (target_position - initial_position)/dist
+    # Compute initial velocity
+    velocity = (
+        target_position - initial_position -
+        0.5*np.asarray([0, 0, -9.81*units.gravity])*time**2
+    )/time
+    p.resetBaseVelocity(ball, velocity)
+    return ball
+
+
 class DrosophilaSimulation(BulletSimulation):
 
     def __init__(
@@ -55,6 +103,23 @@ class DrosophilaSimulation(BulletSimulation):
         If not then the controller directly actuates the joints
         """
 
+        if t == 10:
+            print("Adding ball")
+            add_perturbation(
+                 size=5e-2,
+                 initial_position=np.asarray([1e-2, 0, 1e-2]),
+                 target_position=self.base_position,
+                 time=0.1, units=self.units
+                 )
+        if t == 150:
+            print(f"Adding ball {self.base_position}")
+            add_perturbation(
+                 size=5e-2,
+                 initial_position=np.asarray([-1e-2, 0, 1e-2]),
+                 target_position=self.base_position,
+                 time=0.1, units=self.units
+            )
+
         joints = [joint for joint in range(self.num_joints)]
         pose = [0]*self.num_joints
         vel = [0]*self.num_joints
@@ -77,7 +142,7 @@ class DrosophilaSimulation(BulletSimulation):
 
         pose[self.joint_id['joint_Head']] = np.deg2rad(10)
 
-        ind = t + 1000
+        ind = t + 1500
 
         ####### Walk on floor#########
         '''
@@ -275,7 +340,6 @@ class DrosophilaSimulation(BulletSimulation):
         #kv = p.readUserDebugParameter(self.kpId)
 
         for joint in range(self.num_joints):
-            # if joint!=19 and joint!=58:
             if joint in joint_control:
                 p.setJointMotorControl2(
                     self.animal, joint,
@@ -287,32 +351,12 @@ class DrosophilaSimulation(BulletSimulation):
                     #maxVelocity = 50
                     #force = 0.55
                 )
-
             else:
-                if ind < 2120:
-                    p.setJointMotorControl2(
-                        self.animal, joint,
-                        controlMode=p.POSITION_CONTROL,
-                        targetPosition=pose[joint],
-                    )
-                else:
-                    p.setJointMotorControl2(
-                        self.animal, joint,
-                        controlMode=p.POSITION_CONTROL,
-                        force=0
-                    )
-                    p.setJointMotorControl2(
-                        self.animal, joint,
-                        controlMode=p.VELOCITY_CONTROL,
-                        targetVelocity=0,
-                        force=0
-                    )
-                    p.setJointMotorControl2(
-                        self.animal, joint,
-                        controlMode=p.TORQUE_CONTROL,
-                        force=0,
-                        # targetPosition=pose[joint],
-                    )
+                p.setJointMotorControl2(
+                self.animal, joint,
+                controlMode=p.POSITION_CONTROL,
+                targetPosition=pose[joint],
+                )
 
     def feedback_to_controller(self):
         """
@@ -427,19 +471,19 @@ def main():
             sim_options = {
                 "headless": False,
                 "model": "../../design/sdf/neuromechfly_noLimits_noSupport.sdf",
-                # "model_offset": [0., -0.1, 1.12],
-                "model_offset": [0, 0., 2.0e-3],
+                #"model_offset": [0., -0.1, 1.12],
+                "model_offset": [0, 0.,1.4e-3],
                 "run_time": run_time,
-                # "pose": '../config/pose.yaml',
+                "pose": '../../config/pose_optimization.yaml',
                 "base_link": 'Thorax',
                 # "controller": '../config/locomotion_trot.graphml',
                 "ground_contacts": ground_contact,
                 "self_collisions": self_collision,
                 "draw_collisions": False,
-                "record": True,
+                "record": False,
                 # 'camera_distance': 0.35,
                 'camera_distance': 6.0,
-                'track': True,
+                'track': False,
                 'moviename': './040421_walking_contacterp0.1_noSupport_perturbation.mp4',
                 'moviefps': 80,
                 'slow_down': False,
