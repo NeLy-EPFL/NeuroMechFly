@@ -15,6 +15,8 @@ from bullet_simulation_KM_noSelfCollisions_SA import BulletSimulation
 from NeuroMechFly.container import Container
 from NeuroMechFly.sdf.units import SimulationUnitScaling
 
+# Random number seed
+np.random.seed(seed=321)
 
 def add_perturbation(
         size, initial_position, target_position, time, units
@@ -35,7 +37,8 @@ def add_perturbation(
 
     Returns
     -------
-    out :
+    ball : <int>
+    Pybullet ID for the ball
 
     """
     # Init
@@ -44,22 +47,21 @@ def add_perturbation(
     # Load ball
     ball = p.loadURDF(
         "../../design/sdf/sphere_1cm.urdf", initial_position,
-        globalScaling=size*units.meters
+        globalScaling=size*units.meters,
+        useMaximalCoordinates=True
     )
+    # Change dynamics to remove damping and friction
     p.changeDynamics(
         ball, -1, linearDamping=0, angularDamping=0,
-        rollingFriction=1e-5, spinningFriction=1e-4
+        rollingFriction=0, spinningFriction=0
     )
     p.changeVisualShape(ball, -1, rgbaColor=[0.8, 0.8, 0.8, 1])
-    # Compute distance
-    dist = np.linalg.norm(initial_position -target_position)
-    # Compute direction vector
-    dir_vector = (target_position - initial_position)/dist
     # Compute initial velocity
     velocity = (
         target_position - initial_position -
         0.5*np.asarray([0, 0, -9.81*units.gravity])*time**2
     )/time
+    # Reset base velocity
     p.resetBaseVelocity(ball, velocity)
     return ball
 
@@ -88,6 +90,7 @@ class DrosophilaSimulation(BulletSimulation):
             './angles/walking_joint_angles_smoothed.pkl')
         self.velocities = self.load_angles(
             './angles/walking_joint_velocities.pkl')
+        self.impulse_sign = 1
 
     def load_angles(self, data_path):
         try:
@@ -103,23 +106,37 @@ class DrosophilaSimulation(BulletSimulation):
         If not then the controller directly actuates the joints
         """
 
-        if t == 10:
-            print("Adding ball")
-            add_perturbation(
+        if ((t+1)%500) == 0:
+            print("Adding perturbation")
+            self.pball = add_perturbation(
                  size=5e-2,
-                 initial_position=np.asarray([1e-2, 0, 1e-2]),
+                 initial_position=np.asarray(
+                     [0, self.impulse_sign*2e-3, 0.0]) + self.base_position,
                  target_position=self.base_position,
-                 time=0.1, units=self.units
-                 )
-        if t == 150:
-            print(f"Adding ball {self.base_position}")
-            add_perturbation(
-                 size=5e-2,
-                 initial_position=np.asarray([-1e-2, 0, 1e-2]),
-                 target_position=self.base_position,
-                 time=0.1, units=self.units
+                 time=20e-3, units=self.units
             )
+            self.impulse_sign *= -1
 
+        if ((t+1)%3000) == 0 and t < 3012:
+        # if ((t+1)%100) == 0:
+            radius = 10e-2
+            # for pos in -1*radius + (2*radius)*np.random.rand((25)):
+            #     pball = add_perturbation(
+            #         size=radius,
+            #         initial_position=np.asarray(
+            #             [pos, pos, 2*radius]) + self.base_position,
+            #         target_position=self.base_position,
+            #         time=5e-2+1e-3*np.random.rand(1), units=self.units
+            #     )
+            #     p.changeDynamics(pball, -1, 0.03)
+            self.pball = add_perturbation(
+                 size=radius,
+                 initial_position=np.asarray(
+                     [radius*0.05, radius*0.05, 1e-3]) + self.base_position,
+                 target_position=[self.base_position[0], self.base_position[1], 0.0],
+                 time=20e-3, units=self.units
+            )
+            p.changeDynamics(self.pball, -1, 0.3)
         joints = [joint for joint in range(self.num_joints)]
         pose = [0]*self.num_joints
         vel = [0]*self.num_joints
@@ -474,25 +491,26 @@ def main():
                 #"model_offset": [0., -0.1, 1.12],
                 "model_offset": [0, 0.,1.4e-3],
                 "run_time": run_time,
+                "time_step": 1e-3,
                 "pose": '../../config/pose_optimization.yaml',
                 "base_link": 'Thorax',
                 # "controller": '../config/locomotion_trot.graphml',
                 "ground_contacts": ground_contact,
-                "self_collisions": self_collision,
+                # "self_collisions": self_collision,
                 "draw_collisions": False,
-                "record": False,
+                "record": True,
                 # 'camera_distance': 0.35,
                 'camera_distance': 6.0,
                 'track': False,
-                'moviename': './040421_walking_contacterp0.1_noSupport_perturbation.mp4',
+                'moviename': './realtime_noSupport_stiff_legs_release_feedback_2.mp4',
                 'moviefps': 80,
                 'slow_down': False,
                 'sleep_time': 0.001,
-                'rot_cam': False,
+                'rot_cam': True,
                 'behavior': behavior,
                 'ground': 'floor'
             }
-            container = Container(run_time/time_step)
+            container = Container()
             animal = DrosophilaSimulation(container, sim_options, Kp=Kp, Kv=Kv)
             animal.run(optimization=False)
             animal.container.dump(

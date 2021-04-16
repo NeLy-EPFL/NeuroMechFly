@@ -75,7 +75,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         self.torques=[]
         self.grf=[]
         ####################
-        
+
         #: ADD PHYSICS SIMULATION namespace to container
         self.sim_data = self.container.add_namespace('physics')
         #: ADD Tables to physics container
@@ -132,19 +132,15 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         if self.RECORD_MOVIE and self.GUI==p.GUI:
             p.connect(
                 self.GUI,
-                options='--background_color_red={} --background_color_green={} --background_color_blue={} --mp4={}'.format(
+                options='--background_color_red={} --background_color_green={} --background_color_blue={} --mp4={} --mp4fps={}'.format(
                     self.VIS_OPTIONS_BACKGROUND_COLOR_RED,
                     self.VIS_OPTIONS_BACKGROUND_COLOR_GREEN,
                     self.VIS_OPTIONS_BACKGROUND_COLOR_RED,
                     self.MOVIE_NAME,
-                    self.MOVIE_FPS))
+                    int(1/self.TIME_STEP)))
+            p.configureDebugVisualizer(p.COV_ENABLE_SINGLE_STEP_RENDERING,1)
         elif self.GUI == p.GUI:
-            p.connect(
-                self.GUI,
-                options='--background_color_red={} --background_color_green={} --background_color_blue={}'.format(
-                    self.VIS_OPTIONS_BACKGROUND_COLOR_RED,
-                    self.VIS_OPTIONS_BACKGROUND_COLOR_GREEN,
-                    self.VIS_OPTIONS_BACKGROUND_COLOR_RED))
+            p.connect(self.GUI)
         else:
             p.connect(self.GUI)
         p.resetSimulation()
@@ -152,10 +148,10 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         #: everything should fall down
         p.setGravity(
             *[g*self.units.gravity for g in self.GRAVITY]
-        )        
+        )
         p.setPhysicsEngineParameter(
             fixedTimeStep=self.TIME_STEP,
-            numSolverIterations=100, 
+            numSolverIterations=100,
             numSubSteps=5,
             solverResidualThreshold=1e-10,
             #erp=1e-1,
@@ -177,7 +173,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             self.floor = p.loadURDF(
                 "plane.urdf", [0, 0, -0.],
                 globalScaling=0.01*self.units.meters
-            )            
+            )
             self.ball_radius = 5e-3 * self.units.meters # 1x (real size 10mm)
             self.plane = self.add_ball(self.ball_radius)
             self.link_plane = 2
@@ -195,13 +191,13 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         #: Generate joint_name to id dict
         #: FUCK : Need to clean this section
         self.link_id[p.getBodyInfo(self.animal)[0].decode('UTF-8')] = -1
-        
+
         p.changeDynamics(
             self.plane,
             self.link_plane,
             lateralFriction = -0.001,
         )
-        
+
         dynamicsInfo = p.getDynamicsInfo(
             self.plane,
             self.link_plane
@@ -213,10 +209,10 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         self.colorLegs = [170/255,130/255,50/255,1]
         self.colorCollision = [0,1,0,1]
         nospecular = [0.5,0.5,0.5]
-        
+
         p.changeVisualShape(self.animal, -1, rgbaColor=self.colorBody,specularColor=nospecular)
 
-        
+
         for n in range(self.num_joints):
             info = p.getJointInfo(self.animal, n)
             _id = info[0]
@@ -235,15 +231,15 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                 p.changeVisualShape(self.animal, _id, rgbaColor=self.colorLegs,specularColor=nospecular)
             elif 'Fake' not in joint_name:
                 p.changeVisualShape(self.animal, _id, rgbaColor=self.colorBody,specularColor=nospecular)
-                     
+
             print("Link name {} id {}".format(link_name, _id))
             #self.link_names.append(link_name)
 
         ############### CONFIGURE CONTACTS ###############
-        
-        self.set_collisions(self.link_id, group=0, mask=0)
+
+        # self.set_collisions(self.link_id, group=0, mask=0)
         '''
-        # Disable all self-collisions
+        # disable all self-collisions
         for link0 in self.link_id.keys():
             for link1 in self.link_id.keys():
                 p.setCollisionFilterPair(
@@ -264,7 +260,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                 linkIndexB=self.link_plane,
                 enableCollision=1
             )
-        '''  
+        '''
         self.set_collisions_whole_body(1,1)
         # Disable selected self-collisions
         for (link0, link1) in self.self_collisions:
@@ -293,7 +289,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         if self.CONTROLLER:
             self.controller = NeuralSystem(
                 self.CONTROLLER, self.container)
-            
+
         #: ADD base position parameters
         for axis in ['x', 'y', 'z']:
             self.sim_data.base_position.add_parameter(f"{axis}")
@@ -304,9 +300,9 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             self.sim_data.joint_positions.add_parameter(name)
             self.sim_data.joint_velocities.add_parameter(name)
             self.sim_data.joint_torques.add_parameter(name)
-        
+
         ########## DISABLE DEFAULT BULLET CONTROLLERS  ##########
-        
+
         p.setJointMotorControlArray(
             self.animal,
             np.arange(self.num_joints),
@@ -347,7 +343,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                 collisionFilterGroup=group,
                 collisionFilterMask=mask
             )
-    
+
     def set_collisions_whole_body(self, group=1, mask=1):
         """Activate/Deactivate leg collisions"""
         for link in range(-1, p.getNumJoints(self.animal)):
@@ -362,7 +358,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         """ Initialize simulation. """
         ########## INITIALIZE THE CONTAINER ##########
         self.container.initialize()
-        
+
         ########## SETUP THE INTEGRATOR ##########
         if self.CONTROLLER:
             self.controller.setup_integrator()
@@ -399,7 +395,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                 )
         else:
             return None
-    
+
     def get_contact_forces(self):
         c = p.getContactPoints(self.plane, self.animal)
         normal = np.sum(
@@ -419,11 +415,11 @@ class BulletSimulation(metaclass=abc.ABCMeta):
 
         """
         self.ground_sensors[link] = self.link_id[link]
-        
+
     def get_thorax_force(self):
         thorax_info = p.getJointState(self.animal, self.thorax_id)
-        return np.array(thorax_info[2][:3])/self.units.newtons    
-    
+        return np.array(thorax_info[2][:3])/self.units.newtons
+
     def get_floor_force(self):
         floor_info = p.getJointState(self.floor, -1)
         return np.array(floor_info[2][:3])/self.units.newtons
@@ -515,16 +511,16 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         """ Create a ball of radius r. """
         colSphereParent = p.createCollisionShape(p.GEOM_SPHERE, radius=r/100)
         colSphereId = p.createCollisionShape(p.GEOM_SPHERE, radius=r)
-        
+
         massParent = 0
-        visualShapeId = -1        
+        visualShapeId = -1
 
         if self.behavior == 'walking':
             #basePosition=[-0.025,0.01,0.566] ### Walking ball r= 0.55
             #basePosition=[-0.025,0.005,0.568] ### Walking ball r= 0.55 NEW
             #basePosition=[-0.023, 0.0085, 0.6198] ### Walking ball r= 0.5
             #basePosition=[-0.0225, 0.007, 0.61973] ### Walking ball r= 0.5
-            #basePosition = np.array([0.18e-3, 0.18e-3,-4.92e-3])*self.units.meters+self.MODEL_OFFSET  
+            #basePosition = np.array([0.18e-3, 0.18e-3,-4.92e-3])*self.units.meters+self.MODEL_OFFSET
             #basePosition = np.array([0.39e-3, -0.14e-3,-5.01e-3])*self.units.meters+self.MODEL_OFFSET
             basePosition = np.array([0.20e-3, -0.14e-3,-4.98e-3])*self.units.meters+self.MODEL_OFFSET
         elif self.behavior == 'grooming':
@@ -532,11 +528,11 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             basePosition = np.array([0.0e-3, 0.0e-3,-5e-3])*self.units.meters+self.MODEL_OFFSET
 
         #basePosition=[-0.03,-0.0,0.589] ### Walking ball r= 0.525
-        #basePosition=[-0.02,0.0,0.595] ### Walking ball r= 0.52        
+        #basePosition=[-0.02,0.0,0.595] ### Walking ball r= 0.52
         #basePosition=[-0.04,-0.005,0.594] ### Walking ball r=0.52
         #basePosition=[-0.04,0.0,0.605] ### Walking ball r=0.51
-        
-        
+
+
         baseOrientation = [0,0,0,1]
         #link_Masses = [0.0000005,0.0000005,0.0000005]
         link_Masses = np.array([5e-11,5e-11,5e-11])*self.units.kilograms
@@ -550,7 +546,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         jointTypes = [p.JOINT_REVOLUTE,p.JOINT_REVOLUTE,p.JOINT_REVOLUTE]
         #axis = [[1, 0, 0],[0, 1, 0],[0, 0, 1]]
         axis = [[0, 1, 0],[1, 0, 0],[0, 0, 1]]
-        
+
         sphereId = p.createMultiBody(massParent,
                                       colSphereParent,
                                       visualShapeId,
@@ -566,7 +562,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                                       linkParentIndices=indices,
                                       linkJointTypes=jointTypes,
                                       linkJointAxis=axis)
-                                      
+
         p.changeDynamics(sphereId,
                        -1,
                        spinningFriction=100,
@@ -577,7 +573,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         p.changeVisualShape(sphereId, 2, rgbaColor=[225/255,225/255,210/255,1],specularColor=[0,0,0],textureUniqueId=textureBall)
 
         return sphereId
-        
+
     @property
     def joint_states(self):
         """ Get all joint states  """
@@ -689,15 +685,15 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         self.sim_data.thorax_force.values = np.asarray(
             self.get_thorax_force()).flatten()
         self.sim_data.ground_contacts.values = np.asarray(
-            self.ground_reaction_forces).flatten() 
+            self.ground_reaction_forces).flatten()
 
         #print("LEG GRF FORCES: {}".format(sum(self.ground_reaction_forces)))
         #print("THORAX FORCES: {}".format(sum(self.get_thorax_force())))
-       
+
         self.sim_data.ground_friction_dir1.values = np.asarray(
-            self.ground_lateral_friction_dir1).flatten()   
+            self.ground_lateral_friction_dir1).flatten()
         self.sim_data.ground_friction_dir2.values = np.asarray(
-            self.ground_lateral_friction_dir2).flatten()   
+            self.ground_lateral_friction_dir2).flatten()
         #print("Container is updated!")
 
     @abc.abstractmethod
@@ -741,7 +737,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         -------
         out :
         """
-        
+
         #: Camera
         if self.GUI == p.GUI and self.track_animal:
             base = np.array(self.base_position)*1e3
@@ -750,14 +746,14 @@ class BulletSimulation(metaclass=abc.ABCMeta):
 
             if t < 2000:
                 yaw = -30 + t/2000*60
-                pitch = -10 
+                pitch = -10
                 distance = 6
                 x = -t/2000*2.16
                 y = -t/2000*7.32
             elif  t>=2000 and t<4000:
                 yaw = 30 + (t-2000)/2000*60
-                pitch = -10 
-                distance = 6 + (t-2000)/2000*5  
+                pitch = -10
+                distance = 6 + (t-2000)/2000*5
                 if t == 2000 or t == 3999:
                     print(base)
                 x = -2.16 +(t-2000)/2000*15.16
@@ -772,7 +768,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                     print(base)
             elif t >=4500 and t < 7000:
                 yaw = 90 - (t-4500)/2500*220
-                pitch = -30 
+                pitch = -30
                 distance = 13
                 x = 11.6 - (t-4500)/2500*13.1
                 y = -5.5 + (t-4500)/2500*1.9
@@ -789,43 +785,54 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                 yaw,
                 pitch,
                 np.array((x,y,z)))
-        
+
         ######## WALKING CAMERA SEQUENCE ########
         if self.GUI == p.GUI and self.rotate_camera and self.behavior=='walking':
-            base = np.array(self.base_position)
-            base[-1] = 1.10
+            # base = np.array(self.base_position)
+            # base[-1] = 1.10
 
-            if t < 3000:
-                yaw = 0
-                pitch = -10
-            elif t >=3000 and t < 4000:
-                yaw = (t-3000)/1000*90
-                pitch = -10
-            elif t >=4000 and t < 4250:
-                yaw = 90
-                pitch = -10
-            elif t >=4250 and t < 4750:
-                yaw = 90
-                pitch = (t-4250)/500*70-10
-            elif t >=4750 and t < 5000:
-                yaw = 90
-                pitch = 60
-            elif t >=5000 and t < 5500:
-                yaw = 90
-                pitch = 60-(t-5000)/500*70
-            elif t >=5500 and t < 7000:
-                yaw = (t-5500)/1500*300+90
-                pitch = -10
-            else:
-                yaw = 30
-                pitch = -10
+            # if t < 3000:
+            #     yaw = 0
+            #     pitch = -10
+            # elif t >=3000 and t < 4000:
+            #     yaw = (t-3000)/1000*90
+            #     pitch = -10
+            # elif t >=4000 and t < 4250:
+            #     yaw = 90
+            #     pitch = -10
+            # elif t >=4250 and t < 4750:
+            #     yaw = 90
+            #     pitch = (t-4250)/500*70-10
+            # elif t >=4750 and t < 5000:
+            #     yaw = 90
+            #     pitch = 60
+            # elif t >=5000 and t < 5500:
+            #     yaw = 90
+            #     pitch = 60-(t-5000)/500*70
+            # elif t >=5500 and t < 7000:
+            #     yaw = (t-5500)/1500*300+90
+            #     pitch = -10
+            # else:
+            #     yaw = 30
+            #     pitch = -10
+            # p.resetDebugVisualizerCamera(
+            #     self.camera_distance,
+            #     yaw,
+            #     pitch,
+            #     base)
+            camera_rotation_speed = 2*np.pi*0.25
+            base = np.asarray(self.base_position) * self.units.meters
+            yaw = camera_rotation_speed*self.TIME
+            radius = 1e-3*self.units.meters
+            x = radius*np.cos(yaw) + base[0]
+            y = radius*np.sin(yaw) + base[1]
+            z = 2.5e-3*self.units.meters
+            pitch = -10
             p.resetDebugVisualizerCamera(
-                self.camera_distance,
-                yaw,
-                pitch,
-                base)
-        
-        
+                self.camera_distance, np.rad2deg(yaw-180), pitch, [x, y, z]
+            )
+
+
         ###### GROOMING CAMERA SEQUENCE #######
         if self.GUI == p.GUI and self.rotate_camera and self.behavior=='grooming':
             base = np.array(self.base_position)
@@ -846,8 +853,8 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                 yaw,
                 pitch,
                 base)
-        
-            
+
+
         #: Update the feedback to controller
         self.feedback_to_controller()
 
