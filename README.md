@@ -1,22 +1,50 @@
 # NeuroMechFly
-Functions for running NeuroMechFly simulation
 
-## Installation 
-To install NeuroMechFly, run the following commands in the command line:
-```bash
-$ conda create -n neuromechfly python=3.6 numpy Cython
-$ git clone https://github.com/NeLy-EPFL/NeuroMechFly.git
-$ pip install -e .
+<p align="center">
+  <img align="center" width="600" src="https://github.com/NeLy-EPFL/NeuroMechFly/blob/675d9ae07db1c3899926b1bbaf447230f7737ad0/docs/NeuroMechFly.gif">
+</p>
+
+**NeuroMechFly** is a data-driven computational simulation of adult *Drosophila* designed to synthesize rapidly growing experimental datasets and to test theories of neuromechanical behavioral control. Specifically, you can use NeuroMechFly to:
+* (A) estimate expected contact reaction forces, torques, and tactile signals during replayed *Drosophila* walking and grooming to expand your experimental data
+* (B) discover neural network topologies that can drive different gaits
+* (C) use machine learning methods to create a link between neuroscience and artificial intelligence. 
+
+For more details, please refer to our paper (link here).
+
+If you find NeuroMechFly useful in your research, please consider citing us!
+
+```Latex
+@article{lobato2021neuromechfly,
+	title = {NeuroMechFly, a neuromechanical model of adult Drosophila melanogaster},
+	journal = {In preparation},
+	author = {Lobato Rios, Victor and Ozdil, Pembe Gizem and Ramalingasetty, Shravan and Arreguit, Jonathan 
+	and Rosset, Stéphanie and Knott, Graham and Ijspeert, Auke and Ramdya, Pavan},
+	year = {2021}
+}
 ```
 
+## Content
+
+- [Starting](#starting)
+- [Running the experiments](#running-the-experiments)
+- [Miscellaneous](#miscellaneous)
+
+
+## Starting
+* [Installation](https://github.com/NeLy-EPFL/NeuroMechFly/blob/km-refactor/docs/installation.md)
+* [Angle Processing](https://github.com/NeLy-EPFL/NeuroMechFly/blob/km-refactor/docs/angleprocessing.md)
+
 ## Running the experiments 
-Before running the scripts please make sure that you activated the conda environment by running ```$ conda activate neuromechfly``` on the command line. 
+Before running the scripts please make sure that you activate the virtual environment by running the following on the command line:
+```$ conda activate neuromechfly```
 
 **1. Kinematic Matching**
 - Make sure in */data* folder, there are */walking/df3d* and *grooming/df3d* folders that contain a .pkl file starting with "joint_angles_..".
 - Navigate to */scripts/KM* folder.
 - Run ```$ python kinematicMatching_noSelfCollisions.py``` for simulating the locomotion behavior. 
-- Change the behavior in ```main()```to "grooming" to simulate the grooming behavior. Note: Collisions are disabled in this script, but use this for now because *kinematicMatching.py* needs to be modified for the new scale. 
+- Run ```$ python kinematicMatching.py``` for simulating the forleg/antennal grooming behavior. 
+
+**NOTE:** To obtain new pose estimates from the [DeepFly3D Database](https://dataverse.harvard.edu/dataverse/DeepFly3D), please refer to [DeepFly3D repository](https://github.com/NeLy-EPFL/DeepFly3D). After running the pose estimator on the recordings, you can follow the instructions for computing joint angles to control NeuroMechFly [here.](https://github.com/NeLy-EPFL/NeuroMechFly/blob/km-refactor/docs/angleprocessing.md)
 
 **2. Optimization** 
 - To simulate the results of the last evolution, run ```$ python drosophila_simulation_opt.py```. This script will run the best result from *FUN.ged3* and *VAR.ged3*. 
