@@ -14,12 +14,16 @@ For more details, please refer to our paper (link here).
 If you find NeuroMechFly useful in your research, please consider citing us!
 
 ```Latex
-@article{lobato2021neuromechfly,
+@article {R{\'\i}os2021.04.17.440214,
+	author = {R{\'\i}os, Victor Lobato and {\"O}zdil, Pembe Gizem and Ramalingasetty, Shravan Tata and Arreguit, Jonathan and Clerc Rosset, St{\'e}phanie and Knott, Graham and Ijspeert, Auke Jan and Ramdya, Pavan},
 	title = {NeuroMechFly, a neuromechanical model of adult Drosophila melanogaster},
-	journal = {In preparation},
-	author = {Lobato Rios, Victor and Ozdil, Pembe Gizem and Ramalingasetty, Shravan and Arreguit, Jonathan 
-	and Rosset, Stéphanie and Knott, Graham and Ijspeert, Auke and Ramdya, Pavan},
-	year = {2021}
+	elocation-id = {2021.04.17.440214},
+	year = {2021},
+	doi = {10.1101/2021.04.17.440214},
+	publisher = {Cold Spring Harbor Laboratory},
+	URL = {https://www.biorxiv.org/content/early/2021/04/18/2021.04.17.440214},
+	eprint = {https://www.biorxiv.org/content/early/2021/04/18/2021.04.17.440214.full.pdf},
+	journal = {bioRxiv}
 }
 ```
 
