@@ -39,7 +39,7 @@ def add_perturbation(
     target_position = np.asarray(target_position) * units.meters
     # Load ball
     ball = p.loadURDF(
-        "../../design/sdf/sphere_1cm.urdf", initial_position,
+        "../../data/design/sdf/sphere_1cm.urdf", initial_position,
         globalScaling=size * units.meters,
         useMaximalCoordinates=True
     )
@@ -60,6 +60,13 @@ def add_perturbation(
 
 
 class DrosophilaSimulation(BulletSimulation):
+    """[summary]
+
+    Parameters
+    ----------
+    BulletSimulation : [type]
+        [description]
+    """    
 
     def __init__(
             self, container, sim_options, Kp, Kv,
@@ -76,18 +83,35 @@ class DrosophilaSimulation(BulletSimulation):
             f'../../data/joint_kinematics/{self.behavior}/{self.behavior}_converted_joint_velocities.pkl')
         self.impulse_sign = 1
 
+
     def load_angles(self, data_path):
+        """[summary]
+
+        Parameters
+        ----------
+        data_path : [type]
+            [description]
+
+        Returns
+        -------
+        [type]
+            [description]
+        """        
         try:
             return pd.read_pickle(data_path)
         except BaseException:
             FileNotFoundError(f"File {data_path} not found!")
 
     def controller_to_actuator(self, t):
-        """
-        Code that glues the controller the actuator in the system.
+        """Code that glues the controller the actuator in the system.
         If there are muscles then contoller actuates the muscles.
         If not then the controller directly actuates the joints
-        """
+
+        Parameters
+        ----------
+        t : [type]
+            [description]
+        """       
 
         if ((t + 1) % 500) == 0:
             print("Adding perturbation")
@@ -194,50 +218,22 @@ def main():
     side = ['L', 'R']
     pos = ['F', 'M', 'H']
     leg_segments = ['Tibia'] + ['Tarsus' + str(i) for i in range(1, 6)]
-    left_front_leg = ['LF' + name for name in leg_segments]
-    right_front_leg = ['RF' + name for name in leg_segments]
-    body_segments = [s + b for s in side for b in ['Eye', 'Antenna']]
-    col_hind_leg = [
-        s +
-        'H' +
-        leg for s in side for leg in [
-            'Coxa',
-            'Coxa_roll',
-            'Femur',
-            'Femur_roll',
-            'Tibia']]
-    col_body_abd = ['prismatic_support_1',
-                    'prismatic_support_2', 'A1A2', 'A3', 'A4', 'A5', 'A6']
+
     ground_contact = [
         s +
         p +
         name for s in side for p in pos for name in leg_segments if name != 'Tibia']
 
-    self_collision = []
-    for link0 in left_front_leg:
-        for link1 in right_front_leg:
-            self_collision.append([link0, link1])
-
-    for link0 in left_front_leg + right_front_leg:
-        for link1 in body_segments:
-            if link0[0] == link1[0]:
-                self_collision.append([link0, link1])
-
-    for link0 in col_hind_leg:
-        for link1 in col_body_abd:
-            self_collision.append([link0, link1])
 
     sim_options = {
         "headless": False,
         "model": "../../data/design/sdf/neuromechfly_noLimits_noSupport.sdf",
-        "model_offset": [0, 0., 1.4e-3],
+        "model_offset": [0, 0., 2.2e-3],
         "run_time": run_time,
         "time_step": time_step,
-        "pose": '../../data/config/pose_optimization.yaml',
+        "pose": '../../data/config/pose/pose_optimization.yaml',
         "base_link": 'Thorax',
-        # "controller": '../config/locomotion_trot.graphml',
         "ground_contacts": ground_contact,
-        # "self_collisions": self_collision,
         "draw_collisions": False,
         "record": False,
         'camera_distance': 6.0,
@@ -246,9 +242,10 @@ def main():
         'moviefps': 80,
         'slow_down': False,
         'sleep_time': 0.001,
-        'rot_cam': True,
+        'rot_cam': False,
         'behavior': behavior,
-        'ground': 'floor'
+        'ground': 'floor',
+        'num_substep': 5
     }
 
     container = Container()
