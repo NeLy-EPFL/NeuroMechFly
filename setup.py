@@ -44,6 +44,7 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     install_requires=[
         'farms_pylog',
+        'df3dPostProcessing',
         'numpy',
         'pandas',
         'matplotlib==3.0.2',
@@ -64,6 +65,7 @@ setuptools.setup(
     ],
     dependency_links=[
         'https://gitlab.com/FARMSIM/farms_pylog.git',
+        'https://github.com/NeLy-EPFL/df3dPostProcessing.git'
     ],
     zip_safe=False,
     ext_modules=cythonize(extensions),
