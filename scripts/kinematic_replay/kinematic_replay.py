@@ -191,7 +191,7 @@ def main():
     sim_options = {
         "headless": False,
         "model": "../../data/design/sdf/neuromechfly_noLimits.sdf",
-        "pose": '../../data/config/pose/pose_optimization.yaml',
+        "pose": '../../data/config/pose/pose_optimization_2.yaml',
         "model_offset": [0., 0, 11.2e-3],
         "run_time": run_time,
         "base_link": 'Thorax',

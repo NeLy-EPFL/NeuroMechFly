@@ -216,9 +216,23 @@ def main():
     time_step = 0.001
     behavior = 'walking'
 
+    #: Setting up the collision and ground sensors
     side = ['L', 'R']
     pos = ['F', 'M', 'H']
     leg_segments = ['Tibia'] + ['Tarsus' + str(i) for i in range(1, 6)]
+    left_front_leg = ['LF' + name for name in leg_segments]
+    right_front_leg = ['RF' + name for name in leg_segments]
+    body_segments = [s + b for s in side for b in ['Eye', 'Antenna']]
+
+    self_collision = []
+    for link0 in left_front_leg:
+        for link1 in right_front_leg:
+            self_collision.append([link0, link1])
+
+    for link0 in left_front_leg + right_front_leg:
+        for link1 in body_segments:
+            if link0[0] == link1[0]:
+                self_collision.append([link0, link1])
 
     ground_contact = [
         s +
@@ -231,9 +245,10 @@ def main():
         "model_offset": [0, 0., 2.2e-3],
         "run_time": run_time,
         "time_step": time_step,
-        "pose": '../../data/config/pose/pose_optimization.yaml',
+        "pose": '../../data/config/pose/pose_optimization_2.yaml',
         "base_link": 'Thorax',
         "ground_contacts": ground_contact,
+        "self_collisions": self_collision,
         "record": False,
         'camera_distance': 6.0,
         'track': False,
