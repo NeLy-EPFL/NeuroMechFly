@@ -7,6 +7,13 @@ from NeuroMechFly.sdf.units import SimulationUnitScaling
 
 
 class DrosophilaSimulation(BulletSimulation):
+    """[summary]
+
+    Parameters
+    ----------
+    BulletSimulation : [type]
+        [description]
+    """
 
     def __init__(
         self,
@@ -18,6 +25,8 @@ class DrosophilaSimulation(BulletSimulation):
             meters=1000,
             kilograms=1000)):
         super().__init__(container, units, **sim_options)
+        self.last_draw = []
+        self.grf = []
         self.kp = Kp
         self.kv = Kv
         self.pose = [0] * self.num_joints
@@ -28,6 +37,18 @@ class DrosophilaSimulation(BulletSimulation):
             f'../../data/joint_kinematics/{self.behavior}/{self.behavior}_converted_joint_velocities.pkl')
 
     def load_angles(self, data_path):
+        """[summary]
+
+        Parameters
+        ----------
+        data_path : [type]
+            [description]
+
+        Returns
+        -------
+        [type]
+            [description]
+        """
         try:
             return pd.read_pickle(data_path)
         except BaseException:
@@ -38,6 +59,11 @@ class DrosophilaSimulation(BulletSimulation):
         Code that glues the controller the actuator in the system.
         If there are muscles then contoller actuates the muscles.
         If not then the controller directly actuates the joints.
+
+        Parameters
+        ----------
+        t : [type]
+            [description]
         """
 
         #: Setting the fixed joint positions
@@ -78,13 +104,56 @@ class DrosophilaSimulation(BulletSimulation):
                 velocityGain=self.kv,
             )
 
+        #: Change the color of the colliding body segments
+        if self.draw_collisions:
+            draw = []
+            if self.behavior == 'walking':
+                links_contact = np.where(
+                    np.linalg.norm(
+                        self.ground_reaction_forces,
+                        axis=1) > 0)[0]
+                for i in links_contact:
+                    link1 = self. GROUND_CONTACTS[i][:-1]
+                    if link1 not in draw:
+                        draw.append(link1)
+                        self.change_color(link1 + '5', self.color_collision)
+                for link in self.last_draw:
+                    if link not in draw:
+                        self.change_color(link + '5', self.color_legs)
+
+            elif self.behavior == 'grooming':
+                links_contact = np.where(
+                    np.linalg.norm(
+                        self.collision_forces,
+                        axis=1) > 0)[0]
+                for i in links_contact:
+                    link1 = self.self_collisions[i][0]
+                    link2 = self.self_collisions[i][1]
+                    if link1 not in draw:
+                        draw.append(link1)
+                        self.change_color(link1, self.color_collision)
+                    if link2 not in draw:
+                        draw.append(link2)
+                        self.change_color(link2, self.color_collision)
+                for link in self.last_draw:
+                    if link not in draw:
+                        if 'Antenna' in link:
+                            self.change_color(link, self.color_body)
+                        else:
+                            self.change_color(link, self.color_legs)
+            self.last_draw = draw
+
+    def change_color(self, id, color):
+        """ Change color of a given body segment. """
+        p.changeVisualShape(self.animal, self.link_id[id], rgbaColor=color)
+
     def feedback_to_controller(self):
         """
         Code that glues the sensors/feedback to controller in the system.
         """
 
     def update_parameters(self, params):
-        """ Update parameters. """
+        """ Update parameters. """ d
 
     def optimization_check(self):
         """ Optimization check. """
@@ -92,9 +161,9 @@ class DrosophilaSimulation(BulletSimulation):
 
 def main():
     """ Main """
-    run_time = 4.0
+    run_time = 8.0
     time_step = 0.001
-    behavior = 'walking'
+    behavior = 'grooming'
 
     #: Setting up the collision and ground sensors
     side = ['L', 'R']
@@ -119,20 +188,22 @@ def main():
         p +
         name for s in side for p in pos for name in leg_segments if name != 'Tibia']
 
+    print(self_collision)
     sim_options = {
         "headless": False,
         "model": "../../data/design/sdf/neuromechfly_noLimits.sdf",
-        "model_offset": [0., -0.1e-3, 11.2e-3],
+        "pose": '../../data/config/pose/pose_optimization.yaml',
+        "model_offset": [0., 0, 11.2e-3],
         "run_time": run_time,
         "base_link": 'Thorax',
         "ground_contacts": ground_contact,
         "self_collisions": self_collision,
-        "draw_collisions": False,
+        "draw_collisions": True,
         "record": False,
         'camera_distance': 6.0,
         'track': False,
         'moviename': './videos/kinematic_replay_video.mp4',
-        'moviefps': 80,
+        'moviespeed': 0.2,
         'slow_down': False,
         'sleep_time': 0.001,
         'rot_cam': False,
@@ -144,7 +215,7 @@ def main():
     animal = DrosophilaSimulation(container, sim_options, Kp=0.4, Kv=0.9)
     animal.run(optimization=False)
     animal.container.dump(
-        dump_path="./kinematic_replay",
+        dump_path="./kinematic_replay_walking",
         overwrite=False)
 
 

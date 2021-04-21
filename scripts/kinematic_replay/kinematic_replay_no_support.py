@@ -2,14 +2,13 @@ from NeuroMechFly.simulation.bullet_simulation import BulletSimulation
 from NeuroMechFly.container import Container
 from NeuroMechFly.sdf.units import SimulationUnitScaling
 from random import random
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import pybullet as p
-from IPython import embed
 
 # Random number seed
 np.random.seed(seed=321)
+
 
 def add_perturbation(
         size, initial_position, target_position, time, units
@@ -66,7 +65,7 @@ class DrosophilaSimulation(BulletSimulation):
     ----------
     BulletSimulation : [type]
         [description]
-    """    
+    """
 
     def __init__(
             self, container, sim_options, Kp, Kv,
@@ -83,7 +82,6 @@ class DrosophilaSimulation(BulletSimulation):
             f'../../data/joint_kinematics/{self.behavior}/{self.behavior}_converted_joint_velocities.pkl')
         self.impulse_sign = 1
 
-
     def load_angles(self, data_path):
         """[summary]
 
@@ -96,7 +94,7 @@ class DrosophilaSimulation(BulletSimulation):
         -------
         [type]
             [description]
-        """        
+        """
         try:
             return pd.read_pickle(data_path)
         except BaseException:
@@ -111,7 +109,7 @@ class DrosophilaSimulation(BulletSimulation):
         ----------
         t : [type]
             [description]
-        """       
+        """
 
         if ((t + 1) % 500) == 0:
             print("Adding perturbation")
@@ -198,6 +196,8 @@ class DrosophilaSimulation(BulletSimulation):
                     targetPosition=self.pose[joint],
                 )
 
+
+
     def feedback_to_controller(self):
         """
         Code that glues the sensors/feedback to controller in the system.
@@ -209,9 +209,10 @@ class DrosophilaSimulation(BulletSimulation):
     def optimization_check(self):
         """ Optimization check. """
 
+
 def main():
     """ Main """
-    run_time = 4.0
+    run_time = 8.0
     time_step = 0.001
     behavior = 'walking'
 
@@ -224,7 +225,6 @@ def main():
         p +
         name for s in side for p in pos for name in leg_segments if name != 'Tibia']
 
-
     sim_options = {
         "headless": False,
         "model": "../../data/design/sdf/neuromechfly_noLimits_noSupport.sdf",
@@ -234,12 +234,11 @@ def main():
         "pose": '../../data/config/pose/pose_optimization.yaml',
         "base_link": 'Thorax',
         "ground_contacts": ground_contact,
-        "draw_collisions": False,
         "record": False,
         'camera_distance': 6.0,
         'track': False,
         'moviename': './realtime_noSupport_stiff_legs_release_feedback_2.mp4',
-        'moviefps': 80,
+        'moviespeed': 0.2,
         'slow_down': False,
         'sleep_time': 0.001,
         'rot_cam': False,
