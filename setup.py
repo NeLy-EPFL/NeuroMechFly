@@ -11,6 +11,7 @@ Options.warning_errors = True
 
 # directive_defaults = Cython.Compiler.Options.get_directive_defaults()
 
+# FIXME: Remove this once NeuroMechFly.network is completely deprecated
 extensions = [
     Extension("NeuroMechFly.network.network_generator",
               ["NeuroMechFly/network/network_generator.pyx"],
@@ -37,19 +38,20 @@ setuptools.setup(
     name='NeuroMechFly',
     version='0.1',
     description='Modules to run NeuroMechFly simulation',
-    #url='https://gitlab.com/FARMSIM/farms_network.git',
     author='Neuroengineering Lab.',
     author_email='victor.lobatorios@epfl.ch',
     license='MIT',
     packages=setuptools.find_packages(),
     install_requires=[
-        'farms_pylog',
-        'df3dPostProcessing',
+        'farms_pylog @ git+https://gitlab.com/FARMSIM/farms_pylog.git',
+        'farms_network @ git+https://gitlab.com/FARMSIM/farms_network.git',
+        'farms_container @ git+https://gitlab.com/FARMSIM/farms_container.git',
+        'df3dPostProcessing @ git+https://github.com/NeLy-EPFL/df3dPostProcessing.git',
         'numpy',
         'pandas',
         'matplotlib==3.0.2',
         'networkx==2.3',
-        'pydot',
+        'pydot', # FIXME: Is this needed?
         'ddt',
         'scipy==1.5.4',
         'trimesh',
@@ -57,15 +59,11 @@ setuptools.setup(
         'tqdm',
         'pybullet',
         'PyYAML',
-        'ipython',
+        'ipython', # FIXME: Is this needed?
         'dataclasses',
         'jmetalpy',
         'tables',
         'pillow'
-    ],
-    dependency_links=[
-        'https://gitlab.com/FARMSIM/farms_pylog.git',
-        'https://github.com/NeLy-EPFL/df3dPostProcessing.git'
     ],
     zip_safe=False,
     ext_modules=cythonize(extensions),
