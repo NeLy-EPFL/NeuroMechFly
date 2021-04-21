@@ -12,8 +12,8 @@ class Parameters:
     gamma: float = 0.0
     delta: float = 0.0
     rest_pos: float = 0.0
-    # f_mn_clip: float = 0.0
-    # e_mn_clip: float = 0.0
+    f_mn_clip: float = 0.0
+    e_mn_clip: float = 0.0
 
 
 class SDAntagonistMuscle:
@@ -44,12 +44,12 @@ class SDAntagonistMuscle:
         self.rest_pos = container.muscle.parameters.add_parameter(
             '{}_rest_pos'.format(name), params.rest_pos
         )[0]
-        # self.f_mn_clip = container.muscle.parameters.add_parameter(
-        #     '{}_f_mn_clip'.format(name), params.f_mn_clip
-        # )[0]
-        # self.e_mn_clip = container.muscle.parameters.add_parameter(
-        #     '{}_e_mn_clip'.format(name), params.e_mn_clip
-        # )[0]
+        self.f_mn_clip = container.muscle.parameters.add_parameter(
+            '{}_f_mn_clip'.format(name), params.f_mn_clip
+        )[0]
+        self.e_mn_clip = container.muscle.parameters.add_parameter(
+            '{}_e_mn_clip'.format(name), params.e_mn_clip
+        )[0]
         self.flexor_act = container.muscle.outputs.add_parameter(
             '{}_flexor_act'.format(name)
         )[0]
@@ -80,8 +80,8 @@ class SDAntagonistMuscle:
         self.gamma.value = params.gamma
         self.delta.value = params.delta
         self.rest_pos.value = params.rest_pos
-        # self.f_mn_clip.value = params.f_mn_clip
-        # self.e_mn_clip.value = params.e_mn_clip
+        self.f_mn_clip.value = params.f_mn_clip
+        self.e_mn_clip.value = params.e_mn_clip
 
     def compute_torque(self, only_passive=False):
         """ Compute joint torque. """

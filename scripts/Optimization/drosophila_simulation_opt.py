@@ -5,16 +5,8 @@ from NeuroMechFly.container import Container
 from NeuroMechFly.control.spring_damper_muscles import Parameters, SDAntagonistMuscle
 
 import farms_pylog as pylog
-
-import os
-import pickle
-import time
 import argparse
-
 import numpy as np
-import pandas as pd
-from IPython import embed
-
 import pybullet as p
 import pybullet_data
 
@@ -120,13 +112,9 @@ class DrosophilaSimulation(BulletSimulation):
         self.debug = p.addUserDebugParameter('debug', -1, 1, 0.0)
 
         ########## Data variables ###########
-        self.torques = []
-        self.grf = []
-        # self.collision_forces=[]
-        self.ball_rot = []
         self.stability_coef = 0
         self.stance_count = 0
-        self.lastDraw = []
+        self.last_draw = []
         self.check_is_all_legs = np.asarray(
             [False
              for leg in self.feet_links
@@ -183,35 +171,26 @@ class DrosophilaSimulation(BulletSimulation):
         self.muscle_controller()
         self.fixed_joints_controller()
 
-        if t % 10 == 0:
-            jointTorques = np.array(self.joint_torques)
-            # print(jointTorques.shape)
-            self.torques.append(jointTorques)
-        '''
-        if t%10 == 0:
-            grf = self.ball_reaction_forces()
+        #: Change the color of the colliding body segments
+        if self.draw_collisions:
+            draw = []
+            links_contact = np.where(
+                np.linalg.norm(
+                    self.ground_reaction_forces,
+                    axis=1) > 0)[0]
+            for i in links_contact:
+                link1 = self.GROUND_CONTACTS[i][:-1]
+                if link1 not in draw:
+                    draw.append(link1)
+                    self.change_color(link1 + '5', self.color_collision)
+            for link in self.last_draw:
+                if link not in draw:
+                    self.change_color(link + '5', self.color_legs)
+            self.last_draw = draw
 
-            if self.draw_collisions:
-                ind = np.where(np.array(grf).transpose()[0]>0)[0]
-                draw=[]
-                for i in ind:
-                    link1 = self.ground_contacts[i][:-1]
-                    if link1 not in draw:
-                        draw.append(link1)
-                        p.changeVisualShape(self.animal, self.link_id[link1+'5'],rgbaColor=self.color_collision)
-                for link in self.lastDraw:
-                    if link not in draw:
-                        p.changeVisualShape(self.animal, self.link_id[link+'5'], rgbaColor=self.color_legs)
-
-                self.lastDraw = draw
-            self.grf.append(grf)
-            '''
-        if t % 10 == 0:
-            ball_rot = np.array(self.ball_rotations)
-            ball_rot[:2] = ball_rot[:2] * \
-                self.ball_radius * 10  # Distance in mm
-            self.ball_rot.append(ball_rot)
-            # print(ball_rot)
+    def change_color(self, id, color):
+        """ Change color of a given body segment. """
+        p.changeVisualShape(self.animal, self.link_id[id], rgbaColor=color)
 
     def feedback_to_controller(self):
         """ Implementation of abstractmethod. """
@@ -376,8 +355,6 @@ class DrosophilaSimulation(BulletSimulation):
                             side, pos, from_node, action)
                         node_2 = "joint_{}{}{}_{}".format(
                             side, pos, to_node, action)
-                        #print(node_1, node_2, 4*j0 + 2*j1 + j2)
-                        # print(len(opti_joint_phases))
                         parameters.get_parameter(
                             'phi_{}_to_{}'.format(node_1, node_2)
                         ).value = opti_joint_phases[4 * j0 + 2 * j1 + j2]
@@ -385,107 +362,31 @@ class DrosophilaSimulation(BulletSimulation):
                             'phi_{}_to_{}'.format(node_2, node_1)
                         ).value = -1 * opti_joint_phases[4 * j0 + 2 * j1 + j2]
 
-                #node_1 = "joint_{}{}{}_{}".format(side, pos, coxa_label, 'flexion')
-                #node_2 = "joint_{}{}{}_{}".format(side, pos, coxa_label, 'extension')
-                # print(node_1,node_2)
-                # print()
-                # parameters.get_parameter(
-                #    'phi_{}_to_{}'.format(node_1, node_2)
-                # ).value = opti_antagonist_phases[j0]
-                # parameters.get_parameter(
-                #    'phi_{}_to_{}'.format(node_2, node_1)
-                # ).value = -1*opti_antagonist_phases[j0]
+        if len(params)>75:
+            coxae_edges =[
+                 ['LFCoxa', 'RFCoxa'],
+                 ['LFCoxa', 'RMCoxa_roll'],
+                 ['RMCoxa_roll', 'LHCoxa_roll'],
+                 ['RFCoxa', 'LMCoxa_roll'],
+                 ['LMCoxa_roll', 'RHCoxa_roll']
+             ]
 
-        # coxae_edges =[
-        #     ['LFCoxa', 'RFCoxa'],
-        #     ['LFCoxa', 'RMCoxa_roll'],
-        #     ['RMCoxa_roll', 'LHCoxa_roll'],
-        #     ['RFCoxa', 'LMCoxa_roll'],
-        #     ['LMCoxa_roll', 'RHCoxa_roll']
-        # ]
-
-        # for j1, ed in enumerate(coxae_edges):
-        #     for j2, action in enumerate(('flexion', 'extension')):
-        #         node_1 = "joint_{}_{}".format(ed[0], action)
-        #         node_2 = "joint_{}_{}".format(ed[1], action)
-        #         #print(node_1, node_2, j1)
-        #         parameters.get_parameter(
-        #             'phi_{}_to_{}'.format(node_1, node_2)
-        #         ).value = opti_base_phases[j1]
-        #         parameters.get_parameter(
-        #             'phi_{}_to_{}'.format(node_2, node_1)
-        #         ).value = -1*opti_base_phases[j1]
+            for j1, ed in enumerate(coxae_edges):
+                for j2, action in enumerate(('flexion', 'extension')):
+                    node_1 = "joint_{}_{}".format(ed[0], action)
+                    node_2 = "joint_{}_{}".format(ed[1], action)
+                    #print(node_1, node_2, j1)
+                    parameters.get_parameter(
+                        'phi_{}_to_{}'.format(node_1, node_2)
+                    ).value = opti_base_phases[j1]
+                    parameters.get_parameter(
+                        'phi_{}_to_{}'.format(node_2, node_1)
+                    ).value = -1*opti_base_phases[j1]
 
 
 def read_optimization_results(fun, var):
     """ Read optimization results. """
     return (np.loadtxt(fun), np.loadtxt(var))
-
-
-def save_data(fly, filename, exp=''):
-    torques_dict = {}
-    grf_dict = {}
-    collisions_dict = {}
-    data_torque = np.array(fly.torques).transpose()
-    data_grf = np.array(fly.grf).transpose((1, 0, 2))
-    #data_collisions = np.array(fly.collision_forces).transpose((1, 0, 2))
-    currentDirectory = os.getcwd()
-
-    # for i, joint in enumerate(fly.joint_id.keys()):
-    #    torques_dict[joint] = data_torque[i]
-
-    for i, joint in enumerate(fly.ground_contacts):
-        grf_dict[joint] = data_grf[i]
-
-    path_muscles = os.path.join(currentDirectory, 'Results/muscle/outputs.h5')
-    path_joint_pos = os.path.join(
-        currentDirectory,
-        'Results/physics/joint_positions.h5')
-
-    path_angles = os.path.join(currentDirectory, 'Output_data', 'angles', exp)
-    path_act = os.path.join(currentDirectory, 'Output_data', 'muscles', exp)
-    path_grf = os.path.join(currentDirectory, 'Output_data', 'grf', exp)
-    path_ball_rot = os.path.join(
-        currentDirectory,
-        'Output_data',
-        'ballRotations',
-        exp)
-
-    if not os.path.exists(path_angles):
-        os.makedirs(path_angles)
-    if not os.path.exists(path_act):
-        os.makedirs(path_act)
-    if not os.path.exists(path_grf):
-        os.makedirs(path_grf)
-    if not os.path.exists(path_ball_rot):
-        os.makedirs(path_ball_rot)
-
-    # with open(path_torque+'/torques_'+filename,'wb') as f:
-    #    pickle.dump(torques_dict,f)
-
-    with open(path_grf + '/grf_' + filename + '.pkl', 'wb') as f:
-        pickle.dump(grf_dict, f)
-
-    with open(path_ball_rot + '/ballRot_' + filename + '.pkl', 'wb') as f:
-        pickle.dump(fly.ball_rot, f)
-
-    muscles_data = pd.read_hdf(path_muscles)
-    muscles_data.to_hdf(
-        path_act +
-        '/outputs_' +
-        filename +
-        '.h5',
-        'muscles',
-        mode='w')
-
-    angles_data = pd.read_hdf(path_joint_pos)
-    angles_data.to_hdf(
-        path_angles +
-        '/jointpos_' +
-        filename +
-        '.h5',
-        'angles',
-        mode='w')
 
 
 def parse_args():
@@ -611,12 +512,6 @@ def main():
     container = Container(clargs.runtime / clargs.timestep)
     animal = DrosophilaSimulation(container, sim_options)
 
-    #: read results
-
-    # fun, var = read_optimization_results(
-    #    "./sim_files/fun/FUN_last_good.ged3",
-    #    "./sim_files/var/VAR_last_good.ged3"
-    # )
     '''
     fun, var = read_optimization_results(
         "./optimization_results/"+exp+"/FUN."+gen,
@@ -634,23 +529,16 @@ def main():
         "./VAR.txt",
     )
     '''
-    # fun, var = read_optimization_results(
-    #     "./optimization_results/run_Drosophila_var_80_obj_2_pop_10_gen_4_0412_0316/FUN.3",
-    #     "./optimization_results/run_Drosophila_var_80_obj_2_pop_10_gen_4_0412_0316/VAR.3",
-    # )
 
     params = var[np.argmax(fun[:, 0] * fun[:, 1])]
-    # params = var[np.argmin(fun[:,0])]
     params = np.array(params)
     animal.update_parameters(params)
 
     animal.run(optimization=False)
-    animal.container.dump(overwrite=True)
-
-    #name_data = 'optimization_gen_'+ gen
-
-    # save_data(animal,name_data,exp)
-
+    animal.container.dump(
+        dump_path=f"./optimization_{exp}_gen_{gen}",
+        overwrite=True
+        )
 
 if __name__ == '__main__':
     main()
