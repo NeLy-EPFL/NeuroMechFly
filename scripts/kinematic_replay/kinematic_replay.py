@@ -153,7 +153,7 @@ class DrosophilaSimulation(BulletSimulation):
         """
 
     def update_parameters(self, params):
-        """ Update parameters. """ d
+        """ Update parameters. """ 
 
     def optimization_check(self):
         """ Optimization check. """
@@ -163,7 +163,7 @@ def main():
     """ Main """
     run_time = 8.0
     time_step = 0.001
-    behavior = 'grooming'
+    behavior = 'walking'
 
     #: Setting up the collision and ground sensors
     side = ['L', 'R']
@@ -188,7 +188,6 @@ def main():
         p +
         name for s in side for p in pos for name in leg_segments if name != 'Tibia']
 
-    print(self_collision)
     sim_options = {
         "headless": False,
         "model": "../../data/design/sdf/neuromechfly_noLimits.sdf",
@@ -215,7 +214,7 @@ def main():
     animal = DrosophilaSimulation(container, sim_options, Kp=0.4, Kv=0.9)
     animal.run(optimization=False)
     animal.container.dump(
-        dump_path="./kinematic_replay_walking",
+        dump_path=f"./kinematic_replay_{behavior}",
         overwrite=False)
 
 
