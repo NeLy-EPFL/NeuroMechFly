@@ -32,9 +32,9 @@ class DrosophilaSimulation(BulletSimulation):
         self.pose = [0] * self.num_joints
         self.vel = [0] * self.num_joints
         self.angles = self.load_angles(
-            f'../../data/joint_kinematics/{self.behavior}/{self.behavior}_converted_joint_angles.pkl')
+            f'../data/joint_kinematics/{self.behavior}/{self.behavior}_converted_joint_angles.pkl')
         self.velocities = self.load_angles(
-            f'../../data/joint_kinematics/{self.behavior}/{self.behavior}_converted_joint_velocities.pkl')
+            f'../data/joint_kinematics/{self.behavior}/{self.behavior}_converted_joint_velocities.pkl')
 
     def load_angles(self, data_path):
         """[summary]
@@ -190,8 +190,8 @@ def main():
 
     sim_options = {
         "headless": False,
-        "model": "../../data/design/sdf/neuromechfly_noLimits.sdf",
-        "pose": '../../data/config/pose/pose_optimization_2.yaml',
+        "model": "../data/design/sdf/neuromechfly_noLimits.sdf",
+        "pose": '../data/config/pose/pose_optimization_2.yaml',
         "model_offset": [0., 0, 11.2e-3],
         "run_time": run_time,
         "base_link": 'Thorax',

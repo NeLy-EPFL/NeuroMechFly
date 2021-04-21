@@ -523,7 +523,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                          linearDamping=0.0,
                          restitution=1.0)
         texture_ball = p.loadTexture(
-            '../../data/design/textures/ball/chequered_0048.jpg')
+            '../data/design/textures/ball/chequered_0048.jpg')
         p.changeVisualShape(
             sphere_id,
             2,
