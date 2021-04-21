@@ -1,4 +1,4 @@
-from NeuroMechFly.experiments.kinematic_replay.kinematic_replay import DrosophilaSimulation
+from NeuroMechFly.experiments.kinematic_replay import kinematic_replay
 from NeuroMechFly.container import Container
 
 if __name__ == "__main__":
@@ -52,7 +52,7 @@ if __name__ == "__main__":
     }
 
     container = Container(run_time / time_step)
-    animal = DrosophilaSimulation(container, sim_options, Kp=0.4, Kv=0.9)
+    animal = kinematic_replay.DrosophilaSimulation(container, sim_options, Kp=0.4, Kv=0.9)
     animal.run(optimization=False)
     animal.container.dump(
         dump_path=f"./kinematic_replay_{behavior}",
