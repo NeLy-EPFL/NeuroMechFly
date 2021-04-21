@@ -1,22 +1,22 @@
 """Optimisation simulation"""
+from NeuroMechFly.simulation.bullet_simulation import BulletSimulation
+from NeuroMechFly.sdf.units import SimulationUnitScaling
+from NeuroMechFly.container import Container
+from spring_damper_muscles import Parameters, SDAntagonistMuscle
+
+import farms_pylog as pylog
 
 import os
 import pickle
 import time
 import argparse
 
-import farms_pylog as pylog
 import numpy as np
 import pandas as pd
 from IPython import embed
 
 import pybullet as p
 import pybullet_data
-from bullet_simulation_opt import BulletSimulation
-from NeuroMechFly.container import Container
-from NeuroMechFly.sdf.units import SimulationUnitScaling
-from spring_damper_muscles import Parameters, SDAntagonistMuscle
-
 
 class DrosophilaSimulation(BulletSimulation):
     """Drosophila Simulation Class
@@ -117,7 +117,7 @@ class DrosophilaSimulation(BulletSimulation):
         ########## Data variables ###########
         self.torques=[]
         self.grf=[]
-        self.collision_forces=[]
+        #self.collision_forces=[]
         self.ball_rot=[]
         self.stability_coef = 0
         self.stance_count = 0
@@ -141,7 +141,7 @@ class DrosophilaSimulation(BulletSimulation):
             )
 
 
-def fixed_joints_controller(self):
+    def fixed_joints_controller(self):
         """Controller for fixed joints"""
         for joint in range(self.num_joints):
             joint_name = [name for name, ind_num in self.joint_id.items() if joint == ind_num][0]
@@ -237,12 +237,13 @@ def fixed_joints_controller(self):
         self.fixed_joints_controller()
 
         if t%10 == 0:
-            jointTorques = np.array(self.joint_torques())
+            jointTorques = np.array(self.joint_torques)
             #print(jointTorques.shape)
             self.torques.append(jointTorques)
-
+        '''
         if t%10 == 0:
             grf = self.ball_reaction_forces()
+            
             if self.draw_collisions:
                 ind = np.where(np.array(grf).transpose()[0]>0)[0]
                 draw=[]
@@ -257,9 +258,9 @@ def fixed_joints_controller(self):
 
                 self.lastDraw = draw
             self.grf.append(grf)
-
+            '''
         if t%10 == 0:
-            ball_rot = np.array(self.ball_rotations())
+            ball_rot = np.array(self.ball_rotations)
             ball_rot[:2] = ball_rot[:2]*self.ball_radius*10 # Distance in mm
             self.ball_rot.append(ball_rot)
             #print(ball_rot)
@@ -279,7 +280,7 @@ def fixed_joints_controller(self):
     def ball_reaction_forces(self):
         """Get the ground reaction forces.  """
         return list(
-            map(self._get_contact_force_ball, self.ground_sensors.values())
+            map(self._get_contact_normal_force, self.ground_sensors.values())
         )
 
 
@@ -332,7 +333,7 @@ def fixed_joints_controller(self):
     def is_lava(self):
         """ State of lava approaching the model. """
         #return (self.distance_y < (((self.TIME)/self.RUN_TIME)*2)-0.25)
-        ball_rot = np.array(self.ball_rotations())
+        ball_rot = np.array(self.ball_rotations)
         dist_traveled = -ball_rot[0]*self.ball_radius # Distance in mm
         # ball_rot_speed = -ball_rot[0]/self.time
         #print(dist_traveled)
@@ -657,9 +658,10 @@ def main():
         'track': False,
         'moviename': 'stability_'+exp+'_gen_'+gen+'.mp4',
         'moviefps': 50,
-        'slow_down': False,
-        'sleep_time': 10.0,
-        'rot_cam': False
+        'slow_down': True,
+        'sleep_time': 0.001,
+        'rot_cam': False,
+        'ground': 'ball'
         }
 
     container = Container(clargs.runtime/clargs.timestep)
@@ -679,8 +681,8 @@ def main():
     '''
 
     fun, var = read_optimization_results(
-        "./release/run_Drosophila_var_80_obj_2_pop_100_gen_30_0411_1725/FUN.29",
-        "./release/run_Drosophila_var_80_obj_2_pop_100_gen_30_0411_1725/VAR.29",
+        "./FUN.ged3",
+        "./VAR.ged3"
     )
 
     fun, var = read_optimization_results(
@@ -701,9 +703,9 @@ def main():
     animal.run(optimization=False)
     animal.container.dump(overwrite=True)
 
-    name_data = 'optimization_gen_'+ gen
+    #name_data = 'optimization_gen_'+ gen
 
-    save_data(animal,name_data,exp)
+    #save_data(animal,name_data,exp)
 
 if __name__ == '__main__':
     main()
