@@ -21,7 +21,7 @@ from jmetal.util.solution import (print_function_values_to_file,
                                   print_variables_to_file)
 from jmetal.util.termination_criterion import StoppingByEvaluations
 
-from drosophila_simulation_opt import DrosophilaSimulation
+from neuromuscular_control import DrosophilaSimulation
 from NeuroMechFly.container import Container
 
 LOGGER = logging.getLogger('jmetal')
