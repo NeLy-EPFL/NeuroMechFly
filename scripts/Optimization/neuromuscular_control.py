@@ -198,7 +198,7 @@ class DrosophilaSimulation(BulletSimulation):
 
     def stance_polygon_dist(self):
         contact_segments = [
-            leg for leg in self.feet_links if self.is_contact_ball(leg)]
+            leg for leg in self.feet_links if self.is_contact(leg)]
         contact_legs = []
         sum_x = 0
         sum_y = 0
@@ -232,7 +232,7 @@ class DrosophilaSimulation(BulletSimulation):
     def is_using_all_legs(self):
         """Check if the fly uses all its legs to locomote"""
         contact_segments = [
-            self.is_contact_ball(leg)
+            self.is_contact(leg)
             for leg in self.feet_links
             if "Tarsus5" in leg
         ]
@@ -256,7 +256,7 @@ class DrosophilaSimulation(BulletSimulation):
         """ Check if certain links touch. """
         return np.any(
             [
-                self.is_contact_ball(link)
+                self.is_contact(link)
                 for link in self.link_id.keys()
                 if 'Tarsus' not in link
             ]
@@ -297,8 +297,8 @@ class DrosophilaSimulation(BulletSimulation):
         edges_joints = int(self.controller.graph.number_of_nodes() / 3)
         edges_anta = int(self.controller.graph.number_of_nodes() / 12)
 
-        opti_active_muscle_gains = params[:5 * N]
-        opti_joint_phases = params[5 * N:5 * N + edges_joints]
+        opti_active_muscle_gains = params[:7 * N]
+        opti_joint_phases = params[7 * N:7 * N + edges_joints]
         #opti_antagonist_phases = params[6*N+edges_joints:6*N+edges_joints+edges_anta]
         #opti_base_phases = params[6*N+edges_joints+edges_anta:]
 
@@ -322,14 +322,14 @@ class DrosophilaSimulation(BulletSimulation):
             #print(joint,joint.replace('L', 'R', 1),6*j,6*(j+1))
             # print(joint, Parameters(*opti_active_muscle_gains[7*j:7*(j+1)]))
             self.active_muscles[joint.replace('L', 'R', 1)].update_parameters(
-                Parameters(*opti_active_muscle_gains[5 * j:5 * (j + 1)])
+                Parameters(*opti_active_muscle_gains[7 * j:7 * (j + 1)])
             )
             #: It is important to mirror the joint angles for rest position
             #: especially for coxa
             if "Coxa_roll" in joint:
-                opti_active_muscle_gains[(5 * j) + 4] *= -1
+                opti_active_muscle_gains[(7 * j) + 4] *= -1
             self.active_muscles[joint].update_parameters(
-                Parameters(*opti_active_muscle_gains[5 * j:5 * (j + 1)])
+                Parameters(*opti_active_muscle_gains[7 * j:7 * (j + 1)])
             )
         #: Update phases
         #: Edges to set phases for
@@ -361,8 +361,9 @@ class DrosophilaSimulation(BulletSimulation):
                         parameters.get_parameter(
                             'phi_{}_to_{}'.format(node_2, node_1)
                         ).value = -1 * opti_joint_phases[4 * j0 + 2 * j1 + j2]
-
+        '''
         if len(params)>75:
+            opti_base_phases = params[5*N+edges_joints+edges_anta:]
             coxae_edges =[
                  ['LFCoxa', 'RFCoxa'],
                  ['LFCoxa', 'RMCoxa_roll'],
@@ -382,7 +383,7 @@ class DrosophilaSimulation(BulletSimulation):
                     parameters.get_parameter(
                         'phi_{}_to_{}'.format(node_2, node_1)
                     ).value = -1*opti_base_phases[j1]
-
+        '''
 
 def read_optimization_results(fun, var):
     """ Read optimization results. """

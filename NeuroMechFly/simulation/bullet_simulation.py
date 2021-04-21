@@ -55,7 +55,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         self.MOVIE_NAME = kwargs.get('moviename', 'default_movie.mp4')
         self.MOVIE_SPEED = kwargs.get('moviespeed', 1)
         self.ROTATE_CAMERA = kwargs.get('rot_cam', False)
-        self.behavior = kwargs.get('behavior', 'walking')
+        self.behavior = kwargs.get('behavior', None)
         self.GROUND = kwargs.get('ground', 'ball')
         self.self_collisions = kwargs.get('self_collisions', [])
         self.draw_collisions = kwargs.get('draw_collisions', False)
@@ -118,7 +118,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
 
     def __del__(self):
         print('Simulation has ended')
-        # p.disconnect()
+        p.disconnect()
 
     def rendering(self, render=1):
         """Enable/disable rendering"""
@@ -404,7 +404,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                     targetValue=_pose
                 )
         else:
-            return None
+            return None        
 
     def _get_contact_normal_force(self, link_id):
         """ Compute ground reaction force. """
@@ -454,7 +454,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             if c else self.ZEROS_3x1
         collision_force = self.normal * self.normal_dir
         #print(force)
-        return collision_force / self.units.newtons
+        return collision_force[2] / self.units.newtons
 
     def is_contact(self, link_name):
         """ Check if link is in contact with floor or ball. """
@@ -465,8 +465,8 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         ) else False
 
     def get_link_position(self, link_name):
-        return (p.getLinkState(self.animal, self.link_id[link_name]))[
-            0] / self.units.meters
+        # FIXME: units
+        return (p.getLinkState(self.animal, self.link_id[link_name]))[0] 
 
     def add_ball(self, r):
         """ Create a ball of radius r. """
@@ -482,6 +482,9 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         elif self.behavior == 'grooming':
             base_position = np.array(
                 [0.0e-3, 0.0e-3, -5e-3]) * self.units.meters + self.MODEL_OFFSET
+        else:
+            base_position = np.array(
+                [-0.05e-3, 0.0e-3, -5.09e-3]) * self.units.meters + self.MODEL_OFFSET
 
         base_orientation = [0, 0, 0, 1]
         link_masses = np.array([1e-11,1e-11,1e-11])*self.units.kilograms
@@ -670,7 +673,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         #self.sim_data.thorax_force.values = np.asarray(
         #    self.get_thorax_force).flatten()
         self.sim_data.collision_forces.values = np.asarray(
-            np.linalg.norm(self.collision_forces, axis=1)).flatten()
+            self.collision_forces).flatten()
         self.sim_data.ground_contacts.values = np.asarray(
             self.ground_reaction_forces).flatten()
         self.sim_data.ground_friction_dir1.values = np.asarray(
