@@ -40,6 +40,7 @@ If you find NeuroMechFly useful in your research, please consider citing us!
 
 ## Running the experiments 
 Before running the scripts please make sure that you activate the virtual environment by running the following on the command line:
+
 ```$ conda activate neuromechfly```
 
 **1. Kinematic Matching**
