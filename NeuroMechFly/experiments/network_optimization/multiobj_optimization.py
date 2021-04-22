@@ -21,7 +21,7 @@ from jmetal.util.solution import (print_function_values_to_file,
                                   print_variables_to_file)
 from jmetal.util.termination_criterion import StoppingByEvaluations
 
-from neuromuscular_control import DrosophilaSimulation
+from NeuroMechFly.experiments.network_optimization.neuromuscular_control import DrosophilaSimulation
 from NeuroMechFly.container import Container
 
 LOGGER = logging.getLogger('jmetal')
@@ -210,12 +210,12 @@ class DrosophilaEvolution(FloatProblem):
         time_step = 0.001
         sim_options = {
             "headless": True,
-            "model": "../../data/design/sdf/neuromechfly_limitsFromData_minMax.sdf",
+            "model": "../data/design/sdf/neuromechfly_limitsFromData_minMax.sdf",
             "model_offset": [0., 0., 11.2e-3],
-            "pose": "../../data/config/pose/test_pose_tripod.yaml",
+            "pose": "../data/config/pose/test_pose_tripod.yaml",
             "run_time": run_time,
             "base_link": 'Thorax',
-            "controller": '../../data/config/network/locomotion_ball.graphml',
+            "controller": '../data/config/network/locomotion_ball.graphml',
         }
         container = Container(run_time/time_step)
         fly = DrosophilaSimulation(container, sim_options)
