@@ -1,7 +1,7 @@
 # NeuroMechFly
 
 <p align="center">
-  <img align="center" width="600" src="https://github.com/NeLy-EPFL/NeuroMechFly/blob/675d9ae07db1c3899926b1bbaf447230f7737ad0/docs/NeuroMechFly.gif">
+  <img align="center" width="600" src="https://github.com/NeLy-EPFL/NeuroMechFly/blob/f6464a158958077c37845695ba37204fbc8f062a/docs/NeuroMechFly.gif">
 </p>
 
 **NeuroMechFly** is a data-driven computational simulation of adult *Drosophila* designed to synthesize rapidly growing experimental datasets and to test theories of neuromechanical behavioral control. Specifically, you can use NeuroMechFly to:
@@ -43,6 +43,11 @@ Before running the scripts please make sure that you activate the virtual enviro
 ```$ conda activate neuromechfly```
 
 **1. Kinematic Matching**
+<p align="center">
+  <img src="https://github.com/NeLy-EPFL/NeuroMechFly/blob/f6464a158958077c37845695ba37204fbc8f062a/docs/km_grooming.gif" width="330" />
+  <img src="https://github.com/NeLy-EPFL/NeuroMechFly/blob/f6464a158958077c37845695ba37204fbc8f062a/docs/km_walking.gif" width="330" /> 
+</p>
+
 - Make sure in */data* folder, there are */walking/df3d* and *grooming/df3d* folders that contain a .pkl file starting with "joint_angles_..".
 - Navigate to */scripts/KM* folder.
 - Run ```$ python kinematicMatching_noSelfCollisions.py``` for simulating the locomotion behavior. 
