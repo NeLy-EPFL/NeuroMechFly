@@ -106,7 +106,7 @@ class DrosophilaEvolution(FloatProblem):
     """Documentation for DrosophilaEvolution"""
     def __init__(self):
         super(DrosophilaEvolution, self).__init__()
-        self.number_of_variables = 57
+        self.number_of_variables = 62
         self.number_of_objectives = 2
         self.number_of_constraints = 0
 
@@ -145,7 +145,7 @@ class DrosophilaEvolution(FloatProblem):
                 np.asarray(
                     [
                     # Front
-                    [1e0, 1e0, 1e0, 1e-3, 0.69], # Coxa
+                    [1e0, 1e0, 1e0, 1e-3, 0.49], # Coxa
                     [1e0, 1e0, 1e0, 1e-3, -1.3], # Femur
                     [1e-1, 1e-1, 1e-1, 1e-3, 2.19], # Tibia
                     # Mid
@@ -227,9 +227,9 @@ class DrosophilaEvolution(FloatProblem):
 
         #: Phases
         lower_bound_phases = np.ones(
-            (12,))*-np.pi
+            (17,))*-np.pi
         upper_bound_phases = np.ones(
-            (12,))*np.pi
+            (17,))*np.pi
 
         self.lower_bound = np.hstack(
             (
@@ -278,7 +278,7 @@ class DrosophilaEvolution(FloatProblem):
         time_step = 0.001
         sim_options = {
             "headless": True,
-            "model": "../../design/sdf/neuromechfly_limitsFromData_minMax.sdf",
+            "model": "../../design/sdf/neuromechfly_limitsFromData_relaxed.sdf",
             "model_offset": [0., 0., 11.2e-3],
             "pose": "../../config/test_pose_tripod.yaml",
             #"pose": "../../config/pose_optimization.yaml",
@@ -336,7 +336,7 @@ class DrosophilaEvolution(FloatProblem):
 
             # Penalties
             penalty_time = (
-                1e0 + 1e0*(fly.run_time - fly.time)/fly.run_time
+                1e1 + 1e1*(fly.run_time - fly.time)/fly.run_time
                 if (lava or flying or touch or velocity_cap)
                 else 0.0
             )
@@ -369,6 +369,7 @@ class DrosophilaEvolution(FloatProblem):
                 "OBJECTIVES\n===========\n\
                     Distance: {} \n \
                     Activations: {} \n \
+                    Stability: {} \n \
                 PENALTIES\n=========\n \
                     Penalty linearity: {} \n \
                     Penalty time: {} \n \
@@ -376,8 +377,9 @@ class DrosophilaEvolution(FloatProblem):
                     Penalty time stance: {} \n \
                     Penalty all legs: {} \n \
                 ".format(
-                    -distance,
+                    -2e3*distance,
                     act,
+                    2e3*stability,
                     penalty_linearity,
                     penalty_time,
                     penalty_dist,
@@ -387,21 +389,21 @@ class DrosophilaEvolution(FloatProblem):
                 )
 
             solution.objectives[0] = (
-                -distance
-                + penalty_all_legs
-               # + penalty_linearity
-               # + penalty_time
-            )
-            solution.objectives[1] = (
-                act
-                # + penalty_all_legs**2
+                -2e1*distance
+                #+ penalty_all_legs
+                #+ penalty_linearity
                 + penalty_time
             )
-            # solution.objectives[1] = (
-            #     2e3*stability
-            #     + penalty_dist
-            #     + penalty_time_stance
-            # )
+            #solution.objectives[1] = (
+            #    act
+                # + penalty_all_legs**2
+            #    + penalty_time
+            #)
+            solution.objectives[1] = (
+                2e3*stability
+                #+ penalty_dist
+                + penalty_time_stance
+            )
         else:
             # Torques
             # torque_sum = (np.sum(
@@ -438,13 +440,13 @@ def parse_args(problem):
     parser.add_argument(
         '--n_pop',
         type=int,
-        default=10,
+        default=20,
         help='Population size',
     )
     parser.add_argument(
         '--n_gen',
         type=int,
-        default=4,
+        default=100,
         help='Number of generations',
     )
     parser.add_argument(

@@ -9,7 +9,7 @@ import farms_pylog as pylog
 import numpy as np
 import pandas as pd
 from IPython import embed
-
+import matplotlib.pyplot as plt
 import pybullet as p
 import pybullet_data
 from bullet_simulation_opt import BulletSimulation
@@ -141,94 +141,94 @@ class DrosophilaSimulation(BulletSimulation):
             )
 
 
-def fixed_joints_controller(self):
-        """Controller for fixed joints"""
-        for joint in range(self.num_joints):
-            joint_name = [name for name, ind_num in self.joint_id.items() if joint == ind_num][0]
-            if joint_name not in self.actuated_joints:# and 'support' not in joint_name:
-                if joint_name == 'joint_A3' or joint_name == 'joint_A4' or joint_name == 'joint_A5' or joint_name == 'joint_A6':
-                    pos = np.deg2rad(-15)
-                elif joint_name == 'joint_LAntenna':
-                    pos = np.deg2rad(35)
-                elif joint_name == 'joint_RAntenna':
-                    pos = np.deg2rad(-35)
-                elif joint_name == 'joint_Rostrum' or joint_name == 'joint_LWing_roll':
-                    pos = np.deg2rad(90)
-                elif joint_name == 'joint_Haustellum':
-                    pos = np.deg2rad(-60)
-                elif joint_name == 'joint_RWing_roll':
-                    pos = np.deg2rad(-90)
-                elif joint_name == 'joint_LWing_yaw':
-                    pos = np.deg2rad(-17)
-                elif joint_name == 'joint_RWing_yaw':
-                    pos = np.deg2rad(17)
-                elif joint_name == 'joint_Head':
-                    pos = np.deg2rad(10)
-                #elif joint_name == 'joint_LFCoxa_yaw':
-                #    pos = np.deg2rad(-5)
-                #elif joint_name == 'joint_RFCoxa_yaw':
-                #    pos = np.deg2rad(5)
-                elif joint_name == 'joint_LFCoxa_roll':
-                    pos = np.deg2rad(10)
-                elif joint_name == 'joint_RFCoxa_roll':
-                    pos = np.deg2rad(-10)
-                #elif joint_name == 'joint_LFFemur_roll':
-                #    pos = np.deg2rad(-26)
-                #elif joint_name == 'joint_RFFemur_roll':
-                #    pos = np.deg2rad(26)
-                elif joint_name == 'joint_LFTarsus1':
-                    pos = np.deg2rad(-46) #43
-                elif joint_name == 'joint_RFTarsus1':
-                    pos = np.deg2rad(-46) #49
-                elif joint_name == 'joint_LMCoxa_yaw':
-                    pos = np.deg2rad(2) #4
-                elif joint_name == 'joint_RMCoxa_yaw':
-                    pos = np.deg2rad(2) #4
-                elif joint_name == 'joint_LMCoxa':
-                    pos = np.deg2rad(-3) #-2
-                elif joint_name == 'joint_RMCoxa':
-                    pos = np.deg2rad(-3) #-4.5
-                #elif joint_name == 'joint_LMFemur_roll':
-                #    pos = np.deg2rad(-7)
-                #elif joint_name == 'joint_RMFemur_roll':
-                #    pos = np.deg2rad(7)
-                elif joint_name == 'joint_LMTarsus1':
-                    pos = np.deg2rad(-56) #-52
-                elif joint_name == 'joint_RMTarsus1':
-                    pos = np.deg2rad(-56)
-                elif joint_name == 'joint_LHCoxa_yaw':
-                    pos = np.deg2rad(3)
-                elif joint_name == 'joint_RHCoxa_yaw':
-                    pos = np.deg2rad(3) #6.2
-                elif joint_name == 'joint_LHCoxa':
-                    pos = np.deg2rad(11) #13
-                elif joint_name == 'joint_RHCoxa':
-                    pos = np.deg2rad(11)
-                #elif joint_name == 'joint_LHFemur_roll':
-                #    pos = np.deg2rad(9)
-                #elif joint_name == 'joint_RHFemur_roll':
-                #    pos = np.deg2rad(-9)
-                elif joint_name == 'joint_LHTarsus1':
-                    pos = np.deg2rad(-50) #-45
-                elif joint_name == 'joint_RHTarsus1':
-                    pos = np.deg2rad(-50)
-                else:
-                    pos = 0
+    def fixed_joints_controller(self):
+            """Controller for fixed joints"""
+            for joint in range(self.num_joints):
+                joint_name = [name for name, ind_num in self.joint_id.items() if joint == ind_num][0]
+                if joint_name not in self.actuated_joints:# and 'support' not in joint_name:
+                    if joint_name == 'joint_A3' or joint_name == 'joint_A4' or joint_name == 'joint_A5' or joint_name == 'joint_A6':
+                        pos = np.deg2rad(-15)
+                    elif joint_name == 'joint_LAntenna':
+                        pos = np.deg2rad(35)
+                    elif joint_name == 'joint_RAntenna':
+                        pos = np.deg2rad(-35)
+                    elif joint_name == 'joint_Rostrum' or joint_name == 'joint_LWing_roll':
+                        pos = np.deg2rad(90)
+                    elif joint_name == 'joint_Haustellum':
+                        pos = np.deg2rad(-60)
+                    elif joint_name == 'joint_RWing_roll':
+                        pos = np.deg2rad(-90)
+                    elif joint_name == 'joint_LWing_yaw':
+                        pos = np.deg2rad(-17)
+                    elif joint_name == 'joint_RWing_yaw':
+                        pos = np.deg2rad(17)
+                    elif joint_name == 'joint_Head':
+                        pos = np.deg2rad(10)
+                    #elif joint_name == 'joint_LFCoxa_yaw':
+                    #    pos = np.deg2rad(-5)
+                    #elif joint_name == 'joint_RFCoxa_yaw':
+                    #    pos = np.deg2rad(5)
+                    elif joint_name == 'joint_LFCoxa_roll':
+                        pos = np.deg2rad(12)
+                    elif joint_name == 'joint_RFCoxa_roll':
+                        pos = np.deg2rad(-12)
+                    #elif joint_name == 'joint_LFFemur_roll':
+                    #    pos = np.deg2rad(-26)
+                    #elif joint_name == 'joint_RFFemur_roll':
+                    #    pos = np.deg2rad(26)
+                    elif joint_name == 'joint_LFTarsus1':
+                        pos = np.deg2rad(-46) #43
+                    elif joint_name == 'joint_RFTarsus1':
+                        pos = np.deg2rad(-46) #49
+                    elif joint_name == 'joint_LMCoxa_yaw':
+                        pos = np.deg2rad(2) #4
+                    elif joint_name == 'joint_RMCoxa_yaw':
+                        pos = np.deg2rad(2) #4
+                    elif joint_name == 'joint_LMCoxa':
+                        pos = np.deg2rad(-3) #-2
+                    elif joint_name == 'joint_RMCoxa':
+                        pos = np.deg2rad(-3) #-4.5
+                    #elif joint_name == 'joint_LMFemur_roll':
+                    #    pos = np.deg2rad(-7)
+                    #elif joint_name == 'joint_RMFemur_roll':
+                    #    pos = np.deg2rad(7)
+                    elif joint_name == 'joint_LMTarsus1':
+                        pos = np.deg2rad(-56) #-52
+                    elif joint_name == 'joint_RMTarsus1':
+                        pos = np.deg2rad(-56)
+                    elif joint_name == 'joint_LHCoxa_yaw':
+                        pos = np.deg2rad(3)
+                    elif joint_name == 'joint_RHCoxa_yaw':
+                        pos = np.deg2rad(3) #6.2
+                    elif joint_name == 'joint_LHCoxa':
+                        pos = np.deg2rad(11) #13
+                    elif joint_name == 'joint_RHCoxa':
+                        pos = np.deg2rad(11)
+                    #elif joint_name == 'joint_LHFemur_roll':
+                    #    pos = np.deg2rad(9)
+                    #elif joint_name == 'joint_RHFemur_roll':
+                    #    pos = np.deg2rad(-9)
+                    elif joint_name == 'joint_LHTarsus1':
+                        pos = np.deg2rad(-50) #-45
+                    elif joint_name == 'joint_RHTarsus1':
+                        pos = np.deg2rad(-50)
+                    else:
+                        pos = 0
 
 
-                #print('lava: ',self.is_lava())
-                #print('fly: ',self.is_flying())
-                #print('touch: ',self.is_touch())
-                #print('Ball rotations: ', self.ball_rotations(),'\n')
-                #print('Dist stance_polygon:', self.stance_polygon_dist())
-                #print(np.array(self.get_link_position('Thorax')[:2]))
+                    #print('lava: ',self.is_lava())
+                    #print('fly: ',self.is_flying())
+                    #print('touch: ',self.is_touch())
+                    #print('Ball rotations: ', self.ball_rotations(),'\n')
+                    #print('Dist stance_polygon:', self.stance_polygon_dist())
+                    #print(np.array(self.get_link_position('Thorax')[:2]))
 
 
-                p.setJointMotorControl2(
-                    self.animal, joint,
-                    controlMode=p.POSITION_CONTROL,
-                    targetPosition=pos,
-                    force=1e36)
+                    p.setJointMotorControl2(
+                        self.animal, joint,
+                        controlMode=p.POSITION_CONTROL,
+                        targetPosition=pos,
+                        force=1e36)
 
 
     def controller_to_actuator(self, t):
@@ -236,33 +236,31 @@ def fixed_joints_controller(self):
         self.muscle_controller()
         self.fixed_joints_controller()
 
-        if t%10 == 0:
-            jointTorques = np.array(self.joint_torques())
-            #print(jointTorques.shape)
-            self.torques.append(jointTorques)
+        jointTorques = np.array(self.joint_torques())
+        #print(jointTorques.shape)
+        self.torques.append(jointTorques)
 
-        if t%10 == 0:
-            grf = self.ball_reaction_forces()
-            if self.draw_collisions:
-                ind = np.where(np.array(grf).transpose()[0]>0)[0]
-                draw=[]
-                for i in ind:
-                    link1 = self.ground_contacts[i][:-1]
-                    if link1 not in draw:
-                        draw.append(link1)
-                        p.changeVisualShape(self.animal, self.link_id[link1+'5'],rgbaColor=self.color_collision)
-                for link in self.lastDraw:
-                    if link not in draw:
-                        p.changeVisualShape(self.animal, self.link_id[link+'5'], rgbaColor=self.color_legs)
 
-                self.lastDraw = draw
-            self.grf.append(grf)
+        grf = self.ball_reaction_forces()
+        if self.draw_collisions:
+            ind = np.where(np.array(grf).transpose()[0]>0)[0]
+            draw=[]
+            for i in ind:
+                link1 = self.ground_contacts[i][:-1]
+                if link1 not in draw:
+                    draw.append(link1)
+                    p.changeVisualShape(self.animal, self.link_id[link1+'5'],rgbaColor=self.color_collision)
+            for link in self.lastDraw:
+                if link not in draw:
+                    p.changeVisualShape(self.animal, self.link_id[link+'5'], rgbaColor=self.color_legs)
 
-        if t%10 == 0:
-            ball_rot = np.array(self.ball_rotations())
-            ball_rot[:2] = ball_rot[:2]*self.ball_radius*10 # Distance in mm
-            self.ball_rot.append(ball_rot)
-            #print(ball_rot)
+            self.lastDraw = draw
+        self.grf.append(grf)
+
+        ball_rot = np.array(self.ball_rotations())
+        ball_rot[:2] = ball_rot[:2]*self.ball_radius*10 # Distance in mm
+        self.ball_rot.append(ball_rot)
+        #print(ball_rot)
 
 
     def feedback_to_controller(self):
@@ -310,13 +308,17 @@ def fixed_joints_controller(self):
 
         if len(contact_legs)>2:
             if 'LM' in contact_legs or 'RM' in contact_legs:
+                if (set(contact_legs) == set(['RM','LF','LH'])) or (set(contact_legs) == set(['LM','RF','RH'])):
+                    penalty = -5
+                else:
+                    penalty = 0
                 poly_centroid = np.array([sum_x/len(contact_legs),sum_y/len(contact_legs)])
                 body_centroid = np.array(self.get_link_position('Thorax')[:2])
-                dist = np.linalg.norm(body_centroid-poly_centroid)
+                dist = np.linalg.norm(body_centroid-poly_centroid) + penalty
             else:
-                dist = 0.5
+                dist = 5.0
         else:
-            dist = 1 - len(contact_legs)*0.25
+            dist = 6.0 - len(contact_legs)*0.25
 
         return dist
 
@@ -333,14 +335,11 @@ def fixed_joints_controller(self):
         """ State of lava approaching the model. """
         #return (self.distance_y < (((self.TIME)/self.RUN_TIME)*2)-0.25)
         ball_rot = np.array(self.ball_rotations())
-        dist_traveled = -ball_rot[0]*self.ball_radius # Distance in mm
-        # ball_rot_speed = -ball_rot[0]/self.time
-        #print(dist_traveled)
-        moving_limit = (((self.time)/self.run_time)*3*np.pi)-0.5*np.pi
-        # moving_limit = (((self.time)/self.run_time)*1.0) - 0.25
-        # return ball_rot_speed < moving_limit
+        dist_traveled = -ball_rot[0]
+        #print("BALL ROTATION", ball_rot)
+        moving_limit = (((self.time)/self.run_time)*7.24)-0.40
+        #print(ball_rot)
         return dist_traveled < moving_limit
-        #return (dist_traveled < (((self.TIME)/self.RUN_TIME)*2)-0.25)
 
 
     def is_in_not_bounds(self):
@@ -364,7 +363,7 @@ def fixed_joints_controller(self):
     def is_velocity_limit(self):
         """ Check velocity limits. """
         return np.any(
-            np.array(self.joint_velocities) > 1e3
+            np.array(self.joint_velocities) > 5e3
         )
 
     def is_flying(self):
@@ -372,7 +371,7 @@ def fixed_joints_controller(self):
         dist_to_centroid = self.stance_polygon_dist()
         self.stability_coef += dist_to_centroid
         # print(dist_to_centroid)
-        return dist_to_centroid > 2.25
+        return dist_to_centroid > 5.5
 
     def optimization_check(self):
         """ Check optimization status. """
@@ -381,7 +380,7 @@ def fixed_joints_controller(self):
         velocity_cap = self.is_velocity_limit()
         touch = self.is_touch()
         self.is_using_all_legs()
-        if lava or velocity_cap or touch or flying:
+        if lava or velocity_cap or flying or touch:
             pylog.debug(
                 "Lava {} | Flying {} | Vel {} | Touch {}".format(
                 lava, flying, velocity_cap, touch
@@ -402,7 +401,7 @@ def fixed_joints_controller(self):
         #opti_antagonist_phases = params[6*N+edges_joints:6*N+edges_joints+edges_anta]
         #opti_base_phases = params[6*N+edges_joints+edges_anta:]
 
-        # opti_base_phases = params[5*N+edges_joints:]
+        opti_base_phases = params[5*N+edges_joints:]
 
         #print(
         #    "Opti active muscle gains {}".format(
@@ -427,6 +426,7 @@ def fixed_joints_controller(self):
             #: It is important to mirror the joint angles for rest position
             #: especially for coxa
             if "Coxa_roll" in joint:
+                opti_active_muscle_gains[(5*j)+0] *= -1
                 opti_active_muscle_gains[(5*j)+4] *= -1
             self.active_muscles[joint].update_parameters(
                 Parameters(*opti_active_muscle_gains[5*j:5*(j+1)])
@@ -474,25 +474,25 @@ def fixed_joints_controller(self):
                 #).value = -1*opti_antagonist_phases[j0]
 
 
-        # coxae_edges =[
-        #     ['LFCoxa', 'RFCoxa'],
-        #     ['LFCoxa', 'RMCoxa_roll'],
-        #     ['RMCoxa_roll', 'LHCoxa_roll'],
-        #     ['RFCoxa', 'LMCoxa_roll'],
-        #     ['LMCoxa_roll', 'RHCoxa_roll']
-        # ]
+        coxae_edges =[
+            ['LFCoxa', 'RFCoxa'],
+            ['LFCoxa', 'RMCoxa_roll'],
+            ['RMCoxa_roll', 'LHCoxa_roll'],
+            ['RFCoxa', 'LMCoxa_roll'],
+            ['LMCoxa_roll', 'RHCoxa_roll']
+        ]
 
-        # for j1, ed in enumerate(coxae_edges):
-        #     for j2, action in enumerate(('flexion', 'extension')):
-        #         node_1 = "joint_{}_{}".format(ed[0], action)
-        #         node_2 = "joint_{}_{}".format(ed[1], action)
-        #         #print(node_1, node_2, j1)
-        #         parameters.get_parameter(
-        #             'phi_{}_to_{}'.format(node_1, node_2)
-        #         ).value = opti_base_phases[j1]
-        #         parameters.get_parameter(
-        #             'phi_{}_to_{}'.format(node_2, node_1)
-        #         ).value = -1*opti_base_phases[j1]
+        for j1, ed in enumerate(coxae_edges):
+            for j2, action in enumerate(('flexion', 'extension')):
+                node_1 = "joint_{}_{}".format(ed[0], action)
+                node_2 = "joint_{}_{}".format(ed[1], action)
+                #print(node_1, node_2, j1)
+                parameters.get_parameter(
+                    'phi_{}_to_{}'.format(node_1, node_2)
+            ).value = opti_base_phases[j1]
+            parameters.get_parameter(
+                    'phi_{}_to_{}'.format(node_2, node_1)
+                ).value = -1*opti_base_phases[j1]
 
 
 def read_optimization_results(fun, var):
@@ -585,6 +585,7 @@ def parse_args():
 
 def main():
     """ Main """
+    from sklearn.preprocessing import normalize
 
     clargs = parse_args()
 
@@ -637,13 +638,14 @@ def main():
         for link1 in body_segments:
             self_collision.append([link0,link1])
 
-    gen = '10'
-    exp = 'run_Drosophila_var_71_obj_2_pop_20_gen_100_0407_1744'
+    gen = '70'
+    exp = 'run_Drosophila_var_62_obj_2_0423_1801'
+    exp = 'run_Drosophila_var_62_obj_2_0426_1221'
 
     sim_options = {
         "headless": False,
         # Scaled SDF model
-        "model": "../../design/sdf/neuromechfly_limitsFromData_minMax.sdf",
+        "model": "../../design/sdf/neuromechfly_limitsFromData_relaxed.sdf",
         "model_offset": [0., 0., 11.2e-3],
         "run_time": clargs.runtime,
         "pose": '../../config/test_pose_tripod.yaml',
@@ -653,13 +655,13 @@ def main():
         'self_collisions':self_collision,
         "draw_collisions": True,
         "record": False,
-        'camera_distance': 3.5,
+        'camera_distance': 4.5,
         'track': False,
         'moviename': 'stability_'+exp+'_gen_'+gen+'.mp4',
-        'moviefps': 50,
+        'moviespeed': 0.1,
         'slow_down': False,
         'sleep_time': 10.0,
-        'rot_cam': False
+        'rot_cam': True
         }
 
     container = Container(clargs.runtime/clargs.timestep)
@@ -671,7 +673,7 @@ def main():
     #    "./sim_files/fun/FUN_last_good.ged3",
     #    "./sim_files/var/VAR_last_good.ged3"
     #)
-    '''
+    
     fun, var = read_optimization_results(
         "./optimization_results/"+exp+"/FUN."+gen,
         "./optimization_results/"+exp+"/VAR."+gen
@@ -687,15 +689,19 @@ def main():
         "./FUN.txt",
         "./VAR.txt",
     )
-
+    '''
     # fun, var = read_optimization_results(
     #     "./optimization_results/run_Drosophila_var_80_obj_2_pop_10_gen_4_0412_0316/FUN.3",
     #     "./optimization_results/run_Drosophila_var_80_obj_2_pop_10_gen_4_0412_0316/VAR.3",
     # )
+    fun_normalized = normalize(fun)
+    params = var[np.argmin(fun_normalized[:,0]*fun_normalized[:,1])]
+    params = var[np.argmin(fun_normalized[:,0])]
 
-    params = var[np.argmin(fun[:,0]*fun[:,1])]
-    # params = var[np.argmin(fun[:,0])]
+    params = var[np.argmax(fun[:,0]*fun[:,1])]
+    #params = var[np.argmin(fun[:,1])]
     params = np.array(params)
+    print(params)
     animal.update_parameters(params)
 
     animal.run(optimization=False)
@@ -704,6 +710,16 @@ def main():
     name_data = 'optimization_gen_'+ gen
 
     save_data(animal,name_data,exp)
+    
+    colors =    fun[:,0]*fun[:,1]
+    plt.scatter(fun[:,0], fun[:,1], c=colors, cmap=plt.cm.winter)
+    plt.show()
+    colors = fun_normalized1*fun_normalized2
+    plt.scatter(fun_normalized1, fun_normalized2, c=colors, cmap=plt.cm.winter)
+    plt.xlabel('Distance (negative)')
+    plt.ylabel('Stability')
+    # plt.savefig('./{}_generation_{}.pdf'.format(exp, gen))
+    plt.show()
 
 if __name__ == '__main__':
     main()

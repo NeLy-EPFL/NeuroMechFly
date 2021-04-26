@@ -55,7 +55,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             'background_color_BLUE', 1)
         self.record_movie = kwargs.get('record', False)
         self.movie_name = kwargs.get('moviename', 'default_movie.mp4')
-        self.movie_fps = kwargs.get('moviefps', 60)
+        self.movie_speed = kwargs.get('moviespeed', 1)
         self.behavior = kwargs.get('behavior', 'walking')
         self.rotate_camera = kwargs.get('rot_cam', False)
         self.self_collisions = kwargs.get('self_collisions', [])
@@ -138,7 +138,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                     self.vis_options_background_color_green,
                     self.vis_options_background_color_red,
                     self.movie_name,
-                    int(1.0/self.time_step)
+                    int(self.movie_speed/self.time_step)
                 )
             )
             p.configureDebugVisualizer(p.COV_ENABLE_SINGLE_STEP_RENDERING,1)
@@ -522,7 +522,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             # basePosition=[-0.023, 0.0085, 0.6198] ### Walking ball r= 0.5
             # basePosition=[-0.0225, 0.007, 0.61973] ### Walking ball r= 0.5
             basePosition = np.array(
-                [0.2e-3, 0.0e-3,-5.1e-3])*self.units.meters+self.model_offset
+                [0.0e-3, 0.0e-3,-5.1e-3])*self.units.meters+self.model_offset
         elif self.behavior == 'grooming':
             # basePosition=[0.0,-0.01,0.63] ### Grooming
             basePosition = np.array(
