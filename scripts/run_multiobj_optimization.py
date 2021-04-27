@@ -1,16 +1,17 @@
-from NeuroMechFly.experiments.network_optimization import multiobj_optimization
-from NeuroMechFly.experiments.network_optimization.multiobj_optimization import WriteFullFrontToFileObserver
+from datetime import datetime
 
 from jmetal.algorithm.multiobjective.nsgaii import NSGAII
+from jmetal.lab.visualization import Plot
 from jmetal.operator import PolynomialMutation, SBXCrossover
 from jmetal.util.evaluator import MultiprocessEvaluator
-from jmetal.util.termination_criterion import StoppingByEvaluations
 from jmetal.util.observer import ProgressBarObserver, VisualizerObserver
 from jmetal.util.ranking import FastNonDominatedRanking
 from jmetal.util.solution import (print_function_values_to_file,
                                   print_variables_to_file)
-from jmetal.lab.visualization import Plot     
-from datetime import datetime
+from jmetal.util.termination_criterion import StoppingByEvaluations
+from NeuroMechFly.experiments.network_optimization import multiobj_optimization
+from NeuroMechFly.experiments.network_optimization.multiobj_optimization import \
+    WriteFullFrontToFileObserver
 
 if __name__ == "__main__":
     """ Main """

@@ -1,7 +1,7 @@
+import numpy as np
+from farms_container import Container
 from NeuroMechFly.experiments.network_optimization import neuromuscular_control
-from NeuroMechFly.container import Container
-import numpy as np 
-    
+
 if __name__ == "__main__":
     """ Main """
     run_time = 5.

@@ -1,5 +1,5 @@
+from farms_container import Container
 from NeuroMechFly.experiments.kinematic_replay import kinematic_replay
-from NeuroMechFly.container import Container
 
 if __name__ == "__main__":
     run_time = 8.0
