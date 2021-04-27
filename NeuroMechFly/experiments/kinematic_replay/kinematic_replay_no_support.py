@@ -1,10 +1,10 @@
-from NeuroMechFly.simulation.bullet_simulation import BulletSimulation
-from NeuroMechFly.container import Container
-from NeuroMechFly.sdf.units import SimulationUnitScaling
 from random import random
+
 import numpy as np
 import pandas as pd
 import pybullet as p
+from NeuroMechFly.sdf.units import SimulationUnitScaling
+from NeuroMechFly.simulation.bullet_simulation import BulletSimulation
 
 # Random number seed
 np.random.seed(seed=321)
@@ -111,6 +111,7 @@ class DrosophilaSimulation(BulletSimulation):
             [description]
         """
 
+        # TODO: Add option to enable or disable perturbations
         if ((t + 1) % 500) == 0:
             print("Adding perturbation")
             self.pball = add_perturbation(
@@ -122,6 +123,7 @@ class DrosophilaSimulation(BulletSimulation):
             )
             self.impulse_sign *= -1
 
+        # TODO: Clean up commented code
         if ((t + 1) % 3000) == 0 and t < 3012:
             # if ((t+1)%100) == 0:
             radius = 10e-2
@@ -208,66 +210,3 @@ class DrosophilaSimulation(BulletSimulation):
 
     def optimization_check(self):
         """ Optimization check. """
-
-
-def main():
-    """ Main """
-    run_time = 8.0
-    time_step = 0.001
-    behavior = 'walking'
-
-    #: Setting up the collision and ground sensors
-    side = ['L', 'R']
-    pos = ['F', 'M', 'H']
-    leg_segments = ['Tibia'] + ['Tarsus' + str(i) for i in range(1, 6)]
-    left_front_leg = ['LF' + name for name in leg_segments]
-    right_front_leg = ['RF' + name for name in leg_segments]
-    body_segments = [s + b for s in side for b in ['Eye', 'Antenna']]
-
-    self_collision = []
-    for link0 in left_front_leg:
-        for link1 in right_front_leg:
-            self_collision.append([link0, link1])
-
-    for link0 in left_front_leg + right_front_leg:
-        for link1 in body_segments:
-            if link0[0] == link1[0]:
-                self_collision.append([link0, link1])
-
-    ground_contact = [
-        s +
-        p +
-        name for s in side for p in pos for name in leg_segments if name != 'Tibia']
-
-    sim_options = {
-        "headless": False,
-        "model": "../../data/design/sdf/neuromechfly_noLimits_noSupport.sdf",
-        "model_offset": [0, 0., 2.2e-3],
-        "run_time": run_time,
-        "time_step": time_step,
-        "pose": '../../data/config/pose/pose_optimization_2.yaml',
-        "base_link": 'Thorax',
-        "ground_contacts": ground_contact,
-        "self_collisions": self_collision,
-        "record": False,
-        'camera_distance': 6.0,
-        'track': False,
-        'moviename': './realtime_noSupport_stiff_legs_release_feedback_2.mp4',
-        'moviespeed': 0.2,
-        'slow_down': False,
-        'sleep_time': 0.001,
-        'rot_cam': False,
-        'behavior': behavior,
-        'ground': 'floor',
-        'num_substep': 5
-    }
-
-    container = Container()
-    animal = DrosophilaSimulation(container, sim_options, Kp=0.4, Kv=0.9)
-    animal.run(optimization=False)
-    animal.container.dump(
-        dump_path="./basepositionrecorded", overwrite=True)
-
-
-if __name__ == '__main__':
-    main()
