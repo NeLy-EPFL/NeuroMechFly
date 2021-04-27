@@ -7,6 +7,7 @@ import pybullet as p
 import pybullet_data
 import yaml
 from farms_container import Container
+import farms_pylog as pylog
 from farms_network.neural_system import NeuralSystem
 from NeuroMechFly.sdf.bullet_load_sdf import load_sdf
 from tqdm import tqdm
@@ -680,7 +681,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         if self.GROUND is 'ball':
             self.sim_data.ball_rotations.values = np.asarray(
                 self.ball_rotations).flatten()
-        print("Container is updated!")
+        pylog.debug("Container is updated!")
 
     @abc.abstractmethod
     def controller_to_actuator(self):
