@@ -1,14 +1,15 @@
 """Optimisation simulation"""
-from NeuroMechFly.simulation.bullet_simulation import BulletSimulation
-from NeuroMechFly.sdf.units import SimulationUnitScaling
-from NeuroMechFly.container import Container
-from NeuroMechFly.control.spring_damper_muscles import Parameters, SDAntagonistMuscle
+import argparse
 
 import farms_pylog as pylog
-import argparse
 import numpy as np
 import pybullet as p
 import pybullet_data
+from farms_container import Container
+from NeuroMechFly.control.spring_damper_muscles import (Parameters,
+                                                        SDAntagonistMuscle)
+from NeuroMechFly.sdf.units import SimulationUnitScaling
+from NeuroMechFly.simulation.bullet_simulation import BulletSimulation
 
 
 class DrosophilaSimulation(BulletSimulation):
