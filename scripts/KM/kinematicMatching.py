@@ -31,8 +31,9 @@ class DrosophilaSimulation(BulletSimulation):
         self.collision_forces=[]
         self.ball_rot=[]
         self.lastDraw=[]
-        pkg_path = Path(pkgutil.get_loader("NeuroMechFly").get_filename())
-        data_path = os.path.join(pkg_path.parents[1],'data',self.behavior,'df3d')
+        #pkg_path = Path(pkgutil.get_loader("NeuroMechFly").get_filename())
+        #data_path = os.path.join(pkg_path.parents[1],'data',self.behavior,'df3d')
+        data_path = '/home/lobato/Desktop/DF3D_data/210414_CI9xG23_Fly2_005_coronal_behData/images/df3d'
         if df3dPP:
             self.angles = self.calculate_angles(data_path,overwrite_angles=False)
         else:
