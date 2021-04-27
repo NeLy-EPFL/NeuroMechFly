@@ -132,7 +132,8 @@ class DrosophilaSimulation(BulletSimulation):
         self.opti_touch = 0
         self.opti_lava = 0
         self.opti_velocity = 0
-        self.opti_stability= 0
+        self.opti_stability= 0 
+        self.opti_torque = 0
 
     def muscle_controller(self):
         """ Muscle controller. """
@@ -341,7 +342,7 @@ class DrosophilaSimulation(BulletSimulation):
         ball_rot = np.array(self.ball_rotations())
         dist_traveled = -ball_rot[0]
         #print("BALL ROTATION", ball_rot)
-        moving_limit = (((self.time)/self.run_time)*5.24)-0.40
+        moving_limit = (((self.time)/self.run_time)*6.44)-0.40
         #print(ball_rot)
         self.opti_lava += 1.0 if np.any(
             dist_traveled < moving_limit
@@ -374,7 +375,8 @@ class DrosophilaSimulation(BulletSimulation):
 
     def is_torque_limit(self):
         """ Check torque limits. """
-        return np.any(np.array(self.muscle.outputs.log) > 2 )
+        self.opti_torque += 1.0 if (
+            np.any(np.array(self.muscle.outputs.log) > 1.7 )) else 0.0
 
     def is_flying(self):
         # FIXME: This function does two things at the same time
@@ -642,9 +644,9 @@ def main():
         for link1 in body_segments:
             self_collision.append([link0,link1])
 
-    gen = '99'
+    gen = '30'
     exp = 'run_Drosophila_var_62_obj_2_0423_1801'
-    exp = 'run_Drosophila_var_62_obj_2_0422_2204'
+    exp = 'run_Drosophila_var_62_obj_2_0427_1948'
 
     sim_options = {
         "headless": False,
@@ -702,10 +704,10 @@ def main():
     params = var[np.argmin(fun_normalized[:,0]*fun_normalized[:,1])]
     params = var[np.argmin(fun_normalized[:,0])]
 
-    params = var[np.argmax(fun[:,0]*fun[:,1])]
-    params = var[np.argmax(fun[:,0])]
+    params = var[np.argmin(fun[:,0]*fun[:,1])]
+    #params = var[np.argmax(fun[:,1])]
+
     params = np.array(params)
-    print(params)
     animal.update_parameters(params)
 
     animal.run(optimization=False)

@@ -276,12 +276,14 @@ class DrosophilaEvolution(FloatProblem):
             velocity_weight = 1e-2
             stability_weight = 1.0
             stance_weight = 1e2
+            torque_weight = 1
             penalties = (
                 movement_weight * fly.opti_lava + \
                 touch_weight * fly.opti_touch + \
                 velocity_weight * fly.opti_velocity + \
                 stability_weight * fly.opti_stability + \
-                stance_weight * penalty_time_stance
+                stance_weight * penalty_time_stance + \
+                torque_weight * fly.opti_torque
             )
 
             pylog.debug(
@@ -289,12 +291,14 @@ class DrosophilaEvolution(FloatProblem):
                     Distance: {-distance} \n \
                     Active torques: {active_torque_sum} \n \
                     Stability: {stability} \n \
+                    Work: {fly.mechanical_work} \n \
                   PENALTIES\n=========\n \
                     Penalty lava: {movement_weight * fly.opti_lava} \n \
                     Penalty touch: {touch_weight * fly.opti_touch} \n \
                     Penalty velocity: {velocity_weight*fly.opti_velocity} \n \
                     Penalty stability_coef: {stability_weight*fly.opti_stability} \n \
                     Penalty stance: {penalty_time_stance} \n \
+                    Penalty torque: {torque_weight * fly.opti_torque} \n \
                 "
             )
 
@@ -313,14 +317,14 @@ class DrosophilaEvolution(FloatProblem):
             #     (abs(np.array(fly.ball_rotations()))[
             #      1]+abs(np.array(fly.ball_rotations()))[2])
 
-            objective = 'stability'
-            solution.objectives[0] = -distance*1e3 + penalties
+            objective = 'torque'
+            solution.objectives[0] = -distance*2e2 + penalties
             if objective == 'stability':
                 solution.objectives[1] = stability*1e3 + penalties
             elif objective == 'torque':
-                solution.objectives[1] = active_torque_sum + penalties
+                solution.objectives[1] = active_torque_sum*2e2 + penalties
             elif objective == 'work':
-                solution.objectives[1] = fly.mechanical_work + penalties
+                solution.objectives[1] = fly.mechanical_work*2e-2 + penalties
             else:
                 print('please enter stability, torque or work')
 
