@@ -21,6 +21,8 @@ class DrosophilaSimulation(BulletSimulation):
         sim_options,
         Kp,
         Kv,
+        position_path,
+        velocity_path,
         units=SimulationUnitScaling(
             meters=1000,
             kilograms=1000)):
@@ -31,10 +33,8 @@ class DrosophilaSimulation(BulletSimulation):
         self.kv = Kv
         self.pose = [0] * self.num_joints
         self.vel = [0] * self.num_joints
-        self.angles = self.load_angles(
-            f'../data/joint_kinematics/{self.behavior}/{self.behavior}_converted_joint_angles.pkl')
-        self.velocities = self.load_angles(
-            f'../data/joint_kinematics/{self.behavior}/{self.behavior}_converted_joint_velocities.pkl')
+        self.angles = self.load_angles(position_path)
+        self.velocities = self.load_angles(velocity_path)
 
     def load_angles(self, data_path):
         """[summary]
@@ -209,13 +209,23 @@ def main():
         'behavior': behavior,
         'ground': 'ball'
     }
+    
+    position_path = f'../data/joint_kinematics/{behavior}/{behavior}_converted_joint_angles.pkl'
+    velocity_path = f'../data/joint_kinematics/{behavior}/{behavior}_converted_joint_velocities.pkl'
 
     container = Container(run_time / time_step)
-    animal = DrosophilaSimulation(container, sim_options, Kp=0.4, Kv=0.9)
+    animal = DrosophilaSimulation(
+        container, 
+        sim_options, 
+        Kp=0.4, Kv=0.9,
+        position_path=position_path,
+        velocity_path=velocity_path
+    )
     animal.run(optimization=False)
     animal.container.dump(
         dump_path=f"./kinematic_replay_{behavior}",
-        overwrite=False)
+        overwrite=False
+    )
 
 
 if __name__ == '__main__':

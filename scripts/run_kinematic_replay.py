@@ -1,4 +1,4 @@
-from NeuroMechFly.experiments.kinematic_replay import kinematic_replay
+from NeuroMechFly.experiments.kinematic_replay import kinematic_replay_no_support
 from NeuroMechFly.container import Container
 
 if __name__ == "__main__":
@@ -51,9 +51,17 @@ if __name__ == "__main__":
         'ground': 'ball'
     }
 
+    position_path = f'../data/joint_kinematics/{behavior}/{behavior}_converted_joint_angles.pkl'
+    velocity_path = f'../data/joint_kinematics/{behavior}/{behavior}_converted_joint_velocities.pkl'
+
     container = Container(run_time / time_step)
-    animal = kinematic_replay.DrosophilaSimulation(container, sim_options, Kp=0.4, Kv=0.9)
+    animal = kinematic_replay_no_support.DrosophilaSimulation(
+        container, 
+        sim_options, 
+        Kp=0.4, Kv=0.9,
+        position_path=position_path,
+        velocity_path=velocity_path
+    )
     animal.run(optimization=False)
     animal.container.dump(
-        dump_path=f"./kinematic_replay_{behavior}",
-        overwrite=False)
+        dump_path="./basepositionrecorded", overwrite=True)
