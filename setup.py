@@ -73,6 +73,7 @@ setuptools.setup(
     },
     scripts=['scripts/run_kinematic_replay',
         'scripts/run_multiobj_optimization',
-        'scripts/run_neuromuscular_control'
+        'scripts/run_neuromuscular_control',
+        'scripts/run_sensitivity_analysis'
     ],
 )
