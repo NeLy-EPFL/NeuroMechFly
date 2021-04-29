@@ -286,7 +286,8 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             contact_links = '-'.join((link0, link1))
             self.collision_sensors[contact_links] = [
                 self.link_id[link0], self.link_id[link1]]
-            self.sim_data.collision_forces.add_parameter(contact_links)
+            for axis in ['x', 'y', 'z']:
+                self.sim_data.collision_forces.add_parameter(contact_links + '_' + axis)
 
         #: ADD base position parameters
         for axis in ['x', 'y', 'z']:
@@ -451,7 +452,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         self.normal = np.sum([pt[9]for pt in c], axis=0) \
             if c else self.ZEROS_3x1
         collision_force = self.normal * self.normal_dir
-        return collision_force[2] / self.units.newtons
+        return collision_force / self.units.newtons
 
     def is_contact(self, link_name):
         """ Check if link is in contact with floor or ball. """
