@@ -260,13 +260,13 @@ class DrosophilaEvolution(FloatProblem):
         use_penalties = True
         if use_penalties:
             
-            expected_stance_legs = 4
-            min_legs = 3
+            expected_stance_legs = 3.5
+            min_legs = 2.8
             mean_stance_legs = fly.stance_count*fly.time_step/fly.time
             # print(fly.stance_count, fly.time_step, fly.time, mean_stance_legs)
             penalty_time_stance = (
                 0.0
-                if min_legs <= mean_stance_legs <= expected_stance_legs
+                if min_legs <= mean_stance_legs < expected_stance_legs
                 else abs(mean_stance_legs - min_legs)
             )
 
@@ -274,7 +274,7 @@ class DrosophilaEvolution(FloatProblem):
             movement_weight = 1e-2
             touch_weight = 1e-2
             velocity_weight = 1e-2
-            stability_weight = 1.0
+            stability_weight = 1e1
             stance_weight = 1e2
             torque_weight = 1
             penalties = (
@@ -299,6 +299,7 @@ class DrosophilaEvolution(FloatProblem):
                     Penalty stability_coef: {stability_weight*fly.opti_stability} \n \
                     Penalty stance: {penalty_time_stance} \n \
                     Penalty torque: {torque_weight * fly.opti_torque} \n \
+                    Penalty penetration: {fly.opti_penetration} \n \
                 "
             )
 
@@ -317,7 +318,7 @@ class DrosophilaEvolution(FloatProblem):
             #     (abs(np.array(fly.ball_rotations()))[
             #      1]+abs(np.array(fly.ball_rotations()))[2])
 
-            objective = 'torque'
+            objective = 'stability'
             solution.objectives[0] = -distance*2e2 + penalties
             if objective == 'stability':
                 solution.objectives[1] = stability*1e3 + penalties
@@ -389,7 +390,7 @@ def parse_args(problem):
     parser.add_argument(
         '--n_pop',
         type=int,
-        default=10,
+        default=20,
         help='Population size',
     )
     parser.add_argument(
@@ -513,17 +514,18 @@ def main():
     front = algorithm.get_result()
     ranking = FastNonDominatedRanking()
     # pareto_fronts = ranking.compute_ranking(front)
+    objective = 'torque'
 
     # Plot front
     plot_front = Plot(
-        title='Pareto front approximation',
+        title=f'Pareto front {objective}',
         reference_front=problem.reference_front,
         axis_labels=problem.obj_labels)
     plot_front.plot(front, filename=algorithm.get_name())
 
     # Plot interactive front
     plot_front = InteractivePlot(
-        title='Pareto front approximation',
+        title=f'Pareto front {objective}',
         reference_front=problem.reference_front,
         axis_labels=problem.obj_labels)
     plot_front.plot(front, filename=algorithm.get_name())

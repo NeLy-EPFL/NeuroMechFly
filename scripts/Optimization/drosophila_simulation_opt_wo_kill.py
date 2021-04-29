@@ -134,6 +134,7 @@ class DrosophilaSimulation(BulletSimulation):
         self.opti_velocity = 0
         self.opti_stability= 0 
         self.opti_torque = 0
+        self.opti_penetration = 0 
 
     def muscle_controller(self):
         """ Muscle controller. """
@@ -321,9 +322,9 @@ class DrosophilaSimulation(BulletSimulation):
                 body_centroid = np.array(self.get_link_position('Thorax')[:2])
                 dist = np.linalg.norm(body_centroid-poly_centroid) + penalty
             else:
-                dist = 5.0
+                dist = 2.0
         else:
-            dist = 6.0 - len(contact_legs)*0.25
+            dist = 3.0 - len(contact_legs)*0.25
 
         return dist
 
@@ -342,7 +343,7 @@ class DrosophilaSimulation(BulletSimulation):
         ball_rot = np.array(self.ball_rotations())
         dist_traveled = -ball_rot[0]
         #print("BALL ROTATION", ball_rot)
-        moving_limit = (((self.time)/self.run_time)*6.44)-0.40
+        moving_limit = (((self.time)/self.run_time)*8.44)-0.40
         #print(ball_rot)
         self.opti_lava += 1.0 if np.any(
             dist_traveled < moving_limit
@@ -367,10 +368,20 @@ class DrosophilaSimulation(BulletSimulation):
             ]
         ) else 0.0
 
+    def is_penetration(self):
+        """ Check if certain links touch. """
+        self.opti_penetration += 1 if np.any(
+            [
+                self.is_penetration_ball(link)
+                for link in self.link_id.keys()
+                if 'Tarsus' not in link
+            ]
+        ) else 0.0
+
     def is_velocity_limit(self):
         """ Check velocity limits. """
         self.opti_velocity += 1.0 if np.any(
-            np.array(self.joint_velocities) > 2e3
+            np.array(self.joint_velocities) > 4000
         ) else 0.0
 
     def is_torque_limit(self):
@@ -384,7 +395,7 @@ class DrosophilaSimulation(BulletSimulation):
         self.stability_coef += dist_to_centroid
         # print(dist_to_centroid)
         self.opti_stability += 1.0 if (
-            dist_to_centroid > 5.5) else 0.0
+            dist_to_centroid >= 2.5) else 0.0
 
     def optimization_check(self):
         """ Check optimization status. """
@@ -392,7 +403,7 @@ class DrosophilaSimulation(BulletSimulation):
         self.is_flying()
         self.is_velocity_limit()
         self.is_touch()
-
+        self.is_penetration()
         return True
 
     def update_parameters(self, params):
@@ -644,10 +655,10 @@ def main():
         for link1 in body_segments:
             self_collision.append([link0,link1])
 
-    gen = '30'
-    exp = 'run_Drosophila_var_62_obj_2_0423_1801'
-    exp = 'run_Drosophila_var_62_obj_2_0427_1948'
-
+    gen = '99'
+    exp = 'run_Drosophila_var_62_obj_2_0428_1647'
+    exp = 'run_Drosophila_var_62_obj_2_0429_0851'
+    #exp = 'opti_result/stability/results/'
     sim_options = {
         "headless": False,
         # Scaled SDF model
@@ -664,6 +675,7 @@ def main():
         'camera_distance': 4.5,
         'track': False,
         'moviename': 'stability_'+exp+'_gen_'+gen+'.mp4',
+        #'moviename': 'cluster_work.mp4',
         'moviespeed': 0.1,
         'slow_down': False,
         'sleep_time': 10.0,
@@ -703,9 +715,9 @@ def main():
     fun_normalized = normalize(fun)
     params = var[np.argmin(fun_normalized[:,0]*fun_normalized[:,1])]
     params = var[np.argmin(fun_normalized[:,0])]
-
-    params = var[np.argmin(fun[:,0]*fun[:,1])]
-    #params = var[np.argmax(fun[:,1])]
+    param_ind = np.argmin(fun[:,0]*fun[:,1])
+    param_ind = 19
+    params = var[param_ind]
 
     params = np.array(params)
     animal.update_parameters(params)
@@ -719,12 +731,15 @@ def main():
     
     colors =    fun[:,0]*fun[:,1]
     plt.scatter(fun[:,0], fun[:,1], c=colors, cmap=plt.cm.winter)
+    plt.scatter(fun[param_ind,0], fun[param_ind,1], c='red', cmap=plt.cm.winter)
     plt.show()
     colors = fun_normalized1*fun_normalized2
     plt.scatter(fun_normalized1, fun_normalized2, c=colors, cmap=plt.cm.winter)
     plt.xlabel('Distance (negative)')
     plt.ylabel('Stability')
-    # plt.savefig('./{}_generation_{}.pdf'.format(exp, gen))
+    #plt.savefig('./{}_generation_{}.png'.format(exp, gen))
+    plt.savefig('./cluster_torque.png'.format(exp, gen))
+
     plt.show()
 
 if __name__ == '__main__':
