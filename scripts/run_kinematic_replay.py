@@ -1,10 +1,15 @@
 from NeuroMechFly.experiments.kinematic_replay import kinematic_replay_no_support
 from NeuroMechFly.container import Container
+import argparse 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-b', '--behavior', default='walking')
+    args = parser.parse_args()
+
     run_time = 8.0
     time_step = 0.001
-    behavior = 'walking'
+    behavior = args.behavior.lower()
 
     #: Setting up the collision and ground sensors
     side = ['L', 'R']
