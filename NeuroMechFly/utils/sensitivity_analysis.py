@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 from sklearn.metrics import mean_squared_error
 
-############################################### GLOBAL VARIABLES #########
+##### GLOBAL VARIABLES #####
 legs = ['LF', 'LM', 'LH', 'RF', 'RM', 'RH']
 
 joints = [
@@ -34,7 +34,7 @@ file_names = ['ground_contacts',
               'thorax_force']
 
 
-############################################### CALCULATE STATISTICS #####
+##### CALCULATE STATISTICS #####
 def calculate_forces(leg, k_value, *args):
     """ Gets force dictionary and computes the resulting force (friction or ground reaction) on one single leg.
 

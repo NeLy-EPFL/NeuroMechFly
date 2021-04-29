@@ -29,9 +29,6 @@ file_names = ['ground_contacts',
               'joint_velocities',
               'thorax_force']
 
-############################################### LOAD DATA ################
-
-
 def plot_mu_sem(
     mu,
     error,
@@ -149,7 +146,7 @@ def plot_kp_joint(
                          intv], np.array(args[0][k_value][full_name][beg:beg +
                                                                      intv]) *
                     scaling_factor, color=color, label=k_value)
-            plt.legend(bbox_to_anchor=(1.1, 1), loc='upper right')
+            ax.legend(bbox_to_anchor=(1.1, 1), loc='upper right')
 
         else:
             vector, norm = calculate_forces(full_name, k_value, *args)
@@ -161,12 +158,12 @@ def plot_kp_joint(
                                                            intv]) *
                                scaling_factor, color=color, label=k_value)
                     ax[i].set_ylabel(axis)
-                plt.legend(bbox_to_anchor=(1.1, 0.), loc='upper right')
+                ax.legend(bbox_to_anchor=(1.1, 0.), loc='upper right')
             else:
                 time = np.arange(0, len(norm), 1) * time_step
                 ax.plot(time[beg: beg + intv], norm[beg:beg + intv]
                         * scaling_factor, color=color, label=k_value)
-                plt.legend(bbox_to_anchor=(1.1, 1), loc='upper right')
+                ax.legend(bbox_to_anchor=(1.1, 1), loc='upper right')
 
 
 def heatmap_plot(
