@@ -4,7 +4,6 @@ import os
 import numpy as np
 import pandas as pd 
 from sklearn.metrics import mean_squared_error
-from scipy.interpolate import interp1d,splrep,splev,pchip_interpolate
 
 ############################################### GLOBAL VARIABLES ###############################################
 legs = ['LF', 'LM', 'LH', 'RF', 'RM', 'RH']
@@ -29,19 +28,6 @@ file_names = ['ground_contacts',
 
 
 ############################################### CALCULATE STATISTICS ###############################################
-def take_derivative(time_step, data):
-    """ Takes the numerical derivative of an array. """
-    return np.diff(data)*(1/time_step)
-
-def calculate_max_min(data):
-    """ Calculate the max and min of a dict. """    
-    max_value, min_value = (0,0)
-    for joint in data.keys():
-        if max(data[joint]) > max_value: max_value = max(data[joint]) 
-        if min(data[joint]) < min_value: min_value = min(data[joint])
-    print(f"Max value of the velocity: {max_value} and Min value of the velocity: {min_value}")
-    return max_value, min_value 
-
 def calculate_forces(leg, k_value, *args):
     """ Gets force dictionary and computes the resulting force (friction or ground reaction) on one single leg.
 
