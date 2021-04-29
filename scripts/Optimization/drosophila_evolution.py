@@ -360,7 +360,7 @@ class DrosophilaEvolution(FloatProblem):
             # print(fly.stance_count, fly.time_step, fly.time, mean_stance_legs)
             penalty_time_stance = (
                 0.0
-                if min_legs <= mean_stance_legs <= expected_stance_legs
+                if min_legs <= mean_stance_legs < expected_stance_legs
                 else 1e2 * abs(mean_stance_legs - min_legs)
             )
 
@@ -377,13 +377,13 @@ class DrosophilaEvolution(FloatProblem):
                     Penalty time stance: {} \n \
                     Penalty all legs: {} \n \
                 ".format(
-                    -2e3*distance,
+                    -2e1*distance,
                     act,
-                    2e3*stability,
+                    2e2*stability,
                     penalty_linearity,
                     penalty_time,
                     penalty_dist,
-                    penalty_time_stance,
+                    1e1*penalty_time_stance,
                     penalty_all_legs
                 )
                 )
@@ -400,9 +400,9 @@ class DrosophilaEvolution(FloatProblem):
             #    + penalty_time
             #)
             solution.objectives[1] = (
-                2e3*stability
+                2e2*stability
                 #+ penalty_dist
-                + penalty_time_stance
+                + 1e1*penalty_time_stance
             )
         else:
             # Torques
