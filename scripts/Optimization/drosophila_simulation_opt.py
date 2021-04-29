@@ -309,7 +309,7 @@ class DrosophilaSimulation(BulletSimulation):
         if len(contact_legs)>2:
             if 'LM' in contact_legs or 'RM' in contact_legs:
                 if (set(contact_legs) == set(['RM','LF','LH'])) or (set(contact_legs) == set(['LM','RF','RH'])):
-                    penalty = -5
+                    penalty = 0
                 else:
                     penalty = 0
                 poly_centroid = np.array([sum_x/len(contact_legs),sum_y/len(contact_legs)])
@@ -337,7 +337,7 @@ class DrosophilaSimulation(BulletSimulation):
         ball_rot = np.array(self.ball_rotations())
         dist_traveled = -ball_rot[0]
         #print("BALL ROTATION", ball_rot)
-        moving_limit = (((self.time)/self.run_time)*7.24)-0.40
+        moving_limit = (((self.time)/self.run_time)*5.24)-0.40
         #print(ball_rot)
         return dist_traveled < moving_limit
 
@@ -645,7 +645,7 @@ def main():
     sim_options = {
         "headless": False,
         # Scaled SDF model
-        "model": "../../design/sdf/neuromechfly_limitsFromData_relaxed.sdf",
+        "model": "../../design/sdf/neuromechfly_limitsFromData_minMax.sdf",
         "model_offset": [0., 0., 11.2e-3],
         "run_time": clargs.runtime,
         "pose": '../../config/test_pose_tripod.yaml',
@@ -699,6 +699,7 @@ def main():
     params = var[np.argmin(fun_normalized[:,0])]
 
     params = var[np.argmax(fun[:,0]*fun[:,1])]
+    ind = np.argmax(fun[:,0]*fun[:,1])
     #params = var[np.argmin(fun[:,1])]
     params = np.array(params)
     print(params)
@@ -713,9 +714,7 @@ def main():
     
     colors =    fun[:,0]*fun[:,1]
     plt.scatter(fun[:,0], fun[:,1], c=colors, cmap=plt.cm.winter)
-    plt.show()
-    colors = fun_normalized1*fun_normalized2
-    plt.scatter(fun_normalized1, fun_normalized2, c=colors, cmap=plt.cm.winter)
+    plt.scatter(fun[ind,0], fun[ind,1], c=colors, cmap=plt.cm.winter)
     plt.xlabel('Distance (negative)')
     plt.ylabel('Stability')
     # plt.savefig('./{}_generation_{}.pdf'.format(exp, gen))

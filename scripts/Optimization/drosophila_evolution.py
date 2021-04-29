@@ -274,11 +274,11 @@ class DrosophilaEvolution(FloatProblem):
 
     def evaluate(self, solution):
         #: SIMULATION RUN time
-        run_time = 5.
+        run_time = 3.
         time_step = 0.001
         sim_options = {
             "headless": True,
-            "model": "../../design/sdf/neuromechfly_limitsFromData_relaxed.sdf",
+            "model": "../../design/sdf/neuromechfly_limitsFromData_minMax.sdf",
             "model_offset": [0., 0., 11.2e-3],
             "pose": "../../config/test_pose_tripod.yaml",
             #"pose": "../../config/pose_optimization.yaml",

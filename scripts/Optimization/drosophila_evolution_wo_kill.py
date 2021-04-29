@@ -111,7 +111,8 @@ class DrosophilaEvolution(FloatProblem):
         self.number_of_constraints = 0
 
         self.obj_directions = [self.MINIMIZE, self.MINIMIZE]
-        self.obj_labels = ["Distance (negative)", "Stability"]
+        self._second_objective_name = "torque"
+        self.obj_labels = ["Distance (negative)", self._second_objective_name]
 
         #: Bounds
         noscillators = 36
@@ -121,7 +122,7 @@ class DrosophilaEvolution(FloatProblem):
         # coxa : [1e-2, 1e-2, 1e-3, 1e-3], [1e0, 1e0, 1e0, 1e-2]
         # Femur : [1e-2, 1e-2, 1e-3, 1e-3], [1e0, 1e0, 1e0, 1e-2]
         # Tibia : [1e-2, 1e-2, 1e-3, 1e-4], [1e-1, 1e-1, 1e-1, 1e-3]
-        
+
         # muscle params with rest position being optimized
         lower_bound_active_muscles = (
                 np.asarray(
@@ -159,8 +160,8 @@ class DrosophilaEvolution(FloatProblem):
                     ]
                 )
         ).flatten()
-        
-        
+
+
 
         #: Phases
         lower_bound_phases = np.ones(
@@ -208,6 +209,25 @@ class DrosophilaEvolution(FloatProblem):
             self.number_of_variables
         ).tolist() if not self._initial_solutions else self._initial_solutions.pop()
         return new_solution
+
+    @property
+    def second_objective_name(self):
+        """Set second objective name  """
+        return self._second_objective_name
+
+    @second_objective_name.setter
+    def second_objective_name(self, value: str):
+        """
+
+        Set the secondary objective name
+
+        Parameters
+        ----------
+        value : <str>
+            Second objective name
+
+        """
+        self._second_objective_name = value
 
     def evaluate(self, solution):
         #: SIMULATION RUN time
@@ -259,9 +279,9 @@ class DrosophilaEvolution(FloatProblem):
 
         use_penalties = True
         if use_penalties:
-            
-            expected_stance_legs = 3.5
-            min_legs = 2.8
+
+            expected_stance_legs = 4
+            min_legs = 3
             mean_stance_legs = fly.stance_count*fly.time_step/fly.time
             # print(fly.stance_count, fly.time_step, fly.time, mean_stance_legs)
             penalty_time_stance = (
@@ -318,13 +338,15 @@ class DrosophilaEvolution(FloatProblem):
             #     (abs(np.array(fly.ball_rotations()))[
             #      1]+abs(np.array(fly.ball_rotations()))[2])
 
-            objective = 'stability'
             solution.objectives[0] = -distance*2e2 + penalties
-            if objective == 'stability':
+            if self.second_objective_name == 'stability':
+                print(self.second_objective_name)
                 solution.objectives[1] = stability*1e3 + penalties
-            elif objective == 'torque':
+            elif self.second_objective_name == 'torque':
+                print(self.second_objective_name)
                 solution.objectives[1] = active_torque_sum*2e2 + penalties
-            elif objective == 'work':
+            elif self.second_objective_name == 'work':
+                print(self.second_objective_name)
                 solution.objectives[1] = fly.mechanical_work*2e-2 + penalties
             else:
                 print('please enter stability, torque or work')
@@ -398,7 +420,7 @@ def parse_args(problem):
         type=int,
         default=50,
         help='Number of generations',
-    )    
+    )
     parser.add_argument(
         '--n_cpu',
         type=int,
@@ -457,6 +479,12 @@ def parse_args(problem):
         default=20,
         help='Crossover probability',
     )
+    parser.add_argument(
+        '--objective',
+        type=str,
+        default='torque',
+        help='Second objective function',
+    )
     return parser.parse_args()
 
 
@@ -469,6 +497,7 @@ def main():
     # Parse command line arguments
     clargs = parse_args(problem=problem)
     max_evaluations = clargs.n_pop*clargs.n_gen
+    problem.second_objective_name = clargs.objective
 
     # Algorithm
     algorithm = NSGAII(
