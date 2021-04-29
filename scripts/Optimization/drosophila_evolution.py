@@ -507,6 +507,12 @@ def parse_args(problem):
         default=20,
         help='Crossover probability',
     )
+    parser.add_argument(
+        '--objective',
+        type=str,
+        default='torque',
+        help='Second objective function',
+    )
     return parser.parse_args()
 
 
