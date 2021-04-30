@@ -4,11 +4,12 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import itertools
 import matplotlib.ticker as mtick
+from matplotlib.lines import Line2D
 import matplotlib.patches as mpatches
 import pickle
 import os
 from .sensitivity_analysis import calculate_forces
-plt.style.use('seaborn-colorblind')
+#plt.style.use('seaborn-colorblind')
 
 ### Global varibles not used
 legs = ['LF', 'LM', 'LH', 'RF', 'RM', 'RH']
@@ -192,6 +193,68 @@ def heatmap_plot(
     ax.set_title(title)
     ax.invert_yaxis()
 
+def read_ground_contacts(
+        path_data,
+        leg_key):
+    """Read ground reaction forces data, calculates magnitude for each segment
+
+    Parameters:
+        path_data (str): Path to data for plotting
+        leg_key (str): Key for specifying leg to plot, e.g, LF, LM, LH, RF, RM, RH
+
+    Return:
+        grf (np.array): ground reaction forces for all segments in a specific leg
+    """
+    grf_data = os.path.join(path_data,'physics','ground_contacts.h5')
+    data = pd.read_hdf(grf_data)
+    grf_x = []
+    grf_y = []
+    grf_z = []
+    for leg, force in data.items():
+        if leg[:2] == leg_key:
+            if 'x' in leg:
+                grf_x.append(force)
+            if 'y' in leg:
+                grf_y.append(force)
+            if 'z' in leg:
+                grf_z.append(force)
+    grf = np.linalg.norm([grf_x,grf_y,grf_z],axis=0)    
+
+    return grf
+
+def read_collision_forces(path_data):
+    """Read ground reaction forces data, calculates magnitude for each segment
+
+    Parameters:
+        path_data (str): Path to data for plotting
+
+    Return:
+        collisions (dict): dictionary with all collision forces for each segment
+    """
+    
+    collisions_data = os.path.join(path_data,'physics','collision_forces.h5')
+    data = pd.read_hdf(collisions_data)
+
+    collisions = {}
+    check = []
+    for key in data.keys():
+        body_parts, force_axis = key.split('_')
+        segment1, segment2 = body_parts.split('-')
+        if body_parts not in check:
+            check.append(body_parts)
+            components = [k for k in data.keys() if body_parts in k]
+            data_x = data[components[0]].values
+            data_y = data[components[1]].values
+            data_z = data[components[2]].values
+            res_force = np.linalg.norm([data_x,data_y,data_z],axis=0)
+            if segment1 not in collisions.keys():
+                collisions[segment1]={}
+            if segment2 not in collisions.keys():
+                collisions[segment2]={}
+            collisions[segment1][segment2]=res_force
+            collisions[segment2][segment1]=res_force
+
+    return collisions
 
 def plot_angles_torques_grf(
         path_data,
@@ -226,8 +289,6 @@ def plot_angles_torques_grf(
         time_step (float, default 0.001): Data time step
         torqueScalingFactor (float, default 1.0): Scaling factor for torques
         grfScalingFactor (float, default 1.0): Scaling factor for ground reaction forces
-        tot_time=9.0,
-        
     """
 
     data2plot = {}
@@ -272,120 +333,66 @@ def plot_angles_torques_grf(
 
     if plot_grf:
         if sim_data == 'walking':
-            grf_data = os.path.join(path_data,'physics','ground_contacts.h5')
-            data2plot['grf'] = pd.read_hdf(grf_data)
-            grf_x = []
-            grf_y = []
-            grf_z = []
-            for leg, force in data2plot['grf'].items():
-                if leg[:2] == leg_key:
-                    if 'x' in leg:
-                        grf_x.append(force)
-                    if 'y' in leg:
-                        grf_y.append(force)
-                    if 'z' in leg:
-                        grf_z.append(force)
-            grf = np.linalg.norm([grf_x,grf_y,grf_z],axis=0)
-            sum_force = np.sum(np.array(grf), axis = 0)
+            data2plot['grf'] = read_ground_contacts(path_data,leg_key)
+            sum_force = np.sum(np.array(data2plot['grf']), axis = 0)
             leg_force = np.delete(sum_force,0)
 
     if plot_collisions:
         if sim_data == 'grooming':
-            collisions_data = os.path.join(path_data,'physics','collision_forces.h5')
-            data2plot['collisions'] = pd.read_hdf(collisions_data)
-            collisions=[]
-            contra_coll = []
-            ant_coll = []
+            data2plot['collisions'] = read_collision_forces(path_data)
+            leg_collisions = []
+            ant_collisions = []
+            all_collisions = []
             for segment, coll in data2plot['collisions'].items():
-                for key, forces in coll.items():
-                    side = leg_key[0]
-                    if side == 'L':
-                        contra_lateral_leg = leg_key.replace(side,'R')
-                    else:
-                        contra_lateral_leg = leg_key.replace(side,'L')
-                    antenna = side+'Antenna'
-                    if segment[:2] == leg_key:
-                        collisions.append([np.linalg.norm(force) for force in forces])
-                    elif segment[:2] == contra_lateral_leg:
-                        contra_coll.append([np.linalg.norm(force) for force in forces])
-                    elif segment == antenna:
-                        ant_coll.append([np.linalg.norm(force) for force in forces])
-            sum_leg = np.sum(np.array(collisions), axis = 0)
-            sum_contra_leg = np.sum(np.array(contra_coll), axis = 0)
-            sum_ant = np.sum(np.array(ant_coll), axis = 0)
-            leg_force = np.delete(sum_leg,0)
-            contra_force = np.delete(sum_contra_leg,0)
-            antenna_force = np.delete(sum_ant,0)
-            leg_vs_leg = []
-            leg_vs_ant = []
-            for i, f in enumerate(leg_force):
-                if f > 0 and antenna_force[i]>0:
-                    leg_vs_ant.append(f)
-                    leg_vs_leg.append(0)
-                elif f > 0 and contra_force[i]>0:
-                    leg_vs_ant.append(0)
-                    leg_vs_leg.append(f)                    
-                elif f==0:
-                    leg_vs_leg.append(0)
-                    leg_vs_ant.append(0)
-
-    ############################
+                if segment[:2] == leg_key:
+                    for k, val in coll.items():
+                        all_collisions.append(val)
+                        if 'Antenna' not in k:
+                            leg_collisions.append(val)
+                if 'Antenna' in segment and leg_key[0]==segment[0]:
+                    for k, val in coll.items():
+                        ant_collisions.append(val)
+            
+            sum_all = np.sum(np.array(all_collisions), axis = 0)
+            sum_leg = np.sum(np.array(leg_collisions), axis = 0)
+            sum_ant = np.sum(np.array(ant_collisions), axis = 0)
+            leg_force = np.delete(sum_all,0)
+            leg_vs_leg = np.delete(sum_leg,0)
+            leg_vs_ant = np.delete(sum_ant,0)
+            
     if end == 0:
         end = length_data*time_step
 
     steps = 1/time_step
     start = int(begin*steps)
     stop = int(end*steps)
-    ############################
             
     if collisions_across:
         if not plot_grf and sim_data=='walking':
-            with open(grf_data, 'rb') as fp:
-                grf_val = pickle.load(fp)
-            grf = []            
-            for leg, force in grf_val.items():
-                if leg[:2] == leg_key:
-                    grf.append(force.transpose()[0])
+            grf = read_ground_contacts(path_data,leg_key)
             sum_force = np.sum(np.array(grf), axis = 0)
             leg_force = np.delete(sum_force,0)
         if not plot_collisions and sim_data =='grooming':
-            with open(collisions_data, 'rb') as fp:
-                data2plot['collisions'] = pickle.load(fp)
-            collisions=[]
-            contra_coll = []
-            ant_coll = []
-            for segment, coll in data2plot['collisions'].items():
-                for key, forces in coll.items():
-                    side = leg_key[0]
-                    if side == 'L':
-                        contra_lateral_leg = leg_key.replace(side,'R')
-                    else:
-                        contra_lateral_leg = leg_key.replace(side,'L')
-                    antenna = side+'Antenna'
-                    if segment[:2] == leg_key:
-                        collisions.append([np.linalg.norm(force) for force in forces])
-                    elif segment[:2] == contra_lateral_leg:
-                        contra_coll.append([np.linalg.norm(force) for force in forces])
-                    elif segment == antenna:
-                        ant_coll.append([np.linalg.norm(force) for force in forces])
-            sum_leg = np.sum(np.array(collisions), axis = 0)
-            sum_contra_leg = np.sum(np.array(contra_coll), axis = 0)
-            sum_ant = np.sum(np.array(ant_coll), axis = 0)
-            leg_force = np.delete(sum_leg,0)
-            contra_force = np.delete(sum_contra_leg,0)
-            antenna_force = np.delete(sum_ant,0)
-            leg_vs_leg = []
-            leg_vs_ant = []
-            for i, f in enumerate(leg_force):
-                if f != 0 and antenna_force[i]>0:
-                    leg_vs_ant.append(f)
-                    leg_vs_leg.append(0)
-                elif f != 0 and contra_force[i]>0:
-                    leg_vs_ant.append(0)
-                    leg_vs_leg.append(f)                    
-                elif f==0:
-                    leg_vs_leg.append(0)
-                    leg_vs_ant.append(0)
+            collisions_dict = read_collision_forces(path_data)
+            leg_collisions = []
+            ant_collisions = []
+            all_collisions = []
+            for segment, coll in collisions_dict.items():
+                if segment[:2] == leg_key:
+                    for k, val in coll.items():
+                        all_collisions.append(val)
+                        if 'Antenna' not in k:
+                            leg_collisions.append(val)
+                if 'Antenna' in segment and leg_key[0]==segment[0]:
+                    for k, val in coll.items():
+                        ant_collisions.append(val)
+
+            sum_all = np.sum(np.array(all_collisions), axis = 0)
+            sum_leg = np.sum(np.array(leg_collisions), axis = 0)
+            sum_ant = np.sum(np.array(ant_collisions), axis = 0)
+            leg_force = np.delete(sum_all,0)
+            leg_vs_leg = np.delete(sum_leg,0)
+            leg_vs_ant = np.delete(sum_ant,0)
                     
         stance_ind = np.where(leg_force>0)[0]
         if stance_ind.size!=0:
@@ -411,6 +418,8 @@ def plot_angles_torques_grf(
                 stance_plot.insert(0,start)
             if len(stance_plot)%2 != 0:
                 stance_plot.append(stop)
+        else:
+            stance_plot = [0,0]
     
     fig, axs = plt.subplots(len(data2plot.keys()), sharex=True)
     fig.suptitle('Plots '+leg_key+ ' leg')
@@ -462,8 +471,12 @@ def plot_angles_torques_grf(
 
         if plot == 'grf':
             time = np.arange(0,len(leg_force),1)/steps
-            axs[i].plot(time[start:stop],leg_force[start:stop]*grfScalingFactor,color='black')
-            axs[i].set_ylabel('Ball reaction force' + r'$(\mu N)$')
+            if len(data2plot.keys()) == 1:
+                axs.plot(time[start:stop],leg_force[start:stop]*grfScalingFactor,color='black')
+                axs.set_ylabel('Ground reaction forces ' + r'$(\mu N)$')
+            else:
+                axs[i].plot(time[start:stop],leg_force[start:stop]*grfScalingFactor,color='black')
+                axs[i].set_ylabel('Ground reaction forces ' + r'$(\mu N)$')
             f_min = np.min(leg_force[start:stop]*grfScalingFactor)
             f_max = np.max(leg_force[start:stop]*grfScalingFactor)
             
@@ -472,14 +485,22 @@ def plot_angles_torques_grf(
                 
             if f_max > grf_max:
                 grf_max = f_max
-                
-            axs[i].set_ylim(-0.003, 1.1*grf_max)
+
+            if len(data2plot.keys()) == 1:
+                axs.set_ylim(-0.003, 1.1*grf_max)
+            else:
+                axs[i].set_ylim(-0.003, 1.1*grf_max)
 
         if plot == 'collisions':
             time = np.arange(0,len(leg_force),1)/steps
-            axs[i].plot(time[start:stop],np.array(leg_vs_leg[start:stop])*grfScalingFactor,color='black',label=['Leg vs leg force'])
-            axs[i].plot(time[start:stop],np.array(leg_vs_ant[start:stop])*grfScalingFactor,color='dimgray',label=['Leg vs antenna force'])
-            axs[i].set_ylabel('Contact forces (mN)')
+            if len(data2plot.keys()) == 1:
+                axs.plot(time[start:stop],np.array(leg_vs_leg[start:stop])*grfScalingFactor,color='black',label='Leg vs leg force')
+                axs.plot(time[start:stop],np.array(leg_vs_ant[start:stop])*grfScalingFactor,color='dimgray',label='Leg vs antenna force')
+                axs.set_ylabel('Collision forces ' + r'$(\mu N)$')
+            else:    
+                axs[i].plot(time[start:stop],np.array(leg_vs_leg[start:stop])*grfScalingFactor,color='black',label='Leg vs leg force')
+                axs[i].plot(time[start:stop],np.array(leg_vs_ant[start:stop])*grfScalingFactor,color='dimgray',label='Leg vs antenna force')
+                axs[i].set_ylabel('Collision forces ' + r'$(\mu N)$')
 
         if len(data2plot.keys()) == 1:
             axs.grid(True)
@@ -498,8 +519,14 @@ def plot_angles_torques_grf(
             elif collisions_across and sim_data=='grooming':
                 gray_patch = mpatches.Patch(color='dimgray')
                 darkgray_patch = mpatches.Patch(color='darkgray')
-                all_handles = plot_handles + [gray_patch] + [darkgray_patch]
-                all_labels = plot_labels + ['Foreleg grooming'] + ['Antennal grooming']
+                if plot_collisions and plot != 'collisions':
+                    dark_line = Line2D([0], [0], color='black')
+                    gray_line = Line2D([0], [0], color='dimgray')
+                    all_handles = plot_handles + [dark_line] + [gray_line] + [gray_patch] + [darkgray_patch]
+                    all_labels = plot_labels + ['Leg vs leg force'] + ['Leg vs antenna force'] + ['Foreleg grooming'] + ['Antennal grooming']
+                else:
+                    all_handles = plot_handles + [gray_patch] + [darkgray_patch]
+                    all_labels = plot_labels + ['Foreleg grooming'] + ['Antennal grooming']
             else:
                 all_handles = plot_handles
                 all_labels = plot_labels
@@ -517,9 +544,12 @@ def plot_angles_torques_grf(
                         c = 'dimgray'
                     elif np.sum(leg_vs_ant[stance_plot[ind]:stance_plot[ind+1]])>0:
                         c = 'darkgray'
-                axs[i].fill_between(time[stance_plot[ind]:stance_plot[ind+1]], 0, 1, facecolor=c, alpha=0.5, transform=axs[i].get_xaxis_transform())
-                
-        #axs[i].fill_between(time[start:stop], 0, 1, where=leg_force[start:stop] > 0, facecolor='gray', alpha=0.5, transform=axs[i].get_xaxis_transform(),step='pre')
+                    else:
+                        c= 'darkgray'
+                if len(data2plot.keys()) == 1:
+                    axs.fill_between(time[stance_plot[ind]:stance_plot[ind+1]], 0, 1, facecolor=c, alpha=0.5, transform=axs.get_xaxis_transform())
+                else:
+                    axs[i].fill_between(time[stance_plot[ind]:stance_plot[ind+1]], 0, 1, facecolor=c, alpha=0.5, transform=axs[i].get_xaxis_transform())
 
     if len(data2plot.keys()) == 1:
         axs.set_xlabel('Time (s)')
