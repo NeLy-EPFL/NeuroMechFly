@@ -522,7 +522,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             # basePosition=[-0.023, 0.0085, 0.6198] ### Walking ball r= 0.5
             # basePosition=[-0.0225, 0.007, 0.61973] ### Walking ball r= 0.5
             basePosition = np.array(
-                [0.0e-3, 0.0e-3,-5.1e-3])*self.units.meters+self.model_offset
+                [-0.0e-3, 0.0e-3,-5.1e-3])*self.units.meters+self.model_offset
         elif self.behavior == 'grooming':
             # basePosition=[0.0,-0.01,0.63] ### Grooming
             basePosition = np.array(

@@ -126,17 +126,17 @@ class DrosophilaEvolution(FloatProblem):
         lower_bound_active_muscles = (
                 np.asarray(
                     [# Front
-                    [1e-2, 1e-2, 1e-3, 1e-4, -0.22], # Coxa
-                    [1e-2, 1e-2, 1e-3, 1e-4, -2.5], # Femur
-                    [1e-2, 1e-2, 1e-3, 5e-4, 0.76], # Tibia
+                    [1e-2, 1e-2, 1e-3, 1e-4, 0.22], # Coxa
+                    [1e-2, 1e-2, 1e-3, 1e-4, -2.3], # Femur
+                    [1e-2, 1e-2, 1e-3, 5e-4, 1.40], # Tibia
                     # Mid
-                    [1e-2, 1e-2, 1e-3, 1e-4, -2.2], # Coxa_roll
-                    [1e-2, 1e-2, 1e-3, 1e-4, -2.35], # Femur
-                    [1e-2, 1e-2, 1e-3, 5e-4, 1.73], # Tibia
+                    [1e-2, 1e-2, 1e-3, 1e-4, -2.1], # Coxa_roll
+                    [1e-2, 1e-2, 1e-3, 1e-4, -2.0], # Femur
+                    [1e-2, 1e-2, 1e-3, 5e-4, 2.0], # Tibia
                     # Hind
-                    [1e-2, 1e-2, 1e-3, 1e-4, -2.78], # Coxa_roll
-                    [1e-2, 1e-2, 1e-3, 1e-4, -2.46], # Femur
-                    [1e-2, 1e-2, 1e-3, 5e-4, 1.12], # Tibia
+                    [1e-2, 1e-2, 1e-3, 1e-4, -2.53], # Coxa_roll
+                    [1e-2, 1e-2, 1e-3, 1e-4, -2.05], # Femur
+                    [1e-2, 1e-2, 1e-3, 5e-4, 1.60], # Tibia
                     ]
                 )
         ).flatten()
@@ -146,16 +146,16 @@ class DrosophilaEvolution(FloatProblem):
                     [
                     # Front
                     [1e0, 1e0, 1e0, 1e-3, 0.49], # Coxa
-                    [1e0, 1e0, 1e0, 1e-3, -1.3], # Femur
-                    [1e-1, 1e-1, 1e-1, 1e-3, 2.19], # Tibia
+                    [1e0, 1e0, 1e0, 1e-3, -1.6], # Femur
+                    [1e-1, 1e-1, 1e-1, 1e-3, 1.90], # Tibia
                     # Mid
-                    [1e0, 1e0, 1e0, 1e-3, -1.75], # Coxa_roll
-                    [1e0, 1e0, 1e0, 1e-3, -1.84], # Femur
-                    [1e-1, 1e-1, 1e-1, 1e-3, 2.63], # Tibia
+                    [1e0, 1e0, 1e0, 1e-3, -1.99], # Coxa_roll
+                    [1e0, 1e0, 1e0, 1e-3, -1.9], # Femur
+                    [1e-1, 1e-1, 1e-1, 1e-3, 2.30], # Tibia
                     # Hind
-                    [1e0, 1e0, 1e0, 1e-3, -2.44], # Coxa_roll
-                    [1e0, 1e0, 1e0, 1e-3, -1.31], # Femur
-                    [1e-1, 1e-1, 1e-1, 1e-3, 2.79], # Tibia
+                    [1e0, 1e0, 1e0, 1e-3, -2.50], # Coxa_roll
+                    [1e0, 1e0, 1e0, 1e-3, -1.70], # Femur
+                    [1e-1, 1e-1, 1e-1, 1e-3, 2.20], # Tibia
                     ]
                 )
         ).flatten()
@@ -278,7 +278,7 @@ class DrosophilaEvolution(FloatProblem):
         time_step = 0.001
         sim_options = {
             "headless": True,
-            "model": "../../design/sdf/neuromechfly_limitsFromData.sdf",
+            "model": "../../design/sdf/neuromechfly_limitsFromData_1std.sdf",
             "model_offset": [0., 0., 11.2e-3],
             "pose": "../../config/test_pose_tripod.yaml",
             #"pose": "../../config/pose_optimization.yaml",
@@ -350,7 +350,7 @@ class DrosophilaEvolution(FloatProblem):
                  1]+abs(np.array(fly.ball_rotations()))[2])
 
             # stability = fly.stability_coef*fly.time_step/fly.time
-            stability = fly.stability_coef
+            stability = fly.stability_coef*fly.time_step/fly.time
 
             penalty_all_legs = 5.0 if (
                 np.any(fly.check_is_all_legs == False)) else (0.0)
@@ -362,7 +362,7 @@ class DrosophilaEvolution(FloatProblem):
             penalty_time_stance = (
                 0.0
                 if min_legs <= mean_stance_legs < expected_stance_legs
-                else 1e2 * abs(mean_stance_legs - min_legs)
+                else 1e1 * abs(mean_stance_legs - min_legs)
             )
 
             ### PRINT PENALTIES AND OBJECTIVES ###
@@ -390,10 +390,10 @@ class DrosophilaEvolution(FloatProblem):
                 )
 
             solution.objectives[0] = (
-                distance
+                -1e2*distance
                 #+ penalty_all_legs
                 #+ penalty_linearity
-                #+ penalty_time
+                + penalty_time
             )
             #solution.objectives[1] = (
             #    act
@@ -401,9 +401,9 @@ class DrosophilaEvolution(FloatProblem):
             #    + penalty_time
             #)
             solution.objectives[1] = (
-                stability
+                1e2*stability
                 #+ penalty_dist
-                #+ 1e1*penalty_time_stance
+                + penalty_time_stance
             )
         else:
             # Torques

@@ -302,14 +302,13 @@ class DrosophilaSimulation(BulletSimulation):
                 sum_x += pos_tarsus[0]
                 sum_y += pos_tarsus[1]
 
-        print(contact_legs)
         self.stance_count += len(contact_legs)
         if len(contact_legs) > 1:
             poly_centroid = np.array([sum_x/len(contact_legs),sum_y/len(contact_legs)])
             body_centroid = np.array(self.get_link_position('Thorax')[:2])
             dist = np.linalg.norm(body_centroid-poly_centroid)
         else:
-            dist = 1000
+            dist = 100
         return dist
 
         # if len(contact_legs)>2:
@@ -376,7 +375,7 @@ class DrosophilaSimulation(BulletSimulation):
         dist_to_centroid = self.stance_polygon_dist()
         # self.stability_coef += dist_to_centroid
         # print(dist_to_centroid)
-        return dist_to_centroid > 100
+        return dist_to_centroid > 90
 
     def calculate_stability(self):
         dist_to_centroid = self.stance_polygon_dist()
@@ -648,15 +647,15 @@ def main():
         for link1 in body_segments:
             self_collision.append([link0,link1])
 
-    gen = '99'
-    exp = 'run_Drosophila_var_62_obj_2_0430_0936'
+    gen = '10'
+    exp = 'run_Drosophila_var_62_obj_2_0430_1618'
     #exp = 'run_Drosophila_var_62_obj_2_0430_0137'
     #exp = 'run_Drosophila_var_62_obj_2_0430_0158'
     #exp = 'run_Drosophila_var_62_obj_2_0430_0117'
     sim_options = {
         "headless": False,
         # Scaled SDF model
-        "model": "../../design/sdf/neuromechfly_limitsFromData.sdf",
+        "model": "../../design/sdf/neuromechfly_limitsFromData_1std.sdf",
         "model_offset": [0., 0., 11.2e-3],
         "run_time": 3,
         "pose": '../../config/test_pose_tripod.yaml',
@@ -665,14 +664,14 @@ def main():
         "ground_contacts": ground_contact,
         'self_collisions':self_collision,
         "draw_collisions": True,
-        "record": True,
+        "record": False,
         'camera_distance': 4.5,
         'track': False,
         'moviename': 'stability_'+exp+'_gen_'+gen+'.mp4',
         'moviespeed': 0.1,
         'slow_down': False,
         'sleep_time': 10.0,
-        'rot_cam': True
+        'rot_cam': False
         }
 
     container = Container(clargs.runtime/clargs.timestep)
@@ -710,8 +709,8 @@ def main():
     params = var[np.argmax(fun[:,0]*fun[:,1])]
 
     #ind=np.argmin(fun[:,0])
+    ind = np.argmin(10*fun[:,0]+fun[:,1])
     ind = np.argmin(fun[:,0]+fun[:,1])
-    ind = np.argmin(fun[:,0])
 
     params = var[ind]
     params = np.array(params)
