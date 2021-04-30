@@ -297,39 +297,25 @@ class DrosophilaSimulation(BulletSimulation):
         edges_joints = int(self.controller.graph.number_of_nodes() / 3)
         edges_anta = int(self.controller.graph.number_of_nodes() / 12)
 
-        opti_active_muscle_gains = params[:7 * N]
-        opti_joint_phases = params[7 * N:7 * N + edges_joints]
-        #opti_antagonist_phases = params[6*N+edges_joints:6*N+edges_joints+edges_anta]
-        #opti_base_phases = params[6*N+edges_joints+edges_anta:]
+        opti_active_muscle_gains = params[:5 * N]
+        opti_joint_phases = params[5 * N:5 * N + edges_joints]
 
-        # opti_base_phases = params[5*N+edges_joints:]
-
-        # print(
-        #    "Opti active muscle gains {}".format(
-        #        opti_active_muscle_gains
-        #    )
-        # )
-        #print("Opti joint phases {}".format(opti_joint_phases))
-        #print("Opti antagonist phases {}".format(opti_antagonist_phases))
-        #print("Opti base phases {}".format(opti_base_phases))
-
-        #: update active muscle parameters
+        #: Update active muscle parameters
         symmetry_joints = filter(
             lambda x: x.split('_')[1][0] != 'R', self.actuated_joints
         )
 
         for j, joint in enumerate(symmetry_joints):
-            #print(joint,joint.replace('L', 'R', 1),6*j,6*(j+1))
-            # print(joint, Parameters(*opti_active_muscle_gains[7*j:7*(j+1)]))
             self.active_muscles[joint.replace('L', 'R', 1)].update_parameters(
-                Parameters(*opti_active_muscle_gains[7 * j:7 * (j + 1)])
+                Parameters(*opti_active_muscle_gains[5 * j:5 * (j + 1)])
             )
             #: It is important to mirror the joint angles for rest position
             #: especially for coxa
             if "Coxa_roll" in joint:
-                opti_active_muscle_gains[(7 * j) + 4] *= -1
+                opti_active_muscle_gains[(5 * j) + 0] *= -1
+                opti_active_muscle_gains[(5 * j) + 4] *= -1
             self.active_muscles[joint].update_parameters(
-                Parameters(*opti_active_muscle_gains[7 * j:7 * (j + 1)])
+                Parameters(*opti_active_muscle_gains[5 * j:5 * (j + 1)])
             )
         #: Update phases
         #: Edges to set phases for
@@ -361,185 +347,3 @@ class DrosophilaSimulation(BulletSimulation):
                         parameters.get_parameter(
                             'phi_{}_to_{}'.format(node_2, node_1)
                         ).value = -1 * opti_joint_phases[4 * j0 + 2 * j1 + j2]
-        '''
-        if len(params)>75:
-            opti_base_phases = params[5*N+edges_joints+edges_anta:]
-            coxae_edges =[
-                 ['LFCoxa', 'RFCoxa'],
-                 ['LFCoxa', 'RMCoxa_roll'],
-                 ['RMCoxa_roll', 'LHCoxa_roll'],
-                 ['RFCoxa', 'LMCoxa_roll'],
-                 ['LMCoxa_roll', 'RHCoxa_roll']
-             ]
-
-            for j1, ed in enumerate(coxae_edges):
-                for j2, action in enumerate(('flexion', 'extension')):
-                    node_1 = "joint_{}_{}".format(ed[0], action)
-                    node_2 = "joint_{}_{}".format(ed[1], action)
-                    #print(node_1, node_2, j1)
-                    parameters.get_parameter(
-                        'phi_{}_to_{}'.format(node_1, node_2)
-                    ).value = opti_base_phases[j1]
-                    parameters.get_parameter(
-                        'phi_{}_to_{}'.format(node_2, node_1)
-                    ).value = -1*opti_base_phases[j1]
-        '''
-
-def read_optimization_results(fun, var):
-    """ Read optimization results. """
-    return (np.loadtxt(fun), np.loadtxt(var))
-
-
-def parse_args():
-    """Argument parser"""
-    parser = argparse.ArgumentParser(
-        description='Neuromechfly simulation of evolution results',
-        formatter_class=(
-            lambda prog:
-            argparse.HelpFormatter(prog, max_help_position=50)
-        ),
-    )
-    parser.add_argument(
-        '--output_fun',
-        type=str,
-        default='FUN.txt',
-        help='Results output of functions',
-    )
-    parser.add_argument(
-        '--output_var',
-        type=str,
-        default='VAR.txt',
-        help='Results output of variables',
-    )
-    parser.add_argument(
-        '--runtime',
-        type=float,
-        default=2.,
-        help='Simulation run time',
-    )
-    parser.add_argument(
-        '--timestep',
-        type=float,
-        default=0.001,
-        help='Simulation timestep',
-    )
-    return parser.parse_args()
-
-
-def main():
-    """ Main """
-
-    clargs = parse_args()
-
-    side = ['L', 'R']
-    pos = ['F', 'M', 'H']
-    leg_segments = ['Femur', 'Tibia'] + \
-        ['Tarsus' + str(i) for i in range(1, 6)]
-
-    ground_contact = [
-        s +
-        p +
-        name for s in side for p in pos for name in leg_segments if 'Tarsus' in name]
-
-    left_front_leg = ['LF' + name for name in leg_segments]
-    left_middle_leg = ['LM' + name for name in leg_segments]
-    left_hind_leg = ['LH' + name for name in leg_segments]
-
-    right_front_leg = ['RF' + name for name in leg_segments]
-    right_middle_leg = ['RM' + name for name in leg_segments]
-    right_hind_leg = ['RH' + name for name in leg_segments]
-
-    body_segments = ['A1A2', 'A3', 'A4', 'A5', 'A6', 'Thorax', 'Head']
-
-    self_collision = []
-    for link0 in left_front_leg:
-        for link1 in left_middle_leg:
-            self_collision.append([link0, link1])
-    for link0 in left_middle_leg:
-        for link1 in left_hind_leg:
-            self_collision.append([link0, link1])
-    for link0 in left_front_leg:
-        for link1 in body_segments:
-            self_collision.append([link0, link1])
-    for link0 in left_middle_leg:
-        for link1 in body_segments:
-            self_collision.append([link0, link1])
-    for link0 in left_hind_leg:
-        for link1 in body_segments:
-            self_collision.append([link0, link1])
-
-    for link0 in right_front_leg:
-        for link1 in right_middle_leg:
-            self_collision.append([link0, link1])
-    for link0 in right_middle_leg:
-        for link1 in right_hind_leg:
-            self_collision.append([link0, link1])
-    for link0 in right_front_leg:
-        for link1 in body_segments:
-            self_collision.append([link0, link1])
-    for link0 in right_middle_leg:
-        for link1 in body_segments:
-            self_collision.append([link0, link1])
-    for link0 in right_hind_leg:
-        for link1 in body_segments:
-            self_collision.append([link0, link1])
-
-    gen = '10'
-    exp = 'run_Drosophila_var_71_obj_2_pop_20_gen_100_0407_1744'
-
-    sim_options = {
-        "headless": False,
-        # Scaled SDF model
-        "model": "../../data/design/sdf/neuromechfly_limitsFromData_minMax.sdf",
-        "model_offset": [0., 0., 11.2e-3],
-        "run_time": clargs.runtime,
-        "pose": '../../data/config/pose/test_pose_tripod.yaml',
-        "base_link": 'Thorax',
-        "controller": '../../data/config/network/locomotion_ball.graphml',
-        "ground_contacts": ground_contact,
-        'self_collisions': self_collision,
-        "draw_collisions": True,
-        "record": False,
-        'camera_distance': 3.5,
-        'track': False,
-        'moviename': 'stability_' + exp + '_gen_' + gen + '.mp4',
-        'moviefps': 50,
-        'slow_down': True,
-        'sleep_time': 0.001,
-        'rot_cam': False,
-        'ground': 'ball'
-    }
-
-    container = Container(clargs.runtime / clargs.timestep)
-    animal = DrosophilaSimulation(container, sim_options)
-
-    '''
-    fun, var = read_optimization_results(
-        "./optimization_results/"+exp+"/FUN."+gen,
-        "./optimization_results/"+exp+"/VAR."+gen
-    )
-    '''
-
-    fun, var = read_optimization_results(
-        "./FUN.ged3",
-        "./VAR.ged3"
-    )
-    '''
-    fun, var = read_optimization_results(
-        "./FUN.txt",
-        "./VAR.txt",
-    )
-    '''
-
-    params = var[np.argmax(fun[:, 0] * fun[:, 1])]
-    params = np.array(params)
-    animal.update_parameters(params)
-
-    animal.run(optimization=False)
-    animal.container.dump(
-        dump_path=f"./optimization_{exp}_gen_{gen}",
-        overwrite=True
-        )
-
-if __name__ == '__main__':
-    main()
