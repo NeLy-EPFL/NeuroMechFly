@@ -278,7 +278,7 @@ class DrosophilaEvolution(FloatProblem):
         time_step = 0.001
         sim_options = {
             "headless": True,
-            "model": "../../design/sdf/neuromechfly_limitsFromData_minMax.sdf",
+            "model": "../../design/sdf/neuromechfly_limitsFromData.sdf",
             "model_offset": [0., 0., 11.2e-3],
             "pose": "../../config/test_pose_tripod.yaml",
             #"pose": "../../config/pose_optimization.yaml",
@@ -349,12 +349,13 @@ class DrosophilaEvolution(FloatProblem):
                 (abs(np.array(fly.ball_rotations()))[
                  1]+abs(np.array(fly.ball_rotations()))[2])
 
-            stability = fly.stability_coef*fly.time_step/fly.time
+            # stability = fly.stability_coef*fly.time_step/fly.time
+            stability = fly.stability_coef
 
             penalty_all_legs = 5.0 if (
                 np.any(fly.check_is_all_legs == False)) else (0.0)
 
-            expected_stance_legs = 4
+            expected_stance_legs = 3.8
             min_legs = 3
             mean_stance_legs = fly.stance_count*fly.time_step/fly.time
             # print(fly.stance_count, fly.time_step, fly.time, mean_stance_legs)
@@ -377,22 +378,22 @@ class DrosophilaEvolution(FloatProblem):
                     Penalty time stance: {} \n \
                     Penalty all legs: {} \n \
                 ".format(
-                    -2e1*distance,
+                    -distance,
                     act,
-                    2e2*stability,
+                    stability,
                     penalty_linearity,
                     penalty_time,
                     penalty_dist,
-                    1e1*penalty_time_stance,
+                    penalty_time_stance,
                     penalty_all_legs
                 )
                 )
 
             solution.objectives[0] = (
-                -2e1*distance
+                distance
                 #+ penalty_all_legs
                 #+ penalty_linearity
-                + penalty_time
+                #+ penalty_time
             )
             #solution.objectives[1] = (
             #    act
@@ -400,9 +401,9 @@ class DrosophilaEvolution(FloatProblem):
             #    + penalty_time
             #)
             solution.objectives[1] = (
-                2e2*stability
+                stability
                 #+ penalty_dist
-                + 1e1*penalty_time_stance
+                #+ 1e1*penalty_time_stance
             )
         else:
             # Torques
