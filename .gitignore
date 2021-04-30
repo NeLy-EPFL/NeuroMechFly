@@ -139,6 +139,7 @@ documentation/_templates
 !design/
 data/
 build/
+scripts/
 
 # Mac
 **.DS_Store

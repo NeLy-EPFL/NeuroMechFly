@@ -55,10 +55,10 @@ if __name__ == "__main__":
         'behavior': behavior,
         'ground': 'ball'
     }
-
+    
     position_path = f'../data/joint_kinematics/{behavior}/{behavior}_converted_joint_angles.pkl'
     velocity_path = f'../data/joint_kinematics/{behavior}/{behavior}_converted_joint_velocities.pkl'
-
+    print(self_collision)
     container = Container(run_time / time_step)
     animal = kinematic_replay.DrosophilaSimulation(
         container, 
@@ -69,4 +69,4 @@ if __name__ == "__main__":
     )
     animal.run(optimization=False)
     animal.container.dump(
-        dump_path=f"./kinematic_replay_{behavior}", overwrite=True)
+        dump_path=f'./kinematic_replay_{behavior}', overwrite=True)
