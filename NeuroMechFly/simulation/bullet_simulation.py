@@ -830,10 +830,3 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             status = self.step(t, optimization=optimization)
             if not status:
                 return False
-
-
-def main():
-    """ Main """
-
-if __name__ == '__main__':
-    main()
