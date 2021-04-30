@@ -1,3 +1,5 @@
+""" Drosophila simulation class for kinematic replay for the ball experiments. """
+
 from NeuroMechFly.simulation.bullet_simulation import BulletSimulation
 from NeuroMechFly.container import Container
 from NeuroMechFly.sdf.units import SimulationUnitScaling
@@ -25,7 +27,7 @@ class DrosophilaSimulation(BulletSimulation):
     units: <obj>
         Instance of SimulationUnitScaling object to scale up the units during calculations.
     """
-        def __init__(
+    def __init__(
         self,
         container,
         sim_options,
@@ -52,7 +54,7 @@ class DrosophilaSimulation(BulletSimulation):
 
         Parameters
         ----------
-        data_path : str
+        data_path : <str>
             Path of the .pkl file.
 
         Returns
@@ -73,7 +75,7 @@ class DrosophilaSimulation(BulletSimulation):
 
         Parameters
         ----------
-        t : int
+        t : <int>
             Time running in the physics engine. 
         """
 

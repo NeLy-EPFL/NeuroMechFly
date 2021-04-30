@@ -210,7 +210,7 @@ class DrosophilaEvolution(FloatProblem):
             "headless": True,
             "model": "../data/design/sdf/neuromechfly_limitsFromData_minMax.sdf",
             "model_offset": [0., 0., 11.2e-3],
-            "pose": "../data/config/pose/test_pose_tripod.yaml",
+            "pose": "../data/config/pose/pose_tripod.yaml",
             "run_time": run_time,
             "base_link": 'Thorax',
             "controller": '../data/config/network/locomotion_ball.graphml',

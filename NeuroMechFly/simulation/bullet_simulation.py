@@ -463,6 +463,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         ) else False
 
     def get_link_position(self, link_name):
+        """" Return the position of the link. """
         return (p.getLinkState(
             self.animal, 
             self.link_id[link_name]))[0] / self.units.meters
@@ -475,7 +476,8 @@ class BulletSimulation(metaclass=abc.ABCMeta):
 
         mass_parent = 0
         visual_shape_id = -1
-
+        #: Different ball positions used for different experiments
+        #: Else corresponds to the ball position during optimization
         if self.behavior == 'walking':
             base_position = np.array([0.28e-3, -0.2e-3,-4.965e-3])*self.units.meters+self.MODEL_OFFSET
         elif self.behavior == 'grooming':
@@ -484,7 +486,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         else:
             base_position = np.array(
                 [-0.05e-3, 0.0e-3, -5.09e-3]) * self.units.meters + self.MODEL_OFFSET
-
+        #: Create the sphere
         base_orientation = [0, 0, 0, 1]
         link_masses = np.array([1e-11,1e-11,1e-11])*self.units.kilograms
         link_collision_shape_indices = [-1, -1, col_sphere_id]
@@ -514,7 +516,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             linkParentIndices=indices,
             linkJointTypes=joint_types,
             linkJointAxis=axis)
-
+        #: Physical properties of the ball can be changed here
         p.changeDynamics(sphere_id,
                          -1,
                          spinningFriction=100,
@@ -542,6 +544,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
 
     @property
     def ball_rotations(self):
+        """ Return the ball position. """
         return tuple(
             state[0] for state in p.getJointStates(
                 self.plane,
@@ -551,7 +554,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
 
     @property
     def joint_states(self):
-        """ Get all joint states  """
+        """ Get all joint states. """
         return p.getJointStates(
             self.animal,
             np.arange(0, p.getNumJoints(self.animal))
@@ -559,7 +562,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
 
     @property
     def ground_reaction_forces(self):
-        """Get the ground reaction forces.  """
+        """Get the ground reaction forces. """
         return list(
             map(self._get_contact_normal_force, self.ground_sensors.values())
         )
@@ -737,7 +740,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                 pitch,
                 base)
 
-        ######## WALKING CAMERA SEQUENCE ########
+        #: Walking camera sequence, set rotate_camera to True to activate
         if self.GUI == p.GUI and self.ROTATE_CAMERA and self.behavior == 'walking':
             base = np.array(self.base_position)
             base[-1] = 1.10
@@ -772,7 +775,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                 pitch,
                 base)
 
-        ###### GROOMING CAMERA SEQUENCE #######
+        #: Grooming camera sequence, set rotate_camera to True to activate
         if self.GUI == p.GUI and self.ROTATE_CAMERA and self.behavior == 'grooming':
             base = np.array(self.base_position)
             if t < 250:
@@ -816,7 +819,6 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         #: Slow down the simulation
         if self.slow_down:
             time.sleep(self.sleep_time)
-
         #: Check if optimization is to be killed
         if optimization:
             optimization_status = self.optimization_check()

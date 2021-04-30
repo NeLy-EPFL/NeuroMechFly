@@ -9,7 +9,7 @@ from pathlib import Path
 import farms_pylog as pylog
 import numpy as np
 
-from drosophila_simulation_opt import DrosophilaSimulation
+from NeuroMechFly.simulation.bullet_simulation import DrosophilaSimulation
 from NeuroMechFly.container import Container
 
 

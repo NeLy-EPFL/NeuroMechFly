@@ -1,3 +1,4 @@
+""" Drosophila simulation class for kinematic replay without body support. """
 from NeuroMechFly.simulation.bullet_simulation import BulletSimulation
 from NeuroMechFly.container import Container
 from NeuroMechFly.sdf.units import SimulationUnitScaling
@@ -8,7 +9,6 @@ import pybullet as p
 
 # Random number seed
 np.random.seed(seed=321)
-
 
 def add_perturbation(
         size, initial_position, target_position, time, units
@@ -102,7 +102,7 @@ class DrosophilaSimulation(BulletSimulation):
 
         Parameters
         ----------
-        data_path : str
+        data_path : <str>
             Path of the .pkl file.
 
         Returns

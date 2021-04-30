@@ -72,7 +72,7 @@ if __name__ == "__main__":
         "model": "../data/design/sdf/neuromechfly_limitsFromData_minMax.sdf",
         "model_offset": [0., 0., 11.2e-3],
         "run_time": run_time,
-        "pose": '../data/config/pose/test_pose_tripod.yaml',
+        "pose": '../data/config/pose/pose_tripod.yaml',
         "base_link": 'Thorax',
         "controller": '../data/config/network/locomotion_ball.graphml',
         "ground_contacts": ground_contact,
