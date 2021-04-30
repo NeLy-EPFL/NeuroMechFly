@@ -58,7 +58,7 @@ if __name__ == "__main__":
     
     position_path = f'../data/joint_kinematics/{behavior}/{behavior}_converted_joint_angles.pkl'
     velocity_path = f'../data/joint_kinematics/{behavior}/{behavior}_converted_joint_velocities.pkl'
-    print(self_collision)
+    
     container = Container(run_time / time_step)
     animal = kinematic_replay.DrosophilaSimulation(
         container, 
