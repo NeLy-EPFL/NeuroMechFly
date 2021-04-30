@@ -1,10 +1,13 @@
-import numpy as np
+#!/usr/bin/env python
+
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
+
+from NeuroMechFly.utils.plotting import (heatmap_plot, plot_kp_joint,
+                                         plot_mu_sem)
 from NeuroMechFly.utils.sensitivity_analysis import (
     calculate_MSE_joints, calculate_statistics_joints)
-from NeuroMechFly.utils.plotting import (
-    plot_mu_sem, plot_kp_joint, heatmap_plot)
 
 joints = [
     'Coxa',

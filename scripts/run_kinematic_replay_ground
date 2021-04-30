@@ -1,10 +1,16 @@
-from NeuroMechFly.experiments.kinematic_replay import kinematic_replay
+#!/usr/bin/env python
+
+import argparse
+
 from NeuroMechFly.container import Container
-import argparse 
+from NeuroMechFly.experiments.kinematic_replay import \
+    kinematic_replay_no_support
 
 if __name__ == "__main__":
+
     parser = argparse.ArgumentParser()
     parser.add_argument('-b', '--behavior', default='walking')
+    parser.add_argument('-p', '--perturbation', default=False, action='store_true')
     args = parser.parse_args()
 
     run_time = 8.0
@@ -36,37 +42,40 @@ if __name__ == "__main__":
 
     sim_options = {
         "headless": False,
-        "model": "../data/design/sdf/neuromechfly_noLimits.sdf",
+        "model": "../../data/design/sdf/neuromechfly_noLimits_noSupport.sdf",
+        "model": "../data/design/sdf/neuromechfly_noLimits_noSupport.sdf",
         "pose": '../data/config/pose/pose_optimization_2.yaml',
-        "model_offset": [0., 0, 11.2e-3],
+        "model_offset": [0, 0., 2.1e-3],
         "run_time": run_time,
+        "time_step": time_step,
         "base_link": 'Thorax',
         "ground_contacts": ground_contact,
         "self_collisions": self_collision,
-        "draw_collisions": True,
-        "record": False,
-        'camera_distance': 6.0,
+        "record": True,
+        'camera_distance':5.0,
         'track': False,
-        'moviename': './videos/kinematic_replay_video.mp4',
+        'moviename': './kinematic_replay_ground.mp4',
         'moviespeed': 0.2,
         'slow_down': False,
         'sleep_time': 0.001,
         'rot_cam': False,
         'behavior': behavior,
-        'ground': 'ball'
+        'ground': 'floor',
+        'num_substep': 5
     }
-    
+
     position_path = f'../data/joint_kinematics/{behavior}/{behavior}_converted_joint_angles.pkl'
     velocity_path = f'../data/joint_kinematics/{behavior}/{behavior}_converted_joint_velocities.pkl'
-    
+
     container = Container(run_time / time_step)
-    animal = kinematic_replay.DrosophilaSimulation(
-        container, 
-        sim_options, 
+    animal = kinematic_replay_no_support.DrosophilaSimulation(
+        container,
+        sim_options,
         Kp=0.4, Kv=0.9,
         position_path=position_path,
-        velocity_path=velocity_path
+        velocity_path=velocity_path,
+        add_perturbation=args.perturbation
     )
     animal.run(optimization=False)
     animal.container.dump(
-        dump_path=f'./kinematic_replay_{behavior}', overwrite=True)
+        dump_path="./basepositionrecorded", overwrite=True)
