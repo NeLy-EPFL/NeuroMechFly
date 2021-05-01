@@ -1,15 +1,17 @@
 """Optimisation simulation"""
 
+import argparse
 import os
 import pickle
 import time
-import argparse
 
 import farms_pylog as pylog
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from IPython import embed
-import matplotlib.pyplot as plt
+from shapely.geometry import Point, Polygon
+
 import pybullet as p
 import pybullet_data
 from bullet_simulation_opt import BulletSimulation
@@ -233,6 +235,7 @@ class DrosophilaSimulation(BulletSimulation):
 
     def controller_to_actuator(self, t):
         """ Implementation of abstractmethod. """
+        print(self.compute_static_stability())
         self.muscle_controller()
         self.fixed_joints_controller()
 
@@ -289,7 +292,99 @@ class DrosophilaSimulation(BulletSimulation):
             )
         )
 
-    def stance_polygon_dist(self):
+    @staticmethod
+    def compute_line_coefficients(point_a, point_b):
+        """ Compute the coefficient of a line
+
+        Parameters
+        ----------
+        point_a :<array>
+            2D position of a
+
+        point_b :<array>
+            2D position of b
+
+        Returns
+        -------
+        coefficients :<array>
+
+        """
+        if abs(point_b[0] - point_a[0]) < 1e-10:
+            return np.asarray([1, 0, -point_a[0]])
+        slope = (point_b[1] - point_a[1])/(point_b[0] - point_a[0])
+        intercept = point_b[1] - slope*point_b[0]
+        return np.asarray([slope, -1, intercept])
+
+    @staticmethod
+    def compute_perpendicular_distance(line, point):
+        """ Compute the perpendicular distance between line and point
+
+        Parameters
+        ----------
+        line: <array>
+            Coefficients of line segments (ax+by+c)
+        point: <array>
+            2D point in space
+
+        Returns
+        -------
+        distance: <float>
+            Perpendicular distance from point to line
+        """
+        return abs(
+            line[0]*point[0]+line[1]*point[1]+line[2]
+        )/np.sqrt(line[0]**2 + line[1]**2)
+
+    def compute_static_stability(self):
+        """ Computes static stability  of the model.
+
+        Parameters
+        ----------
+        self :
+
+
+        Returns
+        -------
+        out :
+
+        """
+        # TODO: Check units for get_link_position
+        contact_points = [
+            self.get_link_position(f"{side}Tarsus5")[:2]
+            for side in ["RF", "RM", "RH", "LH", "LM", "LF"]
+            if any(
+                    [
+                        self.is_contact_ball(f"{side}Tarsus{num}")
+                        for num in range(1, 6)
+                     ]
+                )
+        ]
+        # TODO: Fix this
+        contact_points = [[]] if not contact_points else contact_points
+        assert len(contact_points) <= 6
+        # Get fly center_of_mass (Centroid for now)
+        center_of_mass = np.asarray(self.get_link_position('Thorax')[:2])
+        # body length
+        body_length = 2.3*self.units.meters
+        # Make polygon of points
+        try:
+            polygon = Polygon(contact_points)
+        except ValueError:
+            return -1
+        # Compute minimum distance
+        distance = np.min([
+            DrosophilaSimulation.compute_perpendicular_distance(
+                DrosophilaSimulation.compute_line_coefficients(
+                    polygon.exterior.coords[idx],
+                    polygon.exterior.coords[idx+1]
+                ),
+                center_of_mass
+            )
+            for idx in range(len(polygon.exterior.coords)-1)
+        ])/body_length
+        return distance if polygon.contains(Point(center_of_mass)) else -distance
+
+    def stance_polygon_dist_dep(self):
         contact_segments = [leg for leg in self.feet_links if self.is_contact_ball(leg)]
         contact_legs = []
         sum_x = 0
@@ -375,6 +470,7 @@ class DrosophilaSimulation(BulletSimulation):
 
     def optimization_check(self):
         """ Check optimization status. """
+
         lava = self.is_lava()
         flying = self.is_flying()
         velocity_cap = self.is_velocity_limit()
@@ -673,11 +769,11 @@ def main():
     #    "./sim_files/fun/FUN_last_good.ged3",
     #    "./sim_files/var/VAR_last_good.ged3"
     #)
-    
-    fun, var = read_optimization_results(
-        "./optimization_results/"+exp+"/FUN."+gen,
-        "./optimization_results/"+exp+"/VAR."+gen
-    )
+
+    # fun, var = read_optimization_results(
+    #     "./optimization_results/"+exp+"/FUN."+gen,
+    #     "./optimization_results/"+exp+"/VAR."+gen
+    # )
     '''
 
     fun, var = read_optimization_results(
@@ -690,6 +786,10 @@ def main():
         "./VAR.txt",
     )
     '''
+    fun, var = read_optimization_results(
+        "./FUN.txt",
+        "./VAR.txt",
+    )
     # fun, var = read_optimization_results(
     #     "./optimization_results/run_Drosophila_var_80_obj_2_pop_10_gen_4_0412_0316/FUN.3",
     #     "./optimization_results/run_Drosophila_var_80_obj_2_pop_10_gen_4_0412_0316/VAR.3",
@@ -711,7 +811,7 @@ def main():
     name_data = 'optimization_gen_'+ gen
 
     save_data(animal,name_data,exp)
-    
+
     colors =    fun[:,0]*fun[:,1]
     plt.scatter(fun[:,0], fun[:,1], c=colors, cmap=plt.cm.winter)
     plt.scatter(fun[ind,0], fun[ind,1], c=colors, cmap=plt.cm.winter)
