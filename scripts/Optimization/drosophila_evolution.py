@@ -323,13 +323,11 @@ class DrosophilaEvolution(FloatProblem):
         if use_penalties:
             if not successful:
                 lava = fly.is_lava()
-                flying = fly.is_flying()
                 #bbox = fly.is_in_not_bounds()
                 touch = fly.is_touch()
                 velocity_cap = fly.is_velocity_limit()
             else:
                 lava = False
-                flying = False
                 #bbox = False
                 touch = False
                 velocity_cap = False
@@ -337,7 +335,7 @@ class DrosophilaEvolution(FloatProblem):
             # Penalties
             penalty_time = (
                 1e1 + 1e1*(fly.run_time - fly.time)/fly.run_time
-                if (lava or flying or touch or velocity_cap)
+                if (lava or touch or velocity_cap)
                 else 0.0
             )
 
@@ -350,7 +348,7 @@ class DrosophilaEvolution(FloatProblem):
                  1]+abs(np.array(fly.ball_rotations()))[2])
 
             # stability = fly.stability_coef*fly.time_step/fly.time
-            stability = fly.stability_coef*fly.time_step/fly.time
+            stability = fly.stability_coef
 
             penalty_all_legs = 5.0 if (
                 np.any(fly.check_is_all_legs == False)) else (0.0)
@@ -393,7 +391,7 @@ class DrosophilaEvolution(FloatProblem):
                 -1e2*distance
                 #+ penalty_all_legs
                 #+ penalty_linearity
-                + penalty_time
+                # + penalty_time
             )
             #solution.objectives[1] = (
             #    act
@@ -401,9 +399,9 @@ class DrosophilaEvolution(FloatProblem):
             #    + penalty_time
             #)
             solution.objectives[1] = (
-                1e2*stability
+                -1e2*stability
                 #+ penalty_dist
-                + penalty_time_stance
+                # + penalty_time_stance
             )
         else:
             # Torques

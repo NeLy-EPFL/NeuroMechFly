@@ -235,7 +235,6 @@ class DrosophilaSimulation(BulletSimulation):
 
     def controller_to_actuator(self, t):
         """ Implementation of abstractmethod. """
-        print(self.compute_static_stability())
         self.muscle_controller()
         self.fixed_joints_controller()
 
@@ -359,6 +358,7 @@ class DrosophilaSimulation(BulletSimulation):
                      ]
                 )
         ]
+
         # TODO: Fix this
         contact_points = [[]] if not contact_points else contact_points
         assert len(contact_points) <= 6
@@ -371,6 +371,14 @@ class DrosophilaSimulation(BulletSimulation):
             polygon = Polygon(contact_points)
         except ValueError:
             return -1
+        
+        for idx in range(len(polygon.exterior.coords)-1): 
+            p.addUserDebugLine(
+                list(polygon.exterior.coords[idx]) + [11.1],
+                list(polygon.exterior.coords[idx+1]) + [11.1],
+                lifeTime = 1e-2,
+                lineColorRGB = [1,0,0]
+            )
         # Compute minimum distance
         distance = np.min([
             DrosophilaSimulation.compute_perpendicular_distance(
@@ -381,7 +389,7 @@ class DrosophilaSimulation(BulletSimulation):
                 center_of_mass
             )
             for idx in range(len(polygon.exterior.coords)-1)
-        ])/body_length
+        ])
         return distance if polygon.contains(Point(center_of_mass)) else -distance
 
     def stance_polygon_dist_dep(self):
@@ -465,30 +473,23 @@ class DrosophilaSimulation(BulletSimulation):
         )
 
 
-    def is_flying(self):
-        # FIXME: This function does two things at the same time
-        dist_to_centroid = self.stance_polygon_dist()
-        # self.stability_coef += dist_to_centroid
-        # print(dist_to_centroid)
-        return dist_to_centroid > 90
-
     def calculate_stability(self):
-        dist_to_centroid = self.stance_polygon_dist()
+        dist_to_centroid = self.compute_static_stability()
         self.stability_coef += dist_to_centroid
 
     def optimization_check(self):
         """ Check optimization status. """
 
         lava = self.is_lava()
-        flying = self.is_flying()
+        #flying = self.is_flying()
         velocity_cap = self.is_velocity_limit()
         touch = self.is_touch()
         self.is_using_all_legs()
         self.calculate_stability()
-        if lava or velocity_cap or flying or touch:
+        if lava or velocity_cap or touch:
             pylog.debug(
-                "Lava {} | Flying {} | Vel {} | Touch {}".format(
-                lava, flying, velocity_cap, touch
+                "Lava {} | Vel {} | Touch {}".format(
+                lava, velocity_cap, touch
                 )
             )
             return False
@@ -780,10 +781,10 @@ def main():
     #    "./sim_files/var/VAR_last_good.ged3"
     #)
 
-    # fun, var = read_optimization_results(
-    #     "./optimization_results/"+exp+"/FUN."+gen,
-    #     "./optimization_results/"+exp+"/VAR."+gen
-    # )
+    fun, var = read_optimization_results(
+        "./optimization_results/"+exp+"/FUN."+gen,
+        "./optimization_results/"+exp+"/VAR."+gen
+    )
     '''
 
     fun, var = read_optimization_results(
@@ -796,10 +797,7 @@ def main():
         "./VAR.txt",
     )
     '''
-    fun, var = read_optimization_results(
-        "./FUN.txt",
-        "./VAR.txt",
-    )
+
     # fun, var = read_optimization_results(
     #     "./optimization_results/run_Drosophila_var_80_obj_2_pop_10_gen_4_0412_0316/FUN.3",
     #     "./optimization_results/run_Drosophila_var_80_obj_2_pop_10_gen_4_0412_0316/VAR.3",
