@@ -46,7 +46,7 @@ if __name__ == "__main__":
 
     #: Setting up the paths for the SDF and POSE files
     model_path = os.path.join(neuromechfly_path, 'data/design/sdf/neuromechfly_noLimits_noSupport.sdf')
-    pose_path = os.path.join(neuromechfly_path, 'data/config/pose/pose_optimization_2.yaml')
+    pose_path = os.path.join(neuromechfly_path, 'data/config/pose/pose_default.yaml')
     #: Simulation options
     sim_options = {
         "headless": False,

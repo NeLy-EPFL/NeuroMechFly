@@ -1,4 +1,8 @@
 #!/usr/bin/env python
+""" Run sensitivity analysis """
+import pkgutil
+import os
+from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -8,6 +12,8 @@ from NeuroMechFly.utils.plotting import (heatmap_plot, plot_kp_joint,
                                          plot_mu_sem)
 from NeuroMechFly.utils.sensitivity_analysis import (
     calculate_MSE_joints, calculate_statistics_joints)
+
+neuromechfly_path = Path(pkgutil.get_loader("NeuroMechFly").get_filename()).parents[1]
 
 joints = [
     'Coxa',
@@ -203,12 +209,23 @@ def load_data(pybullet_path, baseline_path_pos, baseline_path_vel):
     global baseline_velocity
 
     #: Load sensitivity analysis results
-    pybullet_data = pd.read_pickle(pybullet_path)
-
+    try:
+        pybullet_data = pd.read_pickle(pybullet_path)
+    except FileNotFoundError:
+        print(f'{pybullet_path} is not found!')
+        raise
     #: Load baseline files
-    baseline_position = pd.read_pickle(baseline_path_pos)
-    baseline_velocity = pd.read_pickle(baseline_path_vel)
+    try:
+        baseline_position = pd.read_pickle(baseline_path_pos)
+    except FileNotFoundError:
+        print(f'{baseline_path_pos} is not found!')
+        raise
 
+    try:
+        baseline_position = pd.read_pickle(baseline_path_vel)
+    except FileNotFoundError:
+        print(f'{baseline_path_vel} is not found!')
+        raise
     #: Get the data from the physics dictionary
     ground_contact_forces = pybullet_data['ground_contacts']
     joint_torques = pybullet_data['joint_torques']
@@ -218,11 +235,10 @@ def load_data(pybullet_path, baseline_path_pos, baseline_path_vel):
 
 if __name__ == '__main__':
     """ Main. """
-    # NOTE: User should change the paths according to where they download the
-    # data
-    path_pybullet = '../data/sensitivity_analysis/pybullet_data'
-    baseline_path_pos = '../data/sensitivity_analysis/7sc_nameconv_walking_joint_angle.pkl'
-    baseline_path_vel = '../data/sensitivity_analysis/7sc_nameconv_walking_joint_velocity.pkl'
+    # NOTE: User should change the paths to where they download the data
+    path_pybullet = os.path.join(neuromechfly_path, 'data/sensitivity_analysis/pybullet_data')
+    baseline_path_pos = os.path.join(neuromechfly_path, 'data/sensitivity_analysis/7sc_nameconv_walking_joint_angle.pkl')
+    baseline_path_vel = os.path.join(neuromechfly_path, 'data/sensitivity_analysis/7sc_nameconv_walking_joint_velocity.pkl')
     #: True if figures to be saved
     save_figures = False
     #: Read data

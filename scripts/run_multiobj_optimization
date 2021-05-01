@@ -20,8 +20,8 @@ pylog.set_level("error")
 
 if __name__ == "__main__":
     """ Main """
-    n_pop = 10
-    n_gen = 4
+    n_pop = 80
+    n_gen = 20
     max_evaluations = n_pop*n_gen
     # Problem
     problem = multiobj_optimization.DrosophilaEvolution()
@@ -38,7 +38,7 @@ if __name__ == "__main__":
         ),
         crossover=SBXCrossover(
             probability=1.0,
-            distribution_index=20,
+            distribution_index=10,
         ),
         population_evaluator=MultiprocessEvaluator(4),
         termination_criterion=StoppingByEvaluations(

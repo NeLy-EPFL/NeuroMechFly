@@ -43,7 +43,7 @@ if __name__ == "__main__":
         name for s in side for p in pos for name in leg_segments if name != 'Tibia']
     #: Setting up the paths for the SDF and POSE files
     model_path = os.path.join(neuromechfly_path, 'data/design/sdf/neuromechfly_noLimits.sdf')
-    pose_path = os.path.join(neuromechfly_path, 'data/config/pose/pose_optimization_2.yaml')
+    pose_path = os.path.join(neuromechfly_path, 'data/config/pose/pose_default.yaml')
     #: Simulation options
     sim_options = {
         "headless": False,
@@ -56,7 +56,7 @@ if __name__ == "__main__":
         "self_collisions": self_collision,
         "draw_collisions": True, #: Set True to change the color of colliding segments
         "record": False, #: Set True to record the simulation
-        'camera_distance': 6.0,
+        'camera_distance': 5.5,
         'track': False,
         'moviename': './videos/kinematic_replay_video.mp4',
         'moviespeed': 0.2, #: Speed of the recorded movie
