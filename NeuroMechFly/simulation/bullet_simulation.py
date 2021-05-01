@@ -463,9 +463,9 @@ class BulletSimulation(metaclass=abc.ABCMeta):
 
     def get_link_position(self, link_name):
         """" Return the position of the link. """
-        return (p.getLinkState(
+        return np.array((p.getLinkState(
             self.animal,
-            self.link_id[link_name]))[0] / self.units.meters
+            self.link_id[link_name]))[0]) / self.units.meters
 
     def add_ball(self, r):
         """ Create a ball of radius r. """
