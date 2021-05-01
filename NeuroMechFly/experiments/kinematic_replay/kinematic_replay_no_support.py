@@ -63,7 +63,7 @@ class DrosophilaSimulation(BulletSimulation):
 
     Parameters
     ----------
-    container: <obj>
+    container: <Container>
         Instance of the Container class.
     sim_options: <dict>
         Dictionary containing the simulation options.
@@ -126,6 +126,7 @@ class DrosophilaSimulation(BulletSimulation):
         t : int
             Time running in the physics engine. 
         """
+        #: Throw mini balls at the fly during kinematic replay
         if self.add_perturbation:
             if ((t + 1) % 500) == 0:
                 print("Adding perturbation")
@@ -165,7 +166,7 @@ class DrosophilaSimulation(BulletSimulation):
             'joint_RWing_yaw': 17,
             'joint_Head': 10
         }
-
+        #: Setting the joint positions of fixed joints
         for joint_name, joint_pos in fixed_positions.items():
             self.pose[self.joint_id[joint_name]] = np.deg2rad(joint_pos)
 
@@ -178,9 +179,9 @@ class DrosophilaSimulation(BulletSimulation):
             self.vel[self.joint_id[joint_name]] = joint_vel[t]
 
         #: Leg joint indices
+        joint_control_front = list(np.arange(17, 23)) + list(np.arange(56, 63))
         joint_control_middle = list(
             np.arange(42, 49)) + list(np.arange(81, 88))
-        joint_control_front = list(np.arange(17, 23)) + list(np.arange(56, 63))
         joint_control_hind = list(np.arange(28, 35)) + list(np.arange(67, 74))
         joint_control = joint_control_hind + joint_control_middle + joint_control_front
         

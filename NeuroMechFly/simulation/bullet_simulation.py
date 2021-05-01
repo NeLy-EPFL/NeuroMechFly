@@ -168,7 +168,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         self.rendering(0)
 
         if self.GROUND is "floor":
-            ########## ADD FLOOR ##########
+            #: Add floor
             self.plane = p.loadURDF(
                 "plane.urdf", [0, 0, -0.],
                 globalScaling=0.01 * self.units.meters
@@ -176,7 +176,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             #: When plane is used the link id is -1
             self.link_plane = -1
         elif self.GROUND is "ball":
-            ########## ADD FLOOR AND BALL ##########
+            #: Add floor and ball
             self.floor = p.loadURDF(
                 "plane.urdf", [0, 0, -0.],
                 globalScaling=0.01 * self.units.meters
@@ -187,7 +187,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             self.link_plane = 2
             self.sim_data.add_table('ball_rotations')
 
-        ########## ADD ANIMAL #########
+        #: Add the animal model
         if ".sdf" in self.MODEL:
             self.animal, links, joints = load_sdf(self.MODEL)
         elif ".urdf" in self.MODEL:
@@ -207,7 +207,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         self.color_legs = [170 / 255, 130 / 255, 50 / 255, 1]
         self.color_collision = [0, 1, 0, 1]
         nospecular = [0.5, 0.5, 0.5]
-
+        #: Color the animal
         p.changeVisualShape(self.animal, -
                             1, rgbaColor=self.color_body, specularColor=nospecular)
 
@@ -234,7 +234,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
 
             #print("Link name {} id {}".format(link_name, _id))
 
-        ############### CONFIGURE CONTACTS ###############
+        #: Configure contacts
 
         # Disable/Enable all self-collisions
         for link0 in self.link_id.keys():
@@ -268,7 +268,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                 enableCollision=1,
             )
 
-        ########## ADD CONTAINER COLUMNS ##########
+        #: ADD container columns
 
         #: ADD ground reaction forces and friction forces
         for contact in self.GROUND_CONTACTS:
@@ -302,16 +302,16 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             self.sim_data.joint_velocities.add_parameter(name)
             self.sim_data.joint_torques.add_parameter(name)
 
-        ########## ADD MUSCLES ##########
+        #: ADD muscles
         if self.MUSCLES:
             self.initialize_muscles()
 
-        ########## ADD CONTROLLER ##########
+        #: ADD controller
         if self.CONTROLLER:
             self.controller = NeuralSystem(
                 self.CONTROLLER, self.container)
 
-        ########## DISABLE DEFAULT BULLET CONTROLLERS  ##########
+        #: DIisable default bullet controllers
 
         p.setJointMotorControlArray(
             self.animal,
@@ -367,20 +367,21 @@ class BulletSimulation(metaclass=abc.ABCMeta):
 
     def initialize_simulation(self):
         """ Initialize simulation. """
-        ########## INITIALIZE THE CONTAINER ##########
+        #: Initialize the container
         self.container.initialize()
 
-        ########## SETUP THE INTEGRATOR ##########
+        #: Setup the integrator
         if self.CONTROLLER:
             self.controller.setup_integrator()
         if self.MUSCLES:
             self.muscles.setup_integrator()
 
-        ########## ACTIVATE THE FORCE SENSOR ##########
+        #: Activate the force/torque sensor
         #self.thorax_id = self.link_id['Thorax']
         #p.enableJointForceTorqueSensor(self.animal, self.thorax_id, True)
 
     def initialize_muscles(self):
+        """ Initialize the muscles of the animal. """
         self.muscles = MusculoSkeletalSystem(self.MUSCLE_CONFIG_FILE)
 
     def initialize_position(self, pose_file=None):

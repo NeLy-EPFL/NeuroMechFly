@@ -12,7 +12,7 @@ class DrosophilaSimulation(BulletSimulation):
     
     Parameters
     ----------
-    container: <obj>
+    container: <Container>
         Instance of the Container class.
     sim_options: <dict>
         Dictionary containing the simulation options.

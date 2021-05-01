@@ -1,12 +1,27 @@
 """ Spring damper muscles. """
 from dataclasses import dataclass
-
 import numpy as np
-
 
 @dataclass
 class Parameters:
-    """ Muscle parameters class """
+    """ 
+    Muscle parameters class.
+
+    Parameters
+    ----------
+    alpha: <float>
+        Gain of the Ekeberg muscle model.
+    beta: <float>
+        Stiffness gain of the Ekeberg muscle model.
+    gamma: <float>
+        Tonic stiffness of the Ekeberg muscle model.
+    delta: <float>
+        Damping coefficient of the Ekeberg muscle model.
+    rest_pos: <float>
+        Resting position of the Ekeberg muscle model.
+    Returns
+    -------
+    """  
     alpha: float = 0.0
     beta: float = 0.0
     gamma: float = 0.0
@@ -20,7 +35,7 @@ class SDAntagonistMuscle:
             flexor_mn=None, extensor_mn=None,
             flexor_amp=None, extensor_amp=None,
             parameters=None
-    ):
+    ): 
         super().__init__()
         params = parameters if parameters else Parameters()
         self.name = name

@@ -1,4 +1,4 @@
-"""Optimisation simulation"""
+""" Drosophila Simulation for visualization of optimization results."""
 from NeuroMechFly.simulation.bullet_simulation import BulletSimulation
 from NeuroMechFly.sdf.units import SimulationUnitScaling
 from NeuroMechFly.container import Container
@@ -12,7 +12,16 @@ import pybullet_data
 
 
 class DrosophilaSimulation(BulletSimulation):
-    """Drosophila Simulation Class. """
+    """Drosophila Simulation Class.
+        Parameters
+        ----------
+        container: <Container>
+            Instance of the Container class.
+        sim_options: <dict>
+            Dictionary containing the simulation options.
+        units: <obj>
+            Instance of SimulationUnitScaling object to scale up the units during calculations.
+    """
 
     def __init__(
         self,
@@ -21,15 +30,15 @@ class DrosophilaSimulation(BulletSimulation):
         units=SimulationUnitScaling(
             meters=1000,
             kilograms=1000)):
-        ########## Container ##########
+        #: Add extra tables to container to store muscle variables and results
         container.add_namespace('muscle')
         container.muscle.add_table('parameters', table_type='CONSTANT')
         container.muscle.add_table('outputs')
         container.muscle.add_table('active_torques')
         container.muscle.add_table('passive_torques')
-        ########## Initialize bullet simulation ##########
+        #: Initialize bullet simulation
         super().__init__(container, units, **sim_options)
-        ########## Parameters ##########
+        #: Parameters
         self.sides = ('L', 'R')
         self.positions = ('F', 'M', 'H')
         self.feet_links = tuple([
@@ -55,7 +64,7 @@ class DrosophilaSimulation(BulletSimulation):
         self.neural = self.container.neural
         self.physics = self.container.physics
         self.muscle = self.container.muscle
-        ########## Initialize joint muscles ##########
+        #: Initialize joint muscles
         for joint in self.actuated_joints:
             fmn = self.neural.states.get_parameter(
                 'phase_' + joint + '_flexion')
@@ -82,11 +91,10 @@ class DrosophilaSimulation(BulletSimulation):
                 extensor_amp=fmn_amp,
             )
 
-        ########## Initialize container ##########
-        #: FIXME: This is
+        #: Initialize container
         self.container.initialize()
 
-        #: Set
+        #: Set the physical properties of the environment
         for link, idx in self.link_id.items():
             p.changeDynamics(
                 self.animal,
@@ -104,14 +112,14 @@ class DrosophilaSimulation(BulletSimulation):
                 maxJointVelocity=10000.0
             )
 
-        # ########## DISABLE COLLISIONS ##########
+        #: Disable collisions
         p.setCollisionFilterPair(
             self.animal, self.plane, self.link_id['Head'], -1, 0
         )
-        ########## DEBUG PARAMETER ##########
+        #: Debug parameter
         self.debug = p.addUserDebugParameter('debug', -1, 1, 0.0)
 
-        ########## Data variables ###########
+        #: Data variables
         self.stability_coef = 0
         self.stance_count = 0
         self.last_draw = []
@@ -133,7 +141,7 @@ class DrosophilaSimulation(BulletSimulation):
             )
 
     def fixed_joints_controller(self):
-        """Controller for fixed joints"""
+        """Controller for the fixed joints"""
         fixed_positions = {
             'joint_A3': -15, 'joint_A4': -15,
             'joint_A5': -15, 'joint_A6': -15, 'joint_Head': 10,
@@ -167,7 +175,7 @@ class DrosophilaSimulation(BulletSimulation):
                     force=1e36)
 
     def controller_to_actuator(self, t):
-        """ Implementation of abstractmethod. """
+        """ Implementation of abstract method. """
         self.muscle_controller()
         self.fixed_joints_controller()
 
@@ -197,11 +205,16 @@ class DrosophilaSimulation(BulletSimulation):
         pass
 
     def stance_polygon_dist(self):
+        """ Calculate the distance between the stance polygon centroid and
+            the COM of the fly to measure the static stability.
+        """
+        #: Get the segments in contact with the ball
         contact_segments = [
             leg for leg in self.feet_links if self.is_contact(leg)]
         contact_legs = []
         sum_x = 0
         sum_y = 0
+        #: Sum the x and y coordinates of the tarsis in the stance phase
         for seg in contact_segments:
             if seg[:2] not in contact_legs:
                 contact_legs.append(seg[:2])
@@ -211,23 +224,22 @@ class DrosophilaSimulation(BulletSimulation):
 
         self.stance_count += len(contact_legs)
 
-        if len(contact_legs) > 2:
-            if ('LM' in contact_legs or 'RM' in contact_legs):
-                if (set(contact_legs) == set(['RM', 'LF', 'LH'])) or (
-                        set(contact_legs) == set(['LM', 'RF', 'RH'])):
-                    reward = 5
-                else:
-                    reward = 0
-                poly_centroid = np.array(
-                    [sum_x / len(contact_legs), sum_y / len(contact_legs)])
-                body_centroid = np.array(self.get_link_position('Thorax')[:2])
-                dist = np.linalg.norm(body_centroid - poly_centroid) - reward
-            else:
-                dist = 5.0
+        if len(contact_legs) != 0:
+            #: Calculate the centroid of the stance polygon
+            poly_centroid = np.array(
+                [sum_x / len(contact_legs), sum_y / len(contact_legs)])
+            body_centroid = np.array(self.get_link_position('Thorax')[:2])
+            #: Calculate the distance between the centroid and body COM
+            dist = np.linalg.norm(body_centroid - poly_centroid)
         else:
-            dist = 5.5 - len(contact_legs) * 0.25
-
+            #: If no legs are on the ball, assign distance to a high value
+            dist = 100
         return dist
+
+    def calculate_stability(self):
+        """ Calculates the stability coefficient. """
+        dist_to_centroid = self.stance_polygon_dist()
+        self.stability_coef += dist_to_centroid
 
     def is_using_all_legs(self):
         """Check if the fly uses all its legs to locomote"""
@@ -269,10 +281,9 @@ class DrosophilaSimulation(BulletSimulation):
         )
 
     def is_flying(self):
-        # FIXME: This function does two things at the same time
+        """ Check if at least one leg is on the ball. """
         dist_to_centroid = self.stance_polygon_dist()
-        self.stability_coef += dist_to_centroid
-        return dist_to_centroid > 5.0
+        return dist_to_centroid > 90
 
     def optimization_check(self):
         """ Check optimization status. """
@@ -291,12 +302,11 @@ class DrosophilaSimulation(BulletSimulation):
         return True
 
     def update_parameters(self, params):
-        """ Implementation of abstractmethod. """
+        """ Implementation of abstract method. """
         parameters = self.container.neural.parameters
         N = int(self.controller.graph.number_of_nodes() / 4)
+        #: Number of joints, muscle gains, phase variables
         edges_joints = int(self.controller.graph.number_of_nodes() / 3)
-        edges_anta = int(self.controller.graph.number_of_nodes() / 12)
-
         opti_active_muscle_gains = params[:5 * N]
         opti_joint_phases = params[5 * N:5 * N + edges_joints]
 
