@@ -11,12 +11,12 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     install_requires=[
         'farms_pylog @ git+https://gitlab.com/FARMSIM/farms_pylog.git',
-        'farms_network @ git+https://gitlab.com/FARMSIM/farms_network.git',
-        'farms_container @ git+https://gitlab.com/FARMSIM/farms_container.git',
-        'df3dPostProcessing @ git+https://github.com/NeLy-EPFL/df3dPostProcessing.git',
+        #'farms_network @ git+https://gitlab.com/FARMSIM/farms_network.git',
+        #'farms_container @ git+https://gitlab.com/FARMSIM/farms_container.git',
+        #'df3dPostProcessing @ git+https://github.com/NeLy-EPFL/df3dPostProcessing.git',
         'numpy',
         'pandas',
-        'matplotlib==3.0.2',
+        'matplotlib',
         'scipy',
         'treelib',
         'tqdm',
@@ -27,8 +27,9 @@ setuptools.setup(
         'tables',
         'pillow'
     ],
-    # scripts=['scripts/run_kinematic_replay',
-    #     'scripts/run_multiobj_optimization',
-    #     'scripts/run_neuromuscular_control'
-    # ],
+    scripts=['scripts/run_kinematic_replay',
+        'scripts/run_multiobj_optimization',
+        'scripts/run_neuromuscular_control',
+        'scripts/run_sensitivity_analysis'
+    ],
 )

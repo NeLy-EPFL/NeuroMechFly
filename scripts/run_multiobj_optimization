@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from datetime import datetime
 
 from jmetal.algorithm.multiobjective.nsgaii import NSGAII
@@ -9,6 +11,7 @@ from jmetal.util.ranking import FastNonDominatedRanking
 from jmetal.util.solution import (print_function_values_to_file,
                                   print_variables_to_file)
 from jmetal.util.termination_criterion import StoppingByEvaluations
+
 from NeuroMechFly.experiments.network_optimization import multiobj_optimization
 from NeuroMechFly.experiments.network_optimization.multiobj_optimization import \
     WriteFullFrontToFileObserver

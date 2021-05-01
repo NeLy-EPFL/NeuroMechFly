@@ -1,31 +1,41 @@
 """ Spring damper muscles. """
 from dataclasses import dataclass
-
 import numpy as np
-
 
 @dataclass
 class Parameters:
-    """ Muscle parameters class """
+    """ 
+    Muscle parameters class.
+
+    Parameters
+    ----------
+    alpha: <float>
+        Gain of the Ekeberg muscle model.
+    beta: <float>
+        Stiffness gain of the Ekeberg muscle model.
+    gamma: <float>
+        Tonic stiffness of the Ekeberg muscle model.
+    delta: <float>
+        Damping coefficient of the Ekeberg muscle model.
+    rest_pos: <float>
+        Resting position of the Ekeberg muscle model.
+    Returns
+    -------
+    """  
     alpha: float = 0.0
     beta: float = 0.0
     gamma: float = 0.0
     delta: float = 0.0
     rest_pos: float = 0.0
-    f_mn_clip: float = 0.0
-    e_mn_clip: float = 0.0
-
 
 class SDAntagonistMuscle:
-    """Antagonist Spring Damper muscles
-    """
-
+    """Antagonist Spring Damper muscles. """
     def __init__(
             self, container, name, joint_pos, joint_vel, rest_pos=0.0,
             flexor_mn=None, extensor_mn=None,
             flexor_amp=None, extensor_amp=None,
             parameters=None
-    ):
+    ): 
         super().__init__()
         params = parameters if parameters else Parameters()
         self.name = name
@@ -43,12 +53,6 @@ class SDAntagonistMuscle:
         )[0]
         self.rest_pos = container.muscle.parameters.add_parameter(
             '{}_rest_pos'.format(name), params.rest_pos
-        )[0]
-        self.f_mn_clip = container.muscle.parameters.add_parameter(
-            '{}_f_mn_clip'.format(name), params.f_mn_clip
-        )[0]
-        self.e_mn_clip = container.muscle.parameters.add_parameter(
-            '{}_e_mn_clip'.format(name), params.e_mn_clip
         )[0]
         self.flexor_act = container.muscle.outputs.add_parameter(
             '{}_flexor_act'.format(name)
@@ -80,8 +84,6 @@ class SDAntagonistMuscle:
         self.gamma.value = params.gamma
         self.delta.value = params.delta
         self.rest_pos.value = params.rest_pos
-        self.f_mn_clip.value = params.f_mn_clip
-        self.e_mn_clip.value = params.e_mn_clip
 
     def compute_torque(self, only_passive=False):
         """ Compute joint torque. """

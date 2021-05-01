@@ -1,30 +1,43 @@
-""" Module to setup constrained kinematic replay experiment """
+""" Drosophila simulation class for kinematic replay for the ball experiments. """
+
+from NeuroMechFly.simulation.bullet_simulation import BulletSimulation
+from NeuroMechFly.sdf.units import SimulationUnitScaling
+import pybullet as p
 import numpy as np
 import pandas as pd
 
-import pybullet as p
-from NeuroMechFly.sdf.units import SimulationUnitScaling
-from NeuroMechFly.simulation.bullet_simulation import BulletSimulation
-
-
 class DrosophilaSimulation(BulletSimulation):
-    """[summary]
+    """ Drosophila Simulation Class for kinematic replay.
 
     Parameters
     ----------
-    BulletSimulation : [type]
-        [description]
+    container: <Container>
+        Instance of the Container class.
+    sim_options: <dict>
+        Dictionary containing the simulation options.
+    Kp: <float>
+        Proportional gain of the position controller.
+    Kv: <float>
+        Derivative gain of the position controller.
+    position_path: <str>
+        Path of the joint position .pkl file.
+    velocity_path: <str>
+        Path of the joint velocity .pkl file.
+    units: <obj>
+        Instance of SimulationUnitScaling object to scale up the units during calculations.
     """
-
     def __init__(
         self,
         container,
         sim_options,
         Kp,
         Kv,
+        position_path,
+        velocity_path,
         units=SimulationUnitScaling(
             meters=1000,
             kilograms=1000)):
+
         super().__init__(container, units, **sim_options)
         self.last_draw = []
         self.grf = []
@@ -32,23 +45,21 @@ class DrosophilaSimulation(BulletSimulation):
         self.kv = Kv
         self.pose = [0] * self.num_joints
         self.vel = [0] * self.num_joints
-        self.angles = self.load_angles(
-            f'../data/joint_kinematics/{self.behavior}/{self.behavior}_converted_joint_angles.pkl')
-        self.velocities = self.load_angles(
-            f'../data/joint_kinematics/{self.behavior}/{self.behavior}_converted_joint_velocities.pkl')
+        self.angles = self.load_angles(position_path)
+        self.velocities = self.load_angles(velocity_path)
 
     def load_angles(self, data_path):
-        """[summary]
+        """ Function that loads the pickle format joint angle or velocity gile.
 
         Parameters
         ----------
-        data_path : [type]
-            [description]
+        data_path : <str>
+            Path of the .pkl file.
 
         Returns
         -------
-        [type]
-            [description]
+        dict
+            Returns the joint angles in a dictionary.
         """
         try:
             return pd.read_pickle(data_path)
@@ -63,11 +74,11 @@ class DrosophilaSimulation(BulletSimulation):
 
         Parameters
         ----------
-        t : [type]
-            [description]
+        t : <int>
+            Time running in the physics engine.
         """
 
-        #: Setting the fixed joint positions
+        #: Setting the fixed joint angles, can be altered to change the appearance of the fly
         fixed_positions = {
             'joint_A3': -15,
             'joint_A4': -15,
@@ -95,6 +106,8 @@ class DrosophilaSimulation(BulletSimulation):
         for joint_name, joint_vel in self.velocities.items():
             self.vel[self.joint_id[joint_name]] = joint_vel[t]
 
+        #: Control the joints through position controller
+        #: Velocity can be discarded if not available and gains can be changed
         for joint in range(self.num_joints):
             p.setJointMotorControl2(
                 self.animal, joint,

@@ -30,8 +30,7 @@ from .utils import replace_file_name_in_path
 
 
 class ModelSDF(Options):
-    """Farms SDF"""
-
+    """Class to import SDF file in a PyBullet compatible way. """
     def __init__(self, name, pose, units, **kwargs):
         super(ModelSDF, self).__init__()
         self.name = name

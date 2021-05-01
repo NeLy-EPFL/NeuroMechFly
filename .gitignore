@@ -136,12 +136,10 @@ documentation/_templates
 # swp files
 **.swp
 
-# data
-# scripts/
-config/
 !design/
 data/
 build/
+scripts/
 
 # Mac
 **.DS_Store

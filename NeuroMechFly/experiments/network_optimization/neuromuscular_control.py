@@ -1,11 +1,9 @@
-"""Optimisation simulation"""
-import argparse
-
+""" Drosophila Simulation for visualization of optimization results."""
 import farms_pylog as pylog
 import numpy as np
+
 import pybullet as p
 import pybullet_data
-from farms_container import Container
 from NeuroMechFly.control.spring_damper_muscles import (Parameters,
                                                         SDAntagonistMuscle)
 from NeuroMechFly.sdf.units import SimulationUnitScaling
@@ -13,7 +11,16 @@ from NeuroMechFly.simulation.bullet_simulation import BulletSimulation
 
 
 class DrosophilaSimulation(BulletSimulation):
-    """Drosophila Simulation Class. """
+    """Drosophila Simulation Class.
+        Parameters
+        ----------
+        container: <Container>
+            Instance of the Container class.
+        sim_options: <dict>
+            Dictionary containing the simulation options.
+        units: <obj>
+            Instance of SimulationUnitScaling object to scale up the units during calculations.
+    """
 
     def __init__(
         self,
@@ -22,15 +29,15 @@ class DrosophilaSimulation(BulletSimulation):
         units=SimulationUnitScaling(
             meters=1000,
             kilograms=1000)):
-        ########## Container ##########
+        #: Add extra tables to container to store muscle variables and results
         container.add_namespace('muscle')
         container.muscle.add_table('parameters', table_type='CONSTANT')
         container.muscle.add_table('outputs')
         container.muscle.add_table('active_torques')
         container.muscle.add_table('passive_torques')
-        ########## Initialize bullet simulation ##########
+        #: Initialize bullet simulation
         super().__init__(container, units, **sim_options)
-        ########## Parameters ##########
+        #: Parameters
         self.sides = ('L', 'R')
         self.positions = ('F', 'M', 'H')
         self.feet_links = tuple([
@@ -56,7 +63,7 @@ class DrosophilaSimulation(BulletSimulation):
         self.neural = self.container.neural
         self.physics = self.container.physics
         self.muscle = self.container.muscle
-        ########## Initialize joint muscles ##########
+        #: Initialize joint muscles
         for joint in self.actuated_joints:
             fmn = self.neural.states.get_parameter(
                 'phase_' + joint + '_flexion')
@@ -83,11 +90,10 @@ class DrosophilaSimulation(BulletSimulation):
                 extensor_amp=fmn_amp,
             )
 
-        ########## Initialize container ##########
-        #: FIXME: This is
+        #: Initialize container
         self.container.initialize()
 
-        #: Set
+        #: Set the physical properties of the environment
         for link, idx in self.link_id.items():
             p.changeDynamics(
                 self.animal,
@@ -105,14 +111,14 @@ class DrosophilaSimulation(BulletSimulation):
                 maxJointVelocity=10000.0
             )
 
-        # ########## DISABLE COLLISIONS ##########
+        #: Disable collisions
         p.setCollisionFilterPair(
             self.animal, self.plane, self.link_id['Head'], -1, 0
         )
-        ########## DEBUG PARAMETER ##########
+        #: Debug parameter
         self.debug = p.addUserDebugParameter('debug', -1, 1, 0.0)
 
-        ########## Data variables ###########
+        #: Data variables
         self.stability_coef = 0
         self.stance_count = 0
         self.last_draw = []
@@ -134,7 +140,7 @@ class DrosophilaSimulation(BulletSimulation):
             )
 
     def fixed_joints_controller(self):
-        """Controller for fixed joints"""
+        """Controller for the fixed joints"""
         fixed_positions = {
             'joint_A3': -15, 'joint_A4': -15,
             'joint_A5': -15, 'joint_A6': -15, 'joint_Head': 10,
@@ -168,7 +174,7 @@ class DrosophilaSimulation(BulletSimulation):
                     force=1e36)
 
     def controller_to_actuator(self, t):
-        """ Implementation of abstractmethod. """
+        """ Implementation of abstract method. """
         self.muscle_controller()
         self.fixed_joints_controller()
 
@@ -198,11 +204,16 @@ class DrosophilaSimulation(BulletSimulation):
         pass
 
     def stance_polygon_dist(self):
+        """ Calculate the distance between the stance polygon centroid and
+            the COM of the fly to measure the static stability.
+        """
+        #: Get the segments in contact with the ball
         contact_segments = [
             leg for leg in self.feet_links if self.is_contact(leg)]
         contact_legs = []
         sum_x = 0
         sum_y = 0
+        #: Sum the x and y coordinates of the tarsis in the stance phase
         for seg in contact_segments:
             if seg[:2] not in contact_legs:
                 contact_legs.append(seg[:2])
@@ -212,23 +223,22 @@ class DrosophilaSimulation(BulletSimulation):
 
         self.stance_count += len(contact_legs)
 
-        if len(contact_legs) > 2:
-            if ('LM' in contact_legs or 'RM' in contact_legs):
-                if (set(contact_legs) == set(['RM', 'LF', 'LH'])) or (
-                        set(contact_legs) == set(['LM', 'RF', 'RH'])):
-                    reward = 5
-                else:
-                    reward = 0
-                poly_centroid = np.array(
-                    [sum_x / len(contact_legs), sum_y / len(contact_legs)])
-                body_centroid = np.array(self.get_link_position('Thorax')[:2])
-                dist = np.linalg.norm(body_centroid - poly_centroid) - reward
-            else:
-                dist = 5.0
+        if len(contact_legs) != 0:
+            #: Calculate the centroid of the stance polygon
+            poly_centroid = np.array(
+                [sum_x / len(contact_legs), sum_y / len(contact_legs)])
+            body_centroid = np.array(self.get_link_position('Thorax')[:2])
+            #: Calculate the distance between the centroid and body COM
+            dist = np.linalg.norm(body_centroid - poly_centroid)
         else:
-            dist = 5.5 - len(contact_legs) * 0.25
-
+            #: If no legs are on the ball, assign distance to a high value
+            dist = 100
         return dist
+
+    def calculate_stability(self):
+        """ Calculates the stability coefficient. """
+        dist_to_centroid = self.stance_polygon_dist()
+        self.stability_coef += dist_to_centroid
 
     def is_using_all_legs(self):
         """Check if the fly uses all its legs to locomote"""
@@ -270,10 +280,9 @@ class DrosophilaSimulation(BulletSimulation):
         )
 
     def is_flying(self):
-        # FIXME: This function does two things at the same time
+        """ Check if at least one leg is on the ball. """
         dist_to_centroid = self.stance_polygon_dist()
-        self.stability_coef += dist_to_centroid
-        return dist_to_centroid > 5.0
+        return dist_to_centroid > 90
 
     def optimization_check(self):
         """ Check optimization status. """
@@ -292,45 +301,30 @@ class DrosophilaSimulation(BulletSimulation):
         return True
 
     def update_parameters(self, params):
-        """ Implementation of abstractmethod. """
+        """ Implementation of abstract method. """
         parameters = self.container.neural.parameters
         N = int(self.controller.graph.number_of_nodes() / 4)
+        #: Number of joints, muscle gains, phase variables
         edges_joints = int(self.controller.graph.number_of_nodes() / 3)
-        edges_anta = int(self.controller.graph.number_of_nodes() / 12)
+        opti_active_muscle_gains = params[:5 * N]
+        opti_joint_phases = params[5 * N:5 * N + edges_joints]
 
-        opti_active_muscle_gains = params[:7 * N]
-        opti_joint_phases = params[7 * N:7 * N + edges_joints]
-        #opti_antagonist_phases = params[6*N+edges_joints:6*N+edges_joints+edges_anta]
-        #opti_base_phases = params[6*N+edges_joints+edges_anta:]
-
-        # opti_base_phases = params[5*N+edges_joints:]
-
-        # print(
-        #    "Opti active muscle gains {}".format(
-        #        opti_active_muscle_gains
-        #    )
-        # )
-        #print("Opti joint phases {}".format(opti_joint_phases))
-        #print("Opti antagonist phases {}".format(opti_antagonist_phases))
-        #print("Opti base phases {}".format(opti_base_phases))
-
-        #: update active muscle parameters
+        #: Update active muscle parameters
         symmetry_joints = filter(
             lambda x: x.split('_')[1][0] != 'R', self.actuated_joints
         )
 
         for j, joint in enumerate(symmetry_joints):
-            #print(joint,joint.replace('L', 'R', 1),6*j,6*(j+1))
-            # print(joint, Parameters(*opti_active_muscle_gains[7*j:7*(j+1)]))
             self.active_muscles[joint.replace('L', 'R', 1)].update_parameters(
-                Parameters(*opti_active_muscle_gains[7 * j:7 * (j + 1)])
+                Parameters(*opti_active_muscle_gains[5 * j:5 * (j + 1)])
             )
             #: It is important to mirror the joint angles for rest position
             #: especially for coxa
             if "Coxa_roll" in joint:
-                opti_active_muscle_gains[(7 * j) + 4] *= -1
+                opti_active_muscle_gains[(5 * j) + 0] *= -1
+                opti_active_muscle_gains[(5 * j) + 4] *= -1
             self.active_muscles[joint].update_parameters(
-                Parameters(*opti_active_muscle_gains[7 * j:7 * (j + 1)])
+                Parameters(*opti_active_muscle_gains[5 * j:5 * (j + 1)])
             )
         #: Update phases
         #: Edges to set phases for
@@ -362,185 +356,3 @@ class DrosophilaSimulation(BulletSimulation):
                         parameters.get_parameter(
                             'phi_{}_to_{}'.format(node_2, node_1)
                         ).value = -1 * opti_joint_phases[4 * j0 + 2 * j1 + j2]
-        '''
-        if len(params)>75:
-            opti_base_phases = params[5*N+edges_joints+edges_anta:]
-            coxae_edges =[
-                 ['LFCoxa', 'RFCoxa'],
-                 ['LFCoxa', 'RMCoxa_roll'],
-                 ['RMCoxa_roll', 'LHCoxa_roll'],
-                 ['RFCoxa', 'LMCoxa_roll'],
-                 ['LMCoxa_roll', 'RHCoxa_roll']
-             ]
-
-            for j1, ed in enumerate(coxae_edges):
-                for j2, action in enumerate(('flexion', 'extension')):
-                    node_1 = "joint_{}_{}".format(ed[0], action)
-                    node_2 = "joint_{}_{}".format(ed[1], action)
-                    #print(node_1, node_2, j1)
-                    parameters.get_parameter(
-                        'phi_{}_to_{}'.format(node_1, node_2)
-                    ).value = opti_base_phases[j1]
-                    parameters.get_parameter(
-                        'phi_{}_to_{}'.format(node_2, node_1)
-                    ).value = -1*opti_base_phases[j1]
-        '''
-
-def read_optimization_results(fun, var):
-    """ Read optimization results. """
-    return (np.loadtxt(fun), np.loadtxt(var))
-
-
-def parse_args():
-    """Argument parser"""
-    parser = argparse.ArgumentParser(
-        description='Neuromechfly simulation of evolution results',
-        formatter_class=(
-            lambda prog:
-            argparse.HelpFormatter(prog, max_help_position=50)
-        ),
-    )
-    parser.add_argument(
-        '--output_fun',
-        type=str,
-        default='FUN.txt',
-        help='Results output of functions',
-    )
-    parser.add_argument(
-        '--output_var',
-        type=str,
-        default='VAR.txt',
-        help='Results output of variables',
-    )
-    parser.add_argument(
-        '--runtime',
-        type=float,
-        default=2.,
-        help='Simulation run time',
-    )
-    parser.add_argument(
-        '--timestep',
-        type=float,
-        default=0.001,
-        help='Simulation timestep',
-    )
-    return parser.parse_args()
-
-
-def main():
-    """ Main """
-
-    clargs = parse_args()
-
-    side = ['L', 'R']
-    pos = ['F', 'M', 'H']
-    leg_segments = ['Femur', 'Tibia'] + \
-        ['Tarsus' + str(i) for i in range(1, 6)]
-
-    ground_contact = [
-        s +
-        p +
-        name for s in side for p in pos for name in leg_segments if 'Tarsus' in name]
-
-    left_front_leg = ['LF' + name for name in leg_segments]
-    left_middle_leg = ['LM' + name for name in leg_segments]
-    left_hind_leg = ['LH' + name for name in leg_segments]
-
-    right_front_leg = ['RF' + name for name in leg_segments]
-    right_middle_leg = ['RM' + name for name in leg_segments]
-    right_hind_leg = ['RH' + name for name in leg_segments]
-
-    body_segments = ['A1A2', 'A3', 'A4', 'A5', 'A6', 'Thorax', 'Head']
-
-    self_collision = []
-    for link0 in left_front_leg:
-        for link1 in left_middle_leg:
-            self_collision.append([link0, link1])
-    for link0 in left_middle_leg:
-        for link1 in left_hind_leg:
-            self_collision.append([link0, link1])
-    for link0 in left_front_leg:
-        for link1 in body_segments:
-            self_collision.append([link0, link1])
-    for link0 in left_middle_leg:
-        for link1 in body_segments:
-            self_collision.append([link0, link1])
-    for link0 in left_hind_leg:
-        for link1 in body_segments:
-            self_collision.append([link0, link1])
-
-    for link0 in right_front_leg:
-        for link1 in right_middle_leg:
-            self_collision.append([link0, link1])
-    for link0 in right_middle_leg:
-        for link1 in right_hind_leg:
-            self_collision.append([link0, link1])
-    for link0 in right_front_leg:
-        for link1 in body_segments:
-            self_collision.append([link0, link1])
-    for link0 in right_middle_leg:
-        for link1 in body_segments:
-            self_collision.append([link0, link1])
-    for link0 in right_hind_leg:
-        for link1 in body_segments:
-            self_collision.append([link0, link1])
-
-    gen = '10'
-    exp = 'run_Drosophila_var_71_obj_2_pop_20_gen_100_0407_1744'
-
-    sim_options = {
-        "headless": False,
-        # Scaled SDF model
-        "model": "../../data/design/sdf/neuromechfly_limitsFromData_minMax.sdf",
-        "model_offset": [0., 0., 11.2e-3],
-        "run_time": clargs.runtime,
-        "pose": '../../data/config/pose/test_pose_tripod.yaml',
-        "base_link": 'Thorax',
-        "controller": '../../data/config/network/locomotion_ball.graphml',
-        "ground_contacts": ground_contact,
-        'self_collisions': self_collision,
-        "draw_collisions": True,
-        "record": False,
-        'camera_distance': 3.5,
-        'track': False,
-        'moviename': 'stability_' + exp + '_gen_' + gen + '.mp4',
-        'moviefps': 50,
-        'slow_down': True,
-        'sleep_time': 0.001,
-        'rot_cam': False,
-        'ground': 'ball'
-    }
-
-    container = Container(clargs.runtime / clargs.timestep)
-    animal = DrosophilaSimulation(container, sim_options)
-
-    '''
-    fun, var = read_optimization_results(
-        "./optimization_results/"+exp+"/FUN."+gen,
-        "./optimization_results/"+exp+"/VAR."+gen
-    )
-    '''
-
-    fun, var = read_optimization_results(
-        "./FUN.ged3",
-        "./VAR.ged3"
-    )
-    '''
-    fun, var = read_optimization_results(
-        "./FUN.txt",
-        "./VAR.txt",
-    )
-    '''
-
-    params = var[np.argmax(fun[:, 0] * fun[:, 1])]
-    params = np.array(params)
-    animal.update_parameters(params)
-
-    animal.run(optimization=False)
-    animal.container.dump(
-        dump_path=f"./optimization_{exp}_gen_{gen}",
-        overwrite=True
-        )
-
-if __name__ == '__main__':
-    main()

@@ -83,7 +83,6 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         self.sim_data.add_table('ground_contacts')
         self.sim_data.add_table('ground_friction_dir1')
         self.sim_data.add_table('ground_friction_dir2')
-        #self.sim_data.add_table('thorax_force')
         self.ZEROS_3x1 = np.zeros((3,))
 
         #: Muscles
@@ -167,7 +166,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         self.rendering(0)
 
         if self.GROUND is "floor":
-            ########## ADD FLOOR ##########
+            #: Add floor
             self.plane = p.loadURDF(
                 "plane.urdf", [0, 0, -0.],
                 globalScaling=0.01 * self.units.meters
@@ -175,7 +174,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             #: When plane is used the link id is -1
             self.link_plane = -1
         elif self.GROUND is "ball":
-            ########## ADD FLOOR AND BALL ##########
+            #: Add floor and ball
             self.floor = p.loadURDF(
                 "plane.urdf", [0, 0, -0.],
                 globalScaling=0.01 * self.units.meters
@@ -186,7 +185,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             self.link_plane = 2
             self.sim_data.add_table('ball_rotations')
 
-        ########## ADD ANIMAL #########
+        #: Add the animal model
         if ".sdf" in self.MODEL:
             self.animal, links, joints = load_sdf(self.MODEL)
         elif ".urdf" in self.MODEL:
@@ -206,7 +205,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         self.color_legs = [170 / 255, 130 / 255, 50 / 255, 1]
         self.color_collision = [0, 1, 0, 1]
         nospecular = [0.5, 0.5, 0.5]
-
+        #: Color the animal
         p.changeVisualShape(self.animal, -
                             1, rgbaColor=self.color_body, specularColor=nospecular)
 
@@ -233,7 +232,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
 
             #print("Link name {} id {}".format(link_name, _id))
 
-        ############### CONFIGURE CONTACTS ###############
+        #: Configure contacts
 
         # Disable/Enable all self-collisions
         for link0 in self.link_id.keys():
@@ -267,7 +266,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                 enableCollision=1,
             )
 
-        ########## ADD CONTAINER COLUMNS ##########
+        #: ADD container columns
 
         #: ADD ground reaction forces and friction forces
         for contact in self.GROUND_CONTACTS:
@@ -285,8 +284,9 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             contact_links = '-'.join((link0, link1))
             self.collision_sensors[contact_links] = [
                 self.link_id[link0], self.link_id[link1]]
-            self.sim_data.collision_forces.add_parameter(contact_links)
-        #print(self.collision_sensors.values())
+            for axis in ['x', 'y', 'z']:
+                self.sim_data.collision_forces.add_parameter(contact_links + '_' + axis)
+
         #: ADD base position parameters
         for axis in ['x', 'y', 'z']:
             self.sim_data.base_position.add_parameter(f"{axis}")
@@ -300,16 +300,16 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             self.sim_data.joint_velocities.add_parameter(name)
             self.sim_data.joint_torques.add_parameter(name)
 
-        ########## ADD MUSCLES ##########
+        #: ADD muscles
         if self.MUSCLES:
             self.initialize_muscles()
 
-        ########## ADD CONTROLLER ##########
+        #: ADD controller
         if self.CONTROLLER:
             self.controller = NeuralSystem(
                 self.CONTROLLER, self.container)
 
-        ########## DISABLE DEFAULT BULLET CONTROLLERS  ##########
+        #: DIisable default bullet controllers
 
         p.setJointMotorControlArray(
             self.animal,
@@ -365,20 +365,21 @@ class BulletSimulation(metaclass=abc.ABCMeta):
 
     def initialize_simulation(self):
         """ Initialize simulation. """
-        ########## INITIALIZE THE CONTAINER ##########
+        #: Initialize the container
         self.container.initialize()
 
-        ########## SETUP THE INTEGRATOR ##########
+        #: Setup the integrator
         if self.CONTROLLER:
             self.controller.setup_integrator()
         if self.MUSCLES:
             self.muscles.setup_integrator()
 
-        ########## ACTIVATE THE FORCE SENSOR ##########
+        #: Activate the force/torque sensor
         #self.thorax_id = self.link_id['Thorax']
         #p.enableJointForceTorqueSensor(self.animal, self.thorax_id, True)
 
     def initialize_muscles(self):
+        """ Initialize the muscles of the animal. """
         self.muscles = MusculoSkeletalSystem(self.MUSCLE_CONFIG_FILE)
 
     def initialize_position(self, pose_file=None):
@@ -440,7 +441,6 @@ class BulletSimulation(metaclass=abc.ABCMeta):
 
     def _get_contact_force_self_collisions(self, link_ids):
         """ Compute self collision forces. """
-        #print(link_ids)
         c = p.getContactPoints(
             self.animal, self.animal,
             link_ids[0], link_ids[1])
@@ -451,8 +451,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         self.normal = np.sum([pt[9]for pt in c], axis=0) \
             if c else self.ZEROS_3x1
         collision_force = self.normal * self.normal_dir
-        #print(force)
-        return collision_force[2] / self.units.newtons
+        return collision_force / self.units.newtons
 
     def is_contact(self, link_name):
         """ Check if link is in contact with floor or ball. """
@@ -463,8 +462,10 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         ) else False
 
     def get_link_position(self, link_name):
-        # FIXME: units
-        return (p.getLinkState(self.animal, self.link_id[link_name]))[0]
+        """" Return the position of the link. """
+        return (p.getLinkState(
+            self.animal,
+            self.link_id[link_name]))[0] / self.units.meters
 
     def add_ball(self, r):
         """ Create a ball of radius r. """
@@ -474,7 +475,8 @@ class BulletSimulation(metaclass=abc.ABCMeta):
 
         mass_parent = 0
         visual_shape_id = -1
-
+        #: Different ball positions used for different experiments
+        #: Else corresponds to the ball position during optimization
         if self.behavior == 'walking':
             base_position = np.array([0.28e-3, -0.2e-3,-4.965e-3])*self.units.meters+self.MODEL_OFFSET
         elif self.behavior == 'grooming':
@@ -483,7 +485,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         else:
             base_position = np.array(
                 [-0.05e-3, 0.0e-3, -5.09e-3]) * self.units.meters + self.MODEL_OFFSET
-
+        #: Create the sphere
         base_orientation = [0, 0, 0, 1]
         link_masses = np.array([1e-11,1e-11,1e-11])*self.units.kilograms
         link_collision_shape_indices = [-1, -1, col_sphere_id]
@@ -513,7 +515,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             linkParentIndices=indices,
             linkJointTypes=joint_types,
             linkJointAxis=axis)
-
+        #: Physical properties of the ball can be changed here
         p.changeDynamics(sphere_id,
                          -1,
                          spinningFriction=100,
@@ -541,6 +543,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
 
     @property
     def ball_rotations(self):
+        """ Return the ball position. """
         return tuple(
             state[0] for state in p.getJointStates(
                 self.plane,
@@ -550,21 +553,15 @@ class BulletSimulation(metaclass=abc.ABCMeta):
 
     @property
     def joint_states(self):
-        """ Get all joint states  """
+        """ Get all joint states. """
         return p.getJointStates(
             self.animal,
             np.arange(0, p.getNumJoints(self.animal))
         )
-    '''
-    @property
-    def get_thorax_force(self):
-        """ Compute forces measured on the Thorax. """
-        thorax_info = p.getJointState(self.animal, self.thorax_id)
-        return np.array(thorax_info[2][:3]) / self.units.newtons
-    '''
+
     @property
     def ground_reaction_forces(self):
-        """Get the ground reaction forces.  """
+        """Get the ground reaction forces. """
         return list(
             map(self._get_contact_normal_force, self.ground_sensors.values())
         )
@@ -668,8 +665,6 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             self.joint_velocities)
         self.sim_data.joint_torques.values = np.asarray(
             self.joint_torques)
-        #self.sim_data.thorax_force.values = np.asarray(
-        #    self.get_thorax_force).flatten()
         self.sim_data.collision_forces.values = np.asarray(
             self.collision_forces).flatten()
         self.sim_data.ground_contacts.values = np.asarray(
@@ -681,7 +676,6 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         if self.GROUND is 'ball':
             self.sim_data.ball_rotations.values = np.asarray(
                 self.ball_rotations).flatten()
-        pylog.debug("Container is updated!")
 
     @abc.abstractmethod
     def controller_to_actuator(self):
@@ -745,7 +739,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                 pitch,
                 base)
 
-        ######## WALKING CAMERA SEQUENCE ########
+        #: Walking camera sequence, set rotate_camera to True to activate
         if self.GUI == p.GUI and self.ROTATE_CAMERA and self.behavior == 'walking':
             base = np.array(self.base_position)
             base[-1] = 1.10
@@ -780,7 +774,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                 pitch,
                 base)
 
-        ###### GROOMING CAMERA SEQUENCE #######
+        #: Grooming camera sequence, set rotate_camera to True to activate
         if self.GUI == p.GUI and self.ROTATE_CAMERA and self.behavior == 'grooming':
             base = np.array(self.base_position)
             if t < 250:
@@ -824,7 +818,6 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         #: Slow down the simulation
         if self.slow_down:
             time.sleep(self.sleep_time)
-
         #: Check if optimization is to be killed
         if optimization:
             optimization_status = self.optimization_check()
@@ -838,29 +831,3 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             status = self.step(t, optimization=optimization)
             if not status:
                 return False
-
-
-def main():
-    """ Main """
-
-    sim_options = {
-        "headless": False,
-        "model": "../mouse/models/mouse_bullet/sdf/mouse_bullet.sdf",
-        "model_offset": [
-            0.,
-            0.,
-            0.05],
-        "pose": "../mouse/config/mouse_rig_simple_default_pose.yml",
-        "run_time": 10.}
-
-    animal = BulletSimulation(**sim_options)
-    animal.run(optimization=True)
-    # container = Container.get_instance()
-    # animal.control.visualize_network(edge_labels=False)
-    # plt.figure()
-    # plt.plot(np.sin(container.neural.outputs.log))
-    # plt.show()
-
-
-if __name__ == '__main__':
-    main()
