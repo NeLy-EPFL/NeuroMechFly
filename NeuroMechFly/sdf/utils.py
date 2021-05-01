@@ -1,13 +1,37 @@
-""" Utility classes and methods for farms_sdf """
+"""
+
+-----------------------------------------------------------------------
+Copyright 2018-2020 Jonathan Arreguit, Shravan Tata Ramalingasetty
+Copyright 2018 BioRobotics Laboratory, École polytechnique fédérale de Lausanne
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-----------------------------------------------------------------------
+
+Utility classes and methods for farms_sdf
+
+"""
 
 import os
 from dataclasses import dataclass
+
+# TODO: Remove this dependency
 from treelib import Tree
+
 
 def replace_file_name_in_path(file_path, new_name):
     """
     Replace a file name in a given path. File extension is retained
- 
+
     Parameters
     ----------
     file_path : <str>
@@ -69,7 +93,7 @@ def find_neighboring_joints(model, joint):
 
 def find_link_joints(model, link_name):
     """Find the joints attached to a given link
- 
+
     Parameters
     ----------
     model : <ModelSDF>
@@ -77,7 +101,7 @@ def find_link_joints(model, link_name):
 
     link_name : <str>
         Name of the link in the sdf
-    
+
     Returns
     -------
     out : <tuple>
@@ -106,7 +130,7 @@ class TreeData:
     """Data for SDF tree
     """
     joint: str
-        
+
 def add_nodes_to_tree(model, tree, links=None, joint_index=None):
     """ Add nodes to links """
     if joint_index is None:
@@ -126,7 +150,7 @@ def add_nodes_to_tree(model, tree, links=None, joint_index=None):
     add_nodes_to_tree(model, tree, new_links, joint_index)
 
 def construct_tree(model) -> Tree:
-    """ Construct tree. """   
+    """ Construct tree. """
     tree = Tree()
     root = find_root(model)
     tree.create_node(tag=root, identifier=root, parent=None, data=TreeData(""))
@@ -144,10 +168,9 @@ def get_all_subtrees(model):
         for n in tree.all_nodes_itr()
         if len(tree.children(n.identifier)) > 1
     ]
-    #: Get all subtrees    
+    #: Get all subtrees
     return [
         tree.remove_subtree(children.identifier)
         for root in branch_roots[::-1]
         for children in tree.children(root)
     ]
-    

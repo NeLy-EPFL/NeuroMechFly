@@ -1,11 +1,12 @@
 """ Drosophila simulation class for kinematic replay without body support. """
-from NeuroMechFly.simulation.bullet_simulation import BulletSimulation
-from NeuroMechFly.container import Container
-from NeuroMechFly.sdf.units import SimulationUnitScaling
 from random import random
+
 import numpy as np
 import pandas as pd
+
 import pybullet as p
+from NeuroMechFly.sdf.units import SimulationUnitScaling
+from NeuroMechFly.simulation.bullet_simulation import BulletSimulation
 
 # Random number seed
 np.random.seed(seed=321)
@@ -59,7 +60,7 @@ def add_perturbation(
 
 
 class DrosophilaSimulation(BulletSimulation):
-    """ Drosophila Simulation Class for kinematic replay. 
+    """ Drosophila Simulation Class for kinematic replay.
 
     Parameters
     ----------
@@ -68,11 +69,11 @@ class DrosophilaSimulation(BulletSimulation):
     sim_options: <dict>
         Dictionary containing the simulation options.
     Kp: <float>
-        Proportional gain of the position controller.  
+        Proportional gain of the position controller.
     Kv: <float>
-        Derivative gain of the position controller.   
+        Derivative gain of the position controller.
     position_path: <str>
-        Path of the joint position .pkl file.    
+        Path of the joint position .pkl file.
     velocity_path: <str>
         Path of the joint velocity .pkl file.
     add_perturbation: <bool>
@@ -80,13 +81,13 @@ class DrosophilaSimulation(BulletSimulation):
     units: <obj>
         Instance of SimulationUnitScaling object to scale up the units during calculations.
     """
-    
+
     def __init__(
-            self, container, sim_options, Kp, Kv, 
+            self, container, sim_options, Kp, Kv,
             position_path, velocity_path,
             add_perturbation,
             units=SimulationUnitScaling(meters=1000, kilograms=1000)
-    ):    
+    ):
         super().__init__(container, units, **sim_options)
         self.kp = Kp
         self.kv = Kv
@@ -98,7 +99,7 @@ class DrosophilaSimulation(BulletSimulation):
         self.add_perturbation = add_perturbation
 
     def load_angles(self, data_path):
-        """ Function that loads the pickle format joint angle or velocity gile. 
+        """ Function that loads the pickle format joint angle or velocity gile.
 
         Parameters
         ----------
@@ -124,7 +125,7 @@ class DrosophilaSimulation(BulletSimulation):
         Parameters
         ----------
         t : int
-            Time running in the physics engine. 
+            Time running in the physics engine.
         """
         #: Throw mini balls at the fly during kinematic replay
         if self.add_perturbation:
@@ -184,7 +185,7 @@ class DrosophilaSimulation(BulletSimulation):
             np.arange(42, 49)) + list(np.arange(81, 88))
         joint_control_hind = list(np.arange(28, 35)) + list(np.arange(67, 74))
         joint_control = joint_control_hind + joint_control_middle + joint_control_front
-        
+
         #: Control the joints through position controller
         #: Velocity can be discarded if not available and gains can be changed
         for joint in range(self.num_joints):

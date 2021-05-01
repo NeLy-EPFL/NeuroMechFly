@@ -1,15 +1,14 @@
 """ Drosophila simulation class for kinematic replay for the ball experiments. """
 
 from NeuroMechFly.simulation.bullet_simulation import BulletSimulation
-from NeuroMechFly.container import Container
 from NeuroMechFly.sdf.units import SimulationUnitScaling
 import pybullet as p
 import numpy as np
 import pandas as pd
 
 class DrosophilaSimulation(BulletSimulation):
-    """ Drosophila Simulation Class for kinematic replay. 
-    
+    """ Drosophila Simulation Class for kinematic replay.
+
     Parameters
     ----------
     container: <Container>
@@ -17,11 +16,11 @@ class DrosophilaSimulation(BulletSimulation):
     sim_options: <dict>
         Dictionary containing the simulation options.
     Kp: <float>
-        Proportional gain of the position controller.  
+        Proportional gain of the position controller.
     Kv: <float>
-        Derivative gain of the position controller.   
+        Derivative gain of the position controller.
     position_path: <str>
-        Path of the joint position .pkl file.    
+        Path of the joint position .pkl file.
     velocity_path: <str>
         Path of the joint velocity .pkl file.
     units: <obj>
@@ -38,7 +37,7 @@ class DrosophilaSimulation(BulletSimulation):
         units=SimulationUnitScaling(
             meters=1000,
             kilograms=1000)):
-            
+
         super().__init__(container, units, **sim_options)
         self.last_draw = []
         self.grf = []
@@ -50,7 +49,7 @@ class DrosophilaSimulation(BulletSimulation):
         self.velocities = self.load_angles(velocity_path)
 
     def load_angles(self, data_path):
-        """ Function that loads the pickle format joint angle or velocity gile. 
+        """ Function that loads the pickle format joint angle or velocity gile.
 
         Parameters
         ----------
@@ -76,7 +75,7 @@ class DrosophilaSimulation(BulletSimulation):
         Parameters
         ----------
         t : <int>
-            Time running in the physics engine. 
+            Time running in the physics engine.
         """
 
         #: Setting the fixed joint angles, can be altered to change the appearance of the fly
@@ -168,7 +167,7 @@ class DrosophilaSimulation(BulletSimulation):
         """
 
     def update_parameters(self, params):
-        """ Update parameters. """ 
+        """ Update parameters. """
 
     def optimization_check(self):
         """ Optimization check. """

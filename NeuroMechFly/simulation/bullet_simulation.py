@@ -1,18 +1,16 @@
 """ Class to run animal model. """
 import abc
-from tqdm import tqdm
+import time
+
+import numpy as np
 import pybullet as p
 import pybullet_data
-import numpy as np
-import time
 import yaml
-from NeuroMechFly.container import Container
+from farms_container import Container
+import farms_pylog as pylog
+from farms_network.neural_system import NeuralSystem
 from NeuroMechFly.sdf.bullet_load_sdf import load_sdf
-
-try:
-    from NeuroMechFly.network.neural_system import NeuralSystem
-except ImportError:
-    print("Network module not found!")
+from tqdm import tqdm
 
 
 class BulletSimulation(metaclass=abc.ABCMeta):
@@ -405,7 +403,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                     targetValue=_pose
                 )
         else:
-            return None        
+            return None
 
     def _get_contact_normal_force(self, link_id):
         """ Compute ground reaction force. """
@@ -466,7 +464,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
     def get_link_position(self, link_name):
         """" Return the position of the link. """
         return (p.getLinkState(
-            self.animal, 
+            self.animal,
             self.link_id[link_name]))[0] / self.units.meters
 
     def add_ball(self, r):

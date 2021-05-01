@@ -1,38 +1,5 @@
-import setuptools
-from Cython.Build import cythonize
-from Cython.Compiler import Options
-from distutils.extension import Extension
 import numpy
-
-Options.docstrings = True
-Options.fast_fail = True
-Options.annotate = True
-Options.warning_errors = True
-
-# directive_defaults = Cython.Compiler.Options.get_directive_defaults()
-
-# FIXME: Remove this once NeuroMechFly.network is completely deprecated
-extensions = [
-    Extension("NeuroMechFly.network.network_generator",
-              ["NeuroMechFly/network/network_generator.pyx"],
-              include_dirs=[numpy.get_include()],
-              extra_compile_args=['-ffast-math', '-O3'],
-              extra_link_args=['-O3']
-              ),
-    Extension("NeuroMechFly.network.oscillator",
-              ["NeuroMechFly/network/oscillator.pyx"],
-              include_dirs=[numpy.get_include()],
-              extra_compile_args=['-ffast-math', '-O3'],
-              extra_link_args=['-O3']
-              ),
-    Extension("NeuroMechFly.network.neuron",
-              ["NeuroMechFly/network/neuron.pyx"],
-              include_dirs=[numpy.get_include()],
-              extra_compile_args=['-ffast-math', '-O3'],
-              extra_link_args=['-O3']
-              ),
-    "NeuroMechFly/container/*.pyx"
-]
+import setuptools
 
 setuptools.setup(
     name='NeuroMechFly',
@@ -50,10 +17,7 @@ setuptools.setup(
         'numpy',
         'pandas',
         'matplotlib',
-        'networkx==2.3',
-        'ddt',
-        'scipy==1.5.4',
-        'trimesh',
+        'scipy',
         'treelib',
         'tqdm',
         'pybullet',
@@ -63,12 +27,6 @@ setuptools.setup(
         'tables',
         'pillow'
     ],
-    zip_safe=False,
-    ext_modules=cythonize(extensions),
-    package_data={
-        'network': ['*.pxd'],
-        'container': ['*.pxd'],
-    },
     scripts=['scripts/run_kinematic_replay',
         'scripts/run_multiobj_optimization',
         'scripts/run_neuromuscular_control',

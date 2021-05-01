@@ -19,9 +19,9 @@ from jmetal.util.ranking import FastNonDominatedRanking
 from jmetal.util.solution import (print_function_values_to_file,
                                   print_variables_to_file)
 from jmetal.util.termination_criterion import StoppingByEvaluations
-
-from NeuroMechFly.experiments.network_optimization.neuromuscular_control import DrosophilaSimulation
-from NeuroMechFly.container import Container
+from farms_container import Container
+from NeuroMechFly.experiments.network_optimization.neuromuscular_control import \
+    DrosophilaSimulation
 
 LOGGER = logging.getLogger('jmetal')
 
