@@ -237,7 +237,7 @@ class DrosophilaSimulation(BulletSimulation):
         """ Implementation of abstractmethod. """
         self.muscle_controller()
         self.fixed_joints_controller()
-
+        self.compute_static_stability()
         jointTorques = np.array(self.joint_torques())
         #print(jointTorques.shape)
         self.torques.append(jointTorques)
@@ -469,7 +469,7 @@ class DrosophilaSimulation(BulletSimulation):
     def is_velocity_limit(self):
         """ Check velocity limits. """
         return np.any(
-            np.array(self.joint_velocities) > 3500
+            np.array(self.joint_velocities) > 2000
         )
 
 
@@ -780,23 +780,23 @@ def main():
     #    "./sim_files/fun/FUN_last_good.ged3",
     #    "./sim_files/var/VAR_last_good.ged3"
     #)
-
+    '''
     fun, var = read_optimization_results(
         "./optimization_results/"+exp+"/FUN."+gen,
         "./optimization_results/"+exp+"/VAR."+gen
     )
-    '''
+    
 
     fun, var = read_optimization_results(
         "./release/run_Drosophila_var_80_obj_2_pop_100_gen_30_0411_1725/FUN.29",
         "./release/run_Drosophila_var_80_obj_2_pop_100_gen_30_0411_1725/VAR.29",
     )
-
+    '''
     fun, var = read_optimization_results(
         "./FUN.txt",
         "./VAR.txt",
     )
-    '''
+    
 
     # fun, var = read_optimization_results(
     #     "./optimization_results/run_Drosophila_var_80_obj_2_pop_10_gen_4_0412_0316/FUN.3",
@@ -804,12 +804,10 @@ def main():
     # )
 
     ind = 16
-    params = var[np.argmax(fun[:,0]*fun[:,1])]
 
     #ind=np.argmin(fun[:,0])
     ind = np.argmin(10*fun[:,0]+fun[:,1])
-    ind = np.argmin(fun[:,0]+fun[:,1])
-
+    ind = np.argmax(fun[:,0]*fun[:,1])
     params = var[ind]
     params = np.array(params)
     animal.update_parameters(params)

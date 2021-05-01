@@ -331,6 +331,15 @@ class DrosophilaEvolution(FloatProblem):
                 #bbox = False
                 touch = False
                 velocity_cap = False
+            expected_stance_legs = 4
+            min_legs = 3
+            mean_stance_legs = fly.stance_count*fly.time_step/fly.time
+            # print(fly.stance_count, fly.time_step, fly.time, mean_stance_legs)
+            penalty_time_stance = (
+                0.0
+                if min_legs <= mean_stance_legs < expected_stance_legs
+                else abs(mean_stance_legs - min_legs)
+            )
 
             # Penalties
             penalty_time = (
@@ -352,16 +361,6 @@ class DrosophilaEvolution(FloatProblem):
 
             penalty_all_legs = 5.0 if (
                 np.any(fly.check_is_all_legs == False)) else (0.0)
-
-            expected_stance_legs = 3.8
-            min_legs = 3
-            mean_stance_legs = fly.stance_count*fly.time_step/fly.time
-            # print(fly.stance_count, fly.time_step, fly.time, mean_stance_legs)
-            penalty_time_stance = (
-                0.0
-                if min_legs <= mean_stance_legs < expected_stance_legs
-                else 1e1 * abs(mean_stance_legs - min_legs)
-            )
 
             ### PRINT PENALTIES AND OBJECTIVES ###
             pylog.debug(
@@ -388,7 +387,7 @@ class DrosophilaEvolution(FloatProblem):
                 )
 
             solution.objectives[0] = (
-                -1e2*distance
+                -1e2*distance 
                 #+ penalty_all_legs
                 #+ penalty_linearity
                 # + penalty_time
@@ -399,7 +398,7 @@ class DrosophilaEvolution(FloatProblem):
             #    + penalty_time
             #)
             solution.objectives[1] = (
-                -1e2*stability
+                -stability  
                 #+ penalty_dist
                 # + penalty_time_stance
             )

@@ -4,7 +4,8 @@ import os
 import pickle
 import time
 import argparse
-
+from IPython import embed
+from shapely.geometry import Point, Polygon
 import farms_pylog as pylog
 import numpy as np
 import pandas as pd
@@ -294,6 +295,106 @@ class DrosophilaSimulation(BulletSimulation):
                 np.arange(0, p.getNumJoints(self.ball_id))
             )
         )
+    @staticmethod
+    def compute_line_coefficients(point_a, point_b):
+        """ Compute the coefficient of a line
+
+        Parameters
+        ----------
+        point_a :<array>
+            2D position of a
+
+        point_b :<array>
+            2D position of b
+
+        Returns
+        -------
+        coefficients :<array>
+
+        """
+        if abs(point_b[0] - point_a[0]) < 1e-10:
+            return np.asarray([1, 0, -point_a[0]])
+        slope = (point_b[1] - point_a[1])/(point_b[0] - point_a[0])
+        intercept = point_b[1] - slope*point_b[0]
+        return np.asarray([slope, -1, intercept])
+
+    @staticmethod
+    def compute_perpendicular_distance(line, point):
+        """ Compute the perpendicular distance between line and point
+
+        Parameters
+        ----------
+        line: <array>
+            Coefficients of line segments (ax+by+c)
+        point: <array>
+            2D point in space
+
+        Returns
+        -------
+        distance: <float>
+            Perpendicular distance from point to line
+        """
+        return abs(
+            line[0]*point[0]+line[1]*point[1]+line[2]
+        )/np.sqrt(line[0]**2 + line[1]**2)
+
+    def compute_static_stability(self):
+        """ Computes static stability  of the model.
+
+        Parameters
+        ----------
+        self :
+
+
+        Returns
+        -------
+        out :
+
+        """
+        # TODO: Check units for get_link_position
+        contact_points = [
+            self.get_link_position(f"{side}Tarsus5")[:2]
+            for side in ["RF", "RM", "RH", "LH", "LM", "LF"]
+            if any(
+                    [
+                        self.is_contact_ball(f"{side}Tarsus{num}")
+                        for num in range(1, 6)
+                     ]
+                )
+        ]
+
+        # TODO: Fix this
+        contact_points = [[]] if not contact_points else contact_points
+        assert len(contact_points) <= 6
+        # Get fly center_of_mass (Centroid for now)
+        center_of_mass = np.asarray(self.get_link_position('Thorax')[:2])
+        # body length
+        body_length = 2.3*self.units.meters
+        # Make polygon of points
+        try:
+            polygon = Polygon(contact_points)
+        except ValueError:
+            return -1
+        
+        for idx in range(len(polygon.exterior.coords)-1): 
+            p.addUserDebugLine(
+                list(polygon.exterior.coords[idx]) + [11.1],
+                list(polygon.exterior.coords[idx+1]) + [11.1],
+                lifeTime = 1e-2,
+                lineColorRGB = [1,0,0]
+            )
+        # Compute minimum distance
+        distance = np.min([
+            DrosophilaSimulation.compute_perpendicular_distance(
+                DrosophilaSimulation.compute_line_coefficients(
+                    polygon.exterior.coords[idx],
+                    polygon.exterior.coords[idx+1]
+                ),
+                center_of_mass
+            )
+            for idx in range(len(polygon.exterior.coords)-1)
+        ])
+        return distance if polygon.contains(Point(center_of_mass)) else -distance
 
     def stance_polygon_dist(self):
         contact_segments = [leg for leg in self.feet_links if self.is_contact_ball(leg)]
@@ -343,7 +444,7 @@ class DrosophilaSimulation(BulletSimulation):
         ball_rot = np.array(self.ball_rotations())
         dist_traveled = -ball_rot[0]
         #print("BALL ROTATION", ball_rot)
-        moving_limit = (((self.time)/self.run_time)*8.44)-0.40
+        moving_limit = (((self.time)/self.run_time)*4.54)-0.40
         #print(ball_rot)
         self.opti_lava += 1.0 if np.any(
             dist_traveled < moving_limit
@@ -381,7 +482,7 @@ class DrosophilaSimulation(BulletSimulation):
     def is_velocity_limit(self):
         """ Check velocity limits. """
         self.opti_velocity += 1.0 if np.any(
-            np.array(self.joint_velocities) > 4000
+            np.array(self.joint_velocities) > 1000
         ) else 0.0
 
     def is_torque_limit(self):
@@ -389,21 +490,12 @@ class DrosophilaSimulation(BulletSimulation):
         self.opti_torque += 1.0 if (
             np.any(np.array(self.muscle.outputs.log) > 1.7 )) else 0.0
 
-    def is_flying(self):
-        # FIXME: This function does two things at the same time
-        dist_to_centroid = self.stance_polygon_dist()
-        self.stability_coef += dist_to_centroid
-        # print(dist_to_centroid)
-        self.opti_stability += 1.0 if (
-            dist_to_centroid >= 2.5) else 0.0
-
     def optimization_check(self):
         """ Check optimization status. """
         self.is_lava()
-        self.is_flying()
         self.is_velocity_limit()
         self.is_touch()
-        self.is_penetration()
+        self.stability_coef += self.compute_static_stability()
         return True
 
     def update_parameters(self, params):
@@ -662,7 +754,7 @@ def main():
     sim_options = {
         "headless": False,
         # Scaled SDF model
-        "model": "../../design/sdf/neuromechfly_limitsFromData_minMax.sdf",
+        "model": "../../design/sdf/neuromechfly_limitsFromData_1std.sdf",
         "model_offset": [0., 0., 11.2e-3],
         "run_time": clargs.runtime,
         "pose": '../../config/test_pose_tripod.yaml',

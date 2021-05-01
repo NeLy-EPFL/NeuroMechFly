@@ -235,7 +235,7 @@ class DrosophilaEvolution(FloatProblem):
         time_step = 0.001
         sim_options = {
             "headless": True,
-            "model": "../../design/sdf/neuromechfly_limitsFromData_minMax.sdf",
+            "model": "../../design/sdf/neuromechfly_limitsFromData_1std.sdf",
             "model_offset": [0., 0., 11.2e-3],
             "pose": "../../config/test_pose_tripod.yaml",
             #"pose": "../../config/pose_optimization.yaml",
@@ -275,7 +275,7 @@ class DrosophilaEvolution(FloatProblem):
             np.asarray(container.muscle.active_torques.log)**2
         ))*fly.time_step/fly.run_time
         # Stability
-        stability = fly.stability_coef*fly.time_step/fly.time
+        stability = fly.stability_coef
 
         use_penalties = True
         if use_penalties:
@@ -300,10 +300,10 @@ class DrosophilaEvolution(FloatProblem):
             penalties = (
                 movement_weight * fly.opti_lava + \
                 touch_weight * fly.opti_touch + \
-                velocity_weight * fly.opti_velocity + \
-                stability_weight * fly.opti_stability + \
-                stance_weight * penalty_time_stance + \
-                torque_weight * fly.opti_torque
+                velocity_weight * fly.opti_velocity 
+                #stability_weight * fly.opti_stability + \
+                #stance_weight * penalty_time_stance + \
+                #torque_weight * fly.opti_torque
             )
 
             pylog.debug(
@@ -316,7 +316,6 @@ class DrosophilaEvolution(FloatProblem):
                     Penalty lava: {movement_weight * fly.opti_lava} \n \
                     Penalty touch: {touch_weight * fly.opti_touch} \n \
                     Penalty velocity: {velocity_weight*fly.opti_velocity} \n \
-                    Penalty stability_coef: {stability_weight*fly.opti_stability} \n \
                     Penalty stance: {penalty_time_stance} \n \
                     Penalty torque: {torque_weight * fly.opti_torque} \n \
                     Penalty penetration: {fly.opti_penetration} \n \
@@ -341,7 +340,7 @@ class DrosophilaEvolution(FloatProblem):
             solution.objectives[0] = -distance*2e2 + penalties
             if self.second_objective_name == 'stability':
                 print(self.second_objective_name)
-                solution.objectives[1] = stability*1e3 + penalties
+                solution.objectives[1] = -stability*1e1 + penalties
             elif self.second_objective_name == 'torque':
                 print(self.second_objective_name)
                 solution.objectives[1] = active_torque_sum*2e2 + penalties
