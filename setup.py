@@ -11,9 +11,9 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     install_requires=[
         'farms_pylog @ git+https://gitlab.com/FARMSIM/farms_pylog.git',
-        #'farms_network @ git+https://gitlab.com/FARMSIM/farms_network.git',
-        #'farms_container @ git+https://gitlab.com/FARMSIM/farms_container.git',
-        #'df3dPostProcessing @ git+https://github.com/NeLy-EPFL/df3dPostProcessing.git',
+        'farms_network @ git+https://gitlab.com/FARMSIM/farms_network.git',
+        'farms_container @ git+https://gitlab.com/FARMSIM/farms_container.git',
+        'df3dPostProcessing @ git+https://github.com/NeLy-EPFL/df3dPostProcessing.git',
         'numpy',
         'pandas',
         'matplotlib',
