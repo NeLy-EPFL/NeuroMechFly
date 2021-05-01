@@ -10,7 +10,17 @@ import yaml
 MODEL_NAME = "neuromechfly_noLimits"
 
 def add_planar_constraint(model, units, joint_type='prismatic'):
-    """ Add planar constraints to the model. """
+    """ Add planar constraints to the model.
+
+    Parameters
+    ----------
+    model : <obj>
+        SDF model
+    units : <SimulationUnitScaling>
+        Units of SDF model.
+    joint_type : str, optional
+        Joint type connecting the links, by default 'prismatic'
+    """ 
     #: Add planar joints
     world_link = Link(
         name='world',
@@ -73,86 +83,20 @@ def main():
     """Main"""
 
     units = SimulationUnitScaling(
-        meters=1000e0,
+        meters=1e3,
         seconds=1e0,
-        kilograms=1000e0
+        kilograms=1e3
     )
 
     #: Read the sdf model from template
     model = ModelSDF.read(
         "{}.sdf".format(MODEL_NAME))[0]
-    #model.change_units(units)
 
     link_index = utils.link_name_to_index(model)
     joint_index = utils.joint_name_to_index(model)
 
-    #: Change collision shapes of feet to ball
-    #: FEET
-    '''
-    sides = ('L', 'R')
-    positions = ('F', 'M', 'H')
-    feet_links = tuple([
-	'{}{}Tarsus5'.format(side, pos)
-        for side in sides
-        for pos in positions
-    ])
-    for feet in feet_links:
-        model.links[link_index[feet]].collisions= [Collision.sphere(
-            feet, 0.005, units)]
-    '''
-
-    ########## FIX ##########
-    '''
-    sides = ('L', 'R')
-    positions = ('F', 'M', 'H')
-    _joints = ('Coxa', 'Femur', 'Tibia')
-    actuated_joints = [
-        'joint_{}{}{}'.format(side, pos, joint)
-        for side in sides
-        for pos in positions
-        for joint in _joints
-    ]
-    for j, joint in enumerate(actuated_joints):
-        pos = joint.split('_')[1][1]
-        if (('M' == pos) or ('H' == pos)) and ('Coxa' in joint):
-            actuated_joints[j] = joint.replace('Coxa', 'CoxaFake2')
-    for joint in model.joints:
-        if joint.name not in actuated_joints:
-            model.joints[joint_index[joint.name]].type = 'fixed'
-        else:
-            if 'LM' in joint.name or 'LH' in joint.name:
-                model.joints[joint_index[joint.name]].axis.xyz=[-axis if axis == 1 else axis for axis in model.joints[joint_index[joint.name]].axis.xyz]
-    '''
-    '''
-    ######## CHANGE AXES AND LIMITS DIRECTION FOR LEFT SIDE #########
-    sides = ('L', 'R')
-    positions = ('F', 'M', 'H')
-    _joints = ('Coxa', 'Femur', 'Tibia')
-    actuated_joints = [
-        'joint_{}{}{}'.format(side, pos, joint)
-        for side in sides
-        for pos in positions
-        for joint in _joints
-    ]
-    for j, joint in enumerate(actuated_joints):
-        pos = joint.split('_')[1][1]
-        if (('M' == pos) or ('H' == pos)) and ('Coxa' in joint):
-            actuated_joints[j] = joint.replace('Coxa', 'Coxa_roll')
-            
-    for joint in model.joints:
-        if 'LM' in joint.name or 'LH' in joint.name:# or 'LF' in joint.name or 'RF' in joint.name:
-            ljoint = model.joints[joint_index[joint.name]]
-            ljoint.axis.xyz=[-axis if axis == 1 else axis for axis in ljoint.axis.xyz]
-            lowerLimit = ljoint.axis.limits[0]
-            upperLimit = ljoint.axis.limits[1]
-            ljoint.axis.limits[0] = -upperLimit 
-            ljoint.axis.limits[1]= -lowerLimit
-    '''
     ########## CHANGE PARENTS AND SELECTED ROTATION AXES###########
-    
     leg_joints = ('Cox','Fem','Tib','Tar')
-
-    #axes_to_change = ['joint_RFCoxa_roll','joint_LMCoxa_roll','joint_RHCoxa_roll','joint_RFFemur_roll','joint_RMFemur_roll','joint_LHFemur_roll']
 
     axes_to_change = []
     
@@ -192,7 +136,6 @@ def main():
     joint_index = utils.joint_name_to_index(model)
 
     ########## WRITE ##########    
-    #model.units = units
     model.write(filename="{}.sdf".format(MODEL_NAME))
         
 if __name__ == '__main__':

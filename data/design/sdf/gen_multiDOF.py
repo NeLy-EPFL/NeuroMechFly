@@ -1,4 +1,4 @@
-"""Generate Drosophila Template"""
+"""Generate Drosophila Template from Meshes"""
 
 import os
 import numpy as np
@@ -7,17 +7,15 @@ from NeuroMechFly.sdf.units import SimulationUnitScaling
 import yaml
 
 MESH_PATH = os.path.join("../meshes/stl", "")
-#MODEL_NAME = "neuromechfly_noLimits"
 
-with open('../../config/gen_sdf_1x.yaml') as f:
+with open('../../config/pose/gen_sdf_1x.yaml') as f:
 	data = yaml.safe_load(f)
 
 def main():
     """Main"""
     name_file = "neuromechfly_noLimits"
-    #joint_limits = [-np.pi, np.pi, 1e10, 2*np.pi*100]
     scale = 1
-    units = SimulationUnitScaling(meters=1000, kilograms=1000)
+    units = SimulationUnitScaling(meters=1e3, kilograms=1e3)
     links = {}
     for name, elem in data.items():
         if '_' in name:
@@ -43,7 +41,7 @@ def main():
                           )
 
 
-###################### CHANGE DENSITY #################################################
+    ###################### CHANGE DENSITY ######################
     abdomen = ['A1A2','A3','A4','A5','A6']
     thorax = ['Thorax','LHaltere','RHaltere']
     head = ['Head','RAntenna','LAntenna','LEye','REye','Rostrum','Haustellum']
@@ -97,13 +95,6 @@ def main():
                                inertial_from_bounding=False,
                                density = density
                           )
-
-    #t_mass=0
-    #for name, link in links.items():
-    #    t_mass+=link.inertial.mass
-    #print(t_mass)
-
-    ##############################################################################
     
     joints = {"joint_{}".format(name): 
         Joint(
@@ -126,4 +117,5 @@ def main():
     sdf.write(filename="{}.sdf".format(name_file))
 
 if __name__ == '__main__':
+    """Main"""
     main()

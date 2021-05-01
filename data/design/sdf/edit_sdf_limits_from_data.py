@@ -1,4 +1,4 @@
-"""Generate Drosophila Template"""
+"""Generate a new drosophila template based on the joint data"""
 
 import os
 import numpy as np
@@ -23,14 +23,11 @@ def main():
 
     #: Read the sdf model from template
     model = ModelSDF.read(MODEL_NAME)[0]
-    #model.change_units(units)
-
     link_index = utils.link_name_to_index(model)
     joint_index = utils.joint_name_to_index(model)
 
-    ####### LOAD ANGLES ##########
-
-    angles_path = glob.glob('../../data/walking/df3d/joint_angles*.pkl') ### walking
+    #: Load joint angles during walking
+    angles_path = glob.glob('../../data/walking/df3d/joint_angles*.pkl') 
 
     if angles_path:
         with open(angles_path[0], 'rb') as f:
@@ -38,7 +35,7 @@ def main():
     else:
         raise Exception("Angles file not found")
 
-    ######## CHANGE JOINT LIMITS #########
+    # : Change joint limits based on the data
     sides = ('L', 'R')
     positions = ('F', 'M', 'H')
     _joints = ('Coxa', 'Femur', 'Tibia')
@@ -52,7 +49,6 @@ def main():
         pos = joint.split('_')[1][1]
         if (('M' == pos) or ('H' == pos)) and ('Coxa' in joint):
             actuated_joints[j] = joint.replace('Coxa', 'Coxa_roll')
-    #print(actuated_joints)
 
     limits={}
     equivalence = {"Coxa":"pitch","Coxa_roll":"roll","Femur":"th_fe","Tibia":"th_ti"}
@@ -60,9 +56,8 @@ def main():
         for angle, val in dof.items():
             mean_val = np.mean(val)
             std_val = np.std(val)
-            max_lim = mean_val + 2*std_val
-            min_lim = mean_val - 2*std_val
-            #print(leg, angle, np.array([min_lim, max_lim, mean_val, std_val])*180/np.pi)
+            max_lim = mean_val + 1*std_val
+            min_lim = mean_val - 1*std_val
             for new_name, original_name in equivalence.items():
                 if angle == original_name:
                     name = leg[:2] + new_name
@@ -73,26 +68,13 @@ def main():
                     #if max_lim < limits[name][1]:
                     #    limits[name][1] = max_lim
 
-    #for leg, lim in limits.items():
-    #    print(leg, np.array(lim)*180/np.pi)
-
     for joint in actuated_joints:
         joint_obj = model.joints[joint_index[joint]]
         label = joint.replace('joint_','')
         joint_obj.axis.limits[0] = limits[label][0]
         joint_obj.axis.limits[1] = limits[label][1]
     
-    '''
-    for joint in model.joints:
-        joint_obj = model.joints[joint_index[joint.name]]
-        joint_obj.axis.limits[0] = -np.pi
-        joint_obj.axis.limits[1]= np.pi
-        if 'LM' in joint.name or 'LH' in joint.name:# or 'LF' in joint.name or 'RF' in joint.name:
-            ljoint = model.joints[joint_index[joint.name]]
-            ljoint.axis.xyz=[-axis if axis == 1 else axis for axis in ljoint.axis.xyz]
-    '''
-    ########## WRITE ##########    
-    #model.units = units
+    #: Write the joint limits in a new file 
     model.write(filename="{}".format(NEW_MODEL_NAME))
         
 if __name__ == '__main__':
