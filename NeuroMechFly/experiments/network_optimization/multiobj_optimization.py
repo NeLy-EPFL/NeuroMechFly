@@ -4,6 +4,7 @@ import logging
 import os
 from datetime import datetime
 from pathlib import Path
+import pkgutil
 
 import farms_pylog as pylog
 import numpy as np
@@ -25,6 +26,7 @@ from NeuroMechFly.experiments.network_optimization.neuromuscular_control import 
 
 LOGGER = logging.getLogger('jmetal')
 
+neuromechfly_path = Path(pkgutil.get_loader("NeuroMechFly").get_filename()).parents[1]
 
 class WriteFullFrontToFileObserver(Observer):
     """ Write full front to file. """
@@ -217,14 +219,19 @@ class DrosophilaEvolution(FloatProblem):
         run_time = 5.
         #: Set a time step for the physics engine
         time_step = 0.001
+        #: Setting up the paths for the SDF and POSE files
+        model_path = os.path.join(neuromechfly_path, 'data/design/sdf/neuromechfly_noLimits.sdf')
+        pose_path = os.path.join(neuromechfly_path, 'data/config/pose/pose_tripod.yaml')
+        controller_path = os.path.join(neuromechfly_path, 'data/config/network/locomotion_network_tripod.graphml')
+        #: Simulation options
         sim_options = {
             "headless": True,
-            "model": "../data/design/sdf/neuromechfly_limitsFromData.sdf",
+            "model": model_path,
             "model_offset": [0., 0., 11.2e-3],
-            "pose": "../data/config/pose/pose_tripod.yaml",
+            "pose": pose_path,
             "run_time": run_time,
             "base_link": 'Thorax',
-            "controller": '../data/config/network/locomotion_ball.graphml',
+            "controller": controller_path
         }
         #: Create the container instance that the simulation results will be dumped
         container = Container(run_time / time_step)
@@ -253,17 +260,16 @@ class DrosophilaEvolution(FloatProblem):
         )[0] * fly.ball_radius
 
         #: Stability coefficient
-        #: Given by the difference between the stance polygon centroid and COM of the fly
-        stability = fly.stability_coef * fly.TIME_STEP / fly.TIME_STEP
+        stability = fly.stability_coef
 
         if not successful:
             lava = fly.is_lava()
-            flying = fly.is_flying()
+            #flying = fly.is_flying()
             touch = fly.is_touch()
             velocity_cap = fly.is_velocity_limit()
         else:
             lava = False
-            flying = False
+            #flying = False
             touch = False
             velocity_cap = False
 
@@ -271,7 +277,7 @@ class DrosophilaEvolution(FloatProblem):
         #: Penalty time spent until termination
         penalty_time = (
             1e0 + 1e0 * (fly.RUN_TIME - fly.TIME) / fly.RUN_TIME
-            if (lava or flying or touch or velocity_cap)
+            if (lava or touch or velocity_cap)
             else 0.0
         )
 
@@ -317,8 +323,8 @@ class DrosophilaEvolution(FloatProblem):
             )
         )
 
-        solution.objectives[0] = -distance + penalty_time
-        solution.objectives[1] = stability + penalty_time_stance
+        solution.objectives[0] = -2e2*distance + penalty_time
+        solution.objectives[1] = -stability + penalty_time_stance
 
         pylog.debug(
             "OBJECTIVE FUNCTION EVALUATION:\n===========\n\

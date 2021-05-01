@@ -1,7 +1,7 @@
 """ Drosophila Simulation for visualization of optimization results."""
 import farms_pylog as pylog
 import numpy as np
-
+from shapely.geometry import Point, Polygon
 import pybullet as p
 import pybullet_data
 from NeuroMechFly.control.spring_damper_muscles import (Parameters,
@@ -177,7 +177,8 @@ class DrosophilaSimulation(BulletSimulation):
         """ Implementation of abstract method. """
         self.muscle_controller()
         self.fixed_joints_controller()
-
+        #: Draw the stance polygon
+        self.compute_static_stability()
         #: Change the color of the colliding body segments
         if self.draw_collisions:
             draw = []
@@ -203,41 +204,112 @@ class DrosophilaSimulation(BulletSimulation):
         """ Implementation of abstractmethod. """
         pass
 
-    def stance_polygon_dist(self):
-        """ Calculate the distance between the stance polygon centroid and
-            the COM of the fly to measure the static stability.
+    @staticmethod
+    def compute_line_coefficients(point_a, point_b):
+        """ Compute the coefficient of a line
+
+        Parameters
+        ----------
+        point_a :<array>
+            2D position of a
+
+        point_b :<array>
+            2D position of b
+
+        Returns
+        -------
+        coefficients :<array>
+
         """
-        #: Get the segments in contact with the ball
-        contact_segments = [
-            leg for leg in self.feet_links if self.is_contact(leg)]
-        contact_legs = []
-        sum_x = 0
-        sum_y = 0
-        #: Sum the x and y coordinates of the tarsis in the stance phase
-        for seg in contact_segments:
-            if seg[:2] not in contact_legs:
-                contact_legs.append(seg[:2])
-                pos_tarsus = self.get_link_position(seg[:2] + 'Tarsus5')
-                sum_x += pos_tarsus[0]
-                sum_y += pos_tarsus[1]
+        if abs(point_b[0] - point_a[0]) < 1e-10:
+            return np.asarray([1, 0, -point_a[0]])
+        slope = (point_b[1] - point_a[1])/(point_b[0] - point_a[0])
+        intercept = point_b[1] - slope*point_b[0]
+        return np.asarray([slope, -1, intercept])
 
-        self.stance_count += len(contact_legs)
+    @staticmethod
+    def compute_perpendicular_distance(line, point):
+        """ Compute the perpendicular distance between line and point
 
-        if len(contact_legs) != 0:
-            #: Calculate the centroid of the stance polygon
-            poly_centroid = np.array(
-                [sum_x / len(contact_legs), sum_y / len(contact_legs)])
-            body_centroid = np.array(self.get_link_position('Thorax')[:2])
-            #: Calculate the distance between the centroid and body COM
-            dist = np.linalg.norm(body_centroid - poly_centroid)
-        else:
-            #: If no legs are on the ball, assign distance to a high value
-            dist = 100
-        return dist
+        Parameters
+        ----------
+        line: <array>
+            Coefficients of line segments (ax+by+c)
+        point: <array>
+            2D point in space
+
+        Returns
+        -------
+        distance: <float>
+            Perpendicular distance from point to line
+        """
+        return abs(
+            line[0]*point[0]+line[1]*point[1]+line[2]
+        )/np.sqrt(line[0]**2 + line[1]**2)
+
+    def compute_static_stability(self):
+        """ Computes static stability  of the model.
+
+        Parameters
+        ----------
+        self :
+
+
+        Returns
+        -------
+        out :
+
+        """
+        # TODO: Check units for get_link_position
+        contact_points = [
+            self.get_link_position(f"{side}Tarsus5")[:2]*self.units.meters
+            for side in ["RF", "RM", "RH", "LH", "LM", "LF"]
+            if any(
+                    [
+                        self.is_contact(f"{side}Tarsus{num}")
+                        for num in range(1, 6)
+                     ]
+                )
+        ]
+
+
+        contact_points = [[]] if not contact_points else contact_points
+        assert len(contact_points) <= 6
+        # Get fly center_of_mass (Centroid for now)
+        center_of_mass = np.asarray(self.get_link_position('Thorax')[:2])*self.units.meters
+        body_length = 2.3
+
+        # Make polygon of points
+        try:
+            polygon = Polygon(contact_points)
+        except ValueError:
+            return -1
+        
+        for idx in range(len(polygon.exterior.coords)-1): 
+            p.addUserDebugLine(
+                list(polygon.exterior.coords[idx]) + [11.1],
+                list(polygon.exterior.coords[idx+1]) + [11.1],
+                lifeTime = 1e-2,
+                lineColorRGB = [1,0,0]
+            )
+        # Compute minimum distance
+        distance = np.min([
+            DrosophilaSimulation.compute_perpendicular_distance(
+                DrosophilaSimulation.compute_line_coefficients(
+                    polygon.exterior.coords[idx],
+                    polygon.exterior.coords[idx+1]
+                ),
+                center_of_mass
+            )
+            for idx in range(len(polygon.exterior.coords)-1)
+        ])/body_length
+        #print('distance',distance)
+        return distance if polygon.contains(Point(center_of_mass)) else -distance
+
 
     def calculate_stability(self):
         """ Calculates the stability coefficient. """
-        dist_to_centroid = self.stance_polygon_dist()
+        dist_to_centroid = self.compute_static_stability()
         self.stability_coef += dist_to_centroid
 
     def is_using_all_legs(self):
@@ -252,7 +324,7 @@ class DrosophilaSimulation(BulletSimulation):
     def is_lava(self):
         """ State of lava approaching the model. """
         dist_traveled = -1 * self.ball_rotations[0]
-        moving_limit = (self.TIME / self.RUN_TIME) * 3.24 - 0.30
+        moving_limit = (self.TIME / self.RUN_TIME) * 3.44 - 0.30
         return dist_traveled < moving_limit
 
     def is_in_not_bounds(self):
@@ -279,22 +351,23 @@ class DrosophilaSimulation(BulletSimulation):
             np.array(self.joint_velocities) > 1e3
         )
 
-    def is_flying(self):
-        """ Check if at least one leg is on the ball. """
-        dist_to_centroid = self.stance_polygon_dist()
-        return dist_to_centroid > 90
+    # def is_flying(self):
+    #     """ Check if at least one leg is on the ball. """
+    #     dist_to_centroid = self.stance_polygon_dist()
+    #     return dist_to_centroid > 90
 
     def optimization_check(self):
         """ Check optimization status. """
         lava = self.is_lava()
-        flying = self.is_flying()
+        #flying = self.is_flying()
         velocity_cap = self.is_velocity_limit()
         touch = self.is_touch()
+        self.calculate_stability()
         self.is_using_all_legs()
-        if lava or velocity_cap or touch or flying:
+        if lava or velocity_cap or touch:
             pylog.debug(
-                "Lava {} | Flying {} | Vel {} | Touch {}".format(
-                    lava, flying, velocity_cap, touch
+                "Lava {} | Vel {} | Touch {}".format(
+                    lava, velocity_cap, touch
                 )
             )
             return False
