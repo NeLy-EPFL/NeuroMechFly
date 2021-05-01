@@ -1,37 +1,15 @@
+""" Script to plot the simulation results. """
+import pickle
+import os
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import seaborn as sns
-import itertools
-import matplotlib.ticker as mtick
 from matplotlib.lines import Line2D
 import matplotlib.patches as mpatches
-import pickle
-import os
+import matplotlib.ticker as mtick
+import seaborn as sns
+import itertools
 from .sensitivity_analysis import calculate_forces
-# plt.style.use('seaborn-colorblind')
-
-# Global varibles not used
-legs = ['LF', 'LM', 'LH', 'RF', 'RM', 'RH']
-joints = [
-    'Coxa',
-    'Coxa_yaw',
-    'Coxa_roll',
-    'Femur',
-    'Femur_roll',
-    'Tibia',
-    'Tarsus1']
-
-
-file_names = ['ground_contacts',
-              'ground_friction_dir1',
-              'ground_friction_dir2',
-              'joint_positions',
-              'joint_torques',
-              'joint_velocities',
-              'thorax_force']
-########
-
 
 def plot_mu_sem(
     mu,
@@ -174,11 +152,21 @@ def heatmap_plot(
         title,
         joint_data,
         colorbar_title,
-        precision="d",
+        precision="g",
         linewidth="0.005",
         ax=None,
         cmap='viridis'):
-    """ Plots a heatmap plot for global sensitivity analysis. """
+    """ Plots a heatmap plot for global sensitivity analysis. 
+    
+    Args:
+        title (str): Title of the heatmap
+        joint_data (dict): Dictionary containing the joint information (angle etc)
+        colorbar_title (str): Title of the colorbar
+        precision (str): Precision of the heatmap entries
+        linewidth (str): Width of the lines in heatmap
+        ax (obj): axis to be plotted on, otherwise plt.gca()
+        cmap (str): color map of the heatmap
+    """
     if ax is None:
         ax = plt.gca()
 

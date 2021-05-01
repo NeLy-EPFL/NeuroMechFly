@@ -1,6 +1,4 @@
-import pickle
 import itertools
-import os
 import numpy as np
 import pandas as pd
 from sklearn.metrics import mean_squared_error
@@ -16,23 +14,6 @@ joints = [
     'Femur_roll',
     'Tibia',
     'Tarsus1']
-
-dict_conversion = {'Coxa': 'pitch',
-                   'Coxa_yaw': 'yaw',
-                   'Coxa_roll': 'roll',
-                   'Femur': 'th_fe',
-                   'Femur_roll': 'roll_tr',
-                   'Tibia': 'th_ti',
-                   'Tarsus1': 'th_ta'}
-
-file_names = ['ground_contacts',
-              'ground_friction_dir1',
-              'ground_friction_dir2',
-              'joint_positions',
-              'joint_torques',
-              'joint_velocities',
-              'thorax_force']
-
 
 ##### CALCULATE STATISTICS #####
 def calculate_forces(leg, k_value, *args):
