@@ -1,13 +1,17 @@
 #!/usr/bin/env python
-
-import argparse
-
-from farms_container import Container
+""" Script to run kinematic replay. """
 from NeuroMechFly.experiments.kinematic_replay import \
     kinematic_replay_no_support
+from farms_container import Container
+import os
+import argparse
+from pathlib import Path
+import pkgutil
+
+neuromechfly_path = Path(pkgutil.get_loader("NeuroMechFly").get_filename()).parents[1]
 
 if __name__ == "__main__":
-
+    """ Main. """
     parser = argparse.ArgumentParser()
     parser.add_argument('-b', '--behavior', default='walking')
     parser.add_argument('-p', '--perturbation', default=False, action='store_true')
@@ -40,34 +44,39 @@ if __name__ == "__main__":
         p +
         name for s in side for p in pos for name in leg_segments if name != 'Tibia']
 
+    #: Setting up the paths for the SDF and POSE files
+    model_path = os.path.join(neuromechfly_path, 'data/design/sdf/neuromechfly_noLimits_noSupport.sdf')
+    pose_path = os.path.join(neuromechfly_path, 'data/config/pose/pose_optimization_2.yaml')
+    #: Simulation options
     sim_options = {
         "headless": False,
-        "model": "../../data/design/sdf/neuromechfly_noLimits_noSupport.sdf",
-        "model": "../data/design/sdf/neuromechfly_noLimits_noSupport.sdf",
-        "pose": '../data/config/pose/pose_optimization_2.yaml',
-        "model_offset": [0, 0., 2.1e-3],
+        "model": model_path,
+        "pose": pose_path,
+        "model_offset": [0, 0., 1.65e-3],
         "run_time": run_time,
         "time_step": time_step,
         "base_link": 'Thorax',
         "ground_contacts": ground_contact,
         "self_collisions": self_collision,
-        "record": True,
+        "record": False, #: Set True to record the simulation
         'camera_distance':5.0,
-        'track': False,
+        'track': False, #: Set True to track the animal automatically
         'moviename': './kinematic_replay_ground.mp4',
-        'moviespeed': 0.2,
+        'moviespeed': 0.2, #: Speed of the recorded movie
         'slow_down': False,
-        'sleep_time': 0.001,
+        'sleep_time': 1,
         'rot_cam': False,
-        'behavior': behavior,
+        'behavior': behavior,#: Set true to rotate the camera automatically
         'ground': 'floor',
         'num_substep': 5
     }
 
-    position_path = f'../data/joint_kinematics/{behavior}/{behavior}_converted_joint_angles.pkl'
-    velocity_path = f'../data/joint_kinematics/{behavior}/{behavior}_converted_joint_velocities.pkl'
-
+    #: Paths of the position and velocity data
+    position_path = os.path.join(neuromechfly_path, f'data/joint_kinematics/{behavior}/{behavior}_converted_joint_angles.pkl')
+    velocity_path = os.path.join(neuromechfly_path, f'data/joint_kinematics/{behavior}/{behavior}_converted_joint_velocities.pkl')
+    #: Initialize the container
     container = Container(run_time / time_step)
+    #: Initialize the simulation
     animal = kinematic_replay_no_support.DrosophilaSimulation(
         container,
         sim_options,
@@ -76,6 +85,8 @@ if __name__ == "__main__":
         velocity_path=velocity_path,
         add_perturbation=args.perturbation
     )
+    #: Run the simulation
     animal.run(optimization=False)
+    #: Dump the results
     animal.container.dump(
-        dump_path="./basepositionrecorded", overwrite=True)
+        dump_path='./kinematic_replay_ground', overwrite=True)
