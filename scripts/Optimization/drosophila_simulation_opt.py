@@ -397,25 +397,28 @@ class DrosophilaSimulation(BulletSimulation):
                 sum_x += pos_tarsus[0]
                 sum_y += pos_tarsus[1]
 
-        #print(contact_legs)
-
         self.stance_count += len(contact_legs)
-
-        if len(contact_legs)>2:
-            if 'LM' in contact_legs or 'RM' in contact_legs:
-                if (set(contact_legs) == set(['RM','LF','LH'])) or (set(contact_legs) == set(['LM','RF','RH'])):
-                    penalty = 0
-                else:
-                    penalty = 0
-                poly_centroid = np.array([sum_x/len(contact_legs),sum_y/len(contact_legs)])
-                body_centroid = np.array(self.get_link_position('Thorax')[:2])
-                dist = np.linalg.norm(body_centroid-poly_centroid) + penalty
-            else:
-                dist = 5.0
+        if len(contact_legs) > 1:
+            poly_centroid = np.array([sum_x/len(contact_legs),sum_y/len(contact_legs)])
+            body_centroid = np.array(self.get_link_position('Thorax')[:2])
+            dist = np.linalg.norm(body_centroid-poly_centroid)
         else:
-            dist = 6.0 - len(contact_legs)*0.25
-
+            dist = 100
         return dist
+
+        # if len(contact_legs)>2:
+        #     if 'LM' in contact_legs or 'RM' in contact_legs:
+        #         if (set(contact_legs) == set(['RM','LF','LH'])) or (set(contact_legs) == set(['LM','RF','RH'])):
+        #             penalty = 0
+        #         else:
+        #             penalty = 0
+        #         poly_centroid = np.array([sum_x/len(contact_legs),sum_y/len(contact_legs)])
+        #         body_centroid = np.array(self.get_link_position('Thorax')[:2])
+        #         dist = np.linalg.norm(body_centroid-poly_centroid) + penalty
+        #     else:
+        #         dist = 3.0
+        # else:
+        #     dist = 6.0 - len(contact_legs)*0.25
 
     def is_using_all_legs(self):
         """Check if the fly uses all its legs to locomote"""
@@ -432,7 +435,7 @@ class DrosophilaSimulation(BulletSimulation):
         ball_rot = np.array(self.ball_rotations())
         dist_traveled = -ball_rot[0]
         #print("BALL ROTATION", ball_rot)
-        moving_limit = (((self.time)/self.run_time)*5.24)-0.40
+        moving_limit = (((self.time)/self.run_time)*4.54)-0.40
         #print(ball_rot)
         return dist_traveled < moving_limit
 
@@ -458,15 +461,20 @@ class DrosophilaSimulation(BulletSimulation):
     def is_velocity_limit(self):
         """ Check velocity limits. """
         return np.any(
-            np.array(self.joint_velocities) > 5e3
+            np.array(self.joint_velocities) > 3500
         )
+
 
     def is_flying(self):
         # FIXME: This function does two things at the same time
         dist_to_centroid = self.stance_polygon_dist()
-        self.stability_coef += dist_to_centroid
+        # self.stability_coef += dist_to_centroid
         # print(dist_to_centroid)
-        return dist_to_centroid > 5.5
+        return dist_to_centroid > 90
+
+    def calculate_stability(self):
+        dist_to_centroid = self.stance_polygon_dist()
+        self.stability_coef += dist_to_centroid
 
     def optimization_check(self):
         """ Check optimization status. """
@@ -476,6 +484,7 @@ class DrosophilaSimulation(BulletSimulation):
         velocity_cap = self.is_velocity_limit()
         touch = self.is_touch()
         self.is_using_all_legs()
+        self.calculate_stability()
         if lava or velocity_cap or flying or touch:
             pylog.debug(
                 "Lava {} | Flying {} | Vel {} | Touch {}".format(
@@ -734,16 +743,17 @@ def main():
         for link1 in body_segments:
             self_collision.append([link0,link1])
 
-    gen = '70'
-    exp = 'run_Drosophila_var_62_obj_2_0423_1801'
-    exp = 'run_Drosophila_var_62_obj_2_0426_1221'
-
+    gen = '10'
+    exp = 'run_Drosophila_var_62_obj_2_0430_1618'
+    #exp = 'run_Drosophila_var_62_obj_2_0430_0137'
+    #exp = 'run_Drosophila_var_62_obj_2_0430_0158'
+    #exp = 'run_Drosophila_var_62_obj_2_0430_0117'
     sim_options = {
         "headless": False,
         # Scaled SDF model
-        "model": "../../design/sdf/neuromechfly_limitsFromData_minMax.sdf",
+        "model": "../../design/sdf/neuromechfly_limitsFromData_1std.sdf",
         "model_offset": [0., 0., 11.2e-3],
-        "run_time": clargs.runtime,
+        "run_time": 3,
         "pose": '../../config/test_pose_tripod.yaml',
         "base_link": 'Thorax',
         "controller": '../../config/locomotion_ball.graphml',
@@ -757,7 +767,7 @@ def main():
         'moviespeed': 0.1,
         'slow_down': False,
         'sleep_time': 10.0,
-        'rot_cam': True
+        'rot_cam': False
         }
 
     container = Container(clargs.runtime/clargs.timestep)
@@ -794,15 +804,16 @@ def main():
     #     "./optimization_results/run_Drosophila_var_80_obj_2_pop_10_gen_4_0412_0316/FUN.3",
     #     "./optimization_results/run_Drosophila_var_80_obj_2_pop_10_gen_4_0412_0316/VAR.3",
     # )
-    fun_normalized = normalize(fun)
-    params = var[np.argmin(fun_normalized[:,0]*fun_normalized[:,1])]
-    params = var[np.argmin(fun_normalized[:,0])]
 
+    ind = 16
     params = var[np.argmax(fun[:,0]*fun[:,1])]
-    ind = np.argmax(fun[:,0]*fun[:,1])
-    #params = var[np.argmin(fun[:,1])]
+
+    #ind=np.argmin(fun[:,0])
+    ind = np.argmin(10*fun[:,0]+fun[:,1])
+    ind = np.argmin(fun[:,0]+fun[:,1])
+
+    params = var[ind]
     params = np.array(params)
-    print(params)
     animal.update_parameters(params)
 
     animal.run(optimization=False)
@@ -814,7 +825,7 @@ def main():
 
     colors =    fun[:,0]*fun[:,1]
     plt.scatter(fun[:,0], fun[:,1], c=colors, cmap=plt.cm.winter)
-    plt.scatter(fun[ind,0], fun[ind,1], c=colors, cmap=plt.cm.winter)
+    plt.scatter(fun[ind,0], fun[ind,1], c='red', cmap=plt.cm.winter)
     plt.xlabel('Distance (negative)')
     plt.ylabel('Stability')
     # plt.savefig('./{}_generation_{}.pdf'.format(exp, gen))
