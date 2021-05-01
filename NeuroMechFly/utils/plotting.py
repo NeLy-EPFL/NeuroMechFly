@@ -1,14 +1,28 @@
 """ Script to plot the simulation results. """
-import pickle
 import os
+import math
+import pickle
+import pkgutil
+import itertools
+import cv2 as cv
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-from matplotlib.lines import Line2D
-import matplotlib.patches as mpatches
-import matplotlib.ticker as mtick
 import seaborn as sns
-import itertools
+import scikit_posthocs as sp
+import matplotlib.pyplot as plt
+import matplotlib.ticker as mtick
+import matplotlib.patches as mpatches
+import matplotlib.transforms as mtransforms
+from matplotlib.lines import Line2D
+from matplotlib.markers import MarkerStyle
+from matplotlib.legend_handler import HandlerTuple
+from pathlib import Path
+from scipy import stats
+from scipy import ndimage
+from scipy.spatial.transform import Rotation as R
+from sklearn import svm
+from sklearn.metrics import mean_squared_error
+from statsmodels.stats import weightstats as stests
 from .sensitivity_analysis import calculate_forces
 
 def plot_mu_sem(
