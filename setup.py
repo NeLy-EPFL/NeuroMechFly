@@ -25,7 +25,8 @@ setuptools.setup(
         'dataclasses',
         'jmetalpy',
         'tables',
-        'pillow'
+        'pillow',
+        'shapely' 
     ],
     scripts=['scripts/run_kinematic_replay',
         'scripts/run_kinematic_replay_ground'
