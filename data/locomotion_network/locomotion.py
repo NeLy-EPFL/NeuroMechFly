@@ -1,4 +1,4 @@
-""" cpg locomotion controller. """
+""" CPG locomotion controller. """
 
 import itertools
 import os
@@ -8,9 +8,9 @@ import networkx as nx
 import numpy as np
 import yaml
 
-from NeuroMechFly.container import Container
-from NeuroMechFly.network.agnostic_controller import AgnosticController
-from NeuroMechFly.network.neural_system import NeuralSystem
+from farms_container import Container
+from farms_network.utils.agnostic_controller import AgnosticController
+from farms_network.neural_system import NeuralSystem
 from NeuroMechFly.sdf.sdf import ModelSDF
 
 
@@ -77,15 +77,6 @@ def main():
                     [joint+'_roll_flexion', joint+'_roll_extension'])
 
 
-    #: Connect limbs
-    # AgnosticController.add_mutual_connection(
-    #     network,
-    #     'LHip_flexion',
-    #     'RHip_flexion',
-    #     weight=10.0,
-    #     phi=np.pi
-    # )
-
     with open('network_node_positions.yaml', 'r') as file:
         node_positions = yaml.load(file, yaml.SafeLoader)
     for node, data in node_positions.items():
@@ -98,9 +89,9 @@ def main():
     weight = 100.0
     base_connections = [
         ['LFCoxa', 'RFCoxa', {'weight':weight, 'phi': np.pi}],
-        ['LFCoxa', 'RMCoxa_roll', {'weight':weight, 'phi': 0.0}],
+        ['LFCoxa', 'RMCoxa_roll', {'weight':weight, 'phi': np.pi}],
         ['RMCoxa_roll', 'LHCoxa_roll', {'weight':weight, 'phi': 0.0}],
-        ['RFCoxa', 'LMCoxa_roll', {'weight':weight, 'phi': 0.0}],
+        ['RFCoxa', 'LMCoxa_roll', {'weight':weight, 'phi': np.pi}],
         ['LMCoxa_roll', 'RHCoxa_roll', {'weight':weight, 'phi': 0.0}],
     ]
 
@@ -145,11 +136,6 @@ def main():
                     'joint_{}{}{}_{}'.format(side, pos, n2, 'extension'),
                     **data
                 )
-
-    # for joint in controller_gen.model.joints:
-    #     n1 = '{}_flexion'.format(joint.name)
-    #     n2 = '{}_extension'.format(joint.name)
-    #     network.remove_edges_from([(n1, n2), (n2, n1)])
 
     nx.write_graphml(network, net_dir)
 
