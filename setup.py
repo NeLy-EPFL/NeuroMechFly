@@ -17,8 +17,10 @@ setuptools.setup(
         'numpy',
         'pandas',
         'matplotlib',
+        'networkx==2.3',
         'scipy',
         'treelib',
+        'trimesh',
         'tqdm',
         'pybullet',
         'PyYAML',
@@ -27,6 +29,7 @@ setuptools.setup(
         'tables',
         'pillow',
         'shapely' 
+
     ],
     scripts=['scripts/run_kinematic_replay',
         'scripts/run_kinematic_replay_ground',
