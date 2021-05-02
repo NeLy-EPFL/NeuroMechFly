@@ -103,7 +103,9 @@ if __name__ == "__main__":
     container = Container(run_time / time_step)
     animal = neuromuscular_control.DrosophilaSimulation(container, sim_options)
     #: Load the results of the latest generation of the last optimization run
-    fun, var = np.loadtxt("./FUN.txt"), np.loadtxt("./VAR.txt")
+    fun_path = os.path.join(neuromechfly_path, 'scripts/FUN.txt')
+    var_path = os.path.join(neuromechfly_path, 'scripts/VAR.txt')
+    fun, var = np.loadtxt(fun_path), np.loadtxt(var_path)
     #: Select which solution to use (fastest, in this case)
     ind = np.argmin(fun[:, 0])
     params = var[ind]

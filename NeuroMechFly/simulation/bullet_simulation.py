@@ -1,6 +1,9 @@
 """ Class to run animal model. """
 import abc
 import time
+from pathlib import Path
+import pkgutil
+import os
 
 import numpy as np
 import pybullet as p
@@ -12,6 +15,7 @@ from farms_network.neural_system import NeuralSystem
 from NeuroMechFly.sdf.bullet_load_sdf import load_sdf
 from tqdm import tqdm
 
+neuromechfly_path = Path(pkgutil.get_loader("NeuroMechFly").get_filename()).parents[1]
 
 class BulletSimulation(metaclass=abc.ABCMeta):
     """Methods to run bullet simulation."""
@@ -522,8 +526,8 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                          lateralFriction=1.0,
                          linearDamping=0.0,
                          restitution=1.0)
-        texture_ball = p.loadTexture(
-            '../data/design/textures/ball/chequered_0048.jpg')
+        texture_path = os.path.join(neuromechfly_path, 'data/design/textures/ball/chequered_0048.jpg')
+        texture_ball = p.loadTexture(texture_path)
         p.changeVisualShape(
             sphere_id,
             2,
