@@ -71,6 +71,8 @@ Run the following commands on the terminal to reproduce the optimization experim
 
 **NOTE:** To formulate new objective functions and penalties, please refer to the *NeuroMechFly/experiments/network_optimization*. 
 
+---
+
 **3. Sensitivity Analysis** 
 
 - First, please download the simulation data obtained from sensitivity analysis from here. 
@@ -82,12 +84,18 @@ Run the following commands on the terminal to reproduce the optimization experim
 - To see the CPG network, navigate to *data/locomotion_network/* and run ```$ python locomotion.py```
 - Please refer to [FARMS Network](https://gitlab.com/farmsim/farms_network) to learn more about designing new neural network controllers.
 
+---
+
 **2. Blender Model**
 - To visualize the biomechanical model, first install [Blender](https://www.blender.org/download/). 
 - After the installation, navigate to *data/design/blender* and open ```neuromechfly_full_model.blend``` with Blender. 
 
+---
+
 **3. Reproducing the Figures**
 -  All the plotting functions used in the paper are provided in [*NeuroMechFly/utils/plotting.py*](NeuroMechFly/utils/plotting.py). Please refer to the docstrings provided in the code to learn how to plot your simulation data.
+
+---
 
 ## License
 [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0)
