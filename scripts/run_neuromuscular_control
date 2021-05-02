@@ -104,8 +104,9 @@ if __name__ == "__main__":
     animal = neuromuscular_control.DrosophilaSimulation(container, sim_options)
     #: Load the results of the latest generation of the last optimization run
     fun, var = np.loadtxt("./FUN.txt"), np.loadtxt("./VAR.txt")
-    #: Select which solution to use
-    params = var[np.argmax(fun[:, 0] * fun[:, 1])]
+    #: Select which solution to use (fastest, in this case)
+    ind = np.argmin(fun[:, 0])
+    params = var[ind]
     params = np.array(params)
     #: Run the selected parameter values in the simulation
     animal.update_parameters(params)
@@ -115,3 +116,10 @@ if __name__ == "__main__":
         dump_path=f"./optimization_{exp}_gen_{gen}",
         overwrite=True
         )
+
+    plt.scatter(fun[:,0], fun[:,1])
+    plt.scatter(fun[ind,0], fun[ind,1], c='red', cmap=plt.cm.winter, label='solution displayed')
+    plt.xlabel('Distance (negative)')
+    plt.ylabel('Stability (negative)')
+    # plt.savefig('./{}_generation_{}.pdf'.format(exp, gen))
+    plt.show()
