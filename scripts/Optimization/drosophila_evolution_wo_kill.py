@@ -256,9 +256,9 @@ class DrosophilaEvolution(FloatProblem):
         stability = fly.opti_stability
 
         #: penalties
-        movement_weight = 1e-2
+        movement_weight = 1e-1
         velocity_weight = 1e-1
-        penetration_weight = 1e-2
+        penetration_weight = 5e-2
 
         penalties = (
             movement_weight * fly.opti_movement +\

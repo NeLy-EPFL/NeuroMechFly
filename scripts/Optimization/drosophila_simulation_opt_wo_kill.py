@@ -408,9 +408,9 @@ class DrosophilaSimulation(BulletSimulation):
         Considering slow walk here
 
         """
-        ball_angular_velocity = -np.array(self.ball_rotations())[0]
+        ball_angular_position = -np.array(self.ball_rotations())[0]
         self.opti_movement += 1.0 if (
-            ball_angular_velocity < -2.0 + 0.5*self.time
+            ball_angular_position < -1.0 + self.time
         ) else 0.0
 
     def is_penetration(self):
