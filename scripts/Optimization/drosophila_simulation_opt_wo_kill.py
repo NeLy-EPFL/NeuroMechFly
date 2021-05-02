@@ -130,12 +130,10 @@ class DrosophilaSimulation(BulletSimulation):
              ]
         )
         # Penalties
-        self.opti_touch = 0
-        self.opti_lava = 0
+        self.opti_movement = 0
         self.opti_velocity = 0
-        self.opti_stability= 0 
-        self.opti_torque = 0
-        self.opti_penetration = 0 
+        self.opti_stability= 0
+        self.opti_penetration = 0
 
     def muscle_controller(self):
         """ Muscle controller. """
@@ -272,7 +270,7 @@ class DrosophilaSimulation(BulletSimulation):
 
     def feedback_to_controller(self):
         """ Implementation of abstractmethod. """
-        pass
+        self.compute_static_stability()
 
 
     def joint_torques(self):
@@ -375,8 +373,7 @@ class DrosophilaSimulation(BulletSimulation):
             polygon = Polygon(contact_points)
         except ValueError:
             return -1
-        
-        for idx in range(len(polygon.exterior.coords)-1): 
+        for idx in range(len(polygon.exterior.coords)-1):
             p.addUserDebugLine(
                 list(polygon.exterior.coords[idx]) + [11.1],
                 list(polygon.exterior.coords[idx+1]) + [11.1],
@@ -396,77 +393,24 @@ class DrosophilaSimulation(BulletSimulation):
         ])
         return distance if polygon.contains(Point(center_of_mass)) else -distance
 
-    def stance_polygon_dist(self):
-        contact_segments = [leg for leg in self.feet_links if self.is_contact_ball(leg)]
-        contact_legs = []
-        sum_x = 0
-        sum_y = 0
-        #print(contact_segments)
-        for seg in contact_segments:
-            if seg[:2] not in contact_legs:
-                contact_legs.append(seg[:2])
-                pos_tarsus = self.get_link_position(seg[:2]+'Tarsus5')
-                sum_x += pos_tarsus[0]
-                sum_y += pos_tarsus[1]
-
-        #print(contact_legs)
-
-        self.stance_count += len(contact_legs)
-
-        if len(contact_legs)>2:
-            if 'LM' in contact_legs or 'RM' in contact_legs:
-                if (set(contact_legs) == set(['RM','LF','LH'])) or (set(contact_legs) == set(['LM','RF','RH'])):
-                    penalty = 0
-                else:
-                    penalty = 0
-                poly_centroid = np.array([sum_x/len(contact_legs),sum_y/len(contact_legs)])
-                body_centroid = np.array(self.get_link_position('Thorax')[:2])
-                dist = np.linalg.norm(body_centroid-poly_centroid) + penalty
-            else:
-                dist = 2.0
-        else:
-            dist = 3.0 - len(contact_legs)*0.25
-
-        return dist
-
-    def is_using_all_legs(self):
-        """Check if the fly uses all its legs to locomote"""
-        contact_segments = [
-            self.is_contact_ball(leg)
-            for leg in self.feet_links
-            if "Tarsus5" in leg
-        ]
-        self.check_is_all_legs += np.asarray(contact_segments)
-
-    def is_lava(self):
-        """ State of lava approaching the model. """
-        #return (self.distance_y < (((self.TIME)/self.RUN_TIME)*2)-0.25)
-        ball_rot = np.array(self.ball_rotations())
-        dist_traveled = -ball_rot[0]
-        #print("BALL ROTATION", ball_rot)
-        moving_limit = (((self.time)/self.run_time)*4.54)-0.40
-        #print(ball_rot)
-        self.opti_lava += 1.0 if np.any(
-            dist_traveled < moving_limit
-        ) else 0.0
+    def update_static_stability(self):
+     """ Update the overall static stability
+     """
+     self.opti_stability += self.compute_static_stability()
 
 
-    def is_in_not_bounds(self):
-        """ Bounds of the pelvis. """
-        return (
-            (self.distance_z > 0.5) or \
-            (self.distance_y > 10) or \
-            (self.distance_y < -0.5)
-        )
+    def check_movement(self):
+        """ State of lava approaching the model.
 
-    def is_touch(self):
-        """ Check if certain links touch. """
-        self.opti_touch += 1 if np.any(
-            [
-                self.is_contact_ball(link)
-                for link in self.link_id.keys()
-                if 'Tarsus' not in link
-            ]
+        slow walk (0–10.2 mm/s), medium walk (10.2–19 mm/s),
+        and fast walk (>19 mm/s). (https://elifesciences.org/articles/46409)
+
+        Considering slow walk here
+
+        """
+        ball_angular_velocity = -np.array(self.ball_rotations())[0]
+        self.opti_movement += 1.0 if (
+            ball_angular_velocity < -2.0 + 0.5*self.time
         ) else 0.0
 
     def is_penetration(self):
@@ -479,23 +423,17 @@ class DrosophilaSimulation(BulletSimulation):
             ]
         ) else 0.0
 
-    def is_velocity_limit(self):
+    def check_velocity_limit(self):
         """ Check velocity limits. """
         self.opti_velocity += 1.0 if np.any(
-            np.array(self.joint_velocities) > 1000
+            np.array(self.joint_velocities) > 100
         ) else 0.0
-
-    def is_torque_limit(self):
-        """ Check torque limits. """
-        self.opti_torque += 1.0 if (
-            np.any(np.array(self.muscle.outputs.log) > 1.7 )) else 0.0
 
     def optimization_check(self):
         """ Check optimization status. """
-        self.is_lava()
-        self.is_velocity_limit()
-        self.is_touch()
-        self.stability_coef += self.compute_static_stability()
+        self.check_movement()
+        self.check_velocity_limit()
+        self.update_static_stability()
         return True
 
     def update_parameters(self, params):
@@ -783,10 +721,14 @@ def main():
     #    "./sim_files/fun/FUN_last_good.ged3",
     #    "./sim_files/var/VAR_last_good.ged3"
     #)
-    
+
+    # fun, var = read_optimization_results(
+    #     "./optimization_results/"+exp+"/FUN."+gen,
+    #     "./optimization_results/"+exp+"/VAR."+gen
+    # )
     fun, var = read_optimization_results(
-        "./optimization_results/"+exp+"/FUN."+gen,
-        "./optimization_results/"+exp+"/VAR."+gen
+        "./FUN.txt",
+        "./VAR.txt",
     )
     '''
 
@@ -808,7 +750,6 @@ def main():
     params = var[np.argmin(fun_normalized[:,0]*fun_normalized[:,1])]
     params = var[np.argmin(fun_normalized[:,0])]
     param_ind = np.argmin(fun[:,0]*fun[:,1])
-    param_ind = 19
     params = var[param_ind]
 
     params = np.array(params)
@@ -820,7 +761,7 @@ def main():
     name_data = 'optimization_gen_'+ gen
 
     save_data(animal,name_data,exp)
-    
+
     colors =    fun[:,0]*fun[:,1]
     plt.scatter(fun[:,0], fun[:,1], c=colors, cmap=plt.cm.winter)
     plt.scatter(fun[param_ind,0], fun[param_ind,1], c='red', cmap=plt.cm.winter)

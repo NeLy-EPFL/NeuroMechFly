@@ -250,146 +250,35 @@ class DrosophilaEvolution(FloatProblem):
         successful = fly.run(optimization=True)
 
         # Objectives
-        # Minimize activations
-        m_out = np.asarray(container.muscle.outputs.log)
-        m_names = container.muscle.outputs.names
-
-        # Activations
-        act = np.asarray([
-            m_out[:, j]
-            for j, name in enumerate(m_names)
-            if 'flexor_act' in name or 'extensor_act' in name
-        ])
-        # normalize it by the maximum activation possible [0- ~2]
-        act = np.sum(act**2)/1e5
-
         # Distance
-        distance = -np.array(
-            fly.ball_rotations()
-        )[0]*fly.ball_radius  # fly.distance_y
-        distance_lateral = np.array(
-            fly.ball_rotations()
-        )[1]*fly.ball_radius
-        # Active torque
-        active_torque_sum = (np.sum(
-            np.asarray(container.muscle.active_torques.log)**2
-        ))*fly.time_step/fly.run_time
+        distance = -np.asarray(fly.ball_rotations())[0]*fly.ball_radius  # fly.distance_y
         # Stability
-        stability = fly.stability_coef
+        stability = fly.opti_stability
 
-        use_penalties = True
-        if use_penalties:
+        #: penalties
+        movement_weight = 1e-2
+        velocity_weight = 1e-1
+        penetration_weight = 1e-2
 
-            expected_stance_legs = 4
-            min_legs = 3
-            mean_stance_legs = fly.stance_count*fly.time_step/fly.time
-            # print(fly.stance_count, fly.time_step, fly.time, mean_stance_legs)
-            penalty_time_stance = (
-                0.0
-                if min_legs <= mean_stance_legs < expected_stance_legs
-                else abs(mean_stance_legs - min_legs)
-            )
+        penalties = (
+            movement_weight * fly.opti_movement +\
+            velocity_weight * fly.opti_velocity +\
+            penetration_weight * fly.opti_penetration
+        )
 
-            #: penalties
-            movement_weight = 1e-2
-            touch_weight = 1e-2
-            velocity_weight = 1e-2
-            stability_weight = 1e1
-            stance_weight = 1e2
-            torque_weight = 1
-            penalties = (
-                movement_weight * fly.opti_lava + \
-                touch_weight * fly.opti_touch + \
-                velocity_weight * fly.opti_velocity 
-                #stability_weight * fly.opti_stability + \
-                #stance_weight * penalty_time_stance + \
-                #torque_weight * fly.opti_torque
-            )
-
-            pylog.debug(
-                f"OBJECTIVES\n===========\n\
-                    Distance: {-distance} \n \
-                    Active torques: {active_torque_sum} \n \
-                    Stability: {stability} \n \
-                    Work: {fly.mechanical_work} \n \
-                  PENALTIES\n=========\n \
-                    Penalty lava: {movement_weight * fly.opti_lava} \n \
-                    Penalty touch: {touch_weight * fly.opti_touch} \n \
-                    Penalty velocity: {velocity_weight*fly.opti_velocity} \n \
-                    Penalty stance: {penalty_time_stance} \n \
-                    Penalty torque: {torque_weight * fly.opti_torque} \n \
-                    Penalty penetration: {fly.opti_penetration} \n \
-                "
-            )
-
-            # # Penalties
-            # penalty_time = (
-            #     1e1 + 1e1*(fly.run_time - fly.time)/fly.run_time
-            #     if (lava or flying or touch or velocity_cap or torque_cap)
-            #     else 0.0
-            # )
-
-            # expected_dist = 2*np.pi*fly.ball_radius
-            # penalty_dist = 0.0 if expected_dist < distance else (
-            #     1e1 + 40*abs(distance-expected_dist))
-
-            # penalty_linearity = 2e3*fly.ball_radius * \
-            #     (abs(np.array(fly.ball_rotations()))[
-            #      1]+abs(np.array(fly.ball_rotations()))[2])
-
-            solution.objectives[0] = -distance*2e2 + penalties
-            if self.second_objective_name == 'stability':
-                print(self.second_objective_name)
-                solution.objectives[1] = -stability*1e1 + penalties
-            elif self.second_objective_name == 'torque':
-                print(self.second_objective_name)
-                solution.objectives[1] = active_torque_sum*2e2 + penalties
-            elif self.second_objective_name == 'work':
-                print(self.second_objective_name)
-                solution.objectives[1] = fly.mechanical_work*2e-2 + penalties
-            else:
-                print('please enter stability, torque or work')
-
-            # ### PRINT PENALTIES AND OBJECTIVES ###
-            # pylog.debug(
-            #     "OBJECTIVES\n===========\n\
-            #         Distance: {} \n \
-            #         Activations: {} \n \
-            #         Stability: {} \n \
-            #     PENALTIES\n=========\n \
-            #         Penalty linearity: {} \n \
-            #         Penalty time: {} \n \
-            #         Penalty distance: {} \n \
-            #         Penalty time stance: {} \n \
-            #         Penalty all legs: {} \n \
-            #     ".format(
-            #         -2e3*distance,
-            #         act,
-            #         2e3*stability,
-            #         penalty_linearity,
-            #         penalty_time,
-            #         penalty_dist,
-            #         penalty_time_stance,
-            #         penalty_all_legs
-            #     )
-            #     )
-
-
-        else:
-            # Torques
-            # torque_sum = (np.sum(
-            #     np.asarray(container.physics.joint_torques.log)**2
-            # ))*fly.time_step/fly.run_time
-            active_torque_sum = (np.sum(
-                np.asarray(container.muscle.active_torques.log)**2
-            ))*fly.time_step/fly.run_time
-
-            # Objectives
-            #solution.objectives[0] = -distance + abs(distance_lateral)
-            #solution.objectives[1] = active_torque_sum
-            # solution.objectives[1] = torque_sum
-
-        # print(solution.objectives)
+        pylog.debug(
+            f"OBJECTIVES\n===========\n\
+                Distance: {-distance} \n \
+                Stability: {stability} \n \
+              PENALTIES\n=========\n \
+                Penalty lava: {movement_weight * fly.opti_movement} \n \
+                Penalty velocity: {velocity_weight*fly.opti_velocity} \n \
+                Penalty penetration: {fly.opti_penetration} \n \
+            "
+        )
+        # update objectives
+        solution.objectives[0] = -distance + penalties
+        solution.objectives[1] = -stability*1e-2 + penalties
         return solution
 
     def get_name(self):
