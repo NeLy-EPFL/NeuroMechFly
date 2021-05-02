@@ -24,7 +24,14 @@ $ pip install -e .
 ```
 Once you complete all the steps, NeuroMechFly is ready to use!
 
+---
+**NOTE:**
+Each time you start using NeuroMechFly, please activate virtual environment by running: 
+```bash
+$ conda activate neuromechfly
+```
 
+---
 Alternatively, you can use virtualenv. For instructions on how to setup and use virtual environments please refer to [Virtualenv](https://realpython.com/python-virtual-environments-a-primer).
 
 After setting up your virtualenv, to install and use the NeuroMechFly library follow the abovementioned procedure in your active python environment.
