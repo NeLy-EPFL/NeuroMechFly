@@ -1,163 +1,143 @@
 """ CPG locomotion controller. """
-
 import itertools
 import os
+from argparse import ArgumentParser
+from pathlib import Path
 
+import farms_pylog as pylog
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 import yaml
 
 from farms_container import Container
-from farms_network.utils.agnostic_controller import AgnosticController
+from farms_network.networkx_model import NetworkXModel
 from farms_network.neural_system import NeuralSystem
-from NeuroMechFly.sdf.sdf import ModelSDF
+from farms_network.utils.agnostic_controller import AgnosticController
+
+pylog.set_level("error")
 
 
-def main():
-    """ Main. """
+def add_mutual_connection(network, node_1, node_2, weight, phi):
+    """
+    Add mutual connection between two nodes
+    """
+    network.add_edge(node_1, node_2, weight=weight, phi=phi)
+    network.add_edge(node_2, node_1, weight=weight, phi=-1*phi)
 
-    legs = ('LF','LM','LH','RF','RM','RH')
 
-    joints_to_remove = [
-        # Head
-        *['joint_Head', 'joint_Head_yaw', 'joint_Head_roll',
-          'joint_Proboscis', 'joint_Labellum',
-          'joint_LAntenna', 'joint_RAntenna', 'joint_LEye',
-          'joint_REye', 'joint_Haustellum', 'joint_Rostrum'
-          ],
-        # Abdomen
-        *['joint_A1A2', 'joint_A3', 'joint_A4', 'joint_A5', 'joint_A6'],
-        # Body support
-        *['prismatic_support_1', 'prismatic_support_2', 'revolute_support_1'],
-        # Wings and Haltere
-        *[
-            f'joint_{side}{joint}{node}'
-            for node in ('', '_roll', '_yaw')
-            for joint in ('Wing', 'Haltere')
-            for side in ('L', 'R')
-        ],
-        # Remove Tarsus nodes
-        *[
-            f'joint_{leg}Tarsus{i}'
-            for i in range(1,6)
-            for leg in legs
-        ]
-    ]
+def add_connection_antagonist(network, node_1, node_2, **kwargs):
+    """
+    Add mutual connection between two nodes
+    """
+    weight = kwargs.pop('weight', 1.0)
+    phi = kwargs.pop('phi', 0.0)
 
-    import pprint
-    pprint.pprint(joints_to_remove)
-
-    controller_gen = AgnosticController(
-        ("../../design/sdf/neuromechfly_limitsFromData.sdf"),
-        connect_mutual=False,
-        connect_closest_neighbors=False,
-        connect_base_nodes=False,
-        remove_joints=joints_to_remove
+    add_mutual_connection(
+        network, f"{node_1}_flexion", f"{node_2}_flexion", weight=weight,
+        phi=phi
     )
-    net_dir = "../../config/locomotion_tripod.graphml"
-    network = controller_gen.network
-    #: EDIT THE GENERIC CONTROLLER
-
-    #: Remove Coxa and femur extra DOF nodes
-    for leg in legs:
-        for segment in ['Coxa','Femur']:
-            joint = f"joint_{leg}{segment}"
-            if segment == 'Coxa':
-                network.remove_nodes_from(
-                    [joint+'_yaw_flexion', joint+'_yaw_extension'])
-                if 'F' in leg:
-                    network.remove_nodes_from(
-                        [joint+'_roll_flexion', joint+'_roll_extension'])
-                else:
-                    network.remove_nodes_from(
-                        [joint+'_flexion', joint+'_extension'])
-            if segment == 'Femur':
-                network.remove_nodes_from(
-                    [joint+'_roll_flexion', joint+'_roll_extension'])
+    add_mutual_connection(
+        network, f"{node_1}_extension", f"{node_2}_extension", weight=weight,
+        phi=phi
+    )
 
 
-    with open('network_node_positions.yaml', 'r') as file:
+def create_oscillator_network(export_path, **kwargs):
+    """Create the drosophila reduced network.
+    """
+    # Network properties
+    default_weight = kwargs.pop("default_weight", 100.0)
+    default_phi = kwargs.pop("default_phi", 0.0)
+    # Initialize di graph network
+    network = nx.DiGraph()
+    # Generate list of controlled joints in the model
+    sides = ('L', 'R')
+    positions = ('F', 'M', 'H')
+    segments = ('Coxa', 'Femur', 'Tibia')
+    nodes = [
+        f"joint_{side}{position}{segment}_roll"
+        if (position in ["M", "H"]) and (segment == "Coxa")
+        else f"joint_{side}{position}{segment}"
+        for side in sides
+        for position in positions
+        for segment in segments
+    ]
+    # Create flexion-extension oscillator for each node
+    for node in nodes:
+        network.add_node(f"{node}_flexion", model="oscillator", f=3.0,
+                         R=1.0, a=1.0)
+        network.add_node(f"{node}_extension", model="oscillator", f=3.0,
+                         R=1.0, a=1.0)
+    # Connect flexion-extension nodes
+    for node in nodes:
+        if node.split("_")[-1][2:] not in ['Femur', 'Tibia']:
+            add_mutual_connection(
+                network, f"{node}_flexion", f"{node}_extension",
+                weight=default_weight, phi=np.pi
+            )
+    # Connect leg oscillators
+    for side in sides:
+        for position in positions:
+            for j in range(len(segments[:-1])):
+                node_1 = segments[j]
+                node_2 = segments[j+1]
+                if (position in ["M", "H"]) and (segments[j] == "Coxa"):
+                    node_1 = "Coxa_roll"
+                add_mutual_connection(
+                    network, f"joint_{side}{position}{node_1}_flexion",
+                    f"joint_{side}{position}{node_2}_flexion",
+                    weight=default_weight, phi=np.pi/2
+                )
+                add_mutual_connection(
+                    network, f"joint_{side}{position}{node_1}_extension",
+                    f"joint_{side}{position}{node_2}_extension",
+                    weight=default_weight, phi=np.pi/2
+                )
+    #: Connect base nodes
+    base_connections = [
+        ['LFCoxa', 'RFCoxa', {'weight': default_weight, 'phi': np.pi}],
+        ['LFCoxa', 'RMCoxa_roll', {'weight': default_weight, 'phi': np.pi}],
+        ['RMCoxa_roll', 'LHCoxa_roll', {'weight': default_weight, 'phi': 0.0}],
+        ['RFCoxa', 'LMCoxa_roll', {'weight': default_weight, 'phi': np.pi}],
+        ['LMCoxa_roll', 'RHCoxa_roll', {'weight': default_weight, 'phi': 0.0}],
+    ]
+    for n1, n2, data in base_connections:
+        add_connection_antagonist(network, f"joint_{n1}", f"joint_{n2}",
+                                  **data)
+    # Update node positions for visualization
+    with open('locomotion_network_node_positions.yaml', 'r') as file:
         node_positions = yaml.load(file, yaml.SafeLoader)
     for node, data in node_positions.items():
         network.nodes[node]['x'] = data[0]
         network.nodes[node]['y'] = data[1]
         network.nodes[node]['z'] = data[2]
+    # Export graph
+    print(export_path)
+    nx.write_graphml(network, export_path)
 
-    #: EDIT CONNECTIONS FOR TRIPOD GAIT
-    #: Connecting base nodes
-    weight = 100.0
-    base_connections = [
-        ['LFCoxa', 'RFCoxa', {'weight':weight, 'phi': np.pi}],
-        ['LFCoxa', 'RMCoxa_roll', {'weight':weight, 'phi': np.pi}],
-        ['RMCoxa_roll', 'LHCoxa_roll', {'weight':weight, 'phi': 0.0}],
-        ['RFCoxa', 'LMCoxa_roll', {'weight':weight, 'phi': np.pi}],
-        ['LMCoxa_roll', 'RHCoxa_roll', {'weight':weight, 'phi': 0.0}],
-    ]
 
-    for n1, n2, data in base_connections:
-        AgnosticController.add_connection_antagonist(
-            network,
-            'joint_{}'.format(n1),
-            'joint_{}'.format(n2),
-            **data
-        )
+def run_network(network_path):
+    """ Run the network.
 
-    leg_connections = [
-        ['Coxa', 'Femur', {'weight':weight, 'phi': np.pi}],
-        ['Femur', 'Tibia', {'weight':weight, 'phi': np.pi}],
-    ]
+    Parameters
+    ----------
+    network_path : <Path>
+        Path to the network config file
+    """
+    # Initialize network
+    dt = 1e-3  #: Time step (1ms)
+    duration = 2
+    time_vec = np.arange(0, duration, dt)  #: Time
+    container = Container(duration/dt)
+    net = NeuralSystem(network_path, container)
 
-    for n1, n2, data in leg_connections:
-        for pos in ['F', 'M', 'H']:
-            for side in ['L', 'R']:
-                if (pos == 'M' or pos == 'H') and (n1 == 'Coxa'):
-                    n1 = 'Coxa_roll'
-                AgnosticController.add_connection_antagonist(
-                    network,
-                    'joint_{}{}{}'.format(side, pos, n1),
-                    'joint_{}{}{}'.format(side, pos, n2),
-                    **data
-                )
-
-    coxa_connections = [
-        ['Coxa', 'Coxa', {'weight':weight, 'phi': np.pi}],
-    ]
-
-    for n1, n2, data in coxa_connections:
-        for pos in ['F', 'M', 'H']:
-            for side in ['L', 'R']:
-                if (pos == 'M' or pos == 'H'):
-                    n1 = 'Coxa_roll'
-                    n2 = 'Coxa_roll'
-                AgnosticController.add_mutual_connection(
-                    network,
-                    'joint_{}{}{}_{}'.format(side, pos, n1, 'flexion'),
-                    'joint_{}{}{}_{}'.format(side, pos, n2, 'extension'),
-                    **data
-                )
-
-    nx.write_graphml(network, net_dir)
-
-    #: Export position file to yaml
-    # with open('../config/network_node_positions.yaml', 'w') as file:
-    #     yaml.dump(node_positions, file, default_flow_style=True)
-
-    # #: Initialize network
-    dt = 0.001  #: Time step
-    dur = 2
-    time_vec = np.arange(0, dur, dt)  #: Time
-    container = Container(dur/dt)
-    net = NeuralSystem(
-        net_dir,
-        container)
-
-    #: initialize network parameters
+    # initialize network parameters
     container.initialize()
     net.setup_integrator()
 
     #: Integrate the network
-    print('Begin Integration!')
+    pylog.debug('Begin Integration!')
 
     for t in time_vec:
         net.step(dt=dt)
@@ -172,7 +152,7 @@ def main():
     neural_outputs_names = neural_data.outputs.names
     neural_outputs_name_id = neural_data.outputs.name_index
     # Plot Intra-limb activations
-    for leg in legs:
+    for leg in ("RF", "RM", "RH", "LH", "LM", "LH"):
         leg_data = np.asarray(
             [
                 neural_outputs[:, neural_outputs_name_id[name]]
@@ -215,5 +195,28 @@ def main():
     net.visualize_network(edge_labels=False)
     plt.show()
 
+
+def parse_args():
+    """Parse command line arguments to generate and simulate the network.
+    """
+    parser = ArgumentParser("Network parser")
+    parser.add_argument(
+        "--export-path", required=False, type=str,
+        default=(
+            Path(__file__).parent.absolute()
+        ).joinpath("../config/network/locomotion_network.graphml"),
+        dest="export_path"
+    )
+    parser.add_argument(
+        "--run-network", required=False, type=bool,
+        default=True, dest="run_network"
+    )
+    return parser.parse_args()
+
+
 if __name__ == '__main__':
-    main()
+    # main()
+    clargs = parse_args()
+    create_oscillator_network(clargs.export_path)
+    if clargs.run_network:
+        run_network(clargs.export_path)

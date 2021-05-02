@@ -1,0 +1,658 @@
+<?xml version='1.0' encoding='utf-8'?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
+  <key attr.name="phi" attr.type="double" for="edge" id="d8" />
+  <key attr.name="weight" attr.type="double" for="edge" id="d7" />
+  <key attr.name="z" attr.type="double" for="node" id="d6" />
+  <key attr.name="y" attr.type="double" for="node" id="d5" />
+  <key attr.name="x" attr.type="int" for="node" id="d4" />
+  <key attr.name="a" attr.type="double" for="node" id="d3" />
+  <key attr.name="R" attr.type="double" for="node" id="d2" />
+  <key attr.name="f" attr.type="double" for="node" id="d1" />
+  <key attr.name="model" attr.type="string" for="node" id="d0" />
+  <graph edgedefault="directed">
+    <node id="joint_LFCoxa_flexion">
+      <data key="d0">oscillator</data>
+      <data key="d1">3.0</data>
+      <data key="d2">1.0</data>
+      <data key="d3">1.0</data>
+      <data key="d4">-2</data>
+      <data key="d5">1.5</data>
+      <data key="d6">0.0</data>
+    </node>
+    <node id="joint_LFCoxa_extension">
+      <data key="d0">oscillator</data>
+      <data key="d1">3.0</data>
+      <data key="d2">1.0</data>
+      <data key="d3">1.0</data>
+      <data key="d4">-2</data>
+      <data key="d5">2.5</data>
+      <data key="d6">0.0</data>
+    </node>
+    <node id="joint_LFFemur_flexion">
+      <data key="d0">oscillator</data>
+      <data key="d1">3.0</data>
+      <data key="d2">1.0</data>
+      <data key="d3">1.0</data>
+      <data key="d4">-4</data>
+      <data key="d5">1.5</data>
+      <data key="d6">0.0</data>
+    </node>
+    <node id="joint_LFFemur_extension">
+      <data key="d0">oscillator</data>
+      <data key="d1">3.0</data>
+      <data key="d2">1.0</data>
+      <data key="d3">1.0</data>
+      <data key="d4">-4</data>
+      <data key="d5">2.5</data>
+      <data key="d6">0.0</data>
+    </node>
+    <node id="joint_LFTibia_flexion">
+      <data key="d0">oscillator</data>
+      <data key="d1">3.0</data>
+      <data key="d2">1.0</data>
+      <data key="d3">1.0</data>
+      <data key="d4">-6</data>
+      <data key="d5">1.5</data>
+      <data key="d6">0.0</data>
+    </node>
+    <node id="joint_LFTibia_extension">
+      <data key="d0">oscillator</data>
+      <data key="d1">3.0</data>
+      <data key="d2">1.0</data>
+      <data key="d3">1.0</data>
+      <data key="d4">-6</data>
+      <data key="d5">2.5</data>
+      <data key="d6">0.0</data>
+    </node>
+    <node id="joint_LMCoxa_roll_flexion">
+      <data key="d0">oscillator</data>
+      <data key="d1">3.0</data>
+      <data key="d2">1.0</data>
+      <data key="d3">1.0</data>
+      <data key="d4">-2</data>
+      <data key="d5">-0.5</data>
+      <data key="d6">0.0</data>
+    </node>
+    <node id="joint_LMCoxa_roll_extension">
+      <data key="d0">oscillator</data>
+      <data key="d1">3.0</data>
+      <data key="d2">1.0</data>
+      <data key="d3">1.0</data>
+      <data key="d4">-2</data>
+      <data key="d5">0.5</data>
+      <data key="d6">0.0</data>
+    </node>
+    <node id="joint_LMFemur_flexion">
+      <data key="d0">oscillator</data>
+      <data key="d1">3.0</data>
+      <data key="d2">1.0</data>
+      <data key="d3">1.0</data>
+      <data key="d4">-4</data>
+      <data key="d5">-0.5</data>
+      <data key="d6">0.0</data>
+    </node>
+    <node id="joint_LMFemur_extension">
+      <data key="d0">oscillator</data>
+      <data key="d1">3.0</data>
+      <data key="d2">1.0</data>
+      <data key="d3">1.0</data>
+      <data key="d4">-4</data>
+      <data key="d5">0.5</data>
+      <data key="d6">0.0</data>
+    </node>
+    <node id="joint_LMTibia_flexion">
+      <data key="d0">oscillator</data>
+      <data key="d1">3.0</data>
+      <data key="d2">1.0</data>
+      <data key="d3">1.0</data>
+      <data key="d4">-6</data>
+      <data key="d5">-0.5</data>
+      <data key="d6">0.0</data>
+    </node>
+    <node id="joint_LMTibia_extension">
+      <data key="d0">oscillator</data>
+      <data key="d1">3.0</data>
+      <data key="d2">1.0</data>
+      <data key="d3">1.0</data>
+      <data key="d4">-6</data>
+      <data key="d5">0.5</data>
+      <data key="d6">0.0</data>
+    </node>
+    <node id="joint_LHCoxa_roll_flexion">
+      <data key="d0">oscillator</data>
+      <data key="d1">3.0</data>
+      <data key="d2">1.0</data>
+      <data key="d3">1.0</data>
+      <data key="d4">-2</data>
+      <data key="d5">-2.5</data>
+      <data key="d6">0.0</data>
+    </node>
+    <node id="joint_LHCoxa_roll_extension">
+      <data key="d0">oscillator</data>
+      <data key="d1">3.0</data>
+      <data key="d2">1.0</data>
+      <data key="d3">1.0</data>
+      <data key="d4">-2</data>
+      <data key="d5">-1.5</data>
+      <data key="d6">0.0</data>
+    </node>
+    <node id="joint_LHFemur_flexion">
+      <data key="d0">oscillator</data>
+      <data key="d1">3.0</data>
+      <data key="d2">1.0</data>
+      <data key="d3">1.0</data>
+      <data key="d4">-4</data>
+      <data key="d5">-2.5</data>
+      <data key="d6">0.0</data>
+    </node>
+    <node id="joint_LHFemur_extension">
+      <data key="d0">oscillator</data>
+      <data key="d1">3.0</data>
+      <data key="d2">1.0</data>
+      <data key="d3">1.0</data>
+      <data key="d4">-4</data>
+      <data key="d5">-1.5</data>
+      <data key="d6">0.0</data>
+    </node>
+    <node id="joint_LHTibia_flexion">
+      <data key="d0">oscillator</data>
+      <data key="d1">3.0</data>
+      <data key="d2">1.0</data>
+      <data key="d3">1.0</data>
+      <data key="d4">-6</data>
+      <data key="d5">-2.5</data>
+      <data key="d6">0.0</data>
+    </node>
+    <node id="joint_LHTibia_extension">
+      <data key="d0">oscillator</data>
+      <data key="d1">3.0</data>
+      <data key="d2">1.0</data>
+      <data key="d3">1.0</data>
+      <data key="d4">-6</data>
+      <data key="d5">-1.5</data>
+      <data key="d6">0.0</data>
+    </node>
+    <node id="joint_RFCoxa_flexion">
+      <data key="d0">oscillator</data>
+      <data key="d1">3.0</data>
+      <data key="d2">1.0</data>
+      <data key="d3">1.0</data>
+      <data key="d4">2</data>
+      <data key="d5">1.5</data>
+      <data key="d6">0.0</data>
+    </node>
+    <node id="joint_RFCoxa_extension">
+      <data key="d0">oscillator</data>
+      <data key="d1">3.0</data>
+      <data key="d2">1.0</data>
+      <data key="d3">1.0</data>
+      <data key="d4">2</data>
+      <data key="d5">2.5</data>
+      <data key="d6">0.0</data>
+    </node>
+    <node id="joint_RFFemur_flexion">
+      <data key="d0">oscillator</data>
+      <data key="d1">3.0</data>
+      <data key="d2">1.0</data>
+      <data key="d3">1.0</data>
+      <data key="d4">4</data>
+      <data key="d5">1.5</data>
+      <data key="d6">0.0</data>
+    </node>
+    <node id="joint_RFFemur_extension">
+      <data key="d0">oscillator</data>
+      <data key="d1">3.0</data>
+      <data key="d2">1.0</data>
+      <data key="d3">1.0</data>
+      <data key="d4">4</data>
+      <data key="d5">2.5</data>
+      <data key="d6">0.0</data>
+    </node>
+    <node id="joint_RFTibia_flexion">
+      <data key="d0">oscillator</data>
+      <data key="d1">3.0</data>
+      <data key="d2">1.0</data>
+      <data key="d3">1.0</data>
+      <data key="d4">6</data>
+      <data key="d5">1.5</data>
+      <data key="d6">0.0</data>
+    </node>
+    <node id="joint_RFTibia_extension">
+      <data key="d0">oscillator</data>
+      <data key="d1">3.0</data>
+      <data key="d2">1.0</data>
+      <data key="d3">1.0</data>
+      <data key="d4">6</data>
+      <data key="d5">2.5</data>
+      <data key="d6">0.0</data>
+    </node>
+    <node id="joint_RMCoxa_roll_flexion">
+      <data key="d0">oscillator</data>
+      <data key="d1">3.0</data>
+      <data key="d2">1.0</data>
+      <data key="d3">1.0</data>
+      <data key="d4">2</data>
+      <data key="d5">-0.5</data>
+      <data key="d6">0.0</data>
+    </node>
+    <node id="joint_RMCoxa_roll_extension">
+      <data key="d0">oscillator</data>
+      <data key="d1">3.0</data>
+      <data key="d2">1.0</data>
+      <data key="d3">1.0</data>
+      <data key="d4">2</data>
+      <data key="d5">0.5</data>
+      <data key="d6">0.0</data>
+    </node>
+    <node id="joint_RMFemur_flexion">
+      <data key="d0">oscillator</data>
+      <data key="d1">3.0</data>
+      <data key="d2">1.0</data>
+      <data key="d3">1.0</data>
+      <data key="d4">4</data>
+      <data key="d5">-0.5</data>
+      <data key="d6">0.0</data>
+    </node>
+    <node id="joint_RMFemur_extension">
+      <data key="d0">oscillator</data>
+      <data key="d1">3.0</data>
+      <data key="d2">1.0</data>
+      <data key="d3">1.0</data>
+      <data key="d4">4</data>
+      <data key="d5">0.5</data>
+      <data key="d6">0.0</data>
+    </node>
+    <node id="joint_RMTibia_flexion">
+      <data key="d0">oscillator</data>
+      <data key="d1">3.0</data>
+      <data key="d2">1.0</data>
+      <data key="d3">1.0</data>
+      <data key="d4">6</data>
+      <data key="d5">-0.5</data>
+      <data key="d6">0.0</data>
+    </node>
+    <node id="joint_RMTibia_extension">
+      <data key="d0">oscillator</data>
+      <data key="d1">3.0</data>
+      <data key="d2">1.0</data>
+      <data key="d3">1.0</data>
+      <data key="d4">6</data>
+      <data key="d5">0.5</data>
+      <data key="d6">0.0</data>
+    </node>
+    <node id="joint_RHCoxa_roll_flexion">
+      <data key="d0">oscillator</data>
+      <data key="d1">3.0</data>
+      <data key="d2">1.0</data>
+      <data key="d3">1.0</data>
+      <data key="d4">2</data>
+      <data key="d5">-2.5</data>
+      <data key="d6">0.0</data>
+    </node>
+    <node id="joint_RHCoxa_roll_extension">
+      <data key="d0">oscillator</data>
+      <data key="d1">3.0</data>
+      <data key="d2">1.0</data>
+      <data key="d3">1.0</data>
+      <data key="d4">2</data>
+      <data key="d5">-1.5</data>
+      <data key="d6">0.0</data>
+    </node>
+    <node id="joint_RHFemur_flexion">
+      <data key="d0">oscillator</data>
+      <data key="d1">3.0</data>
+      <data key="d2">1.0</data>
+      <data key="d3">1.0</data>
+      <data key="d4">4</data>
+      <data key="d5">-2.5</data>
+      <data key="d6">0.0</data>
+    </node>
+    <node id="joint_RHFemur_extension">
+      <data key="d0">oscillator</data>
+      <data key="d1">3.0</data>
+      <data key="d2">1.0</data>
+      <data key="d3">1.0</data>
+      <data key="d4">4</data>
+      <data key="d5">-1.5</data>
+      <data key="d6">0.0</data>
+    </node>
+    <node id="joint_RHTibia_flexion">
+      <data key="d0">oscillator</data>
+      <data key="d1">3.0</data>
+      <data key="d2">1.0</data>
+      <data key="d3">1.0</data>
+      <data key="d4">6</data>
+      <data key="d5">-2.5</data>
+      <data key="d6">0.0</data>
+    </node>
+    <node id="joint_RHTibia_extension">
+      <data key="d0">oscillator</data>
+      <data key="d1">3.0</data>
+      <data key="d2">1.0</data>
+      <data key="d3">1.0</data>
+      <data key="d4">6</data>
+      <data key="d5">-1.5</data>
+      <data key="d6">0.0</data>
+    </node>
+    <edge source="joint_LFCoxa_flexion" target="joint_LFCoxa_extension">
+      <data key="d7">100.0</data>
+      <data key="d8">3.141592653589793</data>
+    </edge>
+    <edge source="joint_LFCoxa_flexion" target="joint_LFFemur_flexion">
+      <data key="d7">100.0</data>
+      <data key="d8">1.5707963267948966</data>
+    </edge>
+    <edge source="joint_LFCoxa_flexion" target="joint_RFCoxa_flexion">
+      <data key="d7">100.0</data>
+      <data key="d8">3.141592653589793</data>
+    </edge>
+    <edge source="joint_LFCoxa_flexion" target="joint_RMCoxa_roll_flexion">
+      <data key="d7">100.0</data>
+      <data key="d8">3.141592653589793</data>
+    </edge>
+    <edge source="joint_LFCoxa_extension" target="joint_LFCoxa_flexion">
+      <data key="d7">100.0</data>
+      <data key="d8">-3.141592653589793</data>
+    </edge>
+    <edge source="joint_LFCoxa_extension" target="joint_LFFemur_extension">
+      <data key="d7">100.0</data>
+      <data key="d8">1.5707963267948966</data>
+    </edge>
+    <edge source="joint_LFCoxa_extension" target="joint_RFCoxa_extension">
+      <data key="d7">100.0</data>
+      <data key="d8">3.141592653589793</data>
+    </edge>
+    <edge source="joint_LFCoxa_extension" target="joint_RMCoxa_roll_extension">
+      <data key="d7">100.0</data>
+      <data key="d8">3.141592653589793</data>
+    </edge>
+    <edge source="joint_LFFemur_flexion" target="joint_LFCoxa_flexion">
+      <data key="d7">100.0</data>
+      <data key="d8">-1.5707963267948966</data>
+    </edge>
+    <edge source="joint_LFFemur_flexion" target="joint_LFTibia_flexion">
+      <data key="d7">100.0</data>
+      <data key="d8">1.5707963267948966</data>
+    </edge>
+    <edge source="joint_LFFemur_extension" target="joint_LFCoxa_extension">
+      <data key="d7">100.0</data>
+      <data key="d8">-1.5707963267948966</data>
+    </edge>
+    <edge source="joint_LFFemur_extension" target="joint_LFTibia_extension">
+      <data key="d7">100.0</data>
+      <data key="d8">1.5707963267948966</data>
+    </edge>
+    <edge source="joint_LFTibia_flexion" target="joint_LFFemur_flexion">
+      <data key="d7">100.0</data>
+      <data key="d8">-1.5707963267948966</data>
+    </edge>
+    <edge source="joint_LFTibia_extension" target="joint_LFFemur_extension">
+      <data key="d7">100.0</data>
+      <data key="d8">-1.5707963267948966</data>
+    </edge>
+    <edge source="joint_LMCoxa_roll_flexion" target="joint_LMCoxa_roll_extension">
+      <data key="d7">100.0</data>
+      <data key="d8">3.141592653589793</data>
+    </edge>
+    <edge source="joint_LMCoxa_roll_flexion" target="joint_LMFemur_flexion">
+      <data key="d7">100.0</data>
+      <data key="d8">1.5707963267948966</data>
+    </edge>
+    <edge source="joint_LMCoxa_roll_flexion" target="joint_RFCoxa_flexion">
+      <data key="d7">100.0</data>
+      <data key="d8">-3.141592653589793</data>
+    </edge>
+    <edge source="joint_LMCoxa_roll_flexion" target="joint_RHCoxa_roll_flexion">
+      <data key="d7">100.0</data>
+      <data key="d8">0.0</data>
+    </edge>
+    <edge source="joint_LMCoxa_roll_extension" target="joint_LMCoxa_roll_flexion">
+      <data key="d7">100.0</data>
+      <data key="d8">-3.141592653589793</data>
+    </edge>
+    <edge source="joint_LMCoxa_roll_extension" target="joint_LMFemur_extension">
+      <data key="d7">100.0</data>
+      <data key="d8">1.5707963267948966</data>
+    </edge>
+    <edge source="joint_LMCoxa_roll_extension" target="joint_RFCoxa_extension">
+      <data key="d7">100.0</data>
+      <data key="d8">-3.141592653589793</data>
+    </edge>
+    <edge source="joint_LMCoxa_roll_extension" target="joint_RHCoxa_roll_extension">
+      <data key="d7">100.0</data>
+      <data key="d8">0.0</data>
+    </edge>
+    <edge source="joint_LMFemur_flexion" target="joint_LMCoxa_roll_flexion">
+      <data key="d7">100.0</data>
+      <data key="d8">-1.5707963267948966</data>
+    </edge>
+    <edge source="joint_LMFemur_flexion" target="joint_LMTibia_flexion">
+      <data key="d7">100.0</data>
+      <data key="d8">1.5707963267948966</data>
+    </edge>
+    <edge source="joint_LMFemur_extension" target="joint_LMCoxa_roll_extension">
+      <data key="d7">100.0</data>
+      <data key="d8">-1.5707963267948966</data>
+    </edge>
+    <edge source="joint_LMFemur_extension" target="joint_LMTibia_extension">
+      <data key="d7">100.0</data>
+      <data key="d8">1.5707963267948966</data>
+    </edge>
+    <edge source="joint_LMTibia_flexion" target="joint_LMFemur_flexion">
+      <data key="d7">100.0</data>
+      <data key="d8">-1.5707963267948966</data>
+    </edge>
+    <edge source="joint_LMTibia_extension" target="joint_LMFemur_extension">
+      <data key="d7">100.0</data>
+      <data key="d8">-1.5707963267948966</data>
+    </edge>
+    <edge source="joint_LHCoxa_roll_flexion" target="joint_LHCoxa_roll_extension">
+      <data key="d7">100.0</data>
+      <data key="d8">3.141592653589793</data>
+    </edge>
+    <edge source="joint_LHCoxa_roll_flexion" target="joint_LHFemur_flexion">
+      <data key="d7">100.0</data>
+      <data key="d8">1.5707963267948966</data>
+    </edge>
+    <edge source="joint_LHCoxa_roll_flexion" target="joint_RMCoxa_roll_flexion">
+      <data key="d7">100.0</data>
+      <data key="d8">-0.0</data>
+    </edge>
+    <edge source="joint_LHCoxa_roll_extension" target="joint_LHCoxa_roll_flexion">
+      <data key="d7">100.0</data>
+      <data key="d8">-3.141592653589793</data>
+    </edge>
+    <edge source="joint_LHCoxa_roll_extension" target="joint_LHFemur_extension">
+      <data key="d7">100.0</data>
+      <data key="d8">1.5707963267948966</data>
+    </edge>
+    <edge source="joint_LHCoxa_roll_extension" target="joint_RMCoxa_roll_extension">
+      <data key="d7">100.0</data>
+      <data key="d8">-0.0</data>
+    </edge>
+    <edge source="joint_LHFemur_flexion" target="joint_LHCoxa_roll_flexion">
+      <data key="d7">100.0</data>
+      <data key="d8">-1.5707963267948966</data>
+    </edge>
+    <edge source="joint_LHFemur_flexion" target="joint_LHTibia_flexion">
+      <data key="d7">100.0</data>
+      <data key="d8">1.5707963267948966</data>
+    </edge>
+    <edge source="joint_LHFemur_extension" target="joint_LHCoxa_roll_extension">
+      <data key="d7">100.0</data>
+      <data key="d8">-1.5707963267948966</data>
+    </edge>
+    <edge source="joint_LHFemur_extension" target="joint_LHTibia_extension">
+      <data key="d7">100.0</data>
+      <data key="d8">1.5707963267948966</data>
+    </edge>
+    <edge source="joint_LHTibia_flexion" target="joint_LHFemur_flexion">
+      <data key="d7">100.0</data>
+      <data key="d8">-1.5707963267948966</data>
+    </edge>
+    <edge source="joint_LHTibia_extension" target="joint_LHFemur_extension">
+      <data key="d7">100.0</data>
+      <data key="d8">-1.5707963267948966</data>
+    </edge>
+    <edge source="joint_RFCoxa_flexion" target="joint_RFCoxa_extension">
+      <data key="d7">100.0</data>
+      <data key="d8">3.141592653589793</data>
+    </edge>
+    <edge source="joint_RFCoxa_flexion" target="joint_RFFemur_flexion">
+      <data key="d7">100.0</data>
+      <data key="d8">1.5707963267948966</data>
+    </edge>
+    <edge source="joint_RFCoxa_flexion" target="joint_LFCoxa_flexion">
+      <data key="d7">100.0</data>
+      <data key="d8">-3.141592653589793</data>
+    </edge>
+    <edge source="joint_RFCoxa_flexion" target="joint_LMCoxa_roll_flexion">
+      <data key="d7">100.0</data>
+      <data key="d8">3.141592653589793</data>
+    </edge>
+    <edge source="joint_RFCoxa_extension" target="joint_RFCoxa_flexion">
+      <data key="d7">100.0</data>
+      <data key="d8">-3.141592653589793</data>
+    </edge>
+    <edge source="joint_RFCoxa_extension" target="joint_RFFemur_extension">
+      <data key="d7">100.0</data>
+      <data key="d8">1.5707963267948966</data>
+    </edge>
+    <edge source="joint_RFCoxa_extension" target="joint_LFCoxa_extension">
+      <data key="d7">100.0</data>
+      <data key="d8">-3.141592653589793</data>
+    </edge>
+    <edge source="joint_RFCoxa_extension" target="joint_LMCoxa_roll_extension">
+      <data key="d7">100.0</data>
+      <data key="d8">3.141592653589793</data>
+    </edge>
+    <edge source="joint_RFFemur_flexion" target="joint_RFCoxa_flexion">
+      <data key="d7">100.0</data>
+      <data key="d8">-1.5707963267948966</data>
+    </edge>
+    <edge source="joint_RFFemur_flexion" target="joint_RFTibia_flexion">
+      <data key="d7">100.0</data>
+      <data key="d8">1.5707963267948966</data>
+    </edge>
+    <edge source="joint_RFFemur_extension" target="joint_RFCoxa_extension">
+      <data key="d7">100.0</data>
+      <data key="d8">-1.5707963267948966</data>
+    </edge>
+    <edge source="joint_RFFemur_extension" target="joint_RFTibia_extension">
+      <data key="d7">100.0</data>
+      <data key="d8">1.5707963267948966</data>
+    </edge>
+    <edge source="joint_RFTibia_flexion" target="joint_RFFemur_flexion">
+      <data key="d7">100.0</data>
+      <data key="d8">-1.5707963267948966</data>
+    </edge>
+    <edge source="joint_RFTibia_extension" target="joint_RFFemur_extension">
+      <data key="d7">100.0</data>
+      <data key="d8">-1.5707963267948966</data>
+    </edge>
+    <edge source="joint_RMCoxa_roll_flexion" target="joint_RMCoxa_roll_extension">
+      <data key="d7">100.0</data>
+      <data key="d8">3.141592653589793</data>
+    </edge>
+    <edge source="joint_RMCoxa_roll_flexion" target="joint_RMFemur_flexion">
+      <data key="d7">100.0</data>
+      <data key="d8">1.5707963267948966</data>
+    </edge>
+    <edge source="joint_RMCoxa_roll_flexion" target="joint_LFCoxa_flexion">
+      <data key="d7">100.0</data>
+      <data key="d8">-3.141592653589793</data>
+    </edge>
+    <edge source="joint_RMCoxa_roll_flexion" target="joint_LHCoxa_roll_flexion">
+      <data key="d7">100.0</data>
+      <data key="d8">0.0</data>
+    </edge>
+    <edge source="joint_RMCoxa_roll_extension" target="joint_RMCoxa_roll_flexion">
+      <data key="d7">100.0</data>
+      <data key="d8">-3.141592653589793</data>
+    </edge>
+    <edge source="joint_RMCoxa_roll_extension" target="joint_RMFemur_extension">
+      <data key="d7">100.0</data>
+      <data key="d8">1.5707963267948966</data>
+    </edge>
+    <edge source="joint_RMCoxa_roll_extension" target="joint_LFCoxa_extension">
+      <data key="d7">100.0</data>
+      <data key="d8">-3.141592653589793</data>
+    </edge>
+    <edge source="joint_RMCoxa_roll_extension" target="joint_LHCoxa_roll_extension">
+      <data key="d7">100.0</data>
+      <data key="d8">0.0</data>
+    </edge>
+    <edge source="joint_RMFemur_flexion" target="joint_RMCoxa_roll_flexion">
+      <data key="d7">100.0</data>
+      <data key="d8">-1.5707963267948966</data>
+    </edge>
+    <edge source="joint_RMFemur_flexion" target="joint_RMTibia_flexion">
+      <data key="d7">100.0</data>
+      <data key="d8">1.5707963267948966</data>
+    </edge>
+    <edge source="joint_RMFemur_extension" target="joint_RMCoxa_roll_extension">
+      <data key="d7">100.0</data>
+      <data key="d8">-1.5707963267948966</data>
+    </edge>
+    <edge source="joint_RMFemur_extension" target="joint_RMTibia_extension">
+      <data key="d7">100.0</data>
+      <data key="d8">1.5707963267948966</data>
+    </edge>
+    <edge source="joint_RMTibia_flexion" target="joint_RMFemur_flexion">
+      <data key="d7">100.0</data>
+      <data key="d8">-1.5707963267948966</data>
+    </edge>
+    <edge source="joint_RMTibia_extension" target="joint_RMFemur_extension">
+      <data key="d7">100.0</data>
+      <data key="d8">-1.5707963267948966</data>
+    </edge>
+    <edge source="joint_RHCoxa_roll_flexion" target="joint_RHCoxa_roll_extension">
+      <data key="d7">100.0</data>
+      <data key="d8">3.141592653589793</data>
+    </edge>
+    <edge source="joint_RHCoxa_roll_flexion" target="joint_RHFemur_flexion">
+      <data key="d7">100.0</data>
+      <data key="d8">1.5707963267948966</data>
+    </edge>
+    <edge source="joint_RHCoxa_roll_flexion" target="joint_LMCoxa_roll_flexion">
+      <data key="d7">100.0</data>
+      <data key="d8">-0.0</data>
+    </edge>
+    <edge source="joint_RHCoxa_roll_extension" target="joint_RHCoxa_roll_flexion">
+      <data key="d7">100.0</data>
+      <data key="d8">-3.141592653589793</data>
+    </edge>
+    <edge source="joint_RHCoxa_roll_extension" target="joint_RHFemur_extension">
+      <data key="d7">100.0</data>
+      <data key="d8">1.5707963267948966</data>
+    </edge>
+    <edge source="joint_RHCoxa_roll_extension" target="joint_LMCoxa_roll_extension">
+      <data key="d7">100.0</data>
+      <data key="d8">-0.0</data>
+    </edge>
+    <edge source="joint_RHFemur_flexion" target="joint_RHCoxa_roll_flexion">
+      <data key="d7">100.0</data>
+      <data key="d8">-1.5707963267948966</data>
+    </edge>
+    <edge source="joint_RHFemur_flexion" target="joint_RHTibia_flexion">
+      <data key="d7">100.0</data>
+      <data key="d8">1.5707963267948966</data>
+    </edge>
+    <edge source="joint_RHFemur_extension" target="joint_RHCoxa_roll_extension">
+      <data key="d7">100.0</data>
+      <data key="d8">-1.5707963267948966</data>
+    </edge>
+    <edge source="joint_RHFemur_extension" target="joint_RHTibia_extension">
+      <data key="d7">100.0</data>
+      <data key="d8">1.5707963267948966</data>
+    </edge>
+    <edge source="joint_RHTibia_flexion" target="joint_RHFemur_flexion">
+      <data key="d7">100.0</data>
+      <data key="d8">-1.5707963267948966</data>
+    </edge>
+    <edge source="joint_RHTibia_extension" target="joint_RHFemur_extension">
+      <data key="d7">100.0</data>
+      <data key="d8">-1.5707963267948966</data>
+    </edge>
+  </graph>
+</graphml>
