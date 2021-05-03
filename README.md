@@ -41,7 +41,7 @@ If you find NeuroMechFly useful in your research, please consider citing us!
 * [Angle Processing](docs/angleprocessing.md)
 
 ## Reproducing the experiments 
-Before running the scripts please make sure that you activate the virtual environment (see the [installation guide](docs/installation.md))
+Before running the scripts, please make sure that you activate the virtual environment (see the [installation guide](docs/installation.md))
 
 **1. Kinematic Matching**
 <p align="center">
@@ -50,7 +50,9 @@ Before running the scripts please make sure that you activate the virtual enviro
 </p>
 
 Run the following commands on the terminal to reproduce the kinematic replay experiments:
-- ```$ run_kinematic_replay --behavior walking```  for the locomotion behavior on a spherical treadmill. To simulate the foreleg/antennal grooming behavior, change ```walking``` at the end of the command to ```grooming```
+- ```$ run_kinematic_replay --behavior walking```  for the locomotion behavior on a spherical treadmill. To simulate the foreleg/antennal grooming behavior, change ```walking``` at the end of the command to ```grooming```.
+**Note:** Locomotion behavior starts approximately 2.5 seconds in the simulation. Until then, the fly stands still on the spherical treadmill. 
+
 - ```$ run_kinematic_replay_ground --perturbation``` for simulating the locomotion behavior on the ground with perturbations enabled. Remove ```--perturbation``` to disable perturbations. To change the behavior type, append ```--behavior grooming``` to the command
 
 <p align="center">
@@ -64,8 +66,9 @@ Run the following commands on the terminal to reproduce the kinematic replay exp
 **2. Optimization** 
 
 Run the following commands on the terminal to reproduce the optimization experiments:
-- ```$ run_neuromuscular_control``` to run the latest generation of the last optimization run. This script will read and run the files *FUN.txt* and *VAR.txt* under the *scripts* folder.
-- ```$ run_multiobj_optimization``` to run the optimization from scratch. This script will create new files named *FUN.txt* and *VAR.txt* as well as a new folder containing the results from each generation under a folder named *optimization_results*. After the optimization is over, run ```$ run_neuromuscular_control``` to see the results. 
+- ```$ run_neuromuscular_control``` to run the latest generation of the last optimization run. By default, this script will read and run the files *FUN.txt* and *VAR.txt* under the *scripts* folder. To run different files, simply run ```$ run_neuromuscular_control -v <path-of-the-var-file> -f <path-of-the-fun-file>```. **These paths should be relative to the *scripts* folder.**
+
+- ```$ run_multiobj_optimization``` to run the optimization from scratch. This script will create new files named *FUN.txt* and *VAR.txt* as well as a new folder containing the results from each generation under a folder named *optimization_results*. After the optimization is over, run ```$ run_neuromuscular_control``` to see the results from the last generation. To see different generations, follow the instructions above to select a different file. 
 
 **IMPORTANT NOTE:** We are currently improving the optimization approach, therefore, the code and results in this repository do not reflect the results in our [paper](https://www.biorxiv.org/content/10.1101/2021.04.17.440214v1). 
 
@@ -75,8 +78,8 @@ Run the following commands on the terminal to reproduce the optimization experim
 
 **3. Sensitivity Analysis** 
 
-- First, please download the simulation data obtained from sensitivity analysis from here. 
-- To reproduce the sensitivity analysis figures, ```$ run_sensitivity_analysis```. Please make sure that the path of the downloaded files is set in ```run_sensitivity_analysis```correctly. 
+- First, please download the simulation data obtained from sensitivity analysis from [here](https://drive.google.com/drive/folders/1H0G3mdeKLyGkS1DYxbOeOCXgywJmwfs9?usp=sharing) and place these files under *data/sensitivity_analysis*
+- To reproduce the sensitivity analysis figures, ```$ run_sensitivity_analysis```. Please make sure that the downloaded files are located correctly. 
 
 ## Miscellaneous
 
