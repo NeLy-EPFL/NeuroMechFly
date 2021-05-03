@@ -15,11 +15,13 @@ class DrosophilaSimulation(BulletSimulation):
         Instance of the Container class.
     sim_options: <dict>
         Dictionary containing the simulation options.
+    fixed_positions: <dict>
+        Dictionary containing the positions for the fixed joints that should be different from the zero pose.
     Kp: <float>
         Proportional gain of the position controller.
     Kv: <float>
         Derivative gain of the position controller.
-    position_path: <str>
+    angles_path: <str>
         Path of the joint position .pkl file.
     velocity_path: <str>
         Path of the joint velocity .pkl file.
@@ -30,9 +32,10 @@ class DrosophilaSimulation(BulletSimulation):
         self,
         container,
         sim_options,
+        fixed_positions,
         Kp,
         Kv,
-        position_path,
+        angles_path,
         velocity_path,
         units=SimulationUnitScaling(
             meters=1000,
@@ -41,14 +44,15 @@ class DrosophilaSimulation(BulletSimulation):
         super().__init__(container, units, **sim_options)
         self.last_draw = []
         self.grf = []
+        self.fixed_positions = fixed_positions
         self.kp = Kp
         self.kv = Kv
         self.pose = [0] * self.num_joints
         self.vel = [0] * self.num_joints
-        self.angles = self.load_angles(position_path)
-        self.velocities = self.load_angles(velocity_path)
+        self.angles = self.load_data(angles_path)
+        self.velocities = self.load_data(velocity_path)      
 
-    def load_angles(self, data_path):
+    def load_data(self, data_path):
         """ Function that loads the pickle format joint angle or velocity gile.
 
         Parameters
@@ -61,8 +65,23 @@ class DrosophilaSimulation(BulletSimulation):
         dict
             Returns the joint angles in a dictionary.
         """
+        names_equivalence = {
+            'ThC_pitch':'Coxa',
+            'ThC_yaw':'Coxa_yaw',
+            'ThC_roll':'Coxa_roll',
+            'CTr_pitch':'Femur',
+            'CTr_roll':'Femur_roll',
+            'FTi_pitch':'Tibia',
+            'TiTa_pitch':'Tarsus1'
+            }
+        converted_dict = {}
         try:
-            return pd.read_pickle(data_path)
+            data = pd.read_pickle(data_path)
+            for leg, joints in data.items():
+                for joint_name, val in joints.items():
+                    new_name = 'joint_'+ leg[:2] + names_equivalence[joint_name]
+                    converted_dict[new_name] = val
+            return converted_dict
         except BaseException:
             FileNotFoundError(f"File {data_path} not found!")
 
@@ -77,25 +96,9 @@ class DrosophilaSimulation(BulletSimulation):
         t : <int>
             Time running in the physics engine.
         """
-
         #: Setting the fixed joint angles, can be altered to change the appearance of the fly
-        fixed_positions = {
-            'joint_A3': -15,
-            'joint_A4': -15,
-            'joint_A5': -15,
-            'joint_A6': -15,
-            'joint_LAntenna': 33,
-            'joint_RAntenna': -33,
-            'joint_Rostrum': 90,
-            'joint_Haustellum': -60,
-            'joint_LWing_roll': 90,
-            'joint_LWing_yaw': -17,
-            'joint_RWing_roll': -90,
-            'joint_RWing_yaw': 17,
-            'joint_Head': 10
-        }
 
-        for joint_name, joint_pos in fixed_positions.items():
+        for joint_name, joint_pos in self.fixed_positions.items():
             self.pose[self.joint_id[joint_name]] = np.deg2rad(joint_pos)
 
         #: Setting the joint positions of leg DOFs based on pose estimation
