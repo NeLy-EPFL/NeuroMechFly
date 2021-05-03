@@ -197,33 +197,32 @@ def heatmap_plot(
     ax.invert_yaxis()
 
 
-def read_ground_contacts(
-        path_data,
-        leg_key):
+def read_ground_contacts(path_data):
     """Read ground reaction forces data, calculates magnitude for each segment
 
     Parameters:
         path_data (str): Path to data for plotting
-        leg_key (str): Key for specifying leg to plot, e.g, LF, LM, LH, RF, RM, RH
 
     Return:
         grf (np.array): ground reaction forces for all segments in a specific leg
     """
     grf_data = os.path.join(path_data, 'physics', 'ground_contacts.h5')
     data = pd.read_hdf(grf_data)
-    grf_x = []
-    grf_y = []
-    grf_z = []
-    for leg, force in data.items():
-        if leg[:2] == leg_key:
-            if 'x' in leg:
-                grf_x.append(force)
-            if 'y' in leg:
-                grf_y.append(force)
-            if 'z' in leg:
-                grf_z.append(force)
-    grf = np.linalg.norm([grf_x, grf_y, grf_z], axis=0)
-
+    grf = {}
+    check = []
+    for key, force in data.items():
+        leg, force_axis = key.split('_')
+        if leg not in check:
+            check.append(leg)
+            components = [k for k in data.keys() if leg in k]
+            data_x = data[components[0]].values
+            data_y = data[components[1]].values
+            data_z = data[components[2]].values
+            res_force = np.linalg.norm([data_x, data_y, data_z], axis=0)
+            if leg[:2] not in grf.keys():
+                grf[leg[:2]] = []
+            grf[leg[:2]].append(res_force)
+    
     return grf
 
 
@@ -261,6 +260,49 @@ def read_collision_forces(path_data):
 
     return collisions
 
+def get_stance_periods(leg_force,start,stop):
+    """Read ground reaction forces data, calculates magnitude for each segment
+
+    Parameters:
+        leg_force (np.array): Forces associated with a leg
+        start (float): Starting time for checking stance periods
+        stop (float): Stoping time for checking stance periods
+    Return:
+        stance_plot (list): list with indices indicating beginning and ending of stance periods
+    """
+
+    stance_ind = np.where(leg_force > 0)[0]
+    if stance_ind.size != 0:
+        stance_diff = np.diff(stance_ind)
+        stance_lim = np.where(stance_diff > 1)[0]
+        stance = [stance_ind[0] - 1]
+        for ind in stance_lim:
+            stance.append(stance_ind[ind] + 1)
+            stance.append(stance_ind[ind + 1] - 1)
+        stance.append(stance_ind[-1])
+        start_gait_list = np.where(np.array(stance) >= start)[0]
+        if len(start_gait_list) > 0:
+            start_gait = start_gait_list[0]
+        else:
+            start_gait = start
+        stop_gait_list = np.where((np.array(stance) <= stop)&(np.array(stance) > start))[0]
+        if len(stop_gait_list) > 0:
+            stop_gait = stop_gait_list[-1] + 1
+        else:
+            stop_gait = start_gait
+        if start_gait != stop_gait:
+            stance_plot = stance[start_gait:stop_gait]
+            if start_gait % 2 != 0:
+                stance_plot.insert(0, start)
+            if len(stance_plot) % 2 != 0:
+                stance_plot.append(stop)
+        else:
+            stance_plot = [start, start]
+    else:
+        stance_plot = [start, start]
+    
+    return stance_plot
+
 
 def plot_angles_torques_grf(
         path_data,
@@ -277,6 +319,7 @@ def plot_angles_torques_grf(
         time_step=0.001,
         torqueScalingFactor=1e9,
         grfScalingFactor=1e6):
+    
     """Plot angles, torques and ground reaction forces for a single leg
 
     Parameters:
@@ -338,8 +381,9 @@ def plot_angles_torques_grf(
 
     if plot_grf:
         if sim_data == 'walking':
-            data2plot['grf'] = read_ground_contacts(path_data, leg_key)
-            sum_force = np.sum(np.array(data2plot['grf']), axis=0)
+            data2plot['grf'] = read_ground_contacts(path_data)
+            grf_leg = data2plot['grf'][leg_key]
+            sum_force = np.sum(np.array(grf_leg), axis=0)
             leg_force = np.delete(sum_force, 0)
 
     if plot_collisions:
@@ -399,32 +443,7 @@ def plot_angles_torques_grf(
             leg_vs_leg = np.delete(sum_leg, 0)
             leg_vs_ant = np.delete(sum_ant, 0)
 
-        stance_ind = np.where(leg_force > 0)[0]
-        if stance_ind.size != 0:
-            stance_diff = np.diff(stance_ind)
-            stance_lim = np.where(stance_diff > 1)[0]
-            stance = [stance_ind[0] - 1]
-            for ind in stance_lim:
-                stance.append(stance_ind[ind] + 1)
-                stance.append(stance_ind[ind + 1] - 1)
-            stance.append(stance_ind[-1])
-            start_gait_list = np.where(np.array(stance) >= start)[0]
-            if len(start_gait_list) > 0:
-                start_gait = start_gait_list[0]
-            else:
-                start_gait = start
-            stop_gait_list = np.where(np.array(stance) <= stop)[0]
-            if len(stop_gait_list) > 0:
-                stop_gait = stop_gait_list[-1] + 1
-            else:
-                stop_gait = start_gait
-            stance_plot = stance[start_gait:stop_gait]
-            if start_gait % 2 != 0:
-                stance_plot.insert(0, start)
-            if len(stance_plot) % 2 != 0:
-                stance_plot.append(stop)
-        else:
-            stance_plot = [0, 0]
+        stance_plot = get_stance_periods(leg_force, start, stop)
 
     fig, axs = plt.subplots(len(data2plot.keys()), sharex=True)
     fig.suptitle('Plots ' + leg_key + ' leg')
@@ -555,6 +574,7 @@ def plot_angles_torques_grf(
             else:
                 all_handles = plot_handles
                 all_labels = plot_labels
+
             if len(data2plot.keys()) == 1:
                 axs.legend(
                     all_handles,
@@ -599,25 +619,44 @@ def plot_angles_torques_grf(
 
 
 def plot_collisions_diagram(
+        path_data,
         sim_data,
-        begin=0,
-        end=0,
         opt_res=False,
         generation='',
-        exp='',
-        tot_time=9.0,
+        begin=0,
+        end=0,
         time_step=0.001):
-    data = {}
-    pkg_path = Path(pkgutil.get_loader("NeuroMechFly").get_filename())
-    sim_res_folder = os.path.join(pkg_path.parents[1], 'scripts/KM/results')
 
+    """Plot collision/gait diagrams
+
+    Parameters:
+        path_data (str): Path to data for plotting
+        sim_data (str): behavior from data, e.g., walking or grooming
+        
+        opt_res (bool, default False): Select if the collision/gait diagrams are from and optimization result
+        exp (str): experiment name (if opt_res is True)
+        generation (str): Generation number (if opt_res is True)
+        begin (float, default 0.0): Time point for starting the plot
+        end (float, default 0.0): Time point for finishing the plot, if 0.0, all time points are plotted
+        time_step (float, default 0.001): Data time step
+    """
+    
+    data = {}
+    length_data = 0
+    
+    #pkg_path = Path(pkgutil.get_loader("NeuroMechFly").get_filename())
+    #sim_res_folder = os.path.join(pkg_path.parents[1], 'scripts/KM/results')
+
+    '''
     if sim_data == 'walking':
-        if not opt_res:
-            collisions_data = sim_res_folder + '/grfSC_data_ball_walking.pkl'
-        else:
-            sim_res_folder = os.path.join(
-                pkg_path.parents[1], 'scripts/Optimization/Output_data/grf', exp)
-            collisions_data = sim_res_folder + '/grf_optimization_gen_' + generation + '.pkl'
+        #if not opt_res:   
+        #    collisions_data = sim_res_folder + '/grfSC_data_ball_walking.pkl'
+        #else:
+        #    sim_res_folder = os.path.join(
+        #        pkg_path.parents[1], 'scripts/Optimization/Output_data/grf', exp)
+        #    collisions_data = sim_res_folder+'/grf_optimization_gen_' + generation + '.pkl'
+        collisions_data = read_ground_contacts(path_data, leg_key)
+        
     elif sim_data == 'grooming':
         collisions_data = sim_res_folder + '/selfCollisions_data_ball_grooming.pkl'
 
@@ -630,8 +669,10 @@ def plot_collisions_diagram(
 
     with open(collisions_data, 'rb') as fp:
         data = pickle.load(fp)
+    '''
 
     if sim_data == 'walking':
+        data = read_ground_contacts(path_data)
         title_plot = 'Gait diagram: gen ' + \
             str(int(generation) + 1) if opt_res else 'Gait diagram'
         collisions = {
@@ -641,10 +682,15 @@ def plot_collisions_diagram(
             'RF': [],
             'RM': [],
             'RH': []}
-        for leg, force in data.items():
-            collisions[leg[:2]].append(force.transpose()[0])
-
+        for leg in collisions.keys():
+            sum_force = np.sum(np.array(data[leg]), axis=0)
+            segment_force = np.delete(sum_force, 0)
+            collisions[leg].append(segment_force)
+            if length_data == 0:
+                length_data = len(segment_force)
+                
     elif sim_data == 'grooming':
+        data = read_collision_forces(path_data)
         title_plot = 'Collisions diagram'
         collisions = {
             'LAntenna': [],
@@ -661,59 +707,39 @@ def plot_collisions_diagram(
             'RFTarsus1': [],
             'RFTibia': [],
             'RAntenna': []}  # , 'LEye':[], 'REye':[]}
-        # for segment, coll in data.items():
-        #    for key, forces in coll.items():
-        #        if segment in collisions.keys():
-        #            collisions[segment].append([np.linalg.norm(force) for force in forces])
-        for segment, coll in data.items():
-            if segment in collisions.keys():
-                for key, vals in coll.items():
-                    collisions[segment].append(vals.transpose()[0])
+
+        for segment1 in collisions.keys():
+            seg_forces=[]
+            for segment2, force in data[segment1].items():
+                seg_forces.append(force)    
+            sum_force = np.sum(np.array(seg_forces), axis=0)
+            segment_force = np.delete(sum_force, 0)
+            collisions[segment1].append(segment_force)
+            if length_data == 0:
+                length_data = len(segment_force)
+
+    if end == 0:
+        end = length_data * time_step
+
+    steps = 1 / time_step
+    start = int(begin * steps)
+    stop = int(end * steps)
 
     fig, axs = plt.subplots(len(collisions.keys()),
                             sharex=True, gridspec_kw={'hspace': 0})
     fig.suptitle(title_plot)
 
     for i, (segment, force) in enumerate(collisions.items()):
-        sum_force = np.sum(np.array(force), axis=0)
-        segment_force = np.delete(sum_force, 0)
-        time = np.arange(0, len(segment_force), 1) / steps
-        stance_ind = np.where(segment_force > 0)[0]
-        if stance_ind.size != 0:
-            stance_diff = np.diff(stance_ind)
-            stance_lim = np.where(stance_diff > 1)[0]
-            stance = [stance_ind[0] - 1]
-            for ind in stance_lim:
-                stance.append(stance_ind[ind] + 1)
-                stance.append(stance_ind[ind + 1] - 1)
-            stance.append(stance_ind[-1])
-            start_gait_list = np.where(np.array(stance) >= start)[0]
-            if len(start_gait_list) > 0:
-                start_gait = start_gait_list[0]
-            else:
-                start_gait = start
-            stop_gait_list = np.where(np.array(stance) <= stop)[0]
-            if len(stop_gait_list) > 0:
-                stop_gait = stop_gait_list[-1] + 1
-            else:
-                stop_gait = start_gait
-            stance_plot = stance[start_gait:stop_gait]
-            if start_gait % 2 != 0:
-                stance_plot.insert(0, start)
-            if len(stance_plot) % 2 != 0:
-                stance_plot.append(stop)
-
-            for ind in range(0, len(stance_plot), 2):
+        time = np.arange(0, len(force[0]), 1) / steps
+        stance_plot = get_stance_periods(force[0],start,stop)
+        for ind in range(0, len(stance_plot), 2):
                 axs[i].fill_between(time[stance_plot[ind]:stance_plot[ind + 1]], 0, 1,
                                     facecolor='black', alpha=1, transform=axs[i].get_xaxis_transform())
-        else:
-            axs[i].fill_between(time[start:stop],
-                                0,
-                                1,
-                                facecolor='white',
-                                alpha=1,
-                                transform=axs[i].get_xaxis_transform())
 
+        axs[i].fill_between(time[start:stance_plot[0]], 0, 1, facecolor='white', alpha=1, transform=axs[i].get_xaxis_transform())
+
+        axs[i].fill_between(time[stance_plot[-1]:stop], 0, 1, facecolor='white', alpha=1, transform=axs[i].get_xaxis_transform())
+        
         axs[i].set_yticks((0.5,))
         axs[i].set_yticklabels((segment,))
 

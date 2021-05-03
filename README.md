@@ -67,7 +67,7 @@ Run the following commands on the terminal to reproduce the optimization experim
 - ```$ run_neuromuscular_control``` to run the latest generation of the last optimization run. This script will read and run the files *FUN.txt* and *VAR.txt* under the *scripts* folder.
 - ```$ run_multiobj_optimization``` to run the optimization from scratch. This script will create new files named *FUN.txt* and *VAR.txt* as well as a new folder containing the results from each generation under a folder named *optimization_results*. After the optimization is over, run ```$ run_neuromuscular_control``` to see the results. 
 
-**IMPORTANT NOTE:** We are currently improving the optimization approach, therefore, the code and results in this repository do not reflect the results in our paper](https://www.biorxiv.org/content/10.1101/2021.04.17.440214v1). 
+**IMPORTANT NOTE:** We are currently improving the optimization approach, therefore, the code and results in this repository do not reflect the results in our [paper](https://www.biorxiv.org/content/10.1101/2021.04.17.440214v1). 
 
 **NOTE:** To formulate new objective functions and penalties, please refer to the *NeuroMechFly/experiments/network_optimization*. 
 

@@ -222,7 +222,7 @@ class DrosophilaEvolution(FloatProblem):
         #: Setting up the paths for the SDF and POSE files
         model_path = os.path.join(neuromechfly_path, 'data/design/sdf/neuromechfly_noLimits.sdf')
         pose_path = os.path.join(neuromechfly_path, 'data/config/pose/pose_tripod.yaml')
-        controller_path = os.path.join(neuromechfly_path, 'data/config/network/locomotion_network_tripod.graphml')
+        controller_path = os.path.join(neuromechfly_path, 'data/config/network/locomotion_network.graphml')
         #: Simulation options
         sim_options = {
             "headless": True,

@@ -17,7 +17,7 @@ setuptools.setup(
         'numpy',
         'pandas',
         'matplotlib',
-        'networkx==2.3',
+        'networkx',
         'scipy',
         'treelib',
         'trimesh',
@@ -28,7 +28,7 @@ setuptools.setup(
         'jmetalpy',
         'tables',
         'pillow',
-        'shapely' 
+        'shapely'
 
     ],
     scripts=['scripts/run_kinematic_replay',
