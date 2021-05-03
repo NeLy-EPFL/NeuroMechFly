@@ -445,10 +445,12 @@ class DrosophilaSimulation(BulletSimulation):
 
         opti_active_muscle_gains = params[:5*N]
         opti_joint_phases = params[5*N:5*N+edges_joints]
+        print(len(opti_joint_phases))
         #opti_antagonist_phases = params[6*N+edges_joints:6*N+edges_joints+edges_anta]
         #opti_base_phases = params[6*N+edges_joints+edges_anta:]
 
         opti_base_phases = params[5*N+edges_joints:]
+        print(len(opti_base_phases))
 
         #print(
         #    "Opti active muscle gains {}".format(
@@ -467,8 +469,10 @@ class DrosophilaSimulation(BulletSimulation):
         for j, joint in enumerate(symmetry_joints):
             #print(joint,joint.replace('L', 'R', 1),6*j,6*(j+1))
             # print(joint, Parameters(*opti_active_muscle_gains[7*j:7*(j+1)]))
+            _active_params = opti_active_muscle_gains[5*j:5*(j+1)]
+            _active_params[:-1] = [10**_active_params[p] for p in range(4)]
             self.active_muscles[joint.replace('L', 'R', 1)].update_parameters(
-                Parameters(*opti_active_muscle_gains[5*j:5*(j+1)])
+                Parameters(*_active_params)
             )
             #: It is important to mirror the joint angles for rest position
             #: especially for coxa
@@ -727,8 +731,8 @@ def main():
     #     "./optimization_results/"+exp+"/VAR."+gen
     # )
     fun, var = read_optimization_results(
-        "./FUN.txt",
-        "./VAR.txt",
+        "./center_of_mass_2/results/FUN.29",
+        "./center_of_mass_2/results/VAR.29",
     )
     '''
 
@@ -750,6 +754,7 @@ def main():
     params = var[np.argmin(fun_normalized[:,0]*fun_normalized[:,1])]
     params = var[np.argmin(fun_normalized[:,0])]
     param_ind = np.argmin(fun[:,0]*fun[:,1])
+    # param_ind = 5
     params = var[param_ind]
 
     params = np.array(params)
@@ -762,8 +767,8 @@ def main():
 
     save_data(animal,name_data,exp)
 
-    colors =    fun[:,0]*fun[:,1]
-    plt.scatter(fun[:,0], fun[:,1], c=colors, cmap=plt.cm.winter)
+    colors =    fun[:,:]*fun[:,:]
+    plt.scatter(fun[:,:], fun[:,:], c=colors, cmap=plt.cm.winter)
     plt.scatter(fun[param_ind,0], fun[param_ind,1], c='red', cmap=plt.cm.winter)
     plt.show()
     colors = fun_normalized1*fun_normalized2
