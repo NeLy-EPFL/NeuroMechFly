@@ -50,8 +50,8 @@ Before running the scripts please make sure that you activate the virtual enviro
 </p>
 
 Run the following commands on the terminal to reproduce the kinematic replay experiments:
-- ```$ run_kinematic_matching --behavior walking```  for the locomotion behavior on a spherical treadmill. To simulate the foreleg/antennal grooming behavior, change ```walking``` at the end of the command to ```grooming```
-- ```$ run_kinematic_matching_ground --perturbation``` for simulating the locomotion behavior on the ground with perturbations enabled. Remove ```--perturbation``` to disable perturbations. To change the behavior type, append ```--behavior grooming``` to the command
+- ```$ run_kinematic_replay --behavior walking```  for the locomotion behavior on a spherical treadmill. To simulate the foreleg/antennal grooming behavior, change ```walking``` at the end of the command to ```grooming```
+- ```$ run_kinematic_replay_ground --perturbation``` for simulating the locomotion behavior on the ground with perturbations enabled. Remove ```--perturbation``` to disable perturbations. To change the behavior type, append ```--behavior grooming``` to the command
 
 <p align="center">
   <img src="docs/perturbation.gif" width="450" />
