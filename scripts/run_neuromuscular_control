@@ -8,11 +8,17 @@ import os
 import argparse
 from pathlib import Path
 import pkgutil
+import matplotlib.pyplot as plt 
 
 neuromechfly_path = Path(pkgutil.get_loader("NeuroMechFly").get_filename()).parents[1]
 
 if __name__ == "__main__":
     """ Main """
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-v', '--var', default='./VAR.txt')
+    parser.add_argument('-f', '--fun', default='./FUN.txt')
+    args = parser.parse_args()
+
     run_time = 5.
     time_step = 0.001
 
@@ -71,8 +77,6 @@ if __name__ == "__main__":
             self_collision.append([link0, link1])
 
 
-    gen = '10'
-    exp = 'experiment'
     #: Setting up the paths for the SDF and POSE files
     model_path = os.path.join(neuromechfly_path, 'data/design/sdf/neuromechfly_limitsFromData.sdf')
     pose_path = os.path.join(neuromechfly_path, 'data/config/pose/pose_tripod.yaml')
@@ -92,7 +96,7 @@ if __name__ == "__main__":
         "record": False, #: Set True to record the simulation
         'camera_distance': 5.5,
         'track': False,
-        'moviename': 'stability_' + exp + '_gen_' + gen + '.mp4',
+        'moviename': 'neuromuscular_control.mp4',
         'moviespeed': 0.2, #: Speed of the recorded movie
         'slow_down': True,
         'sleep_time': 0.001,
@@ -103,8 +107,8 @@ if __name__ == "__main__":
     container = Container(run_time / time_step)
     animal = neuromuscular_control.DrosophilaSimulation(container, sim_options)
     #: Load the results of the latest generation of the last optimization run
-    fun_path = os.path.join(neuromechfly_path, 'scripts/FUN.txt')
-    var_path = os.path.join(neuromechfly_path, 'scripts/VAR.txt')
+    fun_path = os.path.join(neuromechfly_path, 'scripts', args.fun)
+    var_path = os.path.join(neuromechfly_path, 'scripts', args.var)
     fun, var = np.loadtxt(fun_path), np.loadtxt(var_path)
     #: Select which solution to use (fastest, in this case)
     ind = np.argmin(fun[:, 0])
