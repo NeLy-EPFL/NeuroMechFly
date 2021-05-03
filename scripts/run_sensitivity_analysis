@@ -23,6 +23,7 @@ joints = [
     'Femur_roll',
     'Tibia',
     'Tarsus1']
+
 legs = ['LF', 'LM', 'LH', 'RF', 'RM', 'RH']
 beg = 3600
 end = 4600
@@ -236,9 +237,9 @@ def load_data(pybullet_path, baseline_path_pos, baseline_path_vel):
 if __name__ == '__main__':
     """ Main. """
     # NOTE: User should change the paths to where they download the data
-    path_pybullet = os.path.join(neuromechfly_path, 'data/sensitivity_analysis/pybullet_data')
-    baseline_path_pos = os.path.join(neuromechfly_path, 'data/sensitivity_analysis/7sc_nameconv_walking_joint_angle.pkl')
-    baseline_path_vel = os.path.join(neuromechfly_path, 'data/sensitivity_analysis/7sc_nameconv_walking_joint_velocity.pkl')
+    path_pybullet = os.path.join(neuromechfly_path, 'data/sensitivity_analysis/sensitivity_analysis_data')
+    baseline_path_pos = os.path.join(neuromechfly_path, 'data/sensitivity_analysis/baseline_joint_angle.pkl')
+    baseline_path_vel = os.path.join(neuromechfly_path, 'data/sensitivity_analysis/baseline_joint_velocity.pkl')
     #: True if figures to be saved
     save_figures = False
     #: Read data
