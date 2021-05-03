@@ -9,6 +9,7 @@ from NeuroMechFly.control.spring_damper_muscles import (Parameters,
 from NeuroMechFly.sdf.units import SimulationUnitScaling
 from NeuroMechFly.simulation.bullet_simulation import BulletSimulation
 
+pylog.set_level('error')
 
 class DrosophilaSimulation(BulletSimulation):
     """Drosophila Simulation Class.
@@ -119,7 +120,10 @@ class DrosophilaSimulation(BulletSimulation):
         self.debug = p.addUserDebugParameter('debug', -1, 1, 0.0)
 
         #: Data variables
-        self.stability_coef = 0
+        self.opti_lava = 0
+        self.opti_touch = 0
+        self.opti_velocity = 0
+        self.opti_stability = 0
         self.stance_count = 0
         self.last_draw = []
         self.check_is_all_legs = np.asarray(
@@ -247,20 +251,21 @@ class DrosophilaSimulation(BulletSimulation):
             line[0]*point[0]+line[1]*point[1]+line[2]
         )/np.sqrt(line[0]**2 + line[1]**2)
 
-    def compute_static_stability(self):
+    def compute_static_stability(self, draw_polygon=True):
         """ Computes static stability  of the model.
 
         Parameters
         ----------
         self :
 
+        draw_polygon: <bool>
+            Draws the stance polygon and center of mass if True
 
         Returns
         -------
         out :
 
         """
-        # TODO: Check units for get_link_position
         contact_points = [
             self.get_link_position(f"{side}Tarsus5")[:2]*self.units.meters
             for side in ["RF", "RM", "RH", "LH", "LM", "LF"]
@@ -272,27 +277,42 @@ class DrosophilaSimulation(BulletSimulation):
                 )
         ]
 
-
         contact_points = [[]] if not contact_points else contact_points
         assert len(contact_points) <= 6
-        # Get fly center_of_mass (Centroid for now)
-        center_of_mass = np.asarray(self.get_link_position('Thorax')[:2])*self.units.meters
-        body_length = 2.3
 
-        # Make polygon of points
+        #: Get fly center_of_mass (Centroid for now)
+        center_of_mass = np.asarray(
+            p.getJointInfo(self.animal, self.joint_id['joint_A1A2'])
+        )[14][:2]
+
+        #: Update number of legs in stance 
+        self.stance_count += len(contact_points)
+ 
+        #: Make polygon from contact points
         try:
             polygon = Polygon(contact_points)
         except ValueError:
             return -1
-        
-        for idx in range(len(polygon.exterior.coords)-1): 
+
+        if draw_polygon:
+            #: Draw the polygon 
+            for idx in range(len(polygon.exterior.coords)-1): 
+                p.addUserDebugLine(
+                    list(polygon.exterior.coords[idx]) + [11.1],
+                    list(polygon.exterior.coords[idx+1]) + [11.1],
+                    lifeTime = 1e-2,
+                    lineColorRGB = [1,0,0]
+                )
+            #: Draw a vertical line from center of mass
+            color = [1,0,0] if polygon.contains(Point(center_of_mass)) else [0,1,0]
             p.addUserDebugLine(
-                list(polygon.exterior.coords[idx]) + [11.1],
-                list(polygon.exterior.coords[idx+1]) + [11.1],
-                lifeTime = 1e-2,
-                lineColorRGB = [1,0,0]
+                list(center_of_mass) + [9.0],
+                list(center_of_mass) + [13.5],
+                lifeTime=1e-2,
+                lineColorRGB=color
             )
-        # Compute minimum distance
+
+        #: Compute minimum distance
         distance = np.min([
             DrosophilaSimulation.compute_perpendicular_distance(
                 DrosophilaSimulation.compute_line_coefficients(
@@ -302,75 +322,44 @@ class DrosophilaSimulation(BulletSimulation):
                 center_of_mass
             )
             for idx in range(len(polygon.exterior.coords)-1)
-        ])/body_length
-        #print('distance',distance)
+        ])
         return distance if polygon.contains(Point(center_of_mass)) else -distance
 
-
-    def calculate_stability(self):
+    def update_static_stability(self):
         """ Calculates the stability coefficient. """
         dist_to_centroid = self.compute_static_stability()
-        self.stability_coef += dist_to_centroid
+        self.opti_stability += dist_to_centroid
 
-    def is_using_all_legs(self):
-        """Check if the fly uses all its legs to locomote"""
-        contact_segments = [
-            self.is_contact(leg)
-            for leg in self.feet_links
-            if "Tarsus5" in leg
-        ]
-        self.check_is_all_legs += np.asarray(contact_segments)
-
-    def is_lava(self):
+    def check_movement(self):
         """ State of lava approaching the model. """
-        dist_traveled = -1 * self.ball_rotations[0]
-        moving_limit = (self.TIME / self.RUN_TIME) * 3.44 - 0.30
-        return dist_traveled < moving_limit
+        ball_angular_position = -np.array(self.ball_rotations)[0]
+        moving_limit = ((self.TIME/self.RUN_TIME)*4.10)-0.10
+        self.opti_lava += 1.0 if np.any(
+            ball_angular_position < moving_limit
+        ) else 0.0
 
-    def is_in_not_bounds(self):
-        """ Bounds of the pelvis. """
-        return (
-            (self.distance_z * self.units.meters > 0.5) or
-            (self.distance_y * self.units.meters > 10) or
-            (self.distance_y * self.units.meters < -0.5)
-        )
-
-    def is_touch(self):
+    def check_touch(self):
         """ Check if certain links touch. """
-        return np.any(
+        self.opti_touch += 1 if np.any(
             [
                 self.is_contact(link)
                 for link in self.link_id.keys()
                 if 'Tarsus' not in link
             ]
-        )
+        ) else 0.0
 
-    def is_velocity_limit(self):
+    def check_velocity_limit(self):
         """ Check velocity limits. """
-        return np.any(
-            np.array(self.joint_velocities) > 1e3
-        )
-
-    # def is_flying(self):
-    #     """ Check if at least one leg is on the ball. """
-    #     dist_to_centroid = self.stance_polygon_dist()
-    #     return dist_to_centroid > 90
+        self.opti_velocity += 1.0 if np.any(
+            np.array(self.joint_velocities) > 100
+        ) else 0.0
 
     def optimization_check(self):
-        """ Check optimization status. """
-        lava = self.is_lava()
-        #flying = self.is_flying()
-        velocity_cap = self.is_velocity_limit()
-        touch = self.is_touch()
-        self.calculate_stability()
-        self.is_using_all_legs()
-        if lava or velocity_cap or touch:
-            pylog.debug(
-                "Lava {} | Vel {} | Touch {}".format(
-                    lava, velocity_cap, touch
-                )
-            )
-            return False
+        """ Check the optimization status and update the penalties. """
+        self.check_movement()
+        self.check_velocity_limit()
+        self.check_touch()
+        self.update_static_stability()
         return True
 
     def update_parameters(self, params):
@@ -381,7 +370,7 @@ class DrosophilaSimulation(BulletSimulation):
         edges_joints = int(self.controller.graph.number_of_nodes() / 3)
         opti_active_muscle_gains = params[:5 * N]
         opti_joint_phases = params[5 * N:5 * N + edges_joints]
-
+        opti_base_phases = params[5 * N + edges_joints: ]
         #: Update active muscle parameters
         symmetry_joints = filter(
             lambda x: x.split('_')[1][0] != 'R', self.actuated_joints
@@ -399,7 +388,7 @@ class DrosophilaSimulation(BulletSimulation):
             self.active_muscles[joint].update_parameters(
                 Parameters(*opti_active_muscle_gains[5 * j:5 * (j + 1)])
             )
-        #: Update phases
+        #: Update phases for intraleg phase relationships
         #: Edges to set phases for
         phase_edges = [
             ['Coxa', 'Femur'],
@@ -429,3 +418,23 @@ class DrosophilaSimulation(BulletSimulation):
                         parameters.get_parameter(
                             'phi_{}_to_{}'.format(node_2, node_1)
                         ).value = -1 * opti_joint_phases[4 * j0 + 2 * j1 + j2]
+       
+        #: Update the phases for interleg phase relationships
+        coxae_edges =[
+            ['LFCoxa', 'RFCoxa'],
+            ['LFCoxa', 'RMCoxa_roll'],
+            ['RMCoxa_roll', 'LHCoxa_roll'],
+            ['RFCoxa', 'LMCoxa_roll'],
+            ['LMCoxa_roll', 'RHCoxa_roll']
+        ]
+
+        for j1, ed in enumerate(coxae_edges):
+            for j2, action in enumerate(('flexion', 'extension')):
+                node_1 = "joint_{}_{}".format(ed[0], action)
+                node_2 = "joint_{}_{}".format(ed[1], action)
+                parameters.get_parameter(
+                    'phi_{}_to_{}'.format(node_1, node_2)
+            ).value = opti_base_phases[j1]
+            parameters.get_parameter(
+                    'phi_{}_to_{}'.format(node_2, node_1)
+                ).value = -1*opti_base_phases[j1]

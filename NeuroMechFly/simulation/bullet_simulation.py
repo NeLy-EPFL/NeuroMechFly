@@ -488,7 +488,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                 [0.0e-3, 0.0e-3, -5e-3]) * self.units.meters + self.MODEL_OFFSET
         else:
             base_position = np.array(
-                [-0.05e-3, 0.0e-3, -5.09e-3]) * self.units.meters + self.MODEL_OFFSET
+                [-0.05e-3, 0.0e-3, -5.14e-3]) * self.units.meters + self.MODEL_OFFSET
         #: Create the sphere
         base_orientation = [0, 0, 0, 1]
         link_masses = np.array([1e-11,1e-11,1e-11])*self.units.kilograms

@@ -28,6 +28,8 @@ LOGGER = logging.getLogger('jmetal')
 
 neuromechfly_path = Path(pkgutil.get_loader("NeuroMechFly").get_filename()).parents[1]
 
+pylog.set_level('error')
+
 class WriteFullFrontToFileObserver(Observer):
     """ Write full front to file. """
 
@@ -220,7 +222,7 @@ class DrosophilaEvolution(FloatProblem):
         #: Set a time step for the physics engine
         time_step = 0.001
         #: Setting up the paths for the SDF and POSE files
-        model_path = os.path.join(neuromechfly_path, 'data/design/sdf/neuromechfly_noLimits.sdf')
+        model_path = os.path.join(neuromechfly_path, 'data/design/sdf/neuromechfly_limitsFromData.sdf')
         pose_path = os.path.join(neuromechfly_path, 'data/config/pose/pose_tripod.yaml')
         controller_path = os.path.join(neuromechfly_path, 'data/config/network/locomotion_network.graphml')
         #: Simulation options
@@ -260,46 +262,30 @@ class DrosophilaEvolution(FloatProblem):
         )[0] * fly.ball_radius
 
         #: Stability coefficient
-        stability = fly.stability_coef
-
-        if not successful:
-            lava = fly.is_lava()
-            #flying = fly.is_flying()
-            touch = fly.is_touch()
-            velocity_cap = fly.is_velocity_limit()
-        else:
-            lava = False
-            #flying = False
-            touch = False
-            velocity_cap = False
+        stability = fly.opti_stability
 
         #: Penalties
-        #: Penalty time spent until termination
-        penalty_time = (
-            1e0 + 1e0 * (fly.RUN_TIME - fly.TIME) / fly.RUN_TIME
-            if (lava or touch or velocity_cap)
-            else 0.0
-        )
-
-        #: Penalty distance
-        expected_dist = 2 * np.pi * fly.ball_radius
-        penalty_dist = 0.0 if expected_dist < distance else (
-            1e1 + 40 * abs(distance - expected_dist))
-
-        #: Penalty linearity
-        penalty_linearity = 2e3 * fly.ball_radius * \
-            (abs(np.array(fly.ball_rotations))[
-                1] + abs(np.array(fly.ball_rotations))[2])
-
         #: Penalty long stance periods
         expected_stance_legs = 4
         min_legs = 3
         mean_stance_legs = fly.stance_count * fly.RUN_TIME / fly.TIME
         penalty_time_stance = (
             0.0
-            if min_legs <= mean_stance_legs <= expected_stance_legs
+            if min_legs <= mean_stance_legs < expected_stance_legs
             else 1e2 * abs(mean_stance_legs - min_legs)
         )
+
+        movement_weight = 1e-2
+        touch_weight = 1e-2
+        velocity_weight = 1e-1
+        stance_weight = 1e2
+        penalties = (
+            movement_weight * fly.opti_lava + \
+            touch_weight * fly.opti_touch + \
+            velocity_weight * fly.opti_velocity + \
+            stance_weight * penalty_time_stance
+        )
+
 
         #: Print penalties and objectives
         pylog.debug(
@@ -313,7 +299,7 @@ class DrosophilaEvolution(FloatProblem):
                 Penalty distance: {} \n \
                 Penalty time stance: {} \n \
             ".format(
-                -distance,
+                distance,
                 act,
                 stability,
                 penalty_linearity,
@@ -323,8 +309,8 @@ class DrosophilaEvolution(FloatProblem):
             )
         )
 
-        solution.objectives[0] = -2e2*distance + penalty_time
-        solution.objectives[1] = -stability + penalty_time_stance
+        solution.objectives[0] = -1e1 * distance + penalties
+        solution.objectives[1] = -1e-1 * stability + penalties
 
         pylog.debug(
             "OBJECTIVE FUNCTION EVALUATION:\n===========\n\
