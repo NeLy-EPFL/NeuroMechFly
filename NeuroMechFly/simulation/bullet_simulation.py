@@ -734,7 +734,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
 
         #: Camera
         if self.GUI == p.GUI and self.track_animal:
-            base = np.array(self.base_position)
+            base = np.array(self.base_position) * self.units.meters
             yaw = 30
             pitch = -10
             p.resetDebugVisualizerCamera(

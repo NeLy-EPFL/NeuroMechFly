@@ -77,8 +77,8 @@ if __name__ == "__main__":
         "ground_contacts": ground_contact,
         "self_collisions": self_collision,
         "record": False, #: Set True to record the simulation
-        'camera_distance':5.0,
-        'track': True, #: Set True to track the animal automatically
+        'camera_distance':7.0,
+        'track': False, #: Set True to track the animal automatically
         'moviename': './kinematic_replay_ground.mp4',
         'moviespeed': 0.2, #: Speed of the recorded movie
         'slow_down': False,
