@@ -66,7 +66,7 @@ def find_parent_joints(model, joint_name):
     """ Find all the joints parented to the given joint. """
     joint_id = joint_name_to_index(model)
     link_id = link_name_to_index(model)
-    #: FUCK : Add exception to catch invalid joint names
+    # FIXME : Add exception to catch invalid joint names
     joint = model.joints[joint_id[joint_name]]
     plink = joint.parent
     return [
@@ -77,7 +77,7 @@ def find_child_joints(model, joint_name):
     """ Find all the joints parented to the given joint. """
     joint_id = joint_name_to_index(model)
     link_id = link_name_to_index(model)
-    #: FUCK : Add exception to catch invalid joint names
+    # FIXME : Add exception to catch invalid joint names
     joint = model.joints[joint_id[joint_name]]
     clink = joint.child
     return [
@@ -115,7 +115,7 @@ def find_link_joints(model, link_name):
 
 def find_root(model):
     """ Find the root link. """
-    #: FUCK: CRUDE AND UNELEGANT SOLUTION
+    # FIXME: CRUDE AND UNELEGANT SOLUTION
     for link in model.links:
         lname = link.name
         count = 0
