@@ -20,8 +20,8 @@ pylog.set_level("error")
 
 if __name__ == "__main__":
     """ Main """
-    n_pop = 50
-    n_gen = 20
+    n_pop = 30
+    n_gen = 10
     max_evaluations = n_pop*n_gen
     # Problem
     problem = multiobj_optimization.DrosophilaEvolution()

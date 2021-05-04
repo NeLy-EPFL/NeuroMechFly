@@ -8,7 +8,7 @@ import os
 import argparse
 from pathlib import Path
 import pkgutil
-import matplotlib.pyplot as plt 
+#import matplotlib.pyplot as plt 
 
 neuromechfly_path = Path(pkgutil.get_loader("NeuroMechFly").get_filename()).parents[1]
 
@@ -111,7 +111,7 @@ if __name__ == "__main__":
     var_path = os.path.join(neuromechfly_path, 'scripts', args.var)
     fun, var = np.loadtxt(fun_path), np.loadtxt(var_path)
     #: Select which solution to use (fastest, in this case)
-    ind = np.argmin(fun[:, 0])
+    ind = np.argmin(fun[:, 0]+fun[:,1])
     params = var[ind]
     params = np.array(params)
     #: Run the selected parameter values in the simulation
