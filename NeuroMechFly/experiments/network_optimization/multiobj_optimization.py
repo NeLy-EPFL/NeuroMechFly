@@ -218,7 +218,7 @@ class DrosophilaEvolution(FloatProblem):
             Evaluated solution.
         """
         #: Set how long the simulation will run to evaluate the solution
-        run_time = 5.
+        run_time = 2.5
         #: Set a time step for the physics engine
         time_step = 0.001
         #: Setting up the paths for the SDF and POSE files
@@ -274,7 +274,8 @@ class DrosophilaEvolution(FloatProblem):
             if min_legs <= mean_stance_legs < expected_stance_legs
             else 1e2 * abs(mean_stance_legs - min_legs)
         )
-
+        distance_weight = -1e1
+        stability_weight = -1e-1
         movement_weight = 1e-2
         touch_weight = 1e-2
         velocity_weight = 1e-1
@@ -289,28 +290,20 @@ class DrosophilaEvolution(FloatProblem):
 
         #: Print penalties and objectives
         pylog.debug(
-            "OBJECTIVES\n===========\n\
-                Distance: {} \n \
-                Activations: {} \n \
-                Stability: {} \n \
-            PENALTIES\n=========\n \
-                Penalty linearity: {} \n \
-                Penalty time: {} \n \
-                Penalty distance: {} \n \
-                Penalty time stance: {} \n \
-            ".format(
-                distance,
-                act,
-                stability,
-                penalty_linearity,
-                penalty_time,
-                penalty_dist,
-                penalty_time_stance,
-            )
+            f"OBJECTIVES\n===========\n\
+                Distance: {distance_weight * distance} \n \
+                Stability: {stability_weight * stability} \n \
+                Work: {fly.mechanical_work} \n \
+                PENALTIES\n=========\n \
+                Penalty lava: {movement_weight * fly.opti_lava} \n \
+                #Penalty touch: {touch_weight * fly.opti_touch} \n \
+                Penalty velocity: {velocity_weight*fly.opti_velocity} \n \
+                Penalty stance: {stance_weight * penalty_time_stance} \n \
+            "
         )
 
-        solution.objectives[0] = -1e1 * distance + penalties
-        solution.objectives[1] = -1e-1 * stability + penalties
+        solution.objectives[0] = distance_weight * distance + penalties
+        solution.objectives[1] = stability_weight * stability + penalties
 
         pylog.debug(
             "OBJECTIVE FUNCTION EVALUATION:\n===========\n\

@@ -281,9 +281,13 @@ class DrosophilaSimulation(BulletSimulation):
         assert len(contact_points) <= 6
 
         #: Get fly center_of_mass (Centroid for now)
-        center_of_mass = np.asarray(
-            p.getJointInfo(self.animal, self.joint_id['joint_A1A2'])
-        )[14][:2]
+        center_of_mass = (
+            np.array(p.getJointInfo(
+                self.animal, self.joint_id['joint_LHCoxa']
+                )[14][:2]) + \
+            np.array(
+                p.getJointInfo(self.animal, self.joint_id['joint_RHCoxa']
+                )[14][:2])) * 0.5
 
         #: Update number of legs in stance 
         self.stance_count += len(contact_points)
