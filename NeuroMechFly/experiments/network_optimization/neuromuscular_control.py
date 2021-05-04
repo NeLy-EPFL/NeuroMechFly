@@ -251,7 +251,7 @@ class DrosophilaSimulation(BulletSimulation):
             line[0]*point[0]+line[1]*point[1]+line[2]
         )/np.sqrt(line[0]**2 + line[1]**2)
 
-    def compute_static_stability(self, draw_polygon=True):
+    def compute_static_stability(self, draw_polygon=False):
         """ Computes static stability  of the model.
 
         Parameters
@@ -337,7 +337,7 @@ class DrosophilaSimulation(BulletSimulation):
     def check_movement(self):
         """ State of lava approaching the model. """
         ball_angular_position = -np.array(self.ball_rotations)[0]
-        moving_limit = ((self.TIME/self.RUN_TIME)*4.10)-0.10
+        moving_limit = ((self.TIME/self.RUN_TIME)*4.40)-0.40
         self.opti_lava += 1.0 if np.any(
             ball_angular_position < moving_limit
         ) else 0.0
@@ -442,3 +442,33 @@ class DrosophilaSimulation(BulletSimulation):
             parameters.get_parameter(
                     'phi_{}_to_{}'.format(node_2, node_1)
                 ).value = -1*opti_base_phases[j1]
+
+    def select_solution(self, criteria, fun):
+        """ Selects a solution given a criteria.
+
+        Parameters
+        ----------
+        criteria: <str>
+            criteria for selecting a solution
+
+        fun: <list>
+            Solutions from optimization
+
+        Returns
+        -------
+        out : Index of the solution fulfilling the criteria
+
+        """
+        if criteria == 'fastest':
+            return np.argmin(fun[:, 0])
+        elif criteria == 'slowest':
+            return np.argmax(fun[:, 0])
+        elif criteria == 'medium':
+            mida = mid(fun[:,0])
+            midb = mid(fun[:,1])
+            return np.argmin(np.sqrt((fun[:,0]-mida)**2 + (fun[:,1]-midb)**2))
+        else:
+            return int(criteria)
+
+def mid(x):
+    return (max(x)+min(x))*0.5

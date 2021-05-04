@@ -488,7 +488,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                 [0.0e-3, 0.0e-3, -5e-3]) * self.units.meters + self.MODEL_OFFSET
         else:
             base_position = np.array(
-                [-0.05e-3, 0.0e-3, -5.14e-3]) * self.units.meters + self.MODEL_OFFSET
+                [-0.09e-3, -0.0e-3,-5.13e-3]) * self.units.meters + self.MODEL_OFFSET
         #: Create the sphere
         base_orientation = [0, 0, 0, 1]
         link_masses = np.array([1e-11,1e-11,1e-11])*self.units.kilograms
@@ -782,17 +782,27 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         if self.GUI == p.GUI and self.ROTATE_CAMERA and self.behavior == 'grooming':
             base = np.array(self.base_position)
             if t < 250:
-                yaw = -90
+                yaw = 0
                 pitch = -10
             elif t >= 250 and t < 2000:
-                yaw = (t - 250) / 1750 * 150 - 90
+                yaw = (t - 250) / 1750 * 150 
                 pitch = -10
             elif t >= 2000 and t < 3500:
-                yaw = 60 - (t - 2000) / 1500 * 120
+                yaw = 150 - (t - 2000) / 1500 * 120
                 pitch = -10
             else:
-                yaw = 300
+                yaw = 30
                 pitch = -10
+            p.resetDebugVisualizerCamera(
+                self.camera_distance,
+                yaw,
+                pitch,
+                base)
+
+        if self.GUI == p.GUI and self.ROTATE_CAMERA and self.behavior == None:
+            base = np.array(self.base_position) * self.units.meters
+            yaw = (t-4500)/4500*360
+            pitch = -10
             p.resetDebugVisualizerCamera(
                 self.camera_distance,
                 yaw,
