@@ -1,0 +1,140 @@
+#!/usr/bin/env python
+""" Script to run neuromuscular control. """
+from NeuroMechFly.experiments.network_optimization import neuromuscular_control
+from farms_container import Container
+
+import numpy as np
+import os
+import argparse
+from pathlib import Path
+import pkgutil
+#import matplotlib.pyplot as plt 
+
+neuromechfly_path = Path(pkgutil.get_loader("NeuroMechFly").get_filename()).parents[1]
+
+if __name__ == "__main__":
+    """ Main """
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-g', '--gen', default='txt')
+    parser.add_argument('-p', '--path', default='./')
+    parser.add_argument('-s', '--sol', default='fastest')
+    args = parser.parse_args()
+
+    run_time = 5.
+    time_step = 0.001
+
+    #: Set collision segments
+    side = ['L', 'R']
+    pos = ['F', 'M', 'H']
+    leg_segments = ['Femur', 'Tibia'] + \
+        ['Tarsus' + str(i) for i in range(1, 6)]
+
+    ground_contact = [
+        s +
+        p +
+        name for s in side for p in pos for name in leg_segments if 'Tarsus' in name]
+
+    left_front_leg = ['LF' + name for name in leg_segments]
+    left_middle_leg = ['LM' + name for name in leg_segments]
+    left_hind_leg = ['LH' + name for name in leg_segments]
+
+    right_front_leg = ['RF' + name for name in leg_segments]
+    right_middle_leg = ['RM' + name for name in leg_segments]
+    right_hind_leg = ['RH' + name for name in leg_segments]
+
+    body_segments = ['A1A2', 'A3', 'A4', 'A5', 'A6', 'Thorax', 'Head']
+
+    self_collision = []
+    for link0 in left_front_leg:
+        for link1 in left_middle_leg:
+            self_collision.append([link0, link1])
+    for link0 in left_middle_leg:
+        for link1 in left_hind_leg:
+            self_collision.append([link0, link1])
+    for link0 in left_front_leg:
+        for link1 in body_segments:
+            self_collision.append([link0, link1])
+    for link0 in left_middle_leg:
+        for link1 in body_segments:
+            self_collision.append([link0, link1])
+    for link0 in left_hind_leg:
+        for link1 in body_segments:
+            self_collision.append([link0, link1])
+
+    for link0 in right_front_leg:
+        for link1 in right_middle_leg:
+            self_collision.append([link0, link1])
+    for link0 in right_middle_leg:
+        for link1 in right_hind_leg:
+            self_collision.append([link0, link1])
+    for link0 in right_front_leg:
+        for link1 in body_segments:
+            self_collision.append([link0, link1])
+    for link0 in right_middle_leg:
+        for link1 in body_segments:
+            self_collision.append([link0, link1])
+    for link0 in right_hind_leg:
+        for link1 in body_segments:
+            self_collision.append([link0, link1])
+
+
+    #: Setting up the paths for the SDF and POSE files
+    model_path = os.path.join(neuromechfly_path, 'data/design/sdf/neuromechfly_limitsFromData.sdf')
+    pose_path = os.path.join(neuromechfly_path, 'data/config/pose/pose_tripod.yaml')
+    controller_path = os.path.join(neuromechfly_path, 'data/config/network/locomotion_network.graphml')
+    #: Simulation options
+    sim_options = {
+        "headless": False,
+        "model": model_path,
+        "model_offset": [0., 0., 11.2e-3],
+        "run_time": run_time,
+        "pose": pose_path,
+        "base_link": 'Thorax',
+        "controller": controller_path,
+        "ground_contacts": ground_contact,
+        'self_collisions': self_collision,
+        "draw_collisions": True, #: Set True to change the color of colliding segments
+        "record": False, #: Set True to record the simulation
+        'camera_distance': 5.5,
+        'track': False,
+        'moviename': 'neuromuscular_control.mp4',
+        'moviespeed': 0.2, #: Speed of the recorded movie
+        'slow_down': True,
+        'sleep_time': 0.001,
+        'rot_cam': False, #: Set true to rotate the camera automatically
+        'ground': 'ball'
+    }
+    #: Initialize the container  
+    container = Container(run_time / time_step)
+    fly = neuromuscular_control.DrosophilaSimulation(container, sim_options)
+
+    #: Load the results of the latest generation of the last optimization run
+    #fun_path = os.path.join(neuromechfly_path, 'scripts', args.fun)
+    #var_path = os.path.join(neuromechfly_path, 'scripts', args.var)
+    fun_path = os.path.join(args.path,'FUN.' + args.gen)
+    var_path = os.path.join(args.path,'VAR.' + args.gen)
+    fun, var = np.loadtxt(fun_path), np.loadtxt(var_path)
+
+    #: Get experiment information
+    path = os.path.abspath(args.path)
+    exp_name = path.split('/')[-1]
+    exp_info = exp_name.split('_')
+    if len(exp_info) > 1:
+        exp = f"{exp_info[1]}_{exp_info[-1]}"
+        gen = args.gen
+    else:
+        exp = 'last_run'
+        gen = 'final' 
+    
+    #: Select which solution to use (fastest, in this case)
+    ind = fly.select_solution(args.sol, fun)
+    params = var[ind]
+    params = np.array(params)
+    #: Run the selected parameter values in the simulation
+    fly.update_parameters(params)
+    fly.run(optimization=False)
+    #: Dump the optimization results
+    fly.container.dump(
+        dump_path=f"./optimization_{exp}_gen_{gen}",
+        overwrite=True
+        )
