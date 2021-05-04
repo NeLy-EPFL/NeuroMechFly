@@ -43,6 +43,11 @@ If you find NeuroMechFly useful in your research, please consider citing us!
 ## Reproducing the experiments 
 Before running the scripts, please make sure that you activate the virtual environment (see the [installation guide](docs/installation.md))
 
+NeuroMechFly is run in [PyBullet](https://github.com/bulletphysics/bullet3/tree/master/examples/pybullet). In the Graphical User Interface, you can use the following keyboard and mouse combinations to control the camera viewpoint:
+- ALT/CONTROL & Left Mouse Button: Rotate
+- ALT/CONTROL & Scroll Mouse Button: Pan
+- Scroll Mouse Button: Zoom
+
 **1. Kinematic Matching**
 <p align="center">
   <img src="docs/km_walking.gif" width="330" />
