@@ -31,10 +31,10 @@ setuptools.setup(
         'shapely'
 
     ],
-    scripts=['scripts/run_kinematic_replay',
-        'scripts/run_kinematic_replay_ground',
-        'scripts/run_multiobj_optimization',
-        'scripts/run_neuromuscular_control',
-        'scripts/run_sensitivity_analysis'
+    scripts=['scripts/kinematic_replay/run_kinematic_replay',
+        'scripts/kinematic_replay/run_kinematic_replay_ground',
+        'scripts/neuromuscular_optimization/run_multiobj_optimization',
+        'scripts/neuromuscular_optimization/run_neuromuscular_control',
+        'scripts/sensitivity_analysis/run_sensitivity_analysis'
     ],
 )
