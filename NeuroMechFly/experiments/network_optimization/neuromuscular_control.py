@@ -4,7 +4,6 @@ import farms_pylog as pylog
 import numpy as np
 from shapely.geometry import Point, Polygon
 import pybullet as p
-import pybullet_data
 from NeuroMechFly.control.spring_damper_muscles import (Parameters,
                                                         SDAntagonistMuscle)
 from NeuroMechFly.sdf.units import SimulationUnitScaling
@@ -58,7 +57,7 @@ class DrosophilaSimulation(BulletSimulation):
         ]
         for j, joint in enumerate(self.actuated_joints):
             pos = joint.split('_')[1][1]
-            if (('M' == pos) or ('H' == pos)) and ('Coxa' in joint):
+            if (pos in ('M', 'H')) and ('Coxa' in joint):
                 self.actuated_joints[j] = joint.replace('Coxa', 'Coxa_roll')
 
         self.num_oscillators = self.controller.graph.number_of_nodes()
@@ -74,13 +73,13 @@ class DrosophilaSimulation(BulletSimulation):
                 'phase_' + joint + '_extension')
             fmn_amp = self.neural.states.get_parameter(
                 'amp_' + joint + '_flexion')
-            emn_amp = self.neural.states.get_parameter(
+            _emn_amp = self.neural.states.get_parameter(
                 'amp_' + joint + '_extension')
             jpos = self.physics.joint_positions.get_parameter(joint)
             jvel = self.physics.joint_velocities.get_parameter(joint)
             joint_info = p.getJointInfo(self.animal, self.joint_id[joint])
-            lower_limit = joint_info[8]
-            upper_limit = joint_info[9]
+            _lower_limit = joint_info[8]
+            _upper_limit = joint_info[9]
             self.active_muscles[joint] = SDAntagonistMuscle(
                 self.container,
                 name=joint,
@@ -96,7 +95,7 @@ class DrosophilaSimulation(BulletSimulation):
         self.container.initialize()
 
         #: Set the physical properties of the environment
-        for link, idx in self.link_id.items():
+        for _link, idx in self.link_id.items():
             p.changeDynamics(
                 self.animal,
                 idx,
@@ -207,7 +206,6 @@ class DrosophilaSimulation(BulletSimulation):
 
     def feedback_to_controller(self):
         """ Implementation of abstractmethod. """
-        pass
 
     @staticmethod
     def compute_line_coefficients(point_a, point_b):
@@ -370,12 +368,12 @@ class DrosophilaSimulation(BulletSimulation):
     def update_parameters(self, params):
         """ Implementation of abstract method. """
         parameters = self.container.neural.parameters
-        N = int(self.controller.graph.number_of_nodes() / 4)
+        n_nodes = int(self.controller.graph.number_of_nodes() / 4)
         #: Number of joints, muscle gains, phase variables
         edges_joints = int(self.controller.graph.number_of_nodes() / 3)
-        opti_active_muscle_gains = params[:5 * N]
-        opti_joint_phases = params[5 * N:5 * N + edges_joints]
-        opti_base_phases = params[5 * N + edges_joints: ]
+        opti_active_muscle_gains = params[:5 * n_nodes]
+        opti_joint_phases = params[5 * n_nodes:5 * n_nodes + edges_joints]
+        opti_base_phases = params[5 * n_nodes + edges_joints: ]
         #: Update active muscle parameters
         symmetry_joints = filter(
             lambda x: x.split('_')[1][0] != 'R', self.actuated_joints
@@ -444,7 +442,8 @@ class DrosophilaSimulation(BulletSimulation):
                     'phi_{}_to_{}'.format(node_2, node_1)
                 ).value = -1*opti_base_phases[j1]
 
-    def select_solution(self, criteria, fun):
+    @staticmethod
+    def select_solution(criteria, fun):
         """ Selects a solution given a criteria.
 
         Parameters
@@ -462,15 +461,26 @@ class DrosophilaSimulation(BulletSimulation):
         """
         if criteria == 'fastest':
             return np.argmin(fun[:, 0])
-        elif criteria == 'slowest':
+        if criteria == 'slowest':
             return np.argmax(fun[:, 0])
-        elif criteria == 'medium':
+        if criteria == 'medium':
             mida = mid(fun[:,0])
             midb = mid(fun[:,1])
             return np.argmin(np.sqrt((fun[:,0]-mida)**2 + (fun[:,1]-midb)**2))
-        else:
-            return int(criteria)
+        return int(criteria)
 
 
-def mid(x):
-    return (max(x)+min(x))*0.5
+def mid(array):
+    """ Middle between min and max of array x
+
+    Parameters
+    ----------
+    array: <array>
+        Input array
+
+    Returns
+    -------
+    out : (max(x)+min(x))*0.5
+
+    """
+    return (max(array)+min(array))*0.5
