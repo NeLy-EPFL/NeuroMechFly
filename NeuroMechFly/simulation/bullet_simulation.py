@@ -524,7 +524,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             link_masses = np.array(
                 [1e-11,1e-11,1e-11]
                 )*self.units.kilograms
-            base_position = np.array([0.28e-3, -0.2e-3,-4.965e-3])*self.units.meters+self.MODEL_OFFSET
+            base_position = np.array([0.28e-3, -0.2e-3,-4.965e-3])*self.units.meters+self.model_offset
         elif self.behavior == 'grooming':
             link_masses = np.array(
                 [1e-11,1e-11,1e-11]
@@ -892,7 +892,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
 
     def run(self, optimization=False):
         """ Run the full simulation. """
-        total = int(self.RUN_TIME / self.TIME_STEP)
+        total = int(self.run_time / self.time_step)
         for t in tqdm(
             range(0, total),
             disable = optimization
