@@ -86,7 +86,6 @@ class DrosophilaSimulation(BulletSimulation):
                 name=joint,
                 joint_pos=jpos,
                 joint_vel=jvel,
-                rest_pos=(lower_limit + upper_limit) * 0.5,
                 flexor_mn=fmn,
                 extensor_mn=emn,
                 flexor_amp=fmn_amp,

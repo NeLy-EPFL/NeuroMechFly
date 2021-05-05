@@ -33,7 +33,7 @@ class Parameters:
 class SDAntagonistMuscle:
     """Antagonist Spring Damper muscles. """
     def __init__(
-            self, container, name, joint_pos, joint_vel, rest_pos=0.0,
+            self, container, name, joint_pos, joint_vel,
             flexor_mn=None, extensor_mn=None,
             flexor_amp=None, extensor_amp=None,
             parameters=None
@@ -98,22 +98,21 @@ class SDAntagonistMuscle:
         if only_passive:
             self.torque.value = self.passive_torque.value
             return self.torque.value
-        else:
-            #: Active
-            self.flexor_act.value = self.r_fmn.value*(
-                    1 + np.sin(self.flexor_mn.value)
-            )
-            self.extensor_act.value = self.r_emn.value*(
-                    1 + np.sin(self.extensor_mn.value)
-            )
-            _co = self.alpha.value*(
-                self.flexor_act.value - self.extensor_act.value
-            )
-            _active_stiff = self.beta.value*(
-                self.flexor_act.value + self.extensor_act.value
-            )*(self.rest_pos.value - self.jpos.value)
-            self.active_torque.value = _co + _active_stiff
-            self.torque.value = (
-                self.active_torque.value + self.passive_torque.value
-            )
-            return self.torque.value
+        #: Active
+        self.flexor_act.value = self.r_fmn.value*(
+                1 + np.sin(self.flexor_mn.value)
+        )
+        self.extensor_act.value = self.r_emn.value*(
+                1 + np.sin(self.extensor_mn.value)
+        )
+        _co = self.alpha.value*(
+            self.flexor_act.value - self.extensor_act.value
+        )
+        _active_stiff = self.beta.value*(
+            self.flexor_act.value + self.extensor_act.value
+        )*(self.rest_pos.value - self.jpos.value)
+        self.active_torque.value = _co + _active_stiff
+        self.torque.value = (
+            self.active_torque.value + self.passive_torque.value
+        )
+        return self.torque.value
