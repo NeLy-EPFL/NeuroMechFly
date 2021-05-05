@@ -28,7 +28,6 @@ LOGGER = logging.getLogger('jmetal')
 
 neuromechfly_path = Path(pkgutil.get_loader("NeuroMechFly").get_filename()).parents[1]
 
-pylog.set_level('error')
 
 class WriteFullFrontToFileObserver(Observer):
     """ Write full front to file. """
@@ -124,40 +123,40 @@ class DrosophilaEvolution(FloatProblem):
         #: Each muscle has 5 variables to be optimized corresponding to
         #: Alpha, beta, gamma, delta, and resting pose of the Ekeberg model
         lower_bound_active_muscles = (
-            np.asarray(
-                [  # Front
-                    [1e-2, 1e-2, 1e-3, 1e-4, -0.22],  # Coxa
-                    [1e-2, 1e-2, 1e-3, 1e-4, -2.5],  # Femur
-                    [1e-2, 1e-2, 1e-3, 5e-4, 0.76],  # Tibia
+                np.asarray(
+                    [# Front
+                    [1e-2, 1e-2, 1e-3, 1e-4, -0.22], # Coxa
+                    [1e-2, 1e-2, 1e-3, 1e-4, -2.5], # Femur
+                    [1e-2, 1e-2, 1e-3, 5e-4, 0.76], # Tibia
                     # Mid
-                    [1e-2, 1e-2, 1e-3, 1e-4, -2.2],  # Coxa_roll
-                    [1e-2, 1e-2, 1e-3, 1e-4, -2.35],  # Femur
-                    [1e-2, 1e-2, 1e-3, 5e-4, 1.73],  # Tibia
+                    [1e-2, 1e-2, 1e-3, 1e-4, -2.2], # Coxa_roll
+                    [1e-2, 1e-2, 1e-3, 1e-4, -2.35], # Femur
+                    [1e-2, 1e-2, 1e-3, 5e-4, 1.73], # Tibia
                     # Hind
-                    [1e-2, 1e-2, 1e-3, 1e-4, -2.78],  # Coxa_roll
-                    [1e-2, 1e-2, 1e-3, 1e-4, -2.46],  # Femur
-                    [1e-2, 1e-2, 1e-3, 5e-4, 1.12],  # Tibia
-                ]
-            )
+                    [1e-2, 1e-2, 1e-3, 1e-4, -2.78], # Coxa_roll
+                    [1e-2, 1e-2, 1e-3, 1e-4, -2.46], # Femur
+                    [1e-2, 1e-2, 1e-3, 5e-4, 1.12], # Tibia
+                    ]
+                )
         ).flatten()
 
         upper_bound_active_muscles = (
-            np.asarray(
-                [
+                np.asarray(
+                    [
                     # Front
-                    [1e0, 1e0, 1e0, 1e-3, 0.49],  # Coxa
-                    [1e0, 1e0, 1e0, 1e-3, -1.3],  # Femur
-                    [1e-1, 1e-1, 1e-1, 1e-3, 2.19],  # Tibia
+                    [1e0, 1e0, 1e0, 1e-3, 0.49], # Coxa
+                    [1e0, 1e0, 1e0, 1e-3, -1.3], # Femur
+                    [1e-1, 1e-1, 1e-1, 1e-3, 2.19], # Tibia
                     # Mid
-                    [1e0, 1e0, 1e0, 1e-3, -1.75],  # Coxa_roll
-                    [1e0, 1e0, 1e0, 1e-3, -1.84],  # Femur
-                    [1e-1, 1e-1, 1e-1, 1e-3, 2.63],  # Tibia
+                    [1e0, 1e0, 1e0, 1e-3, -1.75], # Coxa_roll
+                    [1e0, 1e0, 1e0, 1e-3, -1.84], # Femur
+                    [1e-1, 1e-1, 1e-1, 1e-3, 2.63], # Tibia
                     # Hind
-                    [1e0, 1e0, 1e0, 1e-3, -2.44],  # Coxa_roll
-                    [1e0, 1e0, 1e0, 1e-3, -1.31],  # Femur
-                    [1e-1, 1e-1, 1e-1, 1e-3, 2.79],  # Tibia
-                ]
-            )
+                    [1e0, 1e0, 1e0, 1e-3, -2.44], # Coxa_roll
+                    [1e0, 1e0, 1e0, 1e-3, -1.31], # Femur
+                    [1e-1, 1e-1, 1e-1, 1e-3, 2.79], # Tibia
+                    ]
+                )
         ).flatten()
 
         #: Bounds for the intraleg (12) and interleg (5) phases
@@ -218,7 +217,7 @@ class DrosophilaEvolution(FloatProblem):
             Evaluated solution.
         """
         #: Set how long the simulation will run to evaluate the solution
-        run_time = 2.5
+        run_time = 3.0
         #: Set a time step for the physics engine
         time_step = 0.001
         #: Setting up the paths for the SDF and POSE files
@@ -266,13 +265,14 @@ class DrosophilaEvolution(FloatProblem):
 
         #: Penalties
         #: Penalty long stance periods
-        expected_stance_legs = 4
+
+        expected_stance_legs = 3.8
         min_legs = 3
-        mean_stance_legs = fly.stance_count * fly.RUN_TIME / fly.TIME
+        mean_stance_legs = fly.stance_count * fly.TIME_STEP / fly.TIME
         penalty_time_stance = (
             0.0
             if min_legs <= mean_stance_legs < expected_stance_legs
-            else 1e2 * abs(mean_stance_legs - min_legs)
+            else abs(mean_stance_legs - min_legs)
         )
         distance_weight = -1e1
         stability_weight = -1e-1
@@ -282,14 +282,13 @@ class DrosophilaEvolution(FloatProblem):
         stance_weight = 1e2
         penalties = (
             movement_weight * fly.opti_lava + \
-            touch_weight * fly.opti_touch + \
+            #touch_weight * fly.opti_touch + \
             velocity_weight * fly.opti_velocity + \
             stance_weight * penalty_time_stance
         )
 
-
         #: Print penalties and objectives
-        pylog.debug(
+        print(
             f"OBJECTIVES\n===========\n\
                 Distance: {distance_weight * distance} \n \
                 Stability: {stability_weight * stability} \n \
@@ -305,7 +304,7 @@ class DrosophilaEvolution(FloatProblem):
         solution.objectives[0] = distance_weight * distance + penalties
         solution.objectives[1] = stability_weight * stability + penalties
 
-        pylog.debug(
+        print(
             "OBJECTIVE FUNCTION EVALUATION:\n===========\n\
                 First: {} \n \
                 Second: {} \n \

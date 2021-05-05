@@ -181,8 +181,6 @@ class DrosophilaSimulation(BulletSimulation):
         """ Implementation of abstract method. """
         self.muscle_controller()
         self.fixed_joints_controller()
-        #: Draw the stance polygon
-        self.compute_static_stability()
         #: Change the color of the colliding body segments
         if self.draw_collisions:
             draw = []
@@ -331,8 +329,7 @@ class DrosophilaSimulation(BulletSimulation):
 
     def update_static_stability(self):
         """ Calculates the stability coefficient. """
-        dist_to_centroid = self.compute_static_stability()
-        self.opti_stability += dist_to_centroid
+        self.opti_stability += self.compute_static_stability()
 
     def check_movement(self):
         """ State of lava approaching the model. """

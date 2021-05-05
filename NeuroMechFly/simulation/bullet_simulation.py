@@ -192,6 +192,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         #: Add the animal model
         if ".sdf" in self.MODEL:
             self.animal, links, joints = load_sdf(self.MODEL)
+            #self.animal = p.loadSDF(self.MODEL)[0]
         elif ".urdf" in self.MODEL:
             self.animal = p.loadURDF(self.MODEL)
         p.resetBasePositionAndOrientation(
@@ -215,6 +216,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
 
         self.joint_id = joints
         self.link_id = links
+
         for link_name, _id in self.joint_id.items():
             if 'Wing' in link_name and 'Fake' not in link_name:
                 p.changeVisualShape(self.animal, _id, rgbaColor=color_wings)
@@ -482,16 +484,24 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         #: Different ball positions used for different experiments
         #: Else corresponds to the ball position during optimization
         if self.behavior == 'walking':
+            link_masses = np.array(
+                [1e-11,1e-11,1e-11]
+                )*self.units.kilograms
             base_position = np.array([0.28e-3, -0.2e-3,-4.965e-3])*self.units.meters+self.MODEL_OFFSET
         elif self.behavior == 'grooming':
+            link_masses = np.array(
+                [1e-11,1e-11,1e-11]
+                )*self.units.kilograms
             base_position = np.array(
                 [0.0e-3, 0.0e-3, -5e-3]) * self.units.meters + self.MODEL_OFFSET
         else:
+            link_masses = np.array(
+                [5e-11,5e-11,5e-11]
+                )*self.units.kilograms
             base_position = np.array(
                 [-0.09e-3, -0.0e-3,-5.13e-3]) * self.units.meters + self.MODEL_OFFSET
         #: Create the sphere
         base_orientation = [0, 0, 0, 1]
-        link_masses = np.array([1e-11,1e-11,1e-11])*self.units.kilograms
         link_collision_shape_indices = [-1, -1, col_sphere_id]
         link_visual_shape_indices = [-1, -1, -1]
         link_positions = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
@@ -841,7 +851,10 @@ class BulletSimulation(metaclass=abc.ABCMeta):
     def run(self, optimization=False):
         """ Run the full simulation. """
         total = int(self.RUN_TIME / self.TIME_STEP)
-        for t in tqdm(range(0, total)):
+        for t in tqdm(
+            range(0, total),
+            disable = optimization
+        ):
             status = self.step(t, optimization=optimization)
             if not status:
                 return False
