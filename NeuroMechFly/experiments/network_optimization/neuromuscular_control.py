@@ -201,9 +201,9 @@ class DrosophilaSimulation(BulletSimulation):
                     self.change_color(link + '5', self.color_legs)
             self.last_draw = draw
 
-    def change_color(self, id, color):
+    def change_color(self, identity, color):
         """ Change color of a given body segment. """
-        p.changeVisualShape(self.animal, self.link_id[id], rgbaColor=color)
+        p.changeVisualShape(self.animal, self.link_id[identity], rgbaColor=color)
 
     def feedback_to_controller(self):
         """ Implementation of abstractmethod. """

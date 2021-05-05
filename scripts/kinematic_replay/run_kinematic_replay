@@ -99,7 +99,7 @@ if __name__ == "__main__":
         container,
         sim_options,
         fixed_positions=fixed_positions,
-        Kp=0.4, Kv=0.9,
+        kp=0.4, kv=0.9,
         angles_path=angles_path,
         velocity_path=velocity_path
     )

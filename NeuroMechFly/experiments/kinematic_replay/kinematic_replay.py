@@ -18,9 +18,9 @@ class DrosophilaSimulation(BulletSimulation):
         Dictionary containing the simulation options.
     fixed_positions: <dict>
         Dictionary containing the positions for the fixed joints that should be different from the zero pose.
-    Kp: <float>
+    kp: <float>
         Proportional gain of the position controller.
-    Kv: <float>
+    kv: <float>
         Derivative gain of the position controller.
     angles_path: <str>
         Path of the joint position .pkl file.
@@ -34,8 +34,8 @@ class DrosophilaSimulation(BulletSimulation):
         container,
         sim_options,
         fixed_positions,
-        Kp,
-        Kv,
+        kp,
+        kv,
         angles_path,
         velocity_path,
         units=SimulationUnitScaling(
@@ -46,14 +46,15 @@ class DrosophilaSimulation(BulletSimulation):
         self.last_draw = []
         self.grf = []
         self.fixed_positions = fixed_positions
-        self.kp = Kp
-        self.kv = Kv
+        self.kp = kp
+        self.kv = kv
         self.pose = [0] * self.num_joints
         self.vel = [0] * self.num_joints
         self.angles = self.load_data(angles_path)
         self.velocities = self.load_data(velocity_path)
 
-    def load_data(self, data_path):
+    @staticmethod
+    def load_data(data_path):
         """ Function that loads the pickle format joint angle or velocity gile.
 
         Parameters
@@ -160,9 +161,9 @@ class DrosophilaSimulation(BulletSimulation):
                             self.change_color(link, self.color_legs)
             self.last_draw = draw
 
-    def change_color(self, id, color):
+    def change_color(self, identity, color):
         """ Change color of a given body segment. """
-        p.changeVisualShape(self.animal, self.link_id[id], rgbaColor=color)
+        p.changeVisualShape(self.animal, self.link_id[identity], rgbaColor=color)
 
     def feedback_to_controller(self):
         """
