@@ -112,8 +112,8 @@ if __name__ == "__main__":
     #: Load the results of the latest generation of the last optimization run
     #fun_path = os.path.join(neuromechfly_path, 'scripts', args.fun)
     #var_path = os.path.join(neuromechfly_path, 'scripts', args.var)
-    fun_path = os.path.join(args.path,'FUN.' + args.gen)
-    var_path = os.path.join(args.path,'VAR.' + args.gen)
+    fun_path = os.path.join(neuromechfly_path, args.path,'FUN.' + args.gen)
+    var_path = os.path.join(neuromechfly_path, args.path,'VAR.' + args.gen)
     fun, var = np.loadtxt(fun_path), np.loadtxt(var_path)
 
     #: Get experiment information

@@ -47,11 +47,11 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         self.slow_down = kwargs.get('slow_down', False)
         self.sleep_time = kwargs.get('sleep_time', 0.001)
         self.vis_options_background_color_red = kwargs.get(
-            'background_color_red', 0.4)
+            'background_color_red', 1)
         self.vis_options_background_color_green = kwargs.get(
-            'background_color_GREEN', 0.4)
+            'background_color_GREEN', 1)
         self.vis_options_background_color_blue = kwargs.get(
-            'background_color_BLUE', 0.4)
+            'background_color_BLUE', 1)
         self.record_movie = kwargs.get('record', False)
         self.movie_name = kwargs.get('moviename', 'default_movie.mp4')
         self.movie_speed = kwargs.get('moviespeed', 1)
@@ -224,7 +224,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         #: Color the animal
         p.changeVisualShape(self.animal, -
                             1, rgbaColor=self.color_body, specularColor=nospecular)
-
+        
         for link_name, _id in self.joint_id.items():
             if 'Wing' in link_name and 'Fake' not in link_name:
                 p.changeVisualShape(self.animal, _id, rgbaColor=color_wings)
@@ -521,20 +521,26 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         #: Different ball positions used for different experiments
         #: Else corresponds to the ball position during optimization
         if self.behavior == 'walking':
-            base_position = np.array(
-                [0.28e-3, -0.2e-3,-4.965e-3]
-            ) * self.units.meters+self.model_offset
+            link_masses = np.array(
+                [1e-11,1e-11,1e-11]
+                )*self.units.kilograms
+            base_position = np.array([0.28e-3, -0.2e-3,-4.965e-3])*self.units.meters+self.model_offset
         elif self.behavior == 'grooming':
+            link_masses = np.array(
+                [1e-11,1e-11,1e-11]
+                )*self.units.kilograms
             base_position = np.array(
                 [0.0e-3, 0.0e-3, -5e-3]
             ) * self.units.meters + self.model_offset
         else:
+            link_masses = np.array(
+                [5e-11,5e-11,5e-11]
+                )*self.units.kilograms
             base_position = np.array(
                 [-0.09e-3, -0.0e-3,-5.13e-3]
             ) * self.units.meters + self.model_offset
         #: Create the sphere
         base_orientation = [0, 0, 0, 1]
-        link_masses = np.array([1e-11,1e-11,1e-11])*self.units.kilograms
         link_collision_shape_indices = [-1, -1, col_sphere_id]
         link_visual_shape_indices = [-1, -1, -1]
         link_positions = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
@@ -887,7 +893,10 @@ class BulletSimulation(metaclass=abc.ABCMeta):
     def run(self, optimization=False):
         """ Run the full simulation. """
         total = int(self.run_time / self.time_step)
-        for t in tqdm(range(0, total)):
+        for t in tqdm(
+            range(0, total),
+            disable = optimization
+        ):
             status = self.step(t, optimization=optimization)
             if not status:
                 return False

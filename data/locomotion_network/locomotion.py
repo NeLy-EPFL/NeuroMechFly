@@ -13,7 +13,6 @@ import yaml
 from farms_container import Container
 from farms_network.networkx_model import NetworkXModel
 from farms_network.neural_system import NeuralSystem
-from farms_network.utils.agnostic_controller import AgnosticController
 
 pylog.set_level("error")
 
