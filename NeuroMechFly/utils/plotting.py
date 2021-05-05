@@ -1,29 +1,21 @@
 """ Script to plot the simulation results. """
 
 import os
-import math
 import pickle
 import pkgutil
-import itertools
+from pathlib import Path
+
 import cv2 as cv
 import numpy as np
 import pandas as pd
 import seaborn as sns
 import scikit_posthocs as sp
 import matplotlib.pyplot as plt
-import matplotlib.ticker as mtick
 import matplotlib.patches as mpatches
-import matplotlib.transforms as mtransforms
 from matplotlib.lines import Line2D
 from matplotlib.markers import MarkerStyle
-from matplotlib.legend_handler import HandlerTuple
-from pathlib import Path
 from scipy import stats
-from scipy import ndimage
 from scipy.spatial.transform import Rotation as R
-from sklearn import svm
-from sklearn.metrics import mean_squared_error
-from statsmodels.stats import weightstats as stests
 from .sensitivity_analysis import calculate_forces
 
 
@@ -212,8 +204,8 @@ def read_ground_contacts(path_data):
     data = pd.read_hdf(grf_data)
     grf = {}
     check = []
-    for key, force in data.items():
-        leg, force_axis = key.split('_')
+    for key, _force in data.items():
+        leg, _force_axis = key.split('_')
         if leg not in check:
             check.append(leg)
             components = [k for k in data.keys() if leg in k]
@@ -244,7 +236,7 @@ def read_collision_forces(path_data):
     collisions = {}
     check = []
     for key in data.keys():
-        body_parts, force_axis = key.split('_')
+        body_parts, _force_axis = key.split('_')
         segment1, segment2 = body_parts.split('-')
         if body_parts not in check:
             check.append(body_parts)
@@ -319,8 +311,8 @@ def plot_angles_torques_grf(
         begin=0.0,
         end=0.0,
         time_step=0.001,
-        torqueScalingFactor=1e9,
-        grfScalingFactor=1e6):
+        torque_scaling_factor=1e9,
+        grf_scaling_factor=1e6):
 
     """Plot angles, torques and ground reaction forces for a single leg
 
@@ -337,8 +329,8 @@ def plot_angles_torques_grf(
         begin (float, default 0.0): Time point for starting the plot
         end (float, default 0.0): Time point for finishing the plot, if 0.0, all time points are plotted
         time_step (float, default 0.001): Data time step
-        torqueScalingFactor (float, default 1.0): Scaling factor for torques
-        grfScalingFactor (float, default 1.0): Scaling factor for ground reaction forces
+        torque_scaling_factor (float, default 1.0): Scaling factor for torques
+        grf_scaling_factor (float, default 1.0): Scaling factor for ground reaction forces
     """
 
     data2plot = {}
@@ -476,13 +468,13 @@ def plot_angles_torques_grf(
                 time = np.arange(0, len(torque_adj), 1) / steps
                 if len(data2plot.keys()) == 1:
                     axs.plot(time[start:stop], torque_adj[start:stop]
-                             * torqueScalingFactor, label=joint)
+                             * torque_scaling_factor, label=joint)
                 else:
                     axs[i].plot(time[start:stop], torque_adj[start:stop]
-                                * torqueScalingFactor, label=joint)
+                                * torque_scaling_factor, label=joint)
 
-                t_min = np.min(torque_adj[start:stop] * torqueScalingFactor)
-                t_max = np.max(torque_adj[start:stop] * torqueScalingFactor)
+                t_min = np.min(torque_adj[start:stop] * torque_scaling_factor)
+                t_max = np.max(torque_adj[start:stop] * torque_scaling_factor)
 
                 if t_min < torque_min:
                     torque_min = t_min
@@ -501,14 +493,14 @@ def plot_angles_torques_grf(
             time = np.arange(0, len(leg_force), 1) / steps
             if len(data2plot.keys()) == 1:
                 axs.plot(time[start:stop], leg_force[start:stop]
-                         * grfScalingFactor, color='black')
+                         * grf_scaling_factor, color='black')
                 axs.set_ylabel('Ground reaction forces ' + r'$(\mu N)$')
             else:
                 axs[i].plot(time[start:stop], leg_force[start:stop]
-                            * grfScalingFactor, color='black')
+                            * grf_scaling_factor, color='black')
                 axs[i].set_ylabel('Ground reaction forces ' + r'$(\mu N)$')
-            f_min = np.min(leg_force[start:stop] * grfScalingFactor)
-            f_max = np.max(leg_force[start:stop] * grfScalingFactor)
+            f_min = np.min(leg_force[start:stop] * grf_scaling_factor)
+            f_max = np.max(leg_force[start:stop] * grf_scaling_factor)
 
             if f_min < grf_min:
                 grf_min = f_min
@@ -525,21 +517,21 @@ def plot_angles_torques_grf(
             time = np.arange(0, len(leg_force), 1) / steps
             if len(data2plot.keys()) == 1:
                 axs.plot(time[start:stop],
-                         np.array(leg_vs_leg[start:stop]) * grfScalingFactor,
+                         np.array(leg_vs_leg[start:stop]) * grf_scaling_factor,
                          color='black',
                          label='Leg vs leg force')
                 axs.plot(time[start:stop],
-                         np.array(leg_vs_ant[start:stop]) * grfScalingFactor,
+                         np.array(leg_vs_ant[start:stop]) * grf_scaling_factor,
                          color='dimgray',
                          label='Leg vs antenna force')
                 axs.set_ylabel('Collision forces ' + r'$(\mu N)$')
             else:
                 axs[i].plot(time[start:stop],
-                            np.array(leg_vs_leg[start:stop]) * grfScalingFactor,
+                            np.array(leg_vs_leg[start:stop]) * grf_scaling_factor,
                             color='black',
                             label='Leg vs leg force')
                 axs[i].plot(time[start:stop],
-                            np.array(leg_vs_ant[start:stop]) * grfScalingFactor,
+                            np.array(leg_vs_ant[start:stop]) * grf_scaling_factor,
                             color='dimgray',
                             label='Leg vs antenna force')
                 axs[i].set_ylabel('Collision forces ' + r'$(\mu N)$')
@@ -597,21 +589,21 @@ def plot_angles_torques_grf(
         if collisions_across:
             for ind in range(0, len(stance_plot), 2):
                 if sim_data == 'walking':
-                    c = 'gray'
+                    color = 'gray'
                 if sim_data == 'grooming':
                     if np.sum(leg_vs_leg[stance_plot[ind]
                               :stance_plot[ind + 1]]) > 0:
-                        c = 'dimgray'
+                        color = 'dimgray'
                     elif np.sum(leg_vs_ant[stance_plot[ind]:stance_plot[ind + 1]]) > 0:
-                        c = 'darkgray'
+                        color = 'darkgray'
                     else:
-                        c = 'darkgray'
+                        color = 'darkgray'
                 if len(data2plot.keys()) == 1:
                     axs.fill_between(time[stance_plot[ind]:stance_plot[ind + 1]], 0,
-                                     1, facecolor=c, alpha=0.5, transform=axs.get_xaxis_transform())
+                                     1, facecolor=color, alpha=0.5, transform=axs.get_xaxis_transform())
                 else:
                     axs[i].fill_between(time[stance_plot[ind]:stance_plot[ind + 1]], 0,
-                                        1, facecolor=c, alpha=0.5, transform=axs[i].get_xaxis_transform())
+                                        1, facecolor=color, alpha=0.5, transform=axs[i].get_xaxis_transform())
 
     if len(data2plot.keys()) == 1:
         axs.set_xlabel('Time (s)')
@@ -735,8 +727,13 @@ def plot_collisions_diagram(
         time = np.arange(0, len(force[0]), 1) / steps
         stance_plot = get_stance_periods(force[0],start,stop)
         for ind in range(0, len(stance_plot), 2):
-                axs[i].fill_between(time[stance_plot[ind]:stance_plot[ind + 1]], 0, 1,
-                                    facecolor='black', alpha=1, transform=axs[i].get_xaxis_transform())
+            axs[i].fill_between(
+                time[stance_plot[ind]:stance_plot[ind + 1]],
+                0, 1,
+                facecolor='black',
+                alpha=1,
+                transform=axs[i].get_xaxis_transform(),
+            )
 
         axs[i].fill_between(time[start:stance_plot[0]], 0, 1, facecolor='white', alpha=1, transform=axs[i].get_xaxis_transform())
 
@@ -1014,7 +1011,7 @@ def draw_collisions_on_imgs(
         end=0,
         save_imgs=False,
         pause=0,
-        grfScalingFactor=1,
+        grf_scaling_factor=1,
         scale=3,
         tot_time=9.0,
         time_step_data=0.001,
@@ -1174,9 +1171,9 @@ def draw_collisions_on_imgs(
                         #    print(frame,mean_angle*180/np.pi)
 
                         force_x = leg_force[frame] * \
-                            np.cos(mean_angle) * grfScalingFactor
+                            np.cos(mean_angle) * grf_scaling_factor
                         force_z = leg_force[frame] * \
-                            np.sin(mean_angle) * grfScalingFactor
+                            np.sin(mean_angle) * grf_scaling_factor
                         h, w, c = raw_imgs[img_frame].shape
                         end_pnt = [
                             x_px + (force_x * h / (2 * scale)), y_px - (force_z * h / (2 * scale))]
@@ -1215,7 +1212,7 @@ def draw_grf_on_imgs(
         end=0,
         save_imgs=False,
         pause=0,
-        grfScalingFactor=100,
+        grf_scaling_factor=100,
         scale=3,
         tot_time=9.0,
         time_step_data=0.001,
@@ -1324,9 +1321,9 @@ def draw_grf_on_imgs(
                         #    print(frame,mean_angle*180/np.pi)
 
                         force_x = leg_force[frame] * \
-                            np.cos(mean_angle) * grfScalingFactor
+                            np.cos(mean_angle) * grf_scaling_factor
                         force_z = leg_force[frame] * \
-                            np.sin(mean_angle) * grfScalingFactor
+                            np.sin(mean_angle) * grf_scaling_factor
                         h, w, c = raw_imgs[img_frame].shape
                         end_pnt = [
                             x_px + (force_x * h / (2 * scale)), y_px - (force_z * h / (2 * scale))]
