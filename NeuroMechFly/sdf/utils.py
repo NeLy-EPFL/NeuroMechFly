@@ -48,6 +48,7 @@ def replace_file_name_in_path(file_path, new_name):
     new_name = new_name + '.' + file_extension
     return os.path.join(full_path, new_name)
 
+
 def link_name_to_index(model):
     """ Generate a dictionary for link names and their indicies in the
     model. """
@@ -55,12 +56,14 @@ def link_name_to_index(model):
         link.name : index for index, link in enumerate(model.links)
     }
 
+
 def joint_name_to_index(model):
     """ Generate a dictionary for link names and their indicies in the
     model. """
     return {
         joint.name : index for index, joint in enumerate(model.joints)
     }
+
 
 def find_parent_joints(model, joint_name):
     """ Find all the joints parented to the given joint. """
@@ -73,6 +76,7 @@ def find_parent_joints(model, joint_name):
         j.name for j in model.joints if j.child == plink
     ]
 
+
 def find_child_joints(model, joint_name):
     """ Find all the joints parented to the given joint. """
     joint_id = joint_name_to_index(model)
@@ -84,12 +88,14 @@ def find_child_joints(model, joint_name):
         j.name for j in model.joints if j.parent == clink
     ]
 
+
 def find_neighboring_joints(model, joint):
     """ Find both parent and child neighboring joints. """
     return (
         find_parent_joints(model, joint) + \
         find_child_joints(model, joint)
     )
+
 
 def find_link_joints(model, link_name):
     """Find the joints attached to a given link
@@ -113,6 +119,7 @@ def find_link_joints(model, link_name):
         if joint.parent == link_name
     ])
 
+
 def find_root(model):
     """ Find the root link. """
     # FIXME: CRUDE AND UNELEGANT SOLUTION
@@ -125,11 +132,13 @@ def find_root(model):
         if count == 0:
             return link.name
 
+
 @dataclass
 class TreeData:
     """Data for SDF tree
     """
     joint: str
+
 
 def add_nodes_to_tree(model, tree, links=None, joint_index=None):
     """ Add nodes to links """
@@ -149,6 +158,7 @@ def add_nodes_to_tree(model, tree, links=None, joint_index=None):
             new_links.append(joint.child)
     add_nodes_to_tree(model, tree, new_links, joint_index)
 
+
 def construct_tree(model) -> Tree:
     """ Construct tree. """
     tree = Tree()
@@ -157,6 +167,7 @@ def construct_tree(model) -> Tree:
     joint_index = joint_name_to_index(model)
     add_nodes_to_tree(model, tree, links=[root], joint_index=joint_index)
     return tree
+
 
 def get_all_subtrees(model):
     """ Get all the subtrees in the given model. """

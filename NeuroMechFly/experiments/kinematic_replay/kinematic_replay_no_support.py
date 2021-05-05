@@ -1,5 +1,4 @@
 """ Drosophila simulation class for kinematic replay without body support. """
-from random import random
 
 import numpy as np
 import pandas as pd
@@ -10,6 +9,7 @@ from NeuroMechFly.simulation.bullet_simulation import BulletSimulation
 
 # Random number seed
 np.random.seed(seed=321)
+
 
 def add_perturbation(
         size, initial_position, target_position, time, units
@@ -68,9 +68,9 @@ class DrosophilaSimulation(BulletSimulation):
         Instance of the Container class.
     sim_options: <dict>
         Dictionary containing the simulation options.
-    Kp: <float>
+    kp: <float>
         Proportional gain of the position controller.
-    Kv: <float>
+    kv: <float>
         Derivative gain of the position controller.
     position_path: <str>
         Path of the joint position .pkl file.
@@ -83,15 +83,15 @@ class DrosophilaSimulation(BulletSimulation):
     """
 
     def __init__(
-            self, container, sim_options, Kp, Kv,
+            self, container, sim_options, kp, kv,
             angles_path, velocity_path,
             add_perturbation,
             fixed_positions,
             units=SimulationUnitScaling(meters=1000, kilograms=1000)
     ):
         super().__init__(container, units, **sim_options)
-        self.kp = Kp
-        self.kv = Kv
+        self.kp = kp
+        self.kv = kv
         self.pose = [0] * self.num_joints
         self.vel = [0] * self.num_joints
         self.angles = self.load_data(angles_path)
@@ -99,6 +99,7 @@ class DrosophilaSimulation(BulletSimulation):
         self.fixed_positions = fixed_positions
         self.impulse_sign = 1
         self.add_perturbation = add_perturbation
+        self.pball = None
 
     def load_data(self, data_path):
         """ Function that loads the pickle format joint angle or velocity gile.

@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 """ Script to run kinematic replay. """
+
 from NeuroMechFly.experiments.kinematic_replay import \
     kinematic_replay_no_support
 from farms_container import Container
@@ -99,7 +100,7 @@ if __name__ == "__main__":
     animal = kinematic_replay_no_support.DrosophilaSimulation(
         container,
         sim_options,
-        Kp=0.4, Kv=0.9,
+        kp=0.4, kv=0.9,
         angles_path=angles_path,
         velocity_path=velocity_path,
         add_perturbation=args.perturbation,

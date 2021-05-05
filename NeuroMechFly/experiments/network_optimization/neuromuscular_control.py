@@ -1,15 +1,16 @@
 """ Drosophila Simulation for visualization of optimization results."""
+
 import farms_pylog as pylog
 import numpy as np
 from shapely.geometry import Point, Polygon
 import pybullet as p
-import pybullet_data
 from NeuroMechFly.control.spring_damper_muscles import (Parameters,
                                                         SDAntagonistMuscle)
 from NeuroMechFly.sdf.units import SimulationUnitScaling
 from NeuroMechFly.simulation.bullet_simulation import BulletSimulation
 
 pylog.set_level('error')
+
 
 class DrosophilaSimulation(BulletSimulation):
     """Drosophila Simulation Class.
@@ -56,7 +57,7 @@ class DrosophilaSimulation(BulletSimulation):
         ]
         for j, joint in enumerate(self.actuated_joints):
             pos = joint.split('_')[1][1]
-            if (('M' == pos) or ('H' == pos)) and ('Coxa' in joint):
+            if (pos in ('M', 'H')) and ('Coxa' in joint):
                 self.actuated_joints[j] = joint.replace('Coxa', 'Coxa_roll')
 
         self.num_oscillators = self.controller.graph.number_of_nodes()
@@ -72,19 +73,18 @@ class DrosophilaSimulation(BulletSimulation):
                 'phase_' + joint + '_extension')
             fmn_amp = self.neural.states.get_parameter(
                 'amp_' + joint + '_flexion')
-            emn_amp = self.neural.states.get_parameter(
+            _emn_amp = self.neural.states.get_parameter(
                 'amp_' + joint + '_extension')
             jpos = self.physics.joint_positions.get_parameter(joint)
             jvel = self.physics.joint_velocities.get_parameter(joint)
             joint_info = p.getJointInfo(self.animal, self.joint_id[joint])
-            lower_limit = joint_info[8]
-            upper_limit = joint_info[9]
+            _lower_limit = joint_info[8]
+            _upper_limit = joint_info[9]
             self.active_muscles[joint] = SDAntagonistMuscle(
                 self.container,
                 name=joint,
                 joint_pos=jpos,
                 joint_vel=jvel,
-                rest_pos=(lower_limit + upper_limit) * 0.5,
                 flexor_mn=fmn,
                 extensor_mn=emn,
                 flexor_amp=fmn_amp,
@@ -95,7 +95,7 @@ class DrosophilaSimulation(BulletSimulation):
         self.container.initialize()
 
         #: Set the physical properties of the environment
-        for link, idx in self.link_id.items():
+        for _link, idx in self.link_id.items():
             p.changeDynamics(
                 self.animal,
                 idx,
@@ -191,7 +191,7 @@ class DrosophilaSimulation(BulletSimulation):
                     self.ground_reaction_forces,
                     axis=1) > 0)[0]
             for i in links_contact:
-                link1 = self.GROUND_CONTACTS[i][:-1]
+                link1 = self.ground_contacts[i][:-1]
                 if link1 not in draw:
                     draw.append(link1)
                     self.change_color(link1 + '5', self.color_collision)
@@ -200,13 +200,12 @@ class DrosophilaSimulation(BulletSimulation):
                     self.change_color(link + '5', self.color_legs)
             self.last_draw = draw
 
-    def change_color(self, id, color):
+    def change_color(self, identity, color):
         """ Change color of a given body segment. """
-        p.changeVisualShape(self.animal, self.link_id[id], rgbaColor=color)
+        p.changeVisualShape(self.animal, self.link_id[identity], rgbaColor=color)
 
     def feedback_to_controller(self):
         """ Implementation of abstractmethod. """
-        pass
 
     @staticmethod
     def compute_line_coefficients(point_a, point_b):
@@ -289,9 +288,9 @@ class DrosophilaSimulation(BulletSimulation):
                 p.getJointInfo(self.animal, self.joint_id['joint_RHCoxa']
                 )[14][:2])) * 0.5
 
-        #: Update number of legs in stance 
+        #: Update number of legs in stance
         self.stance_count += len(contact_points)
- 
+
         #: Make polygon from contact points
         try:
             polygon = Polygon(contact_points)
@@ -299,8 +298,8 @@ class DrosophilaSimulation(BulletSimulation):
             return -1
 
         if draw_polygon:
-            #: Draw the polygon 
-            for idx in range(len(polygon.exterior.coords)-1): 
+            #: Draw the polygon
+            for idx in range(len(polygon.exterior.coords)-1):
                 p.addUserDebugLine(
                     list(polygon.exterior.coords[idx]) + [11.1],
                     list(polygon.exterior.coords[idx+1]) + [11.1],
@@ -337,7 +336,7 @@ class DrosophilaSimulation(BulletSimulation):
     def check_movement(self):
         """ State of lava approaching the model. """
         ball_angular_position = -np.array(self.ball_rotations)[0]
-        moving_limit = ((self.TIME/self.RUN_TIME)*4.40)-0.40
+        moving_limit = ((self.time/self.run_time)*4.40)-0.40
         self.opti_lava += 1.0 if np.any(
             ball_angular_position < moving_limit
         ) else 0.0
@@ -369,12 +368,12 @@ class DrosophilaSimulation(BulletSimulation):
     def update_parameters(self, params):
         """ Implementation of abstract method. """
         parameters = self.container.neural.parameters
-        N = int(self.controller.graph.number_of_nodes() / 4)
+        n_nodes = int(self.controller.graph.number_of_nodes() / 4)
         #: Number of joints, muscle gains, phase variables
         edges_joints = int(self.controller.graph.number_of_nodes() / 3)
-        opti_active_muscle_gains = params[:5 * N]
-        opti_joint_phases = params[5 * N:5 * N + edges_joints]
-        opti_base_phases = params[5 * N + edges_joints: ]
+        opti_active_muscle_gains = params[:5 * n_nodes]
+        opti_joint_phases = params[5 * n_nodes:5 * n_nodes + edges_joints]
+        opti_base_phases = params[5 * n_nodes + edges_joints: ]
         #: Update active muscle parameters
         symmetry_joints = filter(
             lambda x: x.split('_')[1][0] != 'R', self.actuated_joints
@@ -422,7 +421,7 @@ class DrosophilaSimulation(BulletSimulation):
                         parameters.get_parameter(
                             'phi_{}_to_{}'.format(node_2, node_1)
                         ).value = -1 * opti_joint_phases[4 * j0 + 2 * j1 + j2]
-       
+
         #: Update the phases for interleg phase relationships
         coxae_edges =[
             ['LFCoxa', 'RFCoxa'],
@@ -443,7 +442,8 @@ class DrosophilaSimulation(BulletSimulation):
                     'phi_{}_to_{}'.format(node_2, node_1)
                 ).value = -1*opti_base_phases[j1]
 
-    def select_solution(self, criteria, fun):
+    @staticmethod
+    def select_solution(criteria, fun):
         """ Selects a solution given a criteria.
 
         Parameters
@@ -461,14 +461,26 @@ class DrosophilaSimulation(BulletSimulation):
         """
         if criteria == 'fastest':
             return np.argmin(fun[:, 0])
-        elif criteria == 'slowest':
+        if criteria == 'slowest':
             return np.argmax(fun[:, 0])
-        elif criteria == 'medium':
+        if criteria == 'medium':
             mida = mid(fun[:,0])
             midb = mid(fun[:,1])
             return np.argmin(np.sqrt((fun[:,0]-mida)**2 + (fun[:,1]-midb)**2))
-        else:
-            return int(criteria)
+        return int(criteria)
 
-def mid(x):
-    return (max(x)+min(x))*0.5
+
+def mid(array):
+    """ Middle between min and max of array x
+
+    Parameters
+    ----------
+    array: <array>
+        Input array
+
+    Returns
+    -------
+    out : (max(x)+min(x))*0.5
+
+    """
+    return (max(array)+min(array))*0.5
