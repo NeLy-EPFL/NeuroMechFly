@@ -200,16 +200,13 @@ class BulletSimulation(metaclass=abc.ABCMeta):
 
         #: Add the animal model
         if '.sdf' in self.model:
-            self.animal, links, joints = load_sdf(self.model)
+            self.animal, self.link_id, self.joint_id = load_sdf(self.model)
         elif '.urdf' in self.model:
             self.animal = p.loadURDF(self.model)
         p.resetBasePositionAndOrientation(
             self.animal, self.model_offset,
             p.getQuaternionFromEuler([0., 0., 0.]))
         self.num_joints = p.getNumJoints(self.animal)
-
-        #: Generate joint_name to id dict
-        self.link_id[p.getBodyInfo(self.animal)[0].decode('UTF-8')] = -1
 
         #: Body colors
         color_wings = [91 / 100, 96 / 100, 97 / 100, 0.7]
@@ -222,8 +219,6 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         p.changeVisualShape(self.animal, -
                             1, rgbaColor=self.color_body, specularColor=nospecular)
 
-        self.joint_id = joints
-        self.link_id = links
         for link_name, _id in self.joint_id.items():
             if 'Wing' in link_name and 'Fake' not in link_name:
                 p.changeVisualShape(self.animal, _id, rgbaColor=color_wings)
