@@ -191,7 +191,7 @@ class DrosophilaSimulation(BulletSimulation):
                     self.ground_reaction_forces,
                     axis=1) > 0)[0]
             for i in links_contact:
-                link1 = self.GROUND_CONTACTS[i][:-1]
+                link1 = self.ground_contacts[i][:-1]
                 if link1 not in draw:
                     draw.append(link1)
                     self.change_color(link1 + '5', self.color_collision)
@@ -337,7 +337,7 @@ class DrosophilaSimulation(BulletSimulation):
     def check_movement(self):
         """ State of lava approaching the model. """
         ball_angular_position = -np.array(self.ball_rotations)[0]
-        moving_limit = ((self.TIME/self.RUN_TIME)*4.40)-0.40
+        moving_limit = ((self.time/self.run_time)*4.40)-0.40
         self.opti_lava += 1.0 if np.any(
             ball_angular_position < moving_limit
         ) else 0.0

@@ -129,7 +129,7 @@ class DrosophilaSimulation(BulletSimulation):
                         self.ground_reaction_forces,
                         axis=1) > 0)[0]
                 for i in links_contact:
-                    link1 = self. GROUND_CONTACTS[i][:-1]
+                    link1 = self. ground_contacts[i][:-1]
                     if link1 not in draw:
                         draw.append(link1)
                         self.change_color(link1 + '5', self.color_collision)

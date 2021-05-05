@@ -268,7 +268,7 @@ class DrosophilaEvolution(FloatProblem):
         #: Penalty long stance periods
         expected_stance_legs = 4
         min_legs = 3
-        mean_stance_legs = fly.stance_count * fly.RUN_TIME / fly.TIME
+        mean_stance_legs = fly.stance_count * fly.run_time / fly.time
         penalty_time_stance = (
             0.0
             if min_legs <= mean_stance_legs < expected_stance_legs
