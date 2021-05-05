@@ -47,11 +47,11 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         self.slow_down = kwargs.get('slow_down', False)
         self.sleep_time = kwargs.get('sleep_time', 0.001)
         self.vis_options_background_color_red = kwargs.get(
-            'background_color_red', 1)
+            'background_color_red', 0.4)
         self.vis_options_background_color_green = kwargs.get(
-            'background_color_GREEN', 1)
+            'background_color_GREEN', 0.4)
         self.vis_options_background_color_blue = kwargs.get(
-            'background_color_BLUE', 1)
+            'background_color_BLUE', 0.4)
         self.record_movie = kwargs.get('record', False)
         self.movie_name = kwargs.get('moviename', 'default_movie.mp4')
         self.movie_speed = kwargs.get('moviespeed', 1)
