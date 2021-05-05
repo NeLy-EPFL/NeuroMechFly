@@ -34,6 +34,8 @@ from NeuroMechFly.sdf.sdf import (
     # Heightmap,
     Collision,
 )
+from NeuroMechFly.sdf import utils
+
 
 
 def rot_quat(rot):
@@ -412,6 +414,15 @@ def load_sdf(
         link_name = joint_info[12].decode('UTF-8')
         link_number = int(link_name.replace('link', ''))
         links[links_names[link_number]] = joint_i
+    # Update joint limits
+    sdf_joint_index = utils.joint_name_to_index(sdf)
+    for joint_name, joint_id in joints.items():
+        joint = sdf.joints[sdf_joint_index[joint_name]]
+        if joint.axis.limits:
+            pybullet.changeDynamics(
+                model, joint_id, jointLowerLimit=joint.axis.limits[0],
+                jointUpperLimit=joint.axis.limits[1]
+            )
     return model, links, joints
 
 
