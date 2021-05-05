@@ -65,6 +65,10 @@ Run the following commands on the terminal to reproduce the kinematic replay exp
 
 **2. Gait optimization** 
 
+<p align="center">
+  <img align="center" width="420" src="docs/optimization.gif">
+</p>
+
 Run the following commands on the terminal to reproduce the locomotor gait optimization experiments:
 - ```$ run_neuromuscular_control``` to run the latest generation of the last optimization run. By default, this script will read and run the files *FUN.txt* and *VAR.txt* under the *scripts* folder. To run different files, simply run ```$ run_neuromuscular_control -v <path-of-the-var-file> -f <path-of-the-fun-file>```. **These paths are relative to the *scripts* folder.**
 
