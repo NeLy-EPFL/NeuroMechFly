@@ -138,7 +138,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                 options='--background_color_red={} --background_color_green={} --background_color_blue={} --mp4={} --mp4fps={}'.format(
                     self.vis_options_background_color_red,
                     self.vis_options_background_color_green,
-                    self.vis_options_background_color_red,
+                    self.vis_options_background_color_blue,
                     self.movie_name,
                     int(self.movie_speed/self.time_step)))
             p.configureDebugVisualizer(p.COV_ENABLE_SINGLE_STEP_RENDERING,1)
@@ -148,7 +148,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                 options='--background_color_red={} --background_color_green={} --background_color_blue={}'.format(
                     self.vis_options_background_color_red,
                     self.vis_options_background_color_green,
-                    self.vis_options_background_color_red))
+                    self.vis_options_background_color_blue))
         else:
             p.connect(self.gui)
         p.resetSimulation()
