@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 """ Script to run kinematic replay. """
+
 from NeuroMechFly.experiments.kinematic_replay import kinematic_replay
 from farms_container import Container
 import os
@@ -59,7 +60,7 @@ if __name__ == "__main__":
             'joint_RWing_yaw': 17,
             'joint_Head': 10
         }
-    
+
     #: Setting up the paths for the SDF and POSE files
     model_path = os.path.join(neuromechfly_path, 'data/design/sdf/neuromechfly_noLimits.sdf')
     pose_path = os.path.join(neuromechfly_path, 'data/config/pose/pose_default.yaml')
@@ -85,7 +86,7 @@ if __name__ == "__main__":
         'behavior': behavior,
         'ground': 'ball'
     }
-    
+
     #: Paths of the position and velocity data
     data_path = os.path.join(neuromechfly_path, f'data/joint_tracking/{behavior}/df3d')
     angles_path = glob.glob(data_path + '/joint_angles*.pkl')[0]
@@ -100,7 +101,7 @@ if __name__ == "__main__":
         fixed_positions=fixed_positions,
         Kp=0.4, Kv=0.9,
         angles_path=angles_path,
-        velocity_path=velocity_path        
+        velocity_path=velocity_path
     )
     #: Run the simulation
     animal.run(optimization=False)

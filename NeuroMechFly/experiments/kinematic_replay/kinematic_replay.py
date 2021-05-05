@@ -6,6 +6,7 @@ import pybullet as p
 import numpy as np
 import pandas as pd
 
+
 class DrosophilaSimulation(BulletSimulation):
     """ Drosophila Simulation Class for kinematic replay.
 
@@ -50,7 +51,7 @@ class DrosophilaSimulation(BulletSimulation):
         self.pose = [0] * self.num_joints
         self.vel = [0] * self.num_joints
         self.angles = self.load_data(angles_path)
-        self.velocities = self.load_data(velocity_path)      
+        self.velocities = self.load_data(velocity_path)
 
     def load_data(self, data_path):
         """ Function that loads the pickle format joint angle or velocity gile.

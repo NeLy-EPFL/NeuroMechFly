@@ -1,4 +1,5 @@
 """ Script to plot the simulation results. """
+
 import os
 import math
 import pickle
@@ -24,6 +25,7 @@ from sklearn import svm
 from sklearn.metrics import mean_squared_error
 from statsmodels.stats import weightstats as stests
 from .sensitivity_analysis import calculate_forces
+
 
 def plot_mu_sem(
     mu,
@@ -170,8 +172,8 @@ def heatmap_plot(
         linewidth="0.005",
         ax=None,
         cmap='viridis'):
-    """ Plots a heatmap plot for global sensitivity analysis. 
-    
+    """ Plots a heatmap plot for global sensitivity analysis.
+
     Args:
         title (str): Title of the heatmap
         joint_data (dict): Dictionary containing the joint information (angle etc)
@@ -222,7 +224,7 @@ def read_ground_contacts(path_data):
             if leg[:2] not in grf.keys():
                 grf[leg[:2]] = []
             grf[leg[:2]].append(res_force)
-    
+
     return grf
 
 
@@ -300,7 +302,7 @@ def get_stance_periods(leg_force,start,stop):
             stance_plot = [start, start]
     else:
         stance_plot = [start, start]
-    
+
     return stance_plot
 
 
@@ -319,7 +321,7 @@ def plot_angles_torques_grf(
         time_step=0.001,
         torqueScalingFactor=1e9,
         grfScalingFactor=1e6):
-    
+
     """Plot angles, torques and ground reaction forces for a single leg
 
     Parameters:
@@ -632,7 +634,7 @@ def plot_collisions_diagram(
     Parameters:
         path_data (str): Path to data for plotting
         sim_data (str): behavior from data, e.g., walking or grooming
-        
+
         opt_res (bool, default False): Select if the collision/gait diagrams are from and optimization result
         exp (str): experiment name (if opt_res is True)
         generation (str): Generation number (if opt_res is True)
@@ -640,23 +642,23 @@ def plot_collisions_diagram(
         end (float, default 0.0): Time point for finishing the plot, if 0.0, all time points are plotted
         time_step (float, default 0.001): Data time step
     """
-    
+
     data = {}
     length_data = 0
-    
+
     #pkg_path = Path(pkgutil.get_loader("NeuroMechFly").get_filename())
     #sim_res_folder = os.path.join(pkg_path.parents[1], 'scripts/KM/results')
 
     '''
     if sim_data == 'walking':
-        #if not opt_res:   
+        #if not opt_res:
         #    collisions_data = sim_res_folder + '/grfSC_data_ball_walking.pkl'
         #else:
         #    sim_res_folder = os.path.join(
         #        pkg_path.parents[1], 'scripts/Optimization/Output_data/grf', exp)
         #    collisions_data = sim_res_folder+'/grf_optimization_gen_' + generation + '.pkl'
         collisions_data = read_ground_contacts(path_data, leg_key)
-        
+
     elif sim_data == 'grooming':
         collisions_data = sim_res_folder + '/selfCollisions_data_ball_grooming.pkl'
 
@@ -688,7 +690,7 @@ def plot_collisions_diagram(
             collisions[leg].append(segment_force)
             if length_data == 0:
                 length_data = len(segment_force)
-                
+
     elif sim_data == 'grooming':
         data = read_collision_forces(path_data)
         title_plot = 'Collisions diagram'
@@ -711,7 +713,7 @@ def plot_collisions_diagram(
         for segment1 in collisions.keys():
             seg_forces=[]
             for segment2, force in data[segment1].items():
-                seg_forces.append(force)    
+                seg_forces.append(force)
             sum_force = np.sum(np.array(seg_forces), axis=0)
             segment_force = np.delete(sum_force, 0)
             collisions[segment1].append(segment_force)
@@ -739,7 +741,7 @@ def plot_collisions_diagram(
         axs[i].fill_between(time[start:stance_plot[0]], 0, 1, facecolor='white', alpha=1, transform=axs[i].get_xaxis_transform())
 
         axs[i].fill_between(time[stance_plot[-1]:stop], 0, 1, facecolor='white', alpha=1, transform=axs[i].get_xaxis_transform())
-        
+
         axs[i].set_yticks((0.5,))
         axs[i].set_yticklabels((segment,))
 

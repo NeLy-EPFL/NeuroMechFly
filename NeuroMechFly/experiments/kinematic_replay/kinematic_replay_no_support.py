@@ -1,4 +1,5 @@
 """ Drosophila simulation class for kinematic replay without body support. """
+
 from random import random
 
 import numpy as np
@@ -10,6 +11,7 @@ from NeuroMechFly.simulation.bullet_simulation import BulletSimulation
 
 # Random number seed
 np.random.seed(seed=321)
+
 
 def add_perturbation(
         size, initial_position, target_position, time, units

@@ -2,9 +2,10 @@
 from dataclasses import dataclass
 import numpy as np
 
+
 @dataclass
 class Parameters:
-    """ 
+    """
     Muscle parameters class.
 
     Parameters
@@ -21,12 +22,13 @@ class Parameters:
         Resting position of the Ekeberg muscle model.
     Returns
     -------
-    """  
+    """
     alpha: float = 0.0
     beta: float = 0.0
     gamma: float = 0.0
     delta: float = 0.0
     rest_pos: float = 0.0
+
 
 class SDAntagonistMuscle:
     """Antagonist Spring Damper muscles. """
@@ -35,7 +37,7 @@ class SDAntagonistMuscle:
             flexor_mn=None, extensor_mn=None,
             flexor_amp=None, extensor_amp=None,
             parameters=None
-    ): 
+    ):
         super().__init__()
         params = parameters if parameters else Parameters()
         self.name = name

@@ -1,4 +1,5 @@
 """ Drosophila Simulation for visualization of optimization results."""
+
 import farms_pylog as pylog
 import numpy as np
 from shapely.geometry import Point, Polygon
@@ -10,6 +11,7 @@ from NeuroMechFly.sdf.units import SimulationUnitScaling
 from NeuroMechFly.simulation.bullet_simulation import BulletSimulation
 
 pylog.set_level('error')
+
 
 class DrosophilaSimulation(BulletSimulation):
     """Drosophila Simulation Class.
@@ -289,9 +291,9 @@ class DrosophilaSimulation(BulletSimulation):
                 p.getJointInfo(self.animal, self.joint_id['joint_RHCoxa']
                 )[14][:2])) * 0.5
 
-        #: Update number of legs in stance 
+        #: Update number of legs in stance
         self.stance_count += len(contact_points)
- 
+
         #: Make polygon from contact points
         try:
             polygon = Polygon(contact_points)
@@ -299,8 +301,8 @@ class DrosophilaSimulation(BulletSimulation):
             return -1
 
         if draw_polygon:
-            #: Draw the polygon 
-            for idx in range(len(polygon.exterior.coords)-1): 
+            #: Draw the polygon
+            for idx in range(len(polygon.exterior.coords)-1):
                 p.addUserDebugLine(
                     list(polygon.exterior.coords[idx]) + [11.1],
                     list(polygon.exterior.coords[idx+1]) + [11.1],
@@ -422,7 +424,7 @@ class DrosophilaSimulation(BulletSimulation):
                         parameters.get_parameter(
                             'phi_{}_to_{}'.format(node_2, node_1)
                         ).value = -1 * opti_joint_phases[4 * j0 + 2 * j1 + j2]
-       
+
         #: Update the phases for interleg phase relationships
         coxae_edges =[
             ['LFCoxa', 'RFCoxa'],
@@ -469,6 +471,7 @@ class DrosophilaSimulation(BulletSimulation):
             return np.argmin(np.sqrt((fun[:,0]-mida)**2 + (fun[:,1]-midb)**2))
         else:
             return int(criteria)
+
 
 def mid(x):
     return (max(x)+min(x))*0.5

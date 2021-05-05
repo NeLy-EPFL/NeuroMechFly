@@ -1,4 +1,5 @@
 """ Class to run animal model. """
+
 import abc
 import time
 from pathlib import Path
@@ -15,7 +16,9 @@ from farms_network.neural_system import NeuralSystem
 from NeuroMechFly.sdf.bullet_load_sdf import load_sdf
 from tqdm import tqdm
 
+
 neuromechfly_path = Path(pkgutil.get_loader("NeuroMechFly").get_filename()).parents[1]
+
 
 class BulletSimulation(metaclass=abc.ABCMeta):
     """Methods to run bullet simulation."""
@@ -785,7 +788,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                 yaw = 0
                 pitch = -10
             elif t >= 250 and t < 2000:
-                yaw = (t - 250) / 1750 * 150 
+                yaw = (t - 250) / 1750 * 150
                 pitch = -10
             elif t >= 2000 and t < 3500:
                 yaw = 150 - (t - 2000) / 1500 * 120

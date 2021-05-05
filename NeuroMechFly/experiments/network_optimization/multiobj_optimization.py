@@ -1,4 +1,5 @@
 """ Drosophila Evolution. """
+
 import argparse
 import logging
 import os
@@ -24,11 +25,13 @@ from farms_container import Container
 from NeuroMechFly.experiments.network_optimization.neuromuscular_control import \
     DrosophilaSimulation
 
+
 LOGGER = logging.getLogger('jmetal')
 
 neuromechfly_path = Path(pkgutil.get_loader("NeuroMechFly").get_filename()).parents[1]
 
 pylog.set_level('error')
+
 
 class WriteFullFrontToFileObserver(Observer):
     """ Write full front to file. """
