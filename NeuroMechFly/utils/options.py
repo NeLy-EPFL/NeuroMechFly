@@ -27,6 +27,7 @@ try:
 except ImportError:
     from yaml import Loader, Dumper
 
+
 def pyobject2yaml(filename, pyobject, mode='w+'):
     """Pyobject to yaml"""
     with open(filename, mode) as yaml_file:

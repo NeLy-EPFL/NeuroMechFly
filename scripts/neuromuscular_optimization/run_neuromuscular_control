@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 """ Script to run neuromuscular control. """
+
 from NeuroMechFly.experiments.network_optimization import neuromuscular_control
 from farms_container import Container
 
@@ -8,7 +9,7 @@ import os
 import argparse
 from pathlib import Path
 import pkgutil
-#import matplotlib.pyplot as plt 
+#import matplotlib.pyplot as plt
 
 neuromechfly_path = Path(pkgutil.get_loader("NeuroMechFly").get_filename()).parents[1]
 
@@ -104,7 +105,7 @@ if __name__ == "__main__":
         'rot_cam': False, #: Set true to rotate the camera automatically
         'ground': 'ball'
     }
-    #: Initialize the container  
+    #: Initialize the container
     container = Container(run_time / time_step)
     fly = neuromuscular_control.DrosophilaSimulation(container, sim_options)
 
@@ -124,8 +125,8 @@ if __name__ == "__main__":
         gen = args.gen
     else:
         exp = 'last_run'
-        gen = 'final' 
-    
+        gen = 'final'
+
     #: Select which solution to use (fastest, in this case)
     ind = fly.select_solution(args.sol, fun)
     params = var[ind]

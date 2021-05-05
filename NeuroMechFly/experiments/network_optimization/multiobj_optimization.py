@@ -1,32 +1,28 @@
 """ Drosophila Evolution. """
-import argparse
+
 import logging
 import os
-from datetime import datetime
 from pathlib import Path
 import pkgutil
 
 import farms_pylog as pylog
 import numpy as np
-from jmetal.algorithm.multiobjective.nsgaii import NSGAII
 from jmetal.core.observer import Observer
 from jmetal.core.problem import DynamicProblem, FloatProblem
 from jmetal.core.solution import FloatSolution
-from jmetal.lab.visualization import InteractivePlot, Plot
-from jmetal.operator import PolynomialMutation, SBXCrossover
-from jmetal.util.evaluator import MultiprocessEvaluator
-from jmetal.util.observer import ProgressBarObserver, VisualizerObserver
-from jmetal.util.ranking import FastNonDominatedRanking
-from jmetal.util.solution import (print_function_values_to_file,
-                                  print_variables_to_file)
-from jmetal.util.termination_criterion import StoppingByEvaluations
+from jmetal.util.solution import (
+    print_function_values_to_file,
+    print_variables_to_file,
+)
 from farms_container import Container
 from NeuroMechFly.experiments.network_optimization.neuromuscular_control import \
     DrosophilaSimulation
 
+
 LOGGER = logging.getLogger('jmetal')
 
 neuromechfly_path = Path(pkgutil.get_loader("NeuroMechFly").get_filename()).parents[1]
+
 
 
 class WriteFullFrontToFileObserver(Observer):
@@ -221,9 +217,18 @@ class DrosophilaEvolution(FloatProblem):
         #: Set a time step for the physics engine
         time_step = 0.001
         #: Setting up the paths for the SDF and POSE files
-        model_path = os.path.join(neuromechfly_path, 'data/design/sdf/neuromechfly_limitsFromData.sdf')
-        pose_path = os.path.join(neuromechfly_path, 'data/config/pose/pose_tripod.yaml')
-        controller_path = os.path.join(neuromechfly_path, 'data/config/network/locomotion_network.graphml')
+        model_path = os.path.join(
+            neuromechfly_path,
+            'data/design/sdf/neuromechfly_limitsFromData.sdf',
+        )
+        pose_path = os.path.join(
+            neuromechfly_path,
+            'data/config/pose/pose_tripod.yaml',
+        )
+        controller_path = os.path.join(
+            neuromechfly_path,
+            'data/config/network/locomotion_network.graphml',
+        )
         #: Simulation options
         sim_options = {
             "headless": True,
@@ -241,7 +246,7 @@ class DrosophilaEvolution(FloatProblem):
         #: Update the parameters (i.e. muscle, phases)
         fly.update_parameters(solution.variables)
         #: Check if any of the termination criteria is met
-        successful = fly.run(optimization=True)
+        _successful = fly.run(optimization=True)
 
         #: Objectives
         #: Minimize activations
@@ -268,7 +273,7 @@ class DrosophilaEvolution(FloatProblem):
 
         expected_stance_legs = 3.8
         min_legs = 3
-        mean_stance_legs = fly.stance_count * fly.TIME_STEP / fly.TIME
+        mean_stance_legs = fly.stance_count * fly.time_step / fly.time
         penalty_time_stance = (
             0.0
             if min_legs <= mean_stance_legs < expected_stance_legs
@@ -282,7 +287,6 @@ class DrosophilaEvolution(FloatProblem):
         stance_weight = 1e2
         penalties = (
             movement_weight * fly.opti_lava + \
-            #touch_weight * fly.opti_touch + \
             velocity_weight * fly.opti_velocity + \
             stance_weight * penalty_time_stance
         )
@@ -295,7 +299,6 @@ class DrosophilaEvolution(FloatProblem):
                 Work: {fly.mechanical_work} \n \
                 PENALTIES\n=========\n \
                 Penalty lava: {movement_weight * fly.opti_lava} \n \
-                #Penalty touch: {touch_weight * fly.opti_touch} \n \
                 Penalty velocity: {velocity_weight*fly.opti_velocity} \n \
                 Penalty stance: {stance_weight * penalty_time_stance} \n \
             "
