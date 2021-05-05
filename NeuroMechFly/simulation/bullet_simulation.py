@@ -132,7 +132,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         if self.RECORD_MOVIE and self.GUI == p.GUI:
             p.connect(
                 self.GUI,
-                options='--background_color_red={} --background_color_green={} --background_color_blue={} --mp4={}'.format(
+                options='--background_color_red={} --background_color_green={} --background_color_blue={} --mp4={} --mp4fps={}'.format(
                     self.VIS_OPTIONS_BACKGROUND_COLOR_RED,
                     self.VIS_OPTIONS_BACKGROUND_COLOR_GREEN,
                     self.VIS_OPTIONS_BACKGROUND_COLOR_RED,
