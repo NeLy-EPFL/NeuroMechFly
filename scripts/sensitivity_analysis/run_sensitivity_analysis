@@ -11,7 +11,7 @@ import pandas as pd
 from NeuroMechFly.utils.plotting import (heatmap_plot, plot_kp_joint,
                                          plot_mu_sem)
 from NeuroMechFly.utils.sensitivity_analysis import (
-    calculate_MSE_joints, calculate_statistics_joints)
+    calculate_mse_joints, calculate_statistics_joints)
 
 neuromechfly_path = Path(pkgutil.get_loader("NeuroMechFly").get_filename()).parents[1]
 
@@ -38,9 +38,9 @@ unit_force = '$\\mu$N'
 
 def plot_figure_s1(save_fig: bool):
     """ Regenerates the Supplementary Figure 1. """
-    joint_angles_mse_df, _ = calculate_MSE_joints(
+    joint_angles_mse_df, _ = calculate_mse_joints(
         joint_angles, baseline_position, beg=100)
-    joint_vel_mse_df, _ = calculate_MSE_joints(
+    joint_vel_mse_df, _ = calculate_mse_joints(
         joint_velocities, baseline_velocity, beg=100)
 
     pivot_pos, pivot_vel = 0, 0

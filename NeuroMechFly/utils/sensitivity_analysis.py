@@ -114,7 +114,7 @@ def calculate_stats(data):
     return stat_dict
 
 
-def calculate_MSE_joints(
+def calculate_mse_joints(
     joint_data,
     ground_truth,
     beg=10
