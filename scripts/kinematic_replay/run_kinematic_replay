@@ -8,6 +8,7 @@ import argparse
 from pathlib import Path
 import pkgutil
 import glob
+from datetime import datetime
 
 neuromechfly_path = Path(pkgutil.get_loader("NeuroMechFly").get_filename()).parents[1]
 
@@ -105,6 +106,14 @@ if __name__ == "__main__":
     )
     #: Run the simulation
     animal.run(optimization=False)
-    #: Dump the results
+    #: Dump the results based on the date
     animal.container.dump(
-        dump_path=f'./kinematic_replay_{behavior}', overwrite=True)
+        dump_path=os.path.join(
+            neuromechfly_path,
+            'scripts/kinematic_replay/kinematic_replay_{}_{}'.format(
+                behavior,
+                datetime.now().strftime('%y%m%d_%H%M')
+            )
+        ),
+        overwrite=False
+    )

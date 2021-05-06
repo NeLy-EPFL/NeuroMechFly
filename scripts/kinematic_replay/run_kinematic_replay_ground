@@ -9,6 +9,7 @@ import argparse
 from pathlib import Path
 import pkgutil
 import glob
+from datetime import datetime
 
 neuromechfly_path = Path(pkgutil.get_loader("NeuroMechFly").get_filename()).parents[1]
 
@@ -71,7 +72,7 @@ if __name__ == "__main__":
         "headless": False,
         "model": model_path,
         "pose": pose_path,
-        "model_offset": [0, 0., 1.65e-3],
+        "model_offset": [0, 0., 0.5e-3],
         "run_time": run_time,
         "time_step": time_step,
         "base_link": 'Thorax',
@@ -83,7 +84,7 @@ if __name__ == "__main__":
         'moviename': './kinematic_replay_ground.mp4',
         'moviespeed': 0.2, #: Speed of the recorded movie
         'slow_down': False,
-        'sleep_time': 1,
+        'sleep_time': 0.1,
         'rot_cam': False,
         'behavior': behavior,#: Set true to rotate the camera automatically
         'ground': 'floor',
@@ -108,6 +109,14 @@ if __name__ == "__main__":
     )
     #: Run the simulation
     animal.run(optimization=False)
-    #: Dump the results
+    #: Dump the results based on the date
     animal.container.dump(
-        dump_path='./kinematic_replay_ground', overwrite=True)
+        dump_path=os.path.join(
+            neuromechfly_path,
+            'scripts/kinematic_replay/kinematic_replay_ground_{}_{}'.format(
+                behavior,
+                datetime.now().strftime('%y%m%d_%H%M')
+            )
+        ),
+        overwrite=False
+    )
