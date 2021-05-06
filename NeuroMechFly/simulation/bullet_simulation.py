@@ -203,10 +203,23 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             self.sim_data.add_table('ball_rotations')
 
         #: Add the animal model
-        if '.sdf' in self.model:
+        if '.sdf' in self.model and self.behavior is not None:
             self.animal, self.link_id, self.joint_id = load_sdf(
                 self.model, force_concave=self.enable_concave_mesh
             )
+        elif '.sdf' in self.model and self.behavior is None:
+            self.animal = p.loadSDF(self.model)[0]
+            #: Generate joint_name to id dict
+            self.link_id[p.getBodyInfo(self.animal)[0].decode('UTF-8')] = -1
+            for n in range(p.getNumJoints(self.animal)):
+                info = p.getJointInfo(self.animal, n)
+                _id = info[0]
+                joint_name = info[1].decode('UTF-8')
+                link_name = info[12].decode('UTF-8')
+                _type = info[2]
+                self.joint_id[joint_name] = _id
+                self.joint_type[joint_name] = _type
+                self.link_id[link_name] = _id    
         elif '.urdf' in self.model:
             self.animal = p.loadURDF(self.model)
         p.resetBasePositionAndOrientation(
@@ -224,7 +237,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         #: Color the animal
         p.changeVisualShape(self.animal, -
                             1, rgbaColor=self.color_body, specularColor=nospecular)
-        
+
         for link_name, _id in self.joint_id.items():
             if 'Wing' in link_name and 'Fake' not in link_name:
                 p.changeVisualShape(self.animal, _id, rgbaColor=color_wings)
@@ -521,26 +534,20 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         #: Different ball positions used for different experiments
         #: Else corresponds to the ball position during optimization
         if self.behavior == 'walking':
-            link_masses = np.array(
-                [1e-11,1e-11,1e-11]
-                )*self.units.kilograms
-            base_position = np.array([0.28e-3, -0.2e-3,-4.965e-3])*self.units.meters+self.model_offset
+            base_position = np.array(
+                [0.28e-3, -0.2e-3,-4.965e-3]
+            ) * self.units.meters+self.model_offset
         elif self.behavior == 'grooming':
-            link_masses = np.array(
-                [1e-11,1e-11,1e-11]
-                )*self.units.kilograms
             base_position = np.array(
                 [0.0e-3, 0.0e-3, -5e-3]
             ) * self.units.meters + self.model_offset
         else:
-            link_masses = np.array(
-                [5e-11,5e-11,5e-11]
-                )*self.units.kilograms
             base_position = np.array(
-                [-0.09e-3, -0.0e-3,-5.13e-3]
+                [-0.09e-3, -0.0e-3,-5.11e-3]
             ) * self.units.meters + self.model_offset
         #: Create the sphere
         base_orientation = [0, 0, 0, 1]
+        link_masses = np.array([5e-11,5e-11,5e-11])*self.units.kilograms
         link_collision_shape_indices = [-1, -1, col_sphere_id]
         link_visual_shape_indices = [-1, -1, -1]
         link_positions = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
@@ -893,10 +900,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
     def run(self, optimization=False):
         """ Run the full simulation. """
         total = int(self.run_time / self.time_step)
-        for t in tqdm(
-            range(0, total),
-            disable = optimization
-        ):
+        for t in tqdm(range(0, total), disable=optimization):
             status = self.step(t, optimization=optimization)
             if not status:
                 return False
