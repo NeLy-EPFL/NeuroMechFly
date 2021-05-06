@@ -133,7 +133,7 @@ if __name__ == "__main__":
     else:
         exp = 'last_run'
         gen = 'final'
-    from IPython import embed; embed()
+
     #: Select which solution to use (fastest, in this case)
     ind = animal.select_solution(args.sol, fun)
     params = var[ind]
