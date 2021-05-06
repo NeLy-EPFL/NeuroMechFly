@@ -2,10 +2,9 @@
 from dataclasses import dataclass
 import numpy as np
 
-
 @dataclass
 class Parameters:
-    """
+    """ 
     Muscle parameters class.
 
     Parameters
@@ -22,22 +21,22 @@ class Parameters:
         Resting position of the Ekeberg muscle model.
     Returns
     -------
-    """
+    """  
     alpha: float = 0.0
     beta: float = 0.0
     gamma: float = 0.0
     delta: float = 0.0
     rest_pos: float = 0.0
 
-
 class SDAntagonistMuscle:
     """Antagonist Spring Damper muscles. """
     def __init__(
-            self, container, name, joint_pos, joint_vel,
+            self, container, name, joint_pos, 
+            joint_vel, rest_pos=0.0,
             flexor_mn=None, extensor_mn=None,
             flexor_amp=None, extensor_amp=None,
             parameters=None
-    ):
+    ): 
         super().__init__()
         params = parameters if parameters else Parameters()
         self.name = name
@@ -98,21 +97,22 @@ class SDAntagonistMuscle:
         if only_passive:
             self.torque.value = self.passive_torque.value
             return self.torque.value
-        #: Active
-        self.flexor_act.value = self.r_fmn.value*(
-                1 + np.sin(self.flexor_mn.value)
-        )
-        self.extensor_act.value = self.r_emn.value*(
-                1 + np.sin(self.extensor_mn.value)
-        )
-        _co = self.alpha.value*(
-            self.flexor_act.value - self.extensor_act.value
-        )
-        _active_stiff = self.beta.value*(
-            self.flexor_act.value + self.extensor_act.value
-        )*(self.rest_pos.value - self.jpos.value)
-        self.active_torque.value = _co + _active_stiff
-        self.torque.value = (
-            self.active_torque.value + self.passive_torque.value
-        )
-        return self.torque.value
+        else:
+            #: Active
+            self.flexor_act.value = self.r_fmn.value*(
+                    1 + np.sin(self.flexor_mn.value)
+            )
+            self.extensor_act.value = self.r_emn.value*(
+                    1 + np.sin(self.extensor_mn.value)
+            )
+            _co = self.alpha.value*(
+                self.flexor_act.value - self.extensor_act.value
+            )
+            _active_stiff = self.beta.value*(
+                self.flexor_act.value + self.extensor_act.value
+            )*(self.rest_pos.value - self.jpos.value)
+            self.active_torque.value = _co + _active_stiff
+            self.torque.value = (
+                self.active_torque.value + self.passive_torque.value
+            )
+            return self.torque.value
