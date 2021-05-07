@@ -13,7 +13,7 @@ $ cd NeuroMechFly
 ```
 In this folder, run the following commands to create a virtual environment and activate it:
 ```bash
-$ conda create -n neuromechfly python=3.6 numpy Cython
+$ conda create -n neuromechfly python=3.6 numpy Cython shapely
 $ conda activate neuromechfly
 ```
 First, install the FARMS Container by running:
