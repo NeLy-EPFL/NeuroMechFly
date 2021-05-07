@@ -11,8 +11,8 @@
 If you use NeuroMechFly in your research, you can cite us:
 
 ```Latex
-@article {R{\'\i}os2021.04.17.440214,
-	author = {R{\'\i}os, Victor Lobato and {\"O}zdil, Pembe Gizem and Ramalingasetty, Shravan Tata and Arreguit, Jonathan and Clerc Rosset, St{\'e}phanie and Knott, Graham and Ijspeert, Auke Jan and Ramdya, Pavan},
+@article {Lobato-Rios2021.04.17.440214,
+	author = {Lobato-Rios, Victor and {\"O}zdil, Pembe Gizem and Ramalingasetty, Shravan Tata and Arreguit, Jonathan and Clerc Rosset, St{\'e}phanie and Knott, Graham and Ijspeert, Auke Jan and Ramdya, Pavan},
 	title = {NeuroMechFly, a neuromechanical model of adult Drosophila melanogaster},
 	elocation-id = {2021.04.17.440214},
 	year = {2021},
