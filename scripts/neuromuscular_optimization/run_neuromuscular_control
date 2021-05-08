@@ -142,12 +142,10 @@ if __name__ == "__main__":
     animal.update_parameters(params)
     animal.run(optimization=False)
     #: Dump the optimization results
+    results_path = os.path.join(f"optimization_{exp}",f"gen_{gen}")
+    if not os.path.exists(results_path):
+        os.makedirs(results_path)
     animal.container.dump(
-        dump_path=os.path.join(
-            neuromechfly_path,
-            'scripts/neuromuscular_optimization/{}_gen_{}'.format(
-                exp, gen
-            )
-        ),
-        overwrite=False
-    )
+        dump_path=results_path,
+        overwrite=True
+        )
