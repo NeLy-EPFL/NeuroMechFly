@@ -539,9 +539,9 @@ def plot_data(
                 else:
                     axs[i].plot(time[start:stop], act[start:stop], label=joint)
             if len(data2plot.keys()) == 1:
-                axs.set_ylabel('MN activation - ' + plot.split('_')[1] + ' (a.u.)')
+                axs.set_ylabel('Muscle activation\n' + plot.split('_')[1] + ' (a.u.)')
             else:
-                axs[i].set_ylabel('MN activation - ' + plot.split('_')[1] + ' (a.u.)')
+                axs[i].set_ylabel('Muscle activation\n' + plot.split('_')[1] + ' (a.u.)')
 
         if plot == 'torques_muscles':
             for joint, torq in data.items():
@@ -551,9 +551,9 @@ def plot_data(
                 else:
                     axs[i].plot(time[start:stop], torq[start:stop], label=joint)
             if len(data2plot.keys()) == 1:
-                axs.set_ylabel('Joint torque from muscle' + r'$(\mu Nm)$')
+                axs.set_ylabel('Joint torques\nfrom muscle ' + r'$(\mu Nmm)$')
             else:
-                axs[i].set_ylabel('Joint torque from muscle' + r'$(\mu Nm)$')
+                axs[i].set_ylabel('Joint torques\nfrom muscle ' + r'$(\mu Nmm)$')
 
         if plot == 'angles_sim':
             for joint, ang in data.items():
@@ -563,9 +563,9 @@ def plot_data(
                 else:
                     axs[i].plot(time[start:stop], ang[start:stop] * 180 / np.pi, label=joint)
             if len(data2plot.keys()) == 1:
-                axs.set_ylabel('Joint angles-simulation (deg)')
+                axs.set_ylabel('Joint angles\nsimulation (deg)')
             else:
-                axs[i].set_ylabel('Joint angles-simulation (deg)')
+                axs[i].set_ylabel('Joint angles\nsimulation (deg)')
 
         if plot == 'angles':
             for name, angle_rad in data.items():
