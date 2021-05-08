@@ -168,7 +168,7 @@ leg = 'RF'
 
 # Defining time limits for the plot (seconds)
 start_time = 1.0
-stop_time = 3.0
+stop_time = 1.5
 
 plotting.plot_data(path_data, 
 		   leg,
