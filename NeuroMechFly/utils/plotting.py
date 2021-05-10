@@ -199,6 +199,32 @@ def heatmap_plot(
     ax.set_title(title)
     ax.invert_yaxis()
 
+def plot_pareto_front(path_data, g, sol='fastest'):
+    from ..experiments.network_optimization.neuromuscular_control import DrosophilaSimulation as ds
+
+    if not isinstance(g, list):
+        generations = [g]
+    else:
+        generations = g
+
+    ax = plt.gca()
+    for gen in generations:
+        fun_path = os.path.join(path_data,f"FUN.{gen}")
+    
+        fun = np.loadtxt(fun_path)
+        ind = ds.select_solution(sol, fun)
+        color = next(ax._get_lines.prop_cycler)['color']
+        plt.scatter(fun[:,0], fun[:,1], c=color, label=f"gen {gen+1}")
+        plt.scatter(fun[ind,0], fun[ind,1], c=color, edgecolors='cyan', linewidth=2)#, label='solution displayed')
+        
+    plt.xlabel('Distance (negative)')
+    plt.ylabel('Stability (negative)')
+    title = f'Solution: {sol} | Distance: {fun[ind,0]:.3f} | Stability: {fun[ind,1]:.3f}'
+    plt.title(title)
+    plt.legend()
+    # plt.savefig('./{}_generation_{}.pdf'.format(exp, gen))
+    plt.show()
+
 
 def read_ground_contacts(path_data):
     """Read ground reaction forces data, calculates magnitude for each segment
@@ -364,6 +390,16 @@ def plot_data(
                    'FTi_pitch': 'Tibia',
                    'TiTa_pitch': 'Tarsus1'}
 
+    leg_order = ['LF','LM','LH','RF','RM','RH']
+
+    for k in leg_order:
+        if ('M' in k or 'H' in k) and 'Coxa' in joint_key:
+            name = f"{k}{joint_key} roll"
+        else:
+            name = f"{k}{joint_key}"
+        angles_sim[name] = []
+        torques_muscles[name] = []
+
     length_data = 0
 
     if plot_muscles_act:
@@ -391,8 +427,8 @@ def plot_data(
             if length_data == 0:
                 length_data = len(val)
 
-        data2plot['mn_flex'] = mn_flex
-        data2plot['mn_ext'] = mn_ext
+        data2plot['mn_prot'] = mn_flex
+        data2plot['mn_ret'] = mn_ext
 
     if plot_torques_muscles:
         muscles_data = os.path.join(path_data, 'muscle', 'outputs.h5')
@@ -417,13 +453,17 @@ def plot_data(
         for joint, val in data.items():
             if joint_key in joint:
                 joint_name = joint.split('_')
-                if len(joint_name) > 2:
-                    if 'roll' in joint and ('M' in joint or 'H' in joint):
+                key_name = joint_key.split('_')
+                if len(joint_name) > 2 and len(key_name)>1:
+                    name = joint_name[1] + ' ' + joint_name[2]
+                    angles_sim[name] = val
+                elif len(joint_name) > 2:
+                    if 'roll' in joint and ('MCoxa' in joint or 'HCoxa' in joint):
                         name = joint_name[1] + ' ' + joint_name[2]
                         angles_sim[name] = val
                 else:
-                    if 'F' in joint:
-                        name = joint.split('_')[1]
+                    if not ('MCoxa' in joint or 'HCoxa' in joint):
+                        name = joint_name[1]
                         angles_sim[name] = val
             if length_data == 0:
                 length_data = len(val)                
@@ -432,6 +472,8 @@ def plot_data(
     if plot_angles:
         angles_raw = angles[leg_key + '_leg']
         data2plot['angles'] = {}
+        for k in equivalence.keys():
+            data2plot['angles'][k] = []
         for label, values in angles_raw.items():
             if length_data == 0:
                 length_data = len(values)
@@ -531,7 +573,7 @@ def plot_data(
     grf_max = 0
 
     for i, (plot, data) in enumerate(data2plot.items()):
-        if plot == 'mn_flex' or plot == 'mn_ext':
+        if plot == 'mn_prot' or plot == 'mn_ret':
             for joint, act in data.items():
                 time = np.arange(0, len(act), 1) / steps
                 if len(data2plot.keys()) == 1:
@@ -572,10 +614,10 @@ def plot_data(
                 time = np.arange(0, len(angle_rad), 1) / steps
                 angle = np.array(angle_rad) * 180 / np.pi
                 if len(data2plot.keys()) == 1:
-                    axs.plot(time[start:stop], angle[start:stop], label=name)
+                    axs.plot(time[start:stop], angle[start:stop], label=name.replace('_',' '))
                 else:
                     axs[i].plot(time[start:stop],
-                                angle[start:stop], label=name)
+                                angle[start:stop], label=name.replace('_',' '))
             if len(data2plot.keys()) == 1:
                 axs.set_ylabel('Joint angle (deg)')
             else:
@@ -587,10 +629,10 @@ def plot_data(
                 time = np.arange(0, len(torque_adj), 1) / steps
                 if len(data2plot.keys()) == 1:
                     axs.plot(time[start:stop], torque_adj[start:stop]
-                             * torqueScalingFactor, label=joint)
+                             * torqueScalingFactor, label=joint.replace('_',' '))
                 else:
                     axs[i].plot(time[start:stop], torque_adj[start:stop]
-                                * torqueScalingFactor, label=joint)
+                                * torqueScalingFactor, label=joint.replace('_',' '))
 
                 t_min = np.min(torque_adj[start:stop] * torqueScalingFactor)
                 t_max = np.max(torque_adj[start:stop] * torqueScalingFactor)
