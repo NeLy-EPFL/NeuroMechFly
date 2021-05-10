@@ -4,10 +4,10 @@
   <key attr.name="weight" attr.type="double" for="edge" id="d7" />
   <key attr.name="z" attr.type="double" for="node" id="d6" />
   <key attr.name="y" attr.type="double" for="node" id="d5" />
-  <key attr.name="x" attr.type="long" for="node" id="d4" />
-  <key attr.name="a" attr.type="long" for="node" id="d3" />
+  <key attr.name="x" attr.type="int" for="node" id="d4" />
+  <key attr.name="a" attr.type="int" for="node" id="d3" />
   <key attr.name="R" attr.type="double" for="node" id="d2" />
-  <key attr.name="f" attr.type="long" for="node" id="d1" />
+  <key attr.name="f" attr.type="int" for="node" id="d1" />
   <key attr.name="model" attr.type="string" for="node" id="d0" />
   <graph edgedefault="directed">
     <node id="joint_LFCoxa_flexion">

@@ -98,7 +98,7 @@ if __name__ == "__main__":
         "record": False, #: Set True to record the simulation
         'camera_distance': 5.5,
         'track': False,
-        'moviename': 'neuromuscular_control.mp4',
+        'moviename': 'example2_gen_29_sol_25.mp4',
         'moviespeed': 0.2, #: Speed of the recorded movie
         'slow_down': True,
         'sleep_time': 0.001,
@@ -142,12 +142,10 @@ if __name__ == "__main__":
     animal.update_parameters(params)
     animal.run(optimization=False)
     #: Dump the optimization results
+    results_path = os.path.join(f"optimization_{exp}",f"gen_{gen}",f"sol_{args.sol}")
+    if not os.path.exists(results_path):
+        os.makedirs(results_path)
     animal.container.dump(
-        dump_path=os.path.join(
-            neuromechfly_path,
-            'scripts/neuromuscular_optimization/{}_gen_{}'.format(
-                exp, gen
-            )
-        ),
-        overwrite=False
-    )
+        dump_path=results_path,
+        overwrite=True
+        )

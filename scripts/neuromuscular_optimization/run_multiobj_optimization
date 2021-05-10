@@ -26,7 +26,7 @@ neuromechfly_path = Path(pkgutil.get_loader("NeuroMechFly").get_filename()).pare
 if __name__ == "__main__":
     """ Main """
     n_pop = 30
-    n_gen = 50
+    n_gen = 60
     max_evaluations = n_pop*n_gen
     # Problem
     problem = multiobj_optimization.DrosophilaEvolution()
@@ -62,8 +62,9 @@ if __name__ == "__main__":
             output_directory=(
                 os.path.join(
                     output_dir,
-                    'optimization_results/run_var_{}_obj_{}_pop_{}_gen_{}_{}'
+                    'optimization_results/run_{}_var_{}_obj_{}_pop_{}_gen_{}_{}'
                     ).format(
+                        problem.get_name(),
                         problem.number_of_variables,
                         problem.number_of_objectives,
                         n_pop,
