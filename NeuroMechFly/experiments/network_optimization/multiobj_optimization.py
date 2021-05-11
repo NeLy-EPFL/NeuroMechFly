@@ -121,17 +121,17 @@ class DrosophilaEvolution(FloatProblem):
         lower_bound_active_muscles = (
                 np.asarray(
                     [# Front
-                    [1e-2, 1e-2, 1e-3, 1e-4, -0.22], # Coxa
-                    [1e-2, 1e-2, 1e-3, 1e-4, -2.5], # Femur
-                    [1e-2, 1e-2, 1e-3, 5e-4, 0.76], # Tibia
+                    [1e-3, 1e-3, 1e-3, 1e-4, -0.22], # Coxa
+                    [1e-3, 1e-3, 1e-3, 1e-4, -2.5], # Femur
+                    [1e-3, 1e-3, 1e-3, 1e-4, 0.76], # Tibia
                     # Mid
-                    [1e-2, 1e-2, 1e-3, 1e-4, -2.2], # Coxa_roll
-                    [1e-2, 1e-2, 1e-3, 1e-4, -2.35], # Femur
-                    [1e-2, 1e-2, 1e-3, 5e-4, 1.73], # Tibia
+                    [1e-3, 1e-3, 1e-3, 1e-4, -2.2], # Coxa_roll
+                    [1e-3, 1e-3, 1e-3, 1e-4, -2.35], # Femur
+                    [1e-3, 1e-3, 1e-3, 1e-4, 1.73], # Tibia
                     # Hind
-                    [1e-2, 1e-2, 1e-3, 1e-4, -2.78], # Coxa_roll
-                    [1e-2, 1e-2, 1e-3, 1e-4, -2.46], # Femur
-                    [1e-2, 1e-2, 1e-3, 5e-4, 1.12], # Tibia
+                    [1e-3, 1e-3, 1e-3, 1e-4, -2.78], # Coxa_roll
+                    [1e-3, 1e-3, 1e-3, 1e-4, -2.46], # Femur
+                    [1e-3, 1e-3, 1e-3, 1e-4, 1.12], # Tibia
                     ]
                 )
         ).flatten()
@@ -140,17 +140,17 @@ class DrosophilaEvolution(FloatProblem):
                 np.asarray(
                     [
                     # Front
-                    [1e0, 1e0, 1e0, 1e-3, 0.49], # Coxa
-                    [1e0, 1e0, 1e0, 1e-3, -1.3], # Femur
-                    [1e-1, 1e-1, 1e-1, 1e-3, 2.19], # Tibia
+                    [7e-2, 3e-3, 1e-2, 1e-3, 0.49], # Coxa
+                    [7e-2, 3e-3, 1e-2, 1e-3, -1.3], # Femur
+                    [7e-2, 3e-3, 1e-2, 1e-3, 2.19], # Tibia
                     # Mid
-                    [1e0, 1e0, 1e0, 1e-3, -1.75], # Coxa_roll
-                    [1e0, 1e0, 1e0, 1e-3, -1.84], # Femur
-                    [1e-1, 1e-1, 1e-1, 1e-3, 2.63], # Tibia
+                    [2e-1, 3e-3, 1e-2, 3e-3, -1.75], # Coxa_roll
+                    [2e-1, 3e-3, 1e-2, 3e-3, -1.84], # Femur
+                    [2e-1, 3e-3, 1e-2, 3e-3, 2.63], # Tibia
                     # Hind
-                    [1e0, 1e0, 1e0, 1e-3, -2.44], # Coxa_roll
-                    [1e0, 1e0, 1e0, 1e-3, -1.31], # Femur
-                    [1e-1, 1e-1, 1e-1, 1e-3, 2.79], # Tibia
+                    [3e-1, 3e-3, 1e-2, 3e-3, -2.44], # Coxa_roll
+                    [2e-1, 3e-3, 1e-2, 3e-3, -1.31], # Femur
+                    [2e-1, 3e-3, 1e-2, 3e-3, 2.79], # Tibia
                     ]
                 )
         ).flatten()

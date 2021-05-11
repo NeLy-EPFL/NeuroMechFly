@@ -436,7 +436,7 @@ class DrosophilaSimulation(BulletSimulation):
                 node_2 = "joint_{}_{}".format(ed[1], action)
                 parameters.get_parameter(
                     'phi_{}_to_{}'.format(node_1, node_2)
-            ).value = opti_base_phases[j1]
+                ).value = opti_base_phases[j1]
                 parameters.get_parameter(
                     'phi_{}_to_{}'.format(node_2, node_1)
                 ).value = -1*opti_base_phases[j1]

@@ -101,8 +101,8 @@ if __name__ == "__main__":
     plot_front.plot(front, filename=algorithm.get_name())
 
     # Save results of the latest generation to a .txt file
-    print_function_values_to_file(front, 'FUN.txt')
-    print_variables_to_file(front, 'VAR.txt')
+    print_function_values_to_file(front,  os.path.join(output_dir,'FUN.txt'))
+    print_variables_to_file(front,  os.path.join(output_dir,'VAR.txt'))
 
     print('Algorithm (continuous problem): ' + algorithm.get_name())
     print('Problem: ' + problem.get_name())
