@@ -25,6 +25,8 @@ jobs:
       - run: |
           echo "The ${{ github.repository }} repository has been cloned to the runner."
           echo "The workflow is now ready to test your code on the runner."
+          echo "$(pwd)"
+          echo "$(ls -a)"
       - name: Run build script for Sphinx pages
         run: "docs/buildsite.sh"
         shell: bash
