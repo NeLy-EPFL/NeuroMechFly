@@ -458,16 +458,18 @@ class DrosophilaSimulation(BulletSimulation):
         out : Index of the solution fulfilling the criteria
 
         """
+        norm_fun = (fun-np.min(fun,axis=0))/(np.max(fun,axis=0)-np.min(fun,axis=0))
+
         if criteria == 'fastest':
-            return np.argmin(fun[:, 0])
+            return np.argmin(norm_fun[:, 0])
         if criteria == 'slowest':
-            return np.argmax(fun[:, 0])
+            return np.argmax(norm_fun[:, 0])
         if criteria == 'tradeoff':
-            return np.argmin(np.sqrt(fun[:, 0]**2+fun[:, 1]**2))
+            return np.argmin(np.sqrt(norm_fun[:, 0]**2+norm_fun[:, 1]**2))
         if criteria == 'medium':
-            mida = mid(fun[:,0])
-            midb = mid(fun[:,1])
-            return np.argmin(np.sqrt((fun[:,0]-mida)**2 + (fun[:,1]-midb)**2))
+            mida = mid(norm_fun[:,0])
+            midb = mid(norm_fun[:,1])
+            return np.argmin(np.sqrt((norm_fun[:,0]-mida)**2 + (norm_fun[:,1]-midb)**2))
         return int(criteria)
 
 
