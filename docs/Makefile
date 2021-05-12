@@ -40,6 +40,7 @@ help:
 
 clean:
 	-rm -rf $(BUILDDIR)/*
+	-rm -rf *.html _images objects.inv reference searchindex.js _sources _static
 
 html:
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
@@ -151,3 +152,8 @@ doctest:
 	$(SPHINXBUILD) -b doctest $(ALLSPHINXOPTS) $(BUILDDIR)/doctest
 	@echo "Testing of doctests in the sources finished, look at the " \
 	      "results in $(BUILDDIR)/doctest/output.txt."
+github:
+	@make html
+	@cp -a $(BUILDDIR)/html/. ../docs
+	@echo
+	@echo "Copying files for github pages in $(BUILDDIR)/html to ../docs"
