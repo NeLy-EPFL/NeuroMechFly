@@ -15,13 +15,13 @@ jobs:
           echo "The job was automatically triggered by a ${{ github.event_name }} event."
           echo "This job is now running on a ${{ runner.os }} server hosted by GitHub!"
           echo "The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
-      - name: Install prerequisities
+      - name: Install prerequisities and clone repo
         run: |
           set -x
           apt-get update
+          apt-get install -y git
+          git clone "https://github.com/${GITHUB_REPOSITORY}.git" .
         shell: bash
-      - name: Check out repository code
-        uses: actions/checkout@v2
       - run: |
           echo "The ${{ github.repository }} repository has been cloned to the runner."
           echo "The workflow is now ready to test your code on the runner."
