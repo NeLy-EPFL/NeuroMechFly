@@ -199,7 +199,7 @@ def heatmap_plot(
     ax.set_title(title)
     ax.invert_yaxis()
 
-def plot_pareto_front(path_data, g, sol='fastest'):
+def plot_pareto_front(path_data, g, sol=''):
     from ..experiments.network_optimization.neuromuscular_control import DrosophilaSimulation as ds
 
     if not isinstance(g, list):
@@ -212,18 +212,28 @@ def plot_pareto_front(path_data, g, sol='fastest'):
         fun_path = os.path.join(path_data,f"FUN.{gen}")
     
         fun = np.loadtxt(fun_path)
-        ind = ds.select_solution(sol, fun)
+        norm_fun = (fun-np.min(fun,axis=0))/(np.max(fun,axis=0)-np.min(fun,axis=0))
+        if sol != '':
+            ind = ds.select_solution(sol, norm_fun)
+        else:
+            ind=-1
         color = next(ax._get_lines.prop_cycler)['color']
-        plt.scatter(fun[:,0], fun[:,1], c=color, label=f"gen {gen+1}")
-        plt.scatter(fun[ind,0], fun[ind,1], c=color, edgecolors='cyan', linewidth=2)#, label='solution displayed')
+        plt.scatter(norm_fun[:,0], norm_fun[:,1], c=color, label=f"gen {gen+1}")
+        if ind > -1:
+            plt.scatter(norm_fun[ind,0], norm_fun[ind,1], c=color, edgecolors='cyan', linewidth=2)#, label='solution displayed')
         
     plt.xlabel('Distance (negative)')
     plt.ylabel('Stability (negative)')
-    title = f'Solution: {sol} | Distance: {fun[ind,0]:.3f} | Stability: {fun[ind,1]:.3f}'
+    if ind > -1:
+        title = f'Solution: {sol} | Distance: {norm_fun[ind,0]:.3f} | Stability: {norm_fun[ind,1]:.3f}'
+    else:
+        title = 'Pareto front'
     plt.title(title)
     plt.legend()
     # plt.savefig('./{}_generation_{}.pdf'.format(exp, gen))
     plt.show()
+
+    return ind
 
 
 def read_ground_contacts(path_data):
@@ -594,9 +604,11 @@ def plot_data(
                     axs[i].plot(time[start:stop], torq[start:stop], label=joint)
             if len(data2plot.keys()) == 1:
                 axs.set_ylabel('Joint torques\nfrom muscle ' + r'$(\mu Nmm)$')
+                axs.set_ylim(-0.5, 0.5)
             else:
                 axs[i].set_ylabel('Joint torques\nfrom muscle ' + r'$(\mu Nmm)$')
-
+                axs[i].set_ylim(-0.5, 0.5)
+                
         if plot == 'angles_sim':
             for joint, ang in data.items():
                 time = np.arange(0, len(ang), 1) / steps
@@ -892,6 +904,7 @@ def plot_collision_diagram(
 def plot_fly_path(
         path_data,
         generations=[],
+        solutions=[],
         sequence=False,
         heading=True,
         begin=0,
@@ -912,23 +925,28 @@ def plot_fly_path(
     """
 
     ball_data_list = []
-    colors = ['winter', 'copper', 'Purples', 'Greens', 'Oranges']
+
+    val_max = 0
+    val_min = np.inf
+
+    if generations:
+        for gen in generations:
+            if not solutions:
+                gen_folder = os.path.join(path_data, f'gen_{gen}')
+                solutions = [s.split('_')[-1] for s in os.listdir(gen_folder)]
+            for sol in solutions:
+                sim_res_folder = os.path.join(path_data, f'gen_{gen}', f'sol_{sol}','physics','ball_rotations.h5')
+                ball_data_list.append(sim_res_folder)
+    else:
+        sim_res_folder = os.path.join(path_data, 'physics','ball_rotations.h5')
+        ball_data_list.append(sim_res_folder)
 
     fig = plt.figure()
     ax = plt.axes()
     m = MarkerStyle(marker=r'$\rightarrow$')
     ax.set_xlabel('x (mm)')
     ax.set_ylabel('y (mm)')
-
-    val_max = 0
-
-    if generations:
-        for gen in generations:
-            sim_res_folder = os.path.join(path_data, f'gen_{gen}', 'physics','ball_rotations.h5')
-            ball_data_list.append(sim_res_folder)
-    else:
-        sim_res_folder = os.path.join(path_data, 'physics','ball_rotations.h5')
-        ball_data_list.append(sim_res_folder)
+    colors = plt.cm.Greens(np.linspace(0.3,1,len(ball_data_list)))
 
     for ind, ball_data in enumerate(ball_data_list):
 
@@ -990,19 +1008,30 @@ def plot_fly_path(
                 plt.pause(0.001)
                 
         
-        #if generations:
-        #    max_x = np.max(np.array(x))
+        if generations:
+            max_x = np.max(np.array(x))
+            min_x = np.min(np.array(x))
 
-        #    if max_x > val_max:
-        #        val_max = max_x
+            if max_x > val_max:
+                val_max = max_x
 
-        #    lim = val_max + 0.05 * val_max
-        #    ax.set_xlim(-2, lim)
-        #    ax.set_ylim(-lim / 2, lim / 2)
+            if min_x < val_min:
+                val_min = min_x
+
+            lim = val_max + 0.05 * val_max
+            low = val_min - 0.05 * val_min
+            ax.set_xlim(low, lim)
+            ax.set_ylim(-lim / 2, lim / 2)
 
         if not sequence:
             if generations:
-                ax.plot(x, y, linewidth=2, label='Gen ' + str(int(generations[ind]) + 1))
+                gen_label = generations[int(ind/len(solutions))] + 1
+                sol_label = solutions[int(ind%len(solutions))]
+                ax.plot(x,
+                        y,
+                        linewidth=2,
+                        label=f'Gen {gen_label}-{sol_label}',
+                        c=colors[ind])
                 ax.legend()
             else:
                 ax.plot(x, y, linewidth=2)
