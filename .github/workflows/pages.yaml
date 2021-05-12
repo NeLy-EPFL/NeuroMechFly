@@ -1,0 +1,23 @@
+name: "Github pages CI/CD"
+description: "Workflow to build documentation webpage"
+author: 'Shravan Tata'
+branding:
+  icon: 'book'
+  color: 'purple'
+on:
+  push:
+    branches:
+      master # TODO: Change to main once branches are renamed
+  page_build:
+env:
+  SPHINX_DOCS_SRC:docs/source
+  SPHINX_HTML:docs/build/html
+jobs:
+  pages:
+    name: Build and deploy github pages
+    steps:
+      - name: Init
+        run: |
+          echo "The job was automatically triggered by a ${{ github.event_name }} event."
+          echo "This job is now running on a ${{ runner.os }} server hosted by GitHub!"
+          echo "The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
