@@ -7,7 +7,8 @@ branding:
 on:
   push:
     branches:
-      master # TODO: Change to main once branches are renamed
+      - master # TODO: Change to main once branches are renamed
+      - setup-github-pages
   page_build:
 env:
   SPHINX_DOCS_SRC:docs/source
