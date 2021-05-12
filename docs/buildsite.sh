@@ -2,10 +2,15 @@
 set -x
 
 apt-get update
-apt-get -y install git rsync python3-sphinx python3-sphinx-rtd-theme
+apt-get -y install git rsync python3-sphinx python3-sphinx-rtd-theme python3-pip
 
 pwd ls -lah
 export SOURCE_DATE_EPOCH=$(git log -1 --pretty=%ct)
+
+###################
+# INSTALL PACKAGE #
+###################
+python3 -m pip install .
 
 ##############
 # BUILD DOCS #
