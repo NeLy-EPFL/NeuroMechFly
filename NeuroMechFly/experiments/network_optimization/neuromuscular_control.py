@@ -462,6 +462,8 @@ class DrosophilaSimulation(BulletSimulation):
             return np.argmin(fun[:, 0])
         if criteria == 'slowest':
             return np.argmax(fun[:, 0])
+        if criteria == 'tradeoff':
+            return np.argmin(np.sqrt(fun[:, 0]**2+fun[:, 1]**2))
         if criteria == 'medium':
             mida = mid(fun[:,0])
             midb = mid(fun[:,1])

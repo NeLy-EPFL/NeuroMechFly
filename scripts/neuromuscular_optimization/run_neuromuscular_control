@@ -98,7 +98,7 @@ if __name__ == "__main__":
 
     #: Simulation options
     sim_options = {
-        "headless": False,
+        "headless": True,
         "model": model_path,
         "model_offset": [0., 0., 11.2e-3],
         "run_time": run_time,
@@ -148,7 +148,7 @@ if __name__ == "__main__":
     results_path = os.path.join(
         neuromechfly_path,
         'scripts/neuromuscular_optimization',
-        f"optimization_{exp}",
+        f"simulation_{exp}",
         f"gen_{gen}",
         f"sol_{args.sol}"
     )
