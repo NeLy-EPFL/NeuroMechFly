@@ -19,7 +19,7 @@ make html
 #######################
 # Update GitHub Pages #
 #######################
-
+echo "$({GITHUB_ACTOR})"
 git config --global user.name "${GITHUB_ACTOR}"
 git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
 
@@ -29,7 +29,7 @@ rsync -av "build/html/" "${docroot}/"
 pushd "${docroot}"
 
 git init
-git remote add deploy "https://github.com/${GITHUB_REPOSITORY}.git"
+git remote add deploy "https://token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
 git checkout -b gh-pages
 
 # Adds .nojekyll file to the root to signal to GitHub that
@@ -51,6 +51,7 @@ git add .
 
 # Make a commit with changes and any new files
 msg="Updating Docs for commit ${GITHUB_SHA} made on `date -d"@${SOURCE_DATE_EPOCH}" --iso-8601=seconds` from ${GITHUB_REF} by ${GITHUB_ACTOR}"
+echo msg
 git commit -am "${msg}"
 
 # overwrite the contents of the gh-pages branch on our github.com repo

@@ -4,6 +4,8 @@ on:
     branches:
       - master # TODO: Change to main once branches are renamed
       - setup-github-pages
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 jobs:
   pages:
     name: Build and deploy github pages
@@ -11,11 +13,15 @@ jobs:
     container: debian:buster-slim
     steps:
       - name: Start
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "The job was automatically triggered by a ${{ github.event_name }} event."
           echo "This job is now running on a ${{ runner.os }} server hosted by GitHub!"
           echo "The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
       - name: Install prerequisities and clone repo
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -x
           apt-get update
@@ -29,5 +35,7 @@ jobs:
           echo "$(pwd)"
           echo "$(ls -a)"
       - name: Run build script for Sphinx pages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: "docs/buildsite.sh"
         shell: bash
