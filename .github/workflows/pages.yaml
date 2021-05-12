@@ -1,9 +1,4 @@
 name: "Github pages CI/CD"
-description: "Workflow to build documentation webpage"
-author: 'Shravan Tata'
-branding:
-  icon: 'book'
-  color: 'purple'
 on:
   push:
     branches:
