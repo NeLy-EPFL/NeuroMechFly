@@ -7,6 +7,7 @@ on:
 jobs:
   pages:
     name: Build and deploy github pages
+    runs-on: ubuntu-latest
     steps:
       - name: Init
         run: |
