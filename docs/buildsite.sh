@@ -10,7 +10,7 @@ export SOURCE_DATE_EPOCH=$(git log -1 --pretty=%ct)
 ###################
 # INSTALL PACKAGE #
 ###################
-python3 -m pip install .
+python3 -m pip install . --user
 
 ##############
 # BUILD DOCS #
