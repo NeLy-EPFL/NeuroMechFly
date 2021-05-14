@@ -1,0 +1,176 @@
+#!/usr/bin/env python
+""" Perform sensitivity analysis """
+
+from NeuroMechFly.experiments.kinematic_replay import kinematic_replay
+from farms_container import Container
+import os
+from pathlib import Path
+import pkgutil
+import glob
+from datetime import datetime
+import numpy as np 
+import pandas as pd 
+import pickle 
+
+neuromechfly_path = Path(pkgutil.get_loader("NeuroMechFly").get_filename()).parents[1]
+
+def load_data(path):
+    """ Loads the simulation data from h5 files into a dictionary.
+
+    Returns
+    -------
+    [dict]
+        Dictionary contains the physics data of each simulation run.
+
+    Raises
+    ------
+    FileNotFoundError
+        When directory does not exist.
+    """    
+
+    file_names = [
+        'joint_positions',
+        'joint_velocities',
+        'joint_torques',
+        'ground_contacts'
+        ]
+
+    pybullet_data = {key: dict() for key in file_names}
+
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"{path} is not a valid path")
+     
+    for folder_name in os.listdir(path):
+        if folder_name.startswith('.'):
+            continue
+        for physics_file_name in file_names:
+            print(f"Loading {physics_file_name} in {folder_name}...")
+            dir_name = os.path.join(
+                path,
+                folder_name,
+                'physics',
+                physics_file_name + '.h5',
+            )
+            pybullet_data[physics_file_name][folder_name] = pd.read_hdf(dir_name)
+
+    return pybullet_data
+
+if __name__ == "__main__":
+    """ Main. """
+    run_time = 8.972
+    time_step = 0.001
+    behavior = 'walking'
+
+    #: Setting up the collision and ground sensors
+    side = ['L', 'R']
+    pos = ['F', 'M', 'H']
+    leg_segments = ['Tibia'] + ['Tarsus' + str(i) for i in range(1, 6)]
+    left_front_leg = ['LF' + name for name in leg_segments]
+    right_front_leg = ['RF' + name for name in leg_segments]
+    body_segments = [s + b for s in side for b in ['Eye', 'Antenna']]
+
+    self_collision = []
+    for link0 in left_front_leg:
+        for link1 in right_front_leg:
+            self_collision.append([link0, link1])
+
+    for link0 in left_front_leg + right_front_leg:
+        for link1 in body_segments:
+            if link0[0] == link1[0]:
+                self_collision.append([link0, link1])
+
+    ground_contact = [
+        s +
+        p +
+        name for s in side for p in pos for name in leg_segments if name != 'Tibia']
+
+    #: Setting the fixed joint angles to default values, can be altered to change the appearance of the fly
+    fixed_positions = {
+            'joint_A3': -15,
+            'joint_A4': -15,
+            'joint_A5': -15,
+            'joint_A6': -15,
+            'joint_LAntenna': 35,
+            'joint_RAntenna': -35,
+            'joint_Rostrum': 90,
+            'joint_Haustellum': -60,
+            'joint_LWing_roll': 90,
+            'joint_LWing_yaw': -17,
+            'joint_RWing_roll': -90,
+            'joint_RWing_yaw': 17,
+            'joint_Head': 10
+        }
+
+    #: Setting up the paths for the SDF and POSE files
+    model_path = os.path.join(neuromechfly_path, 'data/design/sdf/neuromechfly_noLimits.sdf')
+    pose_path = os.path.join(neuromechfly_path, 'data/config/pose/pose_default.yaml')
+    
+    #: Paths of the position and velocity data
+    joint_tracking_path = os.path.join(neuromechfly_path, f'data/joint_tracking/{behavior}/df3d')
+    angles_path = glob.glob(joint_tracking_path + '/joint_angles*.pkl')[0]
+    velocity_path = glob.glob(joint_tracking_path + '/joint_velocities*.pkl')[0]
+    
+    try:
+        data_path = os.path.join(neuromechfly_path, 'data/sensitivity_analysis/')
+        os.makedirs(data_path)
+        print('Directory does not exist, creating...')
+    except FileExistsError:
+        print('Directory already exists!')
+        pass
+
+    #: Sweep across varying proportional and derivative gain values
+    for proportional_gain in np.arange(0.1,1.1,0.1):
+        for derivative_gain in np.arange(0.1,1.1,0.1):
+            #: Simulation options
+            sim_options = {
+                "headless": True,
+                "model": model_path,
+                "pose": pose_path,
+                "model_offset": [0., 0, 11.2e-3],
+                "run_time": run_time,
+                "base_link": 'Thorax',
+                "ground_contacts": ground_contact,
+                "self_collisions": self_collision,
+                "draw_collisions": True, #: Set True to change the color of colliding segments
+                "record": False, #: Set True to record the simulation
+                'camera_distance': 5.5,
+                'track': False,
+                'moviename': './videos/kinematic_replay_video.mp4',
+                'moviespeed': 0.2, #: Speed of the recorded movie
+                'slow_down': False,
+                'sleep_time': 0.001,
+                'rot_cam': False, #: Set true to rotate the camera automatically
+                'behavior': behavior,
+                'ground': 'ball'
+            }
+
+            #: Initialize the container
+            container = Container(run_time / time_step)
+            #: Initialize the simulation
+            animal = kinematic_replay.DrosophilaSimulation(
+                container,
+                sim_options,
+                fixed_positions=fixed_positions,
+                kp=proportional_gain, 
+                kv=derivative_gain,
+                angles_path=angles_path,
+                velocity_path=velocity_path
+            )
+            #: Run the simulation
+            animal.run(optimization=False)
+            #: Dump the results based on the date
+            animal.container.dump(
+                dump_path=os.path.join(
+                    data_path,
+                    'kp{}_kv{}'.format(
+                        round(proportional_gain,1),
+                        round(derivative_gain,1),
+                    )
+                ),
+                overwrite=False
+            )
+    
+    #: Load data
+    pybullet_data = load_data(data_path)
+    #: Save data 
+    pickle.dump(pybullet_data, open(os.path.join(data_path,"sensitivity_analysis_data.pkl"), "wb"))
