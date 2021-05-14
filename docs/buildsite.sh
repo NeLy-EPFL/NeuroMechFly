@@ -2,7 +2,7 @@
 set -x
 
 apt-get update
-apt-get -y install git rsync python3-pip python3-venv
+apt-get -y install git rsync python3-pip python3-venv python3-sphinx python3-sphinx-rtd-theme python3-numpy
 
 pwd ls -lah
 export SOURCE_DATE_EPOCH=$(git log -1 --pretty=%ct)
@@ -19,8 +19,6 @@ source nmf/bin/activate
 python -m pip install numpy
 python -m pip install cython
 python -m pip install wheel
-python -m pip sphinx
-python -m pip sphinx_rtd_theme
 python -m pip install . --user --no-deps
 
 ##############
@@ -36,7 +34,6 @@ make html
 #######################
 # Update GitHub Pages #
 #######################
-echo "$({GITHUB_ACTOR})"
 git config --global user.name "${GITHUB_ACTOR}"
 git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
 
