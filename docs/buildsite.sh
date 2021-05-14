@@ -12,11 +12,13 @@ export SOURCE_DATE_EPOCH=$(git log -1 --pretty=%ct)
 ###################
 export PIP_CACHE_DIR=~/.local/pip-cache
 mkdir -p $PIP_CACHE_DIR
-ls -l $PIP_CACHE_DIR
+ls -l $PIP_CACHE_DI
+python3 -m pip install wheel
 python3 -m venv nmf
 source nmf/bin/activate
 python -m pip install numpy
 python -m pip install cython
+python -m pip install wheel
 python -m pip install git+https://gitlab.com/FARMSIM/farms_container.git
 python -m pip install . --user
 
