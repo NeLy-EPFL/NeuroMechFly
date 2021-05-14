@@ -2,7 +2,7 @@
 set -x
 
 apt-get update
-apt-get -y install git rsync python3-sphinx python3-sphinx-rtd-theme python3-pip python3-venv
+apt-get -y install git rsync python3-pip python3-venv
 
 pwd ls -lah
 export SOURCE_DATE_EPOCH=$(git log -1 --pretty=%ct)
@@ -19,6 +19,8 @@ source nmf/bin/activate
 python -m pip install numpy
 python -m pip install cython
 python -m pip install wheel
+python -m pip sphinx
+python -m pip sphinx_rtd_theme
 python -m pip install . --user --no-deps
 
 ##############
@@ -54,11 +56,8 @@ touch .nojekyll
 # Add README
 cat > README.md <<EOF
 # README for the GitHub Pages Branch
-This branch is simply a cache for the website served from https://annegentle.github.io/create-demo/,
+This branch is simply a cache for the website served from https://nely-epfl.github.io/NeuroMechFly/,
 and is  not intended to be viewed on github.com.
-For more information on how this site is built using Sphinx, Read the Docs, and GitHub Actions/Pages, see:
- * https://www.docslikecode.com/articles/github-pages-python-sphinx/
- * https://tech.michaelaltfield.net/2020/07/18/sphinx-rtd-github-pages-1
 EOF
 
 # Copy the resulting html pages built from Sphinx to the gh-pages branch
