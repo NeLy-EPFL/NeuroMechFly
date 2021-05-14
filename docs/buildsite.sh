@@ -10,8 +10,16 @@ export SOURCE_DATE_EPOCH=$(git log -1 --pretty=%ct)
 ###################
 # INSTALL PACKAGE #
 ###################
+export PIP_CACHE_DIR=~/.local/pip-cache
+mkdir -p $PIP_CACHE_DIR
+python3 -m pip cache dir
+ls -l $PIP_CACHE_DIR
 python3 -m venv nmf
 source nmf/bin/activate
+which pip
+pip -V
+python3 -V
+python -m pip cache dir
 python -m pip install . --user
 
 ##############
