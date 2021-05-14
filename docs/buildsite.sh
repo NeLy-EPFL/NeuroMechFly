@@ -19,8 +19,7 @@ source nmf/bin/activate
 python -m pip install numpy
 python -m pip install cython
 python -m pip install wheel
-python -m pip install git+https://gitlab.com/FARMSIM/farms_container.git
-python -m pip install . --user
+python -m pip install . --user --no-deps
 
 ##############
 # BUILD DOCS #
