@@ -8,11 +8,13 @@ from pathlib import Path
 import pkgutil
 import glob
 from datetime import datetime
-import numpy as np 
-import pandas as pd 
-import pickle 
+import numpy as np
+import pandas as pd
+import pickle
 
-neuromechfly_path = Path(pkgutil.get_loader("NeuroMechFly").get_filename()).parents[1]
+neuromechfly_path = Path(pkgutil.get_loader(
+    "NeuroMechFly").get_filename()).parents[1]
+
 
 def load_data(path):
     """ Loads the simulation data from h5 files into a dictionary.
@@ -26,20 +28,20 @@ def load_data(path):
     ------
     FileNotFoundError
         When directory does not exist.
-    """    
+    """
 
     file_names = [
         'joint_positions',
         'joint_velocities',
         'joint_torques',
         'ground_contacts'
-        ]
+    ]
 
     pybullet_data = {key: dict() for key in file_names}
 
     if not os.path.exists(path):
         raise FileNotFoundError(f"{path} is not a valid path")
-     
+
     for folder_name in os.listdir(path):
         if folder_name.startswith('.'):
             continue
@@ -51,9 +53,11 @@ def load_data(path):
                 'physics',
                 physics_file_name + '.h5',
             )
-            pybullet_data[physics_file_name][folder_name] = pd.read_hdf(dir_name)
+            pybullet_data[physics_file_name][folder_name] = pd.read_hdf(
+                dir_name)
 
     return pybullet_data
+
 
 if __name__ == "__main__":
     """ Main. """
@@ -86,32 +90,41 @@ if __name__ == "__main__":
 
     #: Setting the fixed joint angles to default values, can be altered to change the appearance of the fly
     fixed_positions = {
-            'joint_A3': -15,
-            'joint_A4': -15,
-            'joint_A5': -15,
-            'joint_A6': -15,
-            'joint_LAntenna': 35,
-            'joint_RAntenna': -35,
-            'joint_Rostrum': 90,
-            'joint_Haustellum': -60,
-            'joint_LWing_roll': 90,
-            'joint_LWing_yaw': -17,
-            'joint_RWing_roll': -90,
-            'joint_RWing_yaw': 17,
-            'joint_Head': 10
-        }
+        'joint_A3': -15,
+        'joint_A4': -15,
+        'joint_A5': -15,
+        'joint_A6': -15,
+        'joint_LAntenna': 35,
+        'joint_RAntenna': -35,
+        'joint_Rostrum': 90,
+        'joint_Haustellum': -60,
+        'joint_LWing_roll': 90,
+        'joint_LWing_yaw': -17,
+        'joint_RWing_roll': -90,
+        'joint_RWing_yaw': 17,
+        'joint_Head': 10
+    }
 
     #: Setting up the paths for the SDF and POSE files
-    model_path = os.path.join(neuromechfly_path, 'data/design/sdf/neuromechfly_noLimits.sdf')
-    pose_path = os.path.join(neuromechfly_path, 'data/config/pose/pose_default.yaml')
-    
+    model_path = os.path.join(neuromechfly_path,
+                              'data/design/sdf/neuromechfly_noLimits.sdf')
+    pose_path = os.path.join(
+        neuromechfly_path,
+        'data/config/pose/pose_default.yaml')
+
     #: Paths of the position and velocity data
-    joint_tracking_path = os.path.join(neuromechfly_path, f'data/joint_tracking/{behavior}/df3d')
+    joint_tracking_path = os.path.join(
+        neuromechfly_path,
+        f'data/joint_tracking/{behavior}/df3d')
     angles_path = glob.glob(joint_tracking_path + '/joint_angles*.pkl')[0]
-    velocity_path = glob.glob(joint_tracking_path + '/joint_velocities*.pkl')[0]
-    
+    velocity_path = glob.glob(
+        joint_tracking_path +
+        '/joint_velocities*.pkl')[0]
+
     try:
-        data_path = os.path.join(neuromechfly_path, 'data/sensitivity_analysis/')
+        data_path = os.path.join(
+            neuromechfly_path,
+            'data/sensitivity_analysis/')
         os.makedirs(data_path)
         print('Directory does not exist, creating...')
     except FileExistsError:
@@ -119,8 +132,8 @@ if __name__ == "__main__":
         pass
 
     #: Sweep across varying proportional and derivative gain values
-    for proportional_gain in np.arange(0.1,1.1,0.1):
-        for derivative_gain in np.arange(0.1,1.1,0.1):
+    for proportional_gain in np.arange(0.1, 1.1, 0.1):
+        for derivative_gain in np.arange(0.1, 1.1, 0.1):
             #: Simulation options
             sim_options = {
                 "headless": True,
@@ -131,15 +144,15 @@ if __name__ == "__main__":
                 "base_link": 'Thorax',
                 "ground_contacts": ground_contact,
                 "self_collisions": self_collision,
-                "draw_collisions": True, #: Set True to change the color of colliding segments
-                "record": False, #: Set True to record the simulation
+                "draw_collisions": True,  # : Set True to change the color of colliding segments
+                "record": False,  # : Set True to record the simulation
                 'camera_distance': 5.5,
                 'track': False,
                 'moviename': './videos/kinematic_replay_video.mp4',
-                'moviespeed': 0.2, #: Speed of the recorded movie
+                'moviespeed': 0.2,  # : Speed of the recorded movie
                 'slow_down': False,
                 'sleep_time': 0.001,
-                'rot_cam': False, #: Set true to rotate the camera automatically
+                'rot_cam': False,  # : Set true to rotate the camera automatically
                 'behavior': behavior,
                 'ground': 'ball'
             }
@@ -151,7 +164,7 @@ if __name__ == "__main__":
                 container,
                 sim_options,
                 fixed_positions=fixed_positions,
-                kp=proportional_gain, 
+                kp=proportional_gain,
                 kv=derivative_gain,
                 angles_path=angles_path,
                 velocity_path=velocity_path
@@ -163,14 +176,20 @@ if __name__ == "__main__":
                 dump_path=os.path.join(
                     data_path,
                     'kp{}_kv{}'.format(
-                        round(proportional_gain,1),
-                        round(derivative_gain,1),
+                        round(proportional_gain, 1),
+                        round(derivative_gain, 1),
                     )
                 ),
                 overwrite=False
             )
-    
+
     #: Load data
     pybullet_data = load_data(data_path)
-    #: Save data 
-    pickle.dump(pybullet_data, open(os.path.join(data_path,"sensitivity_analysis_data.pkl"), "wb"))
+    #: Save data
+    pickle.dump(
+        pybullet_data,
+        open(
+            os.path.join(
+                data_path,
+                "sensitivity_analysis_data.pkl"),
+            "wb"))
