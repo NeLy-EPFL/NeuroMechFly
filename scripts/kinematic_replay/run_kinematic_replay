@@ -4,7 +4,7 @@
 from NeuroMechFly.experiments.kinematic_replay import \
     kinematic_replay
 from NeuroMechFly.utils.plotting import \
-    (plot_angles_torques_grf, plot_collision_diagram)
+    (plot_data, plot_collision_diagram)
 from farms_container import Container
 import os
 import argparse
@@ -131,7 +131,7 @@ if __name__ == "__main__":
 
     if args.plot:
         time = (3.5, 4.6) if behavior == 'walking' else (0.5, 2.6)
-        plot_angles_torques_grf(
+        plot_data(
             dump_path,
             'RF',
             sim_data=behavior,
@@ -141,10 +141,7 @@ if __name__ == "__main__":
             plot_collisions=True,
             collisions_across=True,
             begin=time[0],
-            end=time[1],
-            time_step=0.001,
-            torque_scaling_factor=1e9,
-            grf_scaling_factor=1e6)
+            end=time[1])
 
         plot_collision_diagram(dump_path,
                                behavior,

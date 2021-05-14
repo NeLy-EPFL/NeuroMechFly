@@ -347,13 +347,6 @@ def plot_data(
         leg_key='RF',
         joint_key='Coxa',
         sim_data='walking',
-<<<<<<< HEAD
-=======
-        angles={},
-        plot_muscles_act=False,
-        plot_torques_muscles=False,
-        plot_angles_sim=False,
->>>>>>> 33733ffcf21449d300d0603a238991ce6e5bf286
         plot_angles=True,
         plot_torques=True,
         plot_grf=True,

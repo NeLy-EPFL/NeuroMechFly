@@ -2,6 +2,8 @@
 """ Script to run neuromuscular control. """
 
 from NeuroMechFly.experiments.network_optimization import neuromuscular_control
+from NeuroMechFly.utils.plotting import \
+    (plot_data, plot_collision_diagram)
 from farms_container import Container
 
 import numpy as np
