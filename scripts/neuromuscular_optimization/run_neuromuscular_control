@@ -2,6 +2,8 @@
 """ Script to run neuromuscular control. """
 
 from NeuroMechFly.experiments.network_optimization import neuromuscular_control
+from NeuroMechFly.utils.plotting import \
+    (plot_data, plot_collision_diagram)
 from farms_container import Container
 
 import numpy as np
@@ -109,11 +111,11 @@ if __name__ == "__main__":
         'self_collisions': self_collision,
         "draw_collisions": True, #: Set True to change the color of colliding segments
         "record": False, #: Set True to record the simulation
-        'camera_distance': 5.5,
+        'camera_distance': 4.5,
         'track': False,
         'moviename': f'{exp}_gen_{gen}_sol_{args.sol}.mp4',
         'moviespeed': 0.3, #: Speed of the recorded movie
-        'slow_down': True,
+        'slow_down': False,
         'sleep_time': 0.001,
         'rot_cam': False, #: Set true to rotate the camera automatically
         'ground': 'ball'
@@ -148,7 +150,7 @@ if __name__ == "__main__":
     results_path = os.path.join(
         neuromechfly_path,
         'scripts/neuromuscular_optimization',
-        f"optimization_{exp}",
+        f"simulation_{exp}",
         f"gen_{gen}",
         f"sol_{args.sol}"
     )

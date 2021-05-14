@@ -50,7 +50,7 @@ NeuroMechFly is run in [PyBullet](https://github.com/bulletphysics/bullet3/tree/
 </p>
 
 Run the following commands on the terminal to reproduce the kinematic replay experiments:
-- ```$ run_kinematic_replay --behavior walking```  for locomotion on the spherical treadmill. To simulate foreleg/antennal grooming, change ```walking``` at the end of the command to ```grooming```.
+- ```$ run_kinematic_replay --behavior walking```  for locomotion on the spherical treadmill. To simulate foreleg/antennal grooming, change ```walking``` at the end of the command to ```grooming```. To plot the results after the simulation is over, run ```$ run_kinematic_replay --behavior walking --plot``` instead.
 **Note:** Locomotion begins ~2.5 seconds into the simulation. Until then, the fly stands still.
 
 - ```$ run_kinematic_replay_ground --perturbation``` to simulate locomotion on the ground with perturbations enabled. Remove ```--perturbation``` to disable perturbations. To change the behavior to grooming, append ```--behavior grooming``` to the command.
@@ -88,8 +88,9 @@ Run the following commands on the terminal to reproduce the locomotor gait optim
 
 **3. Sensitivity Analysis**
 
-- First, download the simulation data pertaining to the sensitivity analyses from [here](https://drive.google.com/drive/folders/1H0G3mdeKLyGkS1DYxbOeOCXgywJmwfs9?usp=sharing) and place these files in the folder, *data/sensitivity_analysis*
+- First, download the simulation data pertaining to the sensitivity analyses from [here](https://drive.google.com/drive/folders/1H0G3mdeKLyGkS1DYxbOeOCXgywJmwfs9?usp=sharing) and place these files in the folder, *data/sensitivity_analysis/*
 - To reproduce the sensitivity analysis figures, ```$ run_sensitivity_analysis```. Make sure that the downloaded files are in the correct location.
+- To perform the sensitivity analysis in simulation from stratch, run ```$ run_grid_search``` in the terminal. This will run the locomotion behavior for 100 times for each pair of controller gain parameters and saved the results under *data/sensitivity_analysis*.
 
 ## Miscellaneous
 
@@ -125,7 +126,7 @@ with open(path/to/angles, 'rb') as f:
 start_time = 3.5 # 0.5 for grooming
 stop_time = 4.6 # 2.5 for grooming
 
-plotting.plot_data(path_data,
+plotting.plot_angles_torques_grf(path_data,
 		   leg,
 		   angles=angles,
 		   plot_angles=True,
@@ -170,7 +171,7 @@ leg = 'RF'
 start_time = 1.0
 stop_time = 1.5
 
-plotting.plot_data(path_data,
+plotting.plot_angles_torques_grf(path_data,
 		   leg,
 		   plot_angles=False,
 		   plot_torques=False,

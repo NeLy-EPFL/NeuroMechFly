@@ -27,12 +27,15 @@ setuptools.setup(
         'dataclasses',
         'jmetalpy',
         'tables',
-        'pillow'
+        'pillow',
+        'shapely',
+        'scikit-posthocs'
     ],
     scripts=['scripts/kinematic_replay/run_kinematic_replay',
         'scripts/kinematic_replay/run_kinematic_replay_ground',
         'scripts/neuromuscular_optimization/run_multiobj_optimization',
         'scripts/neuromuscular_optimization/run_neuromuscular_control',
-        'scripts/sensitivity_analysis/run_sensitivity_analysis'
+        'scripts/sensitivity_analysis/run_sensitivity_analysis',
+        'scripts/sensitivity_analysis/run_grid_search'
     ],
 )

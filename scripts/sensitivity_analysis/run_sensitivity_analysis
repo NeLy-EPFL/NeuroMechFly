@@ -8,13 +8,16 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import glob
+import argparse
 
 from NeuroMechFly.utils.plotting import (heatmap_plot, plot_kp_joint,
                                          plot_mu_sem)
 from NeuroMechFly.utils.sensitivity_analysis import (
     calculate_mse_joints, calculate_statistics_joints)
 
-neuromechfly_path = Path(pkgutil.get_loader("NeuroMechFly").get_filename()).parents[1]
+neuromechfly_path = Path(pkgutil.get_loader(
+    "NeuroMechFly").get_filename()).parents[1]
 
 joints = [
     'Coxa',
@@ -26,23 +29,49 @@ joints = [
     'Tarsus1']
 
 legs = ['LF', 'LM', 'LH', 'RF', 'RM', 'RH']
-beg = 3600
-end = 4600
+beg = 3100
+end = 3900
 time_step = 0.001
 gain = np.arange(0.1, 1.1, 0.1)
 
-joints_torque = ['joint_LFCoxa', 'joint_LMCoxa', 'joint_LHCoxa']
+joints_torque = ['joint_RFCoxa', 'joint_RMCoxa', 'joint_RHCoxa']
 unit_torque = '$\\mu$Nmm'
-legs_grf = ['LF', 'LM', 'LH']
+legs_grf = ['RF', 'RM', 'RH']
 unit_force = '$\\mu$N'
+
+
+def convert_dict(data):
+    names_equivalence = {
+        'ThC_pitch': 'Coxa',
+        'ThC_yaw': 'Coxa_yaw',
+        'ThC_roll': 'Coxa_roll',
+        'CTr_pitch': 'Femur',
+        'CTr_roll': 'Femur_roll',
+        'FTi_pitch': 'Tibia',
+        'TiTa_pitch': 'Tarsus1'
+    }
+
+    converted_dict = {}
+    for leg, joints in data.items():
+        for joint_name, val in joints.items():
+            new_name = 'joint_' + leg[:2] + names_equivalence[joint_name]
+            converted_dict[new_name] = val
+    return converted_dict
 
 
 def plot_figure_s1(save_fig: bool):
     """ Regenerates the Supplementary Figure 1. """
+
     joint_angles_mse_df, _ = calculate_mse_joints(
-        joint_angles, baseline_position, beg=100)
+        joint_data=joint_angles,
+        ground_truth=baseline_position,
+        beg=100
+    )
     joint_vel_mse_df, _ = calculate_mse_joints(
-        joint_velocities, baseline_velocity, beg=100)
+        joint_data=joint_velocities,
+        ground_truth=baseline_velocity,
+        beg=100
+    )
 
     pivot_pos, pivot_vel = 0, 0
     for leg in legs:
@@ -78,7 +107,7 @@ def plot_figure_s1(save_fig: bool):
 
 def plot_figure_s2_a(save_fig: bool):
     """ Regenerates the Supplementary Figure 2 A. """
-    fig, ax = plt.subplots(3, 1, figsize=(8, 10), sharex=True)
+    fig, ax = plt.subplots(3, 1, figsize=(14, 10), sharex=True)
     for i, joint in enumerate(joints_torque):
         plot_kp_joint(
             joint_torques,
@@ -87,8 +116,9 @@ def plot_figure_s2_a(save_fig: bool):
             full_name=joint,
             ax=ax[i],
             gain_range=np.arange(0.1, 1.1, 0.1),
-            constant='Kv0.9',
-            condition='Kp0.4_Kv0.9',
+            scaling_factor=1e9,
+            constant='kv0.9',
+            condition='kp0.4_kv0.9',
             beg=beg,
             intv=end - beg,
             time_step=time_step
@@ -110,8 +140,8 @@ def plot_figure_s2a_extra(save_fig: bool):
     """ Plots the Supplementary Figure 2 A's Variation. """
     torques_stat = calculate_statistics_joints(
         joint_torques,
-        scaling_factor=1,
-        constant='Kv0.9',
+        scaling_factor=1e9,
+        constant='kv0.9',
         force_calculation=False,
         joints=[
             'Coxa',
@@ -122,7 +152,7 @@ def plot_figure_s2a_extra(save_fig: bool):
             'Tibia',
             'Tarsus1'])
 
-    fig, ax = plt.subplots(3, 1, figsize=(8, 10), sharex=True)
+    fig, ax = plt.subplots(3, 1, figsize=(14, 10), sharex=True)
     for i, joint in enumerate(joints_torque):
         # Plot standard error and mean of one single joint torque
         plot_mu_sem(
@@ -146,7 +176,7 @@ def plot_figure_s2a_extra(save_fig: bool):
 def plot_figure_s2b(save_fig: bool):
     """ Regenerates the Supplementary Figure 2 B. """
 
-    fig, ax = plt.subplots(3, 1, figsize=(8, 10), sharex=True)
+    fig, ax = plt.subplots(3, 1, figsize=(14, 10), sharex=True)
     for i, leg in enumerate(legs_grf):
         plot_kp_joint(
             ground_contact_forces,
@@ -154,9 +184,10 @@ def plot_figure_s2b(save_fig: bool):
             calc_force=True,
             full_name=leg,
             gain_range=np.arange(0.1, 1.1, 0.1),
+            scaling_factor=1e6,
             ax=ax[i],
-            constant='Kv0.9',
-            condition='Kp0.4_Kv0.9',
+            constant='kv0.9',
+            condition='kp0.4_kv0.9',
             beg=beg,
             intv=end - beg
         )
@@ -175,12 +206,12 @@ def plot_figure_s2b_extra(save_fig: bool):
     """ Plots the Supplementary Figure 2 B's Variation. """
     grf_stat = calculate_statistics_joints(
         ground_contact_forces,
-        scaling_factor=1,
-        constant='Kv0.9',
+        scaling_factor=1e6,
+        constant='kv0.9',
         force_calculation=True,
     )
 
-    fig, ax = plt.subplots(3, 1, figsize=(8, 10), sharex=True)
+    fig, ax = plt.subplots(3, 1, figsize=(14, 10), sharex=True)
     for i, leg in enumerate(legs_grf):
         # Plot standard error and mean of one single leg GRF
         plot_mu_sem(
@@ -218,13 +249,13 @@ def load_data(pybullet_path, baseline_path_pos, baseline_path_vel):
         raise
     #: Load baseline files
     try:
-        baseline_position = pd.read_pickle(baseline_path_pos)
+        baseline_position = convert_dict(pd.read_pickle(baseline_path_pos))
     except FileNotFoundError:
         print(f'{baseline_path_pos} is not found!')
         raise
 
     try:
-        baseline_position = pd.read_pickle(baseline_path_vel)
+        baseline_velocity = convert_dict(pd.read_pickle(baseline_path_vel))
     except FileNotFoundError:
         print(f'{baseline_path_vel} is not found!')
         raise
@@ -237,12 +268,25 @@ def load_data(pybullet_path, baseline_path_pos, baseline_path_vel):
 
 if __name__ == '__main__':
     """ Main. """
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-s', '--save', default=False, action='store_true')
+    args = parser.parse_args()
+
     # NOTE: User should change the paths to where they download the data
-    path_pybullet = os.path.join(neuromechfly_path, 'data/sensitivity_analysis/sensitivity_analysis_data')
-    baseline_path_pos = os.path.join(neuromechfly_path, 'data/sensitivity_analysis/baseline_joint_angle.pkl')
-    baseline_path_vel = os.path.join(neuromechfly_path, 'data/sensitivity_analysis/baseline_joint_velocity.pkl')
+    path_pybullet = os.path.join(
+        neuromechfly_path,
+        'data/sensitivity_analysis/sensitivity_analysis_data.pkl')
+    joint_tracking_path = os.path.join(
+        neuromechfly_path,
+        'data/joint_tracking/walking/df3d')
+    baseline_path_pos = glob.glob(
+        joint_tracking_path +
+        '/joint_angles*.pkl')[0]
+    baseline_path_vel = glob.glob(
+        joint_tracking_path +
+        '/joint_velocities*.pkl')[0]
     #: True if figures to be saved
-    save_figures = False
+    save_figures = args.save
     #: Read data
     load_data(path_pybullet, baseline_path_pos, baseline_path_vel)
     #: Plot figures
