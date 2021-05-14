@@ -28,8 +28,8 @@ setuptools.setup(
         'jmetalpy',
         'tables',
         'pillow',
-        'shapely'
-
+        'shapely',
+        'scikit-posthocs'
     ],
     scripts=['scripts/kinematic_replay/run_kinematic_replay',
         'scripts/kinematic_replay/run_kinematic_replay_ground',
