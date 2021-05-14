@@ -6,8 +6,8 @@ setuptools.setup(
     version='0.1',
     description='Modules to run NeuroMechFly simulation',
     author='Neuroengineering Lab.',
-    author_email='victor.lobatorios@epfl.ch',
-    license='MIT',
+    author_email='NeuroMechFly@groupes.epfl.ch',
+    license='Apache 2.0',
     packages=setuptools.find_packages(),
     install_requires=[
         'farms_pylog @ git+https://gitlab.com/FARMSIM/farms_pylog.git',

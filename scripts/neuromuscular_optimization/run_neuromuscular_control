@@ -83,9 +83,22 @@ if __name__ == "__main__":
     model_path = os.path.join(neuromechfly_path, 'data/design/sdf/neuromechfly_limitsFromData.sdf')
     pose_path = os.path.join(neuromechfly_path, 'data/config/pose/pose_tripod.yaml')
     controller_path = os.path.join(neuromechfly_path, 'data/config/network/locomotion_network.graphml')
+    
+    #: Get experiment information
+    path = os.path.abspath(args.path)
+    exp_name = path.split('/')[-1]
+    exp_info = exp_name.split('_')
+
+    if 'run' in exp_name:
+        exp = f"{exp_name}"
+        gen = args.gen
+    else:
+        exp = 'last_run'
+        gen = 'final'
+
     #: Simulation options
     sim_options = {
-        "headless": False,
+        "headless": True,
         "model": model_path,
         "model_offset": [0., 0., 11.2e-3],
         "run_time": run_time,
@@ -98,8 +111,8 @@ if __name__ == "__main__":
         "record": False, #: Set True to record the simulation
         'camera_distance': 5.5,
         'track': False,
-        'moviename': 'neuromuscular_control.mp4',
-        'moviespeed': 0.2, #: Speed of the recorded movie
+        'moviename': f'{exp}_gen_{gen}_sol_{args.sol}.mp4',
+        'moviespeed': 0.3, #: Speed of the recorded movie
         'slow_down': True,
         'sleep_time': 0.001,
         'rot_cam': False, #: Set true to rotate the camera automatically
@@ -122,32 +135,26 @@ if __name__ == "__main__":
         'VAR.' + args.gen
         )
     fun, var = np.loadtxt(fun_path), np.loadtxt(var_path)
-    #: Get experiment information
-    path = os.path.abspath(args.path)
-    exp_name = path.split('/')[-1]
-    exp_info = exp_name.split('_')
-
-    if 'run' in exp_name:
-        exp = f"{exp_name}"
-        gen = args.gen
-    else:
-        exp = 'last_run'
-        gen = 'final'
 
     #: Select which solution to use (fastest, in this case)
     ind = animal.select_solution(args.sol, fun)
     params = var[ind]
     params = np.array(params)
+
     #: Run the selected parameter values in the simulation
     animal.update_parameters(params)
     animal.run(optimization=False)
     #: Dump the optimization results
-    animal.container.dump(
-        dump_path=os.path.join(
-            neuromechfly_path,
-            'scripts/neuromuscular_optimization/{}_gen_{}'.format(
-                exp, gen
-            )
-        ),
-        overwrite=False
+    results_path = os.path.join(
+        neuromechfly_path,
+        'scripts/neuromuscular_optimization',
+        f"simulation_{exp}",
+        f"gen_{gen}",
+        f"sol_{args.sol}"
     )
+    if not os.path.exists(results_path):
+        os.makedirs(results_path)
+    animal.container.dump(
+        dump_path=results_path,
+        overwrite=True
+        )
