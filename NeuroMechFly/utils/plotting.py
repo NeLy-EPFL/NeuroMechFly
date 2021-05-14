@@ -92,8 +92,8 @@ def plot_kp_joint(
     gain_range=np.arange(0.1, 1.1, 0.2),
     scaling_factor=1,
     ax=None,
-    constant='Kv0.9',
-    condition='Kp0.4_Kv0.9',
+    constant='kv0.9',
+    condition='kp0.4_kv0.9',
     beg=2000,
     intv=250,
     time_step=0.001,
@@ -102,7 +102,7 @@ def plot_kp_joint(
     """Plot the joint info of one specific leg versus independent variable.
 
     Args:
-        *args (np.array): force to be plotted, i.e. grf, lateral friction, thorax
+        *args (np.array): physical quantity to be plotted, i.e. grf, lateral friction, thorax
         multiple (bool, optional): plots vectors instead of norm.
         data (dictionary, optional): dictionary to be plotted, i.e. joint torques
         full_name (str, optional): key name, 'joint_LMTibia'.
@@ -120,8 +120,8 @@ def plot_kp_joint(
                 linewidth=2.5, color="red", label="Ground Truth")
 
     for k in gain_range:
-        k_value = "_".join((constant, 'Kv' +
-                            str(round(k, 1)))) if 'Kp' in constant else "_".join(('Kp' +
+        k_value = "_".join((constant, 'kv' +
+                            str(round(k, 1)))) if 'kp' in constant else "_".join(('kp' +
                                                                                   str(round(k, 1)), constant))
 
         color = plt.cm.winter(np.linalg.norm(k))
@@ -302,7 +302,6 @@ def plot_angles_torques_grf(
         path_data,
         leg_key,
         sim_data='walking',
-        angles={},
         plot_angles=True,
         plot_torques=True,
         plot_grf=True,
@@ -345,8 +344,25 @@ def plot_angles_torques_grf(
 
     length_data = 0
 
+    # if plot_angles:
+    #     angles_raw = angles[leg_key + '_leg']
+    #     data2plot['angles'] = {}
+    #     for label, match_labels in equivalence.items():
+    #         for key in angles_raw.keys():
+    #             if key in match_labels:
+    #                 if length_data == 0:
+    #                     length_data = len(angles_raw[key])
+    #                 data2plot['angles'][label] = angles_raw[key]
     if plot_angles:
-        angles_raw = angles[leg_key + '_leg']
+        angles_data = os.path.join(path_data, 'physics', 'joint_positions.h5')
+        angles_all = pd.read_hdf(angles_data)
+        angles_raw = {}
+        for joint, angle in angles_all.items():
+            if leg_key in joint and 'Haltere' not in joint:
+                if 'Tarsus' not in joint or 'Tarsus1' in joint:
+                    joint_data = joint.split('joint_')
+                    label = joint_data[1][2:]
+                    angles_raw[label] = angle.values
         data2plot['angles'] = {}
         for label, match_labels in equivalence.items():
             for key in angles_raw.keys():
@@ -537,9 +553,9 @@ def plot_angles_torques_grf(
                 axs[i].set_ylabel('Collision forces ' + r'$(\mu N)$')
 
         if len(data2plot.keys()) == 1:
-            axs.grid(True)
+            axs.grid(False)
         else:
-            axs[i].grid(True)
+            axs[i].grid(False)
 
         if plot != 'grf' and i == 0:
             if len(data2plot.keys()) == 1:
@@ -612,7 +628,7 @@ def plot_angles_torques_grf(
     plt.show()
 
 
-def plot_collisions_diagram(
+def plot_collision_diagram(
         path_data,
         sim_data,
         opt_res=False,
