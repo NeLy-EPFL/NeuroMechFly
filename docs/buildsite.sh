@@ -10,8 +10,9 @@ export SOURCE_DATE_EPOCH=$(git log -1 --pretty=%ct)
 ###################
 # INSTALL PACKAGE #
 ###################
-pip -V
-sudo -H pip install . --user
+python3 -m venv nmf
+source nmf/bin/activate
+python -m pip install . --user
 
 ##############
 # BUILD DOCS #
