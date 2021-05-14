@@ -14,9 +14,7 @@ from farms_network.neural_system import NeuralSystem
 from NeuroMechFly.sdf.bullet_load_sdf import load_sdf
 from tqdm import tqdm
 
-
 neuromechfly_path = Path(pkgutil.get_loader('NeuroMechFly').get_filename()).parents[1]
-
 
 class BulletSimulation(metaclass=abc.ABCMeta):
     """Methods to run bullet simulation."""
@@ -119,7 +117,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
 
     def __del__(self):
         print('Simulation has ended')
-        p.disconnect()
+        #p.disconnect()
 
     @staticmethod
     def rendering(render=1):
