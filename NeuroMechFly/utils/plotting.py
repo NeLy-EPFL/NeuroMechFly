@@ -101,8 +101,8 @@ def plot_kp_joint(
     gain_range=np.arange(0.1, 1.1, 0.2),
     scaling_factor=1,
     ax=None,
-    constant='Kv0.9',
-    condition='Kp0.4_Kv0.9',
+    constant='kv0.9',
+    condition='kp0.4_kv0.9',
     beg=2000,
     intv=250,
     time_step=0.001,
@@ -129,8 +129,8 @@ def plot_kp_joint(
                 linewidth=2.5, color="red", label="Ground Truth")
 
     for k in gain_range:
-        k_value = "_".join((constant, 'Kv' +
-                            str(round(k, 1)))) if 'Kp' in constant else "_".join(('Kp' +
+        k_value = "_".join((constant, 'kv' +
+                            str(round(k, 1)))) if 'kp' in constant else "_".join(('kp' +
                                                                                   str(round(k, 1)), constant))
 
         color = plt.cm.winter(np.linalg.norm(k))
@@ -396,7 +396,7 @@ def plot_data(
         plot_muscles_act=False,
         plot_torques_muscles=False,
         plot_angles_sim=False,
-        plot_angles=True,
+        plot_angles=False,
         plot_torques=True,
         plot_grf=True,
         plot_collisions=True,
