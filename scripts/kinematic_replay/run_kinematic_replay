@@ -68,11 +68,18 @@ if __name__ == "__main__":
     }
 
     #: Setting up the paths for the SDF and POSE files
-    model_path = os.path.join(neuromechfly_path,
-                              'data/design/sdf/neuromechfly_noLimits.sdf')
-    pose_path = os.path.join(
-        neuromechfly_path,
-        'data/config/pose/pose_default.yaml')
+    model_path = os.path.join(neuromechfly_path, 'data/design/sdf/neuromechfly_noLimits.sdf')
+    pose_path = os.path.join(neuromechfly_path, 'data/config/pose/pose_default.yaml')
+    results_path = os.path.join(
+            neuromechfly_path,
+            'scripts/kinematic_replay',
+            'simulation_results',
+            'kinematic_replay_{}_{}'.format(
+            behavior,
+            datetime.now().strftime('%y%m%d_%H%M%S')
+            ))
+    if not os.path.exists(results_path):
+        os.makedirs(results_path)
     #: Simulation options
     sim_options = {
         "headless": False,
@@ -87,8 +94,8 @@ if __name__ == "__main__":
         "record": False,  # : Set True to record the simulation
         'camera_distance': 4.5,
         'track': False,
-        'moviename': './kinematic_replay_video.mp4',
-        'moviespeed': 0.2,  # : Speed of the recorded movie
+        'moviename': f"{results_path}.mp4",
+        'moviespeed': 0.2, #: Speed of the recorded movie
         'slow_down': False,
         'sleep_time': 0.001,
         'rot_cam': False,  # : Set true to rotate the camera automatically
@@ -116,23 +123,15 @@ if __name__ == "__main__":
     )
     #: Run the simulation
     animal.run(optimization=False)
-    #: Dump the results based on the date
-    dump_path = os.path.join(
-        neuromechfly_path,
-        'scripts/kinematic_replay/kinematic_replay_{}_{}'.format(
-            behavior,
-            datetime.now().strftime('%y%m%d_%H%M')
-        )
-    )
     animal.container.dump(
-        dump_path=dump_path,
-        overwrite=False
+        dump_path=results_path,
+        overwrite=True
     )
 
     if args.plot:
         time = (3.5, 4.6) if behavior == 'walking' else (0.5, 2.6)
         plot_data(
-            dump_path,
+            results_path,
             'RF',
             sim_data=behavior,
             plot_angles=True,
@@ -143,7 +142,7 @@ if __name__ == "__main__":
             begin=time[0],
             end=time[1])
 
-        plot_collision_diagram(dump_path,
+        plot_collision_diagram(results_path,
                                behavior,
                                begin=time[0],
                                end=time[1])
