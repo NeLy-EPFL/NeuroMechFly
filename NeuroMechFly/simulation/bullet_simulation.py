@@ -533,7 +533,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         #: Else corresponds to the ball position during optimization
         if self.behavior == 'walking':
             base_position = np.array(
-                [0.28e-3, -0.2e-3,-4.965e-3]
+                [0.28e-3, -0.2e-3, -4.965e-3]
             ) * self.units.meters+self.model_offset
         elif self.behavior == 'grooming':
             base_position = np.array(
