@@ -111,7 +111,7 @@ def plot_kp_joint(
     """Plot the joint info of one specific leg versus independent variable.
 
     Args:
-        *args (np.array): physical quantity to be plotted, i.e. grf, lateral friction, thorax
+        *args (np.array): force to be plotted, i.e. grf, lateral friction, thorax
         multiple (bool, optional): plots vectors instead of norm.
         data (dictionary, optional): dictionary to be plotted, i.e. joint torques
         full_name (str, optional): key name, 'joint_LMTibia'.
@@ -347,7 +347,11 @@ def plot_data(
         leg_key='RF',
         joint_key='Coxa',
         sim_data='walking',
-        plot_angles=True,
+        angles={},
+        plot_muscles_act=False,
+        plot_torques_muscles=False,
+        plot_angles_sim=False,
+        plot_angles=False,
         plot_torques=True,
         plot_grf=True,
         plot_collisions=True,
@@ -408,25 +412,75 @@ def plot_data(
 
     length_data = 0
 
-    # if plot_angles:
-    #     angles_raw = angles[leg_key + '_leg']
-    #     data2plot['angles'] = {}
-    #     for label, match_labels in equivalence.items():
-    #         for key in angles_raw.keys():
-    #             if key in match_labels:
-    #                 if length_data == 0:
-    #                     length_data = len(angles_raw[key])
-    #                 data2plot['angles'][label] = angles_raw[key]
-    if plot_angles:
+    if plot_muscles_act:
+        muscles_data = os.path.join(path_data, 'muscle', 'outputs.h5')
+        data = pd.read_hdf(muscles_data)
+        for joint, val in data.items():
+            if joint_key in joint and 'act' in joint and 'active' not in joint and (
+                    'Coxa' in joint or 'Femur' in joint or 'Tibia' in joint):
+                if joint_key == 'Coxa' and ('M' in joint or 'H' in joint):
+                    if 'roll' in joint:
+                        name = joint.split('_')[1] + \
+                            ' roll ' + joint.split('_')[3]
+                        if 'flexor' in joint:
+                            mn_flex[name] = val
+                        elif 'extensor' in joint:
+                            mn_ext[name] = val
+                else:
+                    name = joint.split('_')[1] + ' ' + joint.split('_')[2]
+
+                    if 'flexor' in joint:
+                        mn_flex[name] = val
+                    elif 'extensor' in joint:
+                        mn_ext[name] = val
+
+            if length_data == 0:
+                length_data = len(val)
+
+        data2plot['mn_prot'] = mn_flex
+        data2plot['mn_ret'] = mn_ext
+
+    if plot_torques_muscles:
+        muscles_data = os.path.join(path_data, 'muscle', 'outputs.h5')
+        data = pd.read_hdf(muscles_data)
+        for joint, val in data.items():
+            if joint_key in joint and 'torque' in joint and (
+                    'Coxa' in joint or 'Femur' in joint or 'Tibia' in joint):
+                if joint_key == 'Coxa' and ('M' in joint or 'H' in joint):
+                    if 'roll' in joint:
+                        name = joint.split('_')[1] + ' roll'
+                        torques_muscles[name] = val
+                else:
+                    name = joint.split('_')[1]
+                    torques_muscles[name] = val
+            if length_data == 0:
+                length_data = len(val)
+        data2plot['torques_muscles'] = torques_muscles
+
+    if plot_angles_sim:
         angles_data = os.path.join(path_data, 'physics', 'joint_positions.h5')
-        angles_all = pd.read_hdf(angles_data)
-        angles_raw = {}
-        for joint, angle in angles_all.items():
-            if leg_key in joint and 'Haltere' not in joint:
-                if 'Tarsus' not in joint or 'Tarsus1' in joint:
-                    joint_data = joint.split('joint_')
-                    label = joint_data[1][2:]
-                    angles_raw[label] = angle.values
+        data = pd.read_hdf(angles_data)
+        for joint, val in data.items():
+            if joint_key in joint:
+                joint_name = joint.split('_')
+                key_name = joint_key.split('_')
+                if len(joint_name) > 2 and len(key_name)>1:
+                    name = joint_name[1] + ' ' + joint_name[2]
+                    angles_sim[name] = val
+                elif len(joint_name) > 2:
+                    if 'roll' in joint and ('MCoxa' in joint or 'HCoxa' in joint):
+                        name = joint_name[1] + ' ' + joint_name[2]
+                        angles_sim[name] = val
+                else:
+                    if not ('MCoxa' in joint or 'HCoxa' in joint):
+                        name = joint_name[1]
+                        angles_sim[name] = val
+            if length_data == 0:
+                length_data = len(val)                
+        data2plot['angles_sim'] = angles_sim        
+
+    if plot_angles:
+        angles_raw = angles[leg_key + '_leg']
         data2plot['angles'] = {}
         for k in equivalence.keys():
             data2plot['angles'][k] = []
@@ -656,9 +710,9 @@ def plot_data(
                 axs[i].set_ylabel('Collision forces ' + r'$(\mu N)$')
 
         if len(data2plot.keys()) == 1:
-            axs.grid(False)
+            axs.grid(True)
         else:
-            axs[i].grid(False)
+            axs[i].grid(True)
 
         if (plot != 'grf' and i == 0) or '_' in plot:
             if len(data2plot.keys()) == 1:
