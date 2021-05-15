@@ -3,7 +3,6 @@ on:
   push:
     branches:
       - master # TODO: Change to main once branches are renamed
-      - setup-github-pages
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 jobs:
