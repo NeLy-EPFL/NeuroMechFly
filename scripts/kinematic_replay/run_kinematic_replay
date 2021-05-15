@@ -65,6 +65,16 @@ if __name__ == "__main__":
     #: Setting up the paths for the SDF and POSE files
     model_path = os.path.join(neuromechfly_path, 'data/design/sdf/neuromechfly_noLimits.sdf')
     pose_path = os.path.join(neuromechfly_path, 'data/config/pose/pose_default.yaml')
+    results_path = os.path.join(
+            neuromechfly_path,
+            'scripts/kinematic_replay',
+            'simulation_results',
+            'kinematic_replay_{}_{}'.format(
+            behavior,
+            datetime.now().strftime('%y%m%d_%H%M%S')
+            ))
+    if not os.path.exists(results_path):
+        os.makedirs(results_path)
     #: Simulation options
     sim_options = {
         "headless": False,
@@ -79,7 +89,7 @@ if __name__ == "__main__":
         "record": False, #: Set True to record the simulation
         'camera_distance': 5.5,
         'track': False,
-        'moviename': './videos/kinematic_replay_video.mp4',
+        'moviename': f"{results_path}.mp4",
         'moviespeed': 0.2, #: Speed of the recorded movie
         'slow_down': False,
         'sleep_time': 0.001,
@@ -108,12 +118,6 @@ if __name__ == "__main__":
     animal.run(optimization=False)
     #: Dump the results based on the date
     animal.container.dump(
-        dump_path=os.path.join(
-            neuromechfly_path,
-            'scripts/kinematic_replay/kinematic_replay_{}_{}'.format(
-                behavior,
-                datetime.now().strftime('%y%m%d_%H%M')
-            )
-        ),
-        overwrite=False
+        dump_path=results_path,
+        overwrite=True
     )
