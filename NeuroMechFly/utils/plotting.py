@@ -199,7 +199,7 @@ def heatmap_plot(
     ax.set_title(title)
     ax.invert_yaxis()
 
-def plot_pareto_front(path_data, g, sol=''):
+def plot_pareto_front(path_data, g, s=''):
     from ..experiments.network_optimization.neuromuscular_control import DrosophilaSimulation as ds
 
     if not isinstance(g, list):
@@ -207,34 +207,79 @@ def plot_pareto_front(path_data, g, sol=''):
     else:
         generations = g
 
+    if not isinstance(s, list):
+        solutions = [s]
+    else:
+        solutions = s
+
+    edge = plt.cm.cool(np.linspace(0,1,len(solutions)))
     ax = plt.gca()
     for gen in generations:
-        fun_path = os.path.join(path_data,f"FUN.{gen}")
-    
+        fun_path = os.path.join(path_data,f"FUN.{gen}")    
         fun = np.loadtxt(fun_path)
-        norm_fun = (fun-np.min(fun,axis=0))/(np.max(fun,axis=0)-np.min(fun,axis=0))
-        if sol != '':
-            ind = ds.select_solution(sol, norm_fun)
-        else:
-            ind=-1
+
         color = next(ax._get_lines.prop_cycler)['color']
-        plt.scatter(norm_fun[:,0], norm_fun[:,1], c=color, label=f"gen {gen+1}")
-        if ind > -1:
-            plt.scatter(norm_fun[ind,0], norm_fun[ind,1], c=color, edgecolors='cyan', linewidth=2)#, label='solution displayed')
-        
-    plt.xlabel('Distance (negative)')
-    plt.ylabel('Stability (negative)')
-    if ind > -1:
-        title = f'Solution: {sol} | Distance: {norm_fun[ind,0]:.3f} | Stability: {norm_fun[ind,1]:.3f}'
-    else:
-        title = 'Pareto front'
+        plt.scatter(fun[:,0],
+                    fun[:,1],
+                    c=color,
+                    s=60,
+                    label=f"gen: {gen+1}")
+
+        for i, sol in enumerate(solutions):
+            if sol != '':
+                ind = ds.select_solution(sol, fun)
+            else:
+                ind=-1
+
+            if ind > -1:
+                plt.scatter(fun[ind,0],
+                            fun[ind,1],
+                            c=color,
+                            s=60,
+                            edgecolors=edge[i],
+                            linewidth=3.5,
+                            label=f'sol: {ind} ({sol})')
+    
+    plt.xlabel('Distance')
+    plt.ylabel('Stability')
+    title = 'Pareto front'
     plt.title(title)
     plt.legend()
-    # plt.savefig('./{}_generation_{}.pdf'.format(exp, gen))
     plt.show()
 
-    return ind
+def read_muscles_act(path_data, equivalence, leg_order):
+    muscles_path = os.path.join(path_data, 'muscle', 'outputs.h5')
+    data_raw = pd.read_hdf(muscles_path)
+    data={}
+    for leg in leg_order:
+        name = f"{leg}_leg"
+        data[name]={}
+    for leg in data.keys():
+        for new_name, old_name in equivalence.items():
+            key = f"joint_{leg[:2]}{old_name}"
+            for k in data_raw.keys():
+                if key in k:
+                    name = k.replace(key, new_name)
+                    if not ('pitch' in name and 'roll' in name):
+                        data[leg][name] = data_raw[k].values
 
+    return data
+
+def read_joint_positions(path_data, equivalence, leg_order):
+    angles_path = os.path.join(path_data, 'physics', 'joint_positions.h5')
+    angles_raw = pd.read_hdf(angles_path)
+    angles={}
+    for leg in leg_order:
+        name = f"{leg}_leg"
+        angles[name]={}
+        
+    for leg in angles.keys():
+        for new_name, old_name in equivalence.items():
+            key = f"joint_{leg[:2]}{old_name}"
+            angles[leg][new_name] = angles_raw[key].values
+
+    return angles
+        
 
 def read_ground_contacts(path_data):
     """Read ground reaction forces data, calculates magnitude for each segment
@@ -345,7 +390,7 @@ def get_stance_periods(leg_force,start,stop):
 def plot_data(
         path_data,
         leg_key='RF',
-        joint_key='Coxa',
+        joint_key='ThC',
         sim_data='walking',
         angles={},
         plot_muscles_act=False,
@@ -402,85 +447,66 @@ def plot_data(
 
     leg_order = ['LF','LM','LH','RF','RM','RH']
 
-    for k in leg_order:
-        if ('M' in k or 'H' in k) and 'Coxa' in joint_key:
-            name = f"{k}{joint_key} roll"
-        else:
-            name = f"{k}{joint_key}"
-        angles_sim[name] = []
-        torques_muscles[name] = []
-
     length_data = 0
 
     if plot_muscles_act:
-        muscles_data = os.path.join(path_data, 'muscle', 'outputs.h5')
-        data = pd.read_hdf(muscles_data)
-        for joint, val in data.items():
-            if joint_key in joint and 'act' in joint and 'active' not in joint and (
-                    'Coxa' in joint or 'Femur' in joint or 'Tibia' in joint):
-                if joint_key == 'Coxa' and ('M' in joint or 'H' in joint):
-                    if 'roll' in joint:
-                        name = joint.split('_')[1] + \
-                            ' roll ' + joint.split('_')[3]
-                        if 'flexor' in joint:
-                            mn_flex[name] = val
-                        elif 'extensor' in joint:
-                            mn_ext[name] = val
-                else:
-                    name = joint.split('_')[1] + ' ' + joint.split('_')[2]
+        muscles_data = read_muscles_act(path_data, equivalence, leg_order)
 
+        for leg, joint_data in muscles_data.items():
+            for joint, data in joint_data.items():
+                if joint_key in joint:
+                    name = f"{leg[:2]} {joint.split('_')[0]} {joint.split('_')[1]}"
                     if 'flexor' in joint:
-                        mn_flex[name] = val
-                    elif 'extensor' in joint:
-                        mn_ext[name] = val
-
-            if length_data == 0:
-                length_data = len(val)
+                        mn_flex[name] = data
+                    if 'extensor' in joint:
+                        mn_ext[name] = data
+                    if length_data == 0:
+                        length_data = len(data)
 
         data2plot['mn_prot'] = mn_flex
         data2plot['mn_ret'] = mn_ext
-
+        
     if plot_torques_muscles:
-        muscles_data = os.path.join(path_data, 'muscle', 'outputs.h5')
-        data = pd.read_hdf(muscles_data)
-        for joint, val in data.items():
-            if joint_key in joint and 'torque' in joint and (
-                    'Coxa' in joint or 'Femur' in joint or 'Tibia' in joint):
-                if joint_key == 'Coxa' and ('M' in joint or 'H' in joint):
-                    if 'roll' in joint:
-                        name = joint.split('_')[1] + ' roll'
-                        torques_muscles[name] = val
-                else:
-                    name = joint.split('_')[1]
-                    torques_muscles[name] = val
-            if length_data == 0:
-                length_data = len(val)
-        data2plot['torques_muscles'] = torques_muscles
+        muscles_data = read_muscles_act(path_data, equivalence, leg_order)
 
+        for leg, joint_data in muscles_data.items():
+            for joint, data in joint_data.items():
+                if joint_key in joint:
+                    name = f"{leg[:2]} {joint.split('_')[0]} {joint.split('_')[1]}"
+                    if 'torque' in joint:
+                        torques_muscles[name] = data
+                    if length_data == 0:
+                        length_data = len(data)
+                        
+        data2plot['torques_muscles'] = torques_muscles
+    
     if plot_angles_sim:
-        angles_data = os.path.join(path_data, 'physics', 'joint_positions.h5')
-        data = pd.read_hdf(angles_data)
-        for joint, val in data.items():
-            if joint_key in joint:
-                joint_name = joint.split('_')
-                key_name = joint_key.split('_')
-                if len(joint_name) > 2 and len(key_name)>1:
-                    name = joint_name[1] + ' ' + joint_name[2]
-                    angles_sim[name] = val
-                elif len(joint_name) > 2:
-                    if 'roll' in joint and ('MCoxa' in joint or 'HCoxa' in joint):
-                        name = joint_name[1] + ' ' + joint_name[2]
-                        angles_sim[name] = val
-                else:
-                    if not ('MCoxa' in joint or 'HCoxa' in joint):
-                        name = joint_name[1]
-                        angles_sim[name] = val
-            if length_data == 0:
-                length_data = len(val)                
-        data2plot['angles_sim'] = angles_sim        
+        angles_data = read_joint_positions(path_data, equivalence, leg_order)
+
+        for leg, joint_data in angles_data.items():
+            for joint, data in joint_data.items():
+                if joint_key == joint:
+                    name = f"{leg[:2]} {joint.replace('_',' ')}"
+                    angles_sim[name] = data                
+                elif joint_key in joint and 'pitch' in joint:
+                    if not ('ThC' in joint_key and ('M' in leg or 'H' in leg)):
+                        name = f"{leg[:2]} {joint.replace('_',' ')}"
+                        angles_sim[name] = data                    
+                elif joint_key in joint and 'roll' in joint:
+                    if 'ThC' in joint_key and ('M' in leg or 'H' in leg):
+                        name = f"{leg[:2]} {joint.replace('_',' ')}"
+                        angles_sim[name] = data
+                
+                if length_data == 0:
+                    length_data = len(data)                
+        data2plot['angles_sim'] = angles_sim
 
     if plot_angles:
-        angles_raw = angles[leg_key + '_leg']
+        if bool(angles):
+            angles_raw = angles[leg_key + '_leg']
+        else:
+            angles_data = read_joint_positions(path_data, equivalence, leg_order)
+            angles_raw = angles_data[leg_key + '_leg']
         data2plot['angles'] = {}
         for k in equivalence.keys():
             data2plot['angles'][k] = []
@@ -502,7 +528,7 @@ def plot_data(
         data2plot['torques'] = {}
         for label, match_labels in equivalence.items():
             for key in torques_raw.keys():
-                if key in match_labels:
+                if key == match_labels:
                     if length_data == 0:
                         length_data = len(torques_raw[key])
                     data2plot['torques'][label] = torques_raw[key]
@@ -612,10 +638,11 @@ def plot_data(
         if plot == 'angles_sim':
             for joint, ang in data.items():
                 time = np.arange(0, len(ang), 1) / steps
+                angle = np.array(ang) * 180 / np.pi
                 if len(data2plot.keys()) == 1:
-                    axs.plot(time[start:stop], ang[start:stop] * 180 / np.pi, label=joint)
+                    axs.plot(time[start:stop], angle[start:stop], label=joint)
                 else:
-                    axs[i].plot(time[start:stop], ang[start:stop] * 180 / np.pi, label=joint)
+                    axs[i].plot(time[start:stop], angle[start:stop], label=joint)
             if len(data2plot.keys()) == 1:
                 axs.set_ylabel('Joint angles\nsimulation (deg)')
             else:
@@ -714,7 +741,7 @@ def plot_data(
         else:
             axs[i].grid(True)
 
-        if (plot != 'grf' and i == 0) or '_' in plot:
+        if (plot != 'grf' and i == 0) or ('angles_sim' not in plot and 'angles' in plot and plot_angles_sim):
             if len(data2plot.keys()) == 1:
                 plot_handles, plot_labels = axs.get_legend_handles_labels()
             else:
