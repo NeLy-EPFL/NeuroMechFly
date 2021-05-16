@@ -114,6 +114,9 @@ import pickle
 
 path_data = /path/to/kinematic/replay/results/folder
 
+# Selecting behavior (walking or grooming)
+behavior = 'walking'
+
 # Selecting right front leg for plotting (other options are LF, RM, LM, LH, or RH)
 leg = 'RF'
 
@@ -127,11 +130,12 @@ stop_time = 4.6 # 2.5 for grooming
 
 plotting.plot_data(path_data,
 		   leg,
+		   sim_data=behavior,
 		   angles=angles,
-		   plot_angles=True,
+		   plot_angles_intraleg=True,
 		   plot_torques=True,
 		   plot_grf=True,
-		   plot_collisions=True, # For grooming example
+		   plot_collisions=True,
 		   collisions_across=True,
 		   begin=start_time,
 		   end=stop_time)
@@ -163,22 +167,27 @@ from NeuroMechFly.utils import plotting
 
 path_data = /path/to/neuromuscular/control/results/folder
 
-# Selecting right front leg for plotting (other options are LF, RM, LM, LH, or RH)
+# Selecting right front leg for plotting intraleg angles(other options are LF, RM, LM, LH, or RH)
 leg = 'RF'
+
+
+#Selecting joint of interes (other options CTr, FTi, TiTa)
+joint = 'ThC'
 
 # Defining time limits for the plot (seconds)
 start_time = 1.0
-stop_time = 1.5
+stop_time = 2.0
 
 plotting.plot_data(path_data,
 		   leg,
-		   plot_angles=False,
+		   joint_key=joint,
+		   plot_angles_intraleg=True,
 		   plot_torques=False,
 		   plot_grf=False,
 		   collisions_across=False,
 		   plot_muscles_act=True,
 		   plot_torques_muscles=True,
-		   plot_angles_sim=True,
+		   plot_angles_interleg=True,
 		   begin=start_time,
 		   end=stop_time)
 ```
