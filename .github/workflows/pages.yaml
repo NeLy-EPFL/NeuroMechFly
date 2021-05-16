@@ -26,7 +26,7 @@ jobs:
           apt-get update
           apt-get install -y git
           git clone "https://github.com/${GITHUB_REPOSITORY}.git" .
-          git checkout setup-github-pages
+          git checkout gh-pages
         shell: bash
       - run: |
           echo "The ${{ github.repository }} repository has been cloned to the runner."
