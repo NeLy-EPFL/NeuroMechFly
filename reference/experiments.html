@@ -1,0 +1,634 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Subpackage experiments &mdash; neuromechfly 1.0.dev0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Subpackage utils" href="utils.html" />
+    <link rel="prev" title="Subpackage simulation" href="simulation.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> neuromechfly
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0.dev0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html#angle-processing-obtaining-angles-from-pose-estimation">Angle Processing (Obtaining angles from pose estimation)</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../replication.html">Replicating our results</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../misc.html">Miscellaneous</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">NeuroMechfly Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="sdf.html">Subpackage sdf</a></li>
+<li class="toctree-l2"><a class="reference internal" href="control.html">Subpackage control</a></li>
+<li class="toctree-l2"><a class="reference internal" href="simulation.html">Subpackage simulation</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Subpackage experiments</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-NeuroMechFly.experiments.kinematic_replay.kinematic_replay">Kinematic replay</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-NeuroMechFly.experiments.network_optimization.neuromuscular_control">Optimization</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html">Subpackage utils</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">neuromechfly</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">NeuroMechfly Documentation</a> &raquo;</li>
+        
+      <li>Subpackage experiments</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/reference/experiments.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="subpackage-experiments">
+<h1>Subpackage experiments<a class="headerlink" href="#subpackage-experiments" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-NeuroMechFly.experiments.kinematic_replay.kinematic_replay">
+<span id="kinematic-replay"></span><h2>Kinematic replay<a class="headerlink" href="#module-NeuroMechFly.experiments.kinematic_replay.kinematic_replay" title="Permalink to this headline">¶</a></h2>
+<p>Drosophila simulation class for kinematic replay for the ball experiments.</p>
+<dl class="class">
+<dt id="NeuroMechFly.experiments.kinematic_replay.kinematic_replay.DrosophilaSimulation">
+<em class="property">class </em><code class="descclassname">NeuroMechFly.experiments.kinematic_replay.kinematic_replay.</code><code class="descname">DrosophilaSimulation</code><span class="sig-paren">(</span><em>container</em>, <em>sim_options</em>, <em>fixed_positions</em>, <em>kp</em>, <em>kv</em>, <em>angles_path</em>, <em>velocity_path</em>, <em>units={'kilograms': 1000</em>, <em>'meters': 1000</em>, <em>'seconds': 1}</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.experiments.kinematic_replay.kinematic_replay.DrosophilaSimulation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="simulation.html#NeuroMechFly.simulation.bullet_simulation.BulletSimulation" title="NeuroMechFly.simulation.bullet_simulation.BulletSimulation"><code class="xref py py-class docutils literal notranslate"><span class="pre">NeuroMechFly.simulation.bullet_simulation.BulletSimulation</span></code></a></p>
+<p>Drosophila Simulation Class for kinematic replay.</p>
+<dl class="docutils">
+<dt>container: &lt;Container&gt;</dt>
+<dd>Instance of the Container class.</dd>
+<dt>sim_options: &lt;dict&gt;</dt>
+<dd>Dictionary containing the simulation options.</dd>
+<dt>fixed_positions: &lt;dict&gt;</dt>
+<dd>Dictionary containing the positions for the fixed joints that should be different from the zero pose.</dd>
+<dt>kp: &lt;float&gt;</dt>
+<dd>Proportional gain of the position controller.</dd>
+<dt>kv: &lt;float&gt;</dt>
+<dd>Derivative gain of the position controller.</dd>
+<dt>angles_path: &lt;str&gt;</dt>
+<dd>Path of the joint position .pkl file.</dd>
+<dt>velocity_path: &lt;str&gt;</dt>
+<dd>Path of the joint velocity .pkl file.</dd>
+<dt>units: &lt;obj&gt;</dt>
+<dd>Instance of SimulationUnitScaling object to scale up the units during calculations.</dd>
+</dl>
+<dl class="method">
+<dt id="NeuroMechFly.experiments.kinematic_replay.kinematic_replay.DrosophilaSimulation.change_color">
+<code class="descname">change_color</code><span class="sig-paren">(</span><em>identity</em>, <em>color</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.experiments.kinematic_replay.kinematic_replay.DrosophilaSimulation.change_color" title="Permalink to this definition">¶</a></dt>
+<dd><p>Change color of a given body segment.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="NeuroMechFly.experiments.kinematic_replay.kinematic_replay.DrosophilaSimulation.controller_to_actuator">
+<code class="descname">controller_to_actuator</code><span class="sig-paren">(</span><em>t</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.experiments.kinematic_replay.kinematic_replay.DrosophilaSimulation.controller_to_actuator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Code that glues the controller the actuator in the system.
+If there are muscles then contoller actuates the muscles.
+If not then the controller directly actuates the joints.</p>
+<dl class="docutils">
+<dt>t <span class="classifier-delimiter">:</span> <span class="classifier">&lt;int&gt;</span></dt>
+<dd>Time running in the physics engine.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="NeuroMechFly.experiments.kinematic_replay.kinematic_replay.DrosophilaSimulation.feedback_to_controller">
+<code class="descname">feedback_to_controller</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.experiments.kinematic_replay.kinematic_replay.DrosophilaSimulation.feedback_to_controller" title="Permalink to this definition">¶</a></dt>
+<dd><p>Code that glues the sensors/feedback to controller in the system.</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="NeuroMechFly.experiments.kinematic_replay.kinematic_replay.DrosophilaSimulation.load_data">
+<em class="property">static </em><code class="descname">load_data</code><span class="sig-paren">(</span><em>data_path</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.experiments.kinematic_replay.kinematic_replay.DrosophilaSimulation.load_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that loads the pickle format joint angle or velocity gile.</p>
+<dl class="docutils">
+<dt>data_path <span class="classifier-delimiter">:</span> <span class="classifier">&lt;str&gt;</span></dt>
+<dd>Path of the .pkl file.</dd>
+</dl>
+<dl class="docutils">
+<dt>dict</dt>
+<dd>Returns the joint angles in a dictionary.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="NeuroMechFly.experiments.kinematic_replay.kinematic_replay.DrosophilaSimulation.optimization_check">
+<code class="descname">optimization_check</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.experiments.kinematic_replay.kinematic_replay.DrosophilaSimulation.optimization_check" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optimization check.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="NeuroMechFly.experiments.kinematic_replay.kinematic_replay.DrosophilaSimulation.update_parameters">
+<code class="descname">update_parameters</code><span class="sig-paren">(</span><em>params</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.experiments.kinematic_replay.kinematic_replay.DrosophilaSimulation.update_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update parameters.</p>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="module-NeuroMechFly.experiments.kinematic_replay.kinematic_replay_no_support"></span><p>Drosophila simulation class for kinematic replay without body support.</p>
+<dl class="class">
+<dt id="NeuroMechFly.experiments.kinematic_replay.kinematic_replay_no_support.DrosophilaSimulation">
+<em class="property">class </em><code class="descclassname">NeuroMechFly.experiments.kinematic_replay.kinematic_replay_no_support.</code><code class="descname">DrosophilaSimulation</code><span class="sig-paren">(</span><em>container</em>, <em>sim_options</em>, <em>kp</em>, <em>kv</em>, <em>angles_path</em>, <em>velocity_path</em>, <em>add_perturbation</em>, <em>fixed_positions</em>, <em>units={'kilograms': 1000</em>, <em>'meters': 1000</em>, <em>'seconds': 1}</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.experiments.kinematic_replay.kinematic_replay_no_support.DrosophilaSimulation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="simulation.html#NeuroMechFly.simulation.bullet_simulation.BulletSimulation" title="NeuroMechFly.simulation.bullet_simulation.BulletSimulation"><code class="xref py py-class docutils literal notranslate"><span class="pre">NeuroMechFly.simulation.bullet_simulation.BulletSimulation</span></code></a></p>
+<p>Drosophila Simulation Class for kinematic replay.</p>
+<dl class="docutils">
+<dt>container: &lt;Container&gt;</dt>
+<dd>Instance of the Container class.</dd>
+<dt>sim_options: &lt;dict&gt;</dt>
+<dd>Dictionary containing the simulation options.</dd>
+<dt>kp: &lt;float&gt;</dt>
+<dd>Proportional gain of the position controller.</dd>
+<dt>kv: &lt;float&gt;</dt>
+<dd>Derivative gain of the position controller.</dd>
+<dt>position_path: &lt;str&gt;</dt>
+<dd>Path of the joint position .pkl file.</dd>
+<dt>velocity_path: &lt;str&gt;</dt>
+<dd>Path of the joint velocity .pkl file.</dd>
+<dt>add_perturbation: &lt;bool&gt;</dt>
+<dd>Activate/deactivate the ball perturbation.</dd>
+<dt>units: &lt;obj&gt;</dt>
+<dd>Instance of SimulationUnitScaling object to scale up the units during calculations.</dd>
+</dl>
+<dl class="method">
+<dt id="NeuroMechFly.experiments.kinematic_replay.kinematic_replay_no_support.DrosophilaSimulation.controller_to_actuator">
+<code class="descname">controller_to_actuator</code><span class="sig-paren">(</span><em>t</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.experiments.kinematic_replay.kinematic_replay_no_support.DrosophilaSimulation.controller_to_actuator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Code that glues the controller the actuator in the system.
+If there are muscles then contoller actuates the muscles.
+If not then the controller directly actuates the joints.</p>
+<dl class="docutils">
+<dt>t <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Time running in the physics engine.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="NeuroMechFly.experiments.kinematic_replay.kinematic_replay_no_support.DrosophilaSimulation.feedback_to_controller">
+<code class="descname">feedback_to_controller</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.experiments.kinematic_replay.kinematic_replay_no_support.DrosophilaSimulation.feedback_to_controller" title="Permalink to this definition">¶</a></dt>
+<dd><p>Code that glues the sensors/feedback to controller in the system.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="NeuroMechFly.experiments.kinematic_replay.kinematic_replay_no_support.DrosophilaSimulation.load_data">
+<code class="descname">load_data</code><span class="sig-paren">(</span><em>data_path</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.experiments.kinematic_replay.kinematic_replay_no_support.DrosophilaSimulation.load_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that loads the pickle format joint angle or velocity gile.</p>
+<dl class="docutils">
+<dt>data_path <span class="classifier-delimiter">:</span> <span class="classifier">&lt;str&gt;</span></dt>
+<dd>Path of the .pkl file.</dd>
+</dl>
+<dl class="docutils">
+<dt>dict</dt>
+<dd>Returns the joint angles in a dictionary.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="NeuroMechFly.experiments.kinematic_replay.kinematic_replay_no_support.DrosophilaSimulation.optimization_check">
+<code class="descname">optimization_check</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.experiments.kinematic_replay.kinematic_replay_no_support.DrosophilaSimulation.optimization_check" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optimization check.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="NeuroMechFly.experiments.kinematic_replay.kinematic_replay_no_support.DrosophilaSimulation.update_parameters">
+<code class="descname">update_parameters</code><span class="sig-paren">(</span><em>params</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.experiments.kinematic_replay.kinematic_replay_no_support.DrosophilaSimulation.update_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update parameters.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="NeuroMechFly.experiments.kinematic_replay.kinematic_replay_no_support.add_perturbation">
+<code class="descclassname">NeuroMechFly.experiments.kinematic_replay.kinematic_replay_no_support.</code><code class="descname">add_perturbation</code><span class="sig-paren">(</span><em>size</em>, <em>initial_position</em>, <em>target_position</em>, <em>time</em>, <em>units</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.experiments.kinematic_replay.kinematic_replay_no_support.add_perturbation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Shoot a ball to perturb the target system at a specified
+velocity</p>
+<dl class="docutils">
+<dt>size: &lt;float&gt;</dt>
+<dd>Radius of the ball</dd>
+<dt>initial_position: &lt;array&gt;</dt>
+<dd>3D position of the ball</dd>
+<dt>target_position: &lt;array&gt;</dt>
+<dd>3D position of the target</dd>
+<dt>target_velocity: &lt;float&gt;</dt>
+<dd>Final velocity during impact</dd>
+</dl>
+<p>ball : &lt;int&gt;
+Pybullet ID for the ball</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-NeuroMechFly.experiments.network_optimization.neuromuscular_control">
+<span id="optimization"></span><h2>Optimization<a class="headerlink" href="#module-NeuroMechFly.experiments.network_optimization.neuromuscular_control" title="Permalink to this headline">¶</a></h2>
+<p>Drosophila Simulation for visualization of optimization results.</p>
+<dl class="class">
+<dt id="NeuroMechFly.experiments.network_optimization.neuromuscular_control.DrosophilaSimulation">
+<em class="property">class </em><code class="descclassname">NeuroMechFly.experiments.network_optimization.neuromuscular_control.</code><code class="descname">DrosophilaSimulation</code><span class="sig-paren">(</span><em>container</em>, <em>sim_options</em>, <em>units={'kilograms': 1000</em>, <em>'meters': 1000</em>, <em>'seconds': 1}</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.experiments.network_optimization.neuromuscular_control.DrosophilaSimulation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="simulation.html#NeuroMechFly.simulation.bullet_simulation.BulletSimulation" title="NeuroMechFly.simulation.bullet_simulation.BulletSimulation"><code class="xref py py-class docutils literal notranslate"><span class="pre">NeuroMechFly.simulation.bullet_simulation.BulletSimulation</span></code></a></p>
+<p>Drosophila Simulation Class.
+Parameters
+———-
+container: &lt;Container&gt;</p>
+<blockquote>
+<div>Instance of the Container class.</div></blockquote>
+<dl class="docutils">
+<dt>sim_options: &lt;dict&gt;</dt>
+<dd>Dictionary containing the simulation options.</dd>
+<dt>units: &lt;obj&gt;</dt>
+<dd>Instance of SimulationUnitScaling object to scale up the units during calculations.</dd>
+</dl>
+<dl class="method">
+<dt id="NeuroMechFly.experiments.network_optimization.neuromuscular_control.DrosophilaSimulation.change_color">
+<code class="descname">change_color</code><span class="sig-paren">(</span><em>identity</em>, <em>color</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.experiments.network_optimization.neuromuscular_control.DrosophilaSimulation.change_color" title="Permalink to this definition">¶</a></dt>
+<dd><p>Change color of a given body segment.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="NeuroMechFly.experiments.network_optimization.neuromuscular_control.DrosophilaSimulation.check_movement">
+<code class="descname">check_movement</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.experiments.network_optimization.neuromuscular_control.DrosophilaSimulation.check_movement" title="Permalink to this definition">¶</a></dt>
+<dd><p>State of lava approaching the model.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="NeuroMechFly.experiments.network_optimization.neuromuscular_control.DrosophilaSimulation.check_touch">
+<code class="descname">check_touch</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.experiments.network_optimization.neuromuscular_control.DrosophilaSimulation.check_touch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if certain links touch.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="NeuroMechFly.experiments.network_optimization.neuromuscular_control.DrosophilaSimulation.check_velocity_limit">
+<code class="descname">check_velocity_limit</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.experiments.network_optimization.neuromuscular_control.DrosophilaSimulation.check_velocity_limit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check velocity limits.</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="NeuroMechFly.experiments.network_optimization.neuromuscular_control.DrosophilaSimulation.compute_line_coefficients">
+<em class="property">static </em><code class="descname">compute_line_coefficients</code><span class="sig-paren">(</span><em>point_a</em>, <em>point_b</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.experiments.network_optimization.neuromuscular_control.DrosophilaSimulation.compute_line_coefficients" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the coefficient of a line</p>
+<dl class="docutils">
+<dt>point_a :&lt;array&gt;</dt>
+<dd>2D position of a</dd>
+<dt>point_b :&lt;array&gt;</dt>
+<dd>2D position of b</dd>
+</dl>
+<p>coefficients :&lt;array&gt;</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="NeuroMechFly.experiments.network_optimization.neuromuscular_control.DrosophilaSimulation.compute_perpendicular_distance">
+<em class="property">static </em><code class="descname">compute_perpendicular_distance</code><span class="sig-paren">(</span><em>line</em>, <em>point</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.experiments.network_optimization.neuromuscular_control.DrosophilaSimulation.compute_perpendicular_distance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the perpendicular distance between line and point</p>
+<dl class="docutils">
+<dt>line: &lt;array&gt;</dt>
+<dd>Coefficients of line segments (ax+by+c)</dd>
+<dt>point: &lt;array&gt;</dt>
+<dd>2D point in space</dd>
+</dl>
+<dl class="docutils">
+<dt>distance: &lt;float&gt;</dt>
+<dd>Perpendicular distance from point to line</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="NeuroMechFly.experiments.network_optimization.neuromuscular_control.DrosophilaSimulation.compute_static_stability">
+<code class="descname">compute_static_stability</code><span class="sig-paren">(</span><em>draw_polygon=False</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.experiments.network_optimization.neuromuscular_control.DrosophilaSimulation.compute_static_stability" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes static stability  of the model.</p>
+<p>self :</p>
+<dl class="docutils">
+<dt>draw_polygon: &lt;bool&gt;</dt>
+<dd>Draws the stance polygon and center of mass if True</dd>
+</dl>
+<p>out :</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="NeuroMechFly.experiments.network_optimization.neuromuscular_control.DrosophilaSimulation.controller_to_actuator">
+<code class="descname">controller_to_actuator</code><span class="sig-paren">(</span><em>t</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.experiments.network_optimization.neuromuscular_control.DrosophilaSimulation.controller_to_actuator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implementation of abstract method.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="NeuroMechFly.experiments.network_optimization.neuromuscular_control.DrosophilaSimulation.debug">
+<code class="descname">debug</code><em class="property"> = None</em><a class="headerlink" href="#NeuroMechFly.experiments.network_optimization.neuromuscular_control.DrosophilaSimulation.debug" title="Permalink to this definition">¶</a></dt>
+<dd><p>Debug parameter</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="NeuroMechFly.experiments.network_optimization.neuromuscular_control.DrosophilaSimulation.feedback_to_controller">
+<code class="descname">feedback_to_controller</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.experiments.network_optimization.neuromuscular_control.DrosophilaSimulation.feedback_to_controller" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implementation of abstractmethod.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="NeuroMechFly.experiments.network_optimization.neuromuscular_control.DrosophilaSimulation.fixed_joints_controller">
+<code class="descname">fixed_joints_controller</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.experiments.network_optimization.neuromuscular_control.DrosophilaSimulation.fixed_joints_controller" title="Permalink to this definition">¶</a></dt>
+<dd><p>Controller for the fixed joints</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="NeuroMechFly.experiments.network_optimization.neuromuscular_control.DrosophilaSimulation.muscle_controller">
+<code class="descname">muscle_controller</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.experiments.network_optimization.neuromuscular_control.DrosophilaSimulation.muscle_controller" title="Permalink to this definition">¶</a></dt>
+<dd><p>Muscle controller.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="NeuroMechFly.experiments.network_optimization.neuromuscular_control.DrosophilaSimulation.opti_lava">
+<code class="descname">opti_lava</code><em class="property"> = None</em><a class="headerlink" href="#NeuroMechFly.experiments.network_optimization.neuromuscular_control.DrosophilaSimulation.opti_lava" title="Permalink to this definition">¶</a></dt>
+<dd><p>Data variables</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="NeuroMechFly.experiments.network_optimization.neuromuscular_control.DrosophilaSimulation.optimization_check">
+<code class="descname">optimization_check</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.experiments.network_optimization.neuromuscular_control.DrosophilaSimulation.optimization_check" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check the optimization status and update the penalties.</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="NeuroMechFly.experiments.network_optimization.neuromuscular_control.DrosophilaSimulation.select_solution">
+<em class="property">static </em><code class="descname">select_solution</code><span class="sig-paren">(</span><em>criteria</em>, <em>fun</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.experiments.network_optimization.neuromuscular_control.DrosophilaSimulation.select_solution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Selects a solution given a criteria.</p>
+<dl class="docutils">
+<dt>criteria: &lt;str&gt;</dt>
+<dd>criteria for selecting a solution</dd>
+<dt>fun: &lt;list&gt;</dt>
+<dd>Solutions from optimization</dd>
+</dl>
+<p>out : Index of the solution fulfilling the criteria</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="NeuroMechFly.experiments.network_optimization.neuromuscular_control.DrosophilaSimulation.sides">
+<code class="descname">sides</code><em class="property"> = None</em><a class="headerlink" href="#NeuroMechFly.experiments.network_optimization.neuromuscular_control.DrosophilaSimulation.sides" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parameters</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="NeuroMechFly.experiments.network_optimization.neuromuscular_control.DrosophilaSimulation.update_parameters">
+<code class="descname">update_parameters</code><span class="sig-paren">(</span><em>params</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.experiments.network_optimization.neuromuscular_control.DrosophilaSimulation.update_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implementation of abstract method.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="NeuroMechFly.experiments.network_optimization.neuromuscular_control.DrosophilaSimulation.update_static_stability">
+<code class="descname">update_static_stability</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.experiments.network_optimization.neuromuscular_control.DrosophilaSimulation.update_static_stability" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the stability coefficient.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="NeuroMechFly.experiments.network_optimization.neuromuscular_control.mid">
+<code class="descclassname">NeuroMechFly.experiments.network_optimization.neuromuscular_control.</code><code class="descname">mid</code><span class="sig-paren">(</span><em>array</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.experiments.network_optimization.neuromuscular_control.mid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Middle between min and max of array x</p>
+<dl class="docutils">
+<dt>array: &lt;array&gt;</dt>
+<dd>Input array</dd>
+</dl>
+<p>out : (max(x)+min(x))*0.5</p>
+</dd></dl>
+
+<span class="target" id="module-NeuroMechFly.experiments.network_optimization.multiobj_optimization"></span><p>Drosophila Evolution.</p>
+<dl class="class">
+<dt id="NeuroMechFly.experiments.network_optimization.multiobj_optimization.DrosophilaEvolution">
+<em class="property">class </em><code class="descclassname">NeuroMechFly.experiments.network_optimization.multiobj_optimization.</code><code class="descname">DrosophilaEvolution</code><a class="headerlink" href="#NeuroMechFly.experiments.network_optimization.multiobj_optimization.DrosophilaEvolution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sphinx.ext.autodoc.importer._MockObject</span></code></p>
+<p>Class for Evolutionary Optimization.</p>
+<dl class="method">
+<dt id="NeuroMechFly.experiments.network_optimization.multiobj_optimization.DrosophilaEvolution.create_solution">
+<code class="descname">create_solution</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.experiments.network_optimization.multiobj_optimization.DrosophilaEvolution.create_solution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a new solution based on the bounds and variables.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="NeuroMechFly.experiments.network_optimization.multiobj_optimization.DrosophilaEvolution.evaluate">
+<code class="descname">evaluate</code><span class="sig-paren">(</span><em>solution</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.experiments.network_optimization.multiobj_optimization.DrosophilaEvolution.evaluate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluates the optimization solution in PyBullet without GUI.</p>
+<dl class="docutils">
+<dt>solution <span class="classifier-delimiter">:</span> <span class="classifier">&lt;FloatSolution&gt;</span></dt>
+<dd>Solution obtained from the optimizer.</dd>
+</dl>
+<dl class="docutils">
+<dt>solution <span class="classifier-delimiter">:</span> <span class="classifier">&lt;FloatSolution&gt;</span></dt>
+<dd>Evaluated solution.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="NeuroMechFly.experiments.network_optimization.multiobj_optimization.DrosophilaEvolution.get_name">
+<code class="descname">get_name</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.experiments.network_optimization.multiobj_optimization.DrosophilaEvolution.get_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Name of the simulation.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="NeuroMechFly.experiments.network_optimization.multiobj_optimization.DrosophilaEvolution.number_of_variables">
+<code class="descname">number_of_variables</code><em class="property"> = None</em><a class="headerlink" href="#NeuroMechFly.experiments.network_optimization.multiobj_optimization.DrosophilaEvolution.number_of_variables" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set number of variables, objectives, and contraints</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="NeuroMechFly.experiments.network_optimization.multiobj_optimization.DrosophilaEvolution.obj_directions">
+<code class="descname">obj_directions</code><em class="property"> = None</em><a class="headerlink" href="#NeuroMechFly.experiments.network_optimization.multiobj_optimization.DrosophilaEvolution.obj_directions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Minimize the objectives</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="NeuroMechFly.experiments.network_optimization.multiobj_optimization.WriteFullFrontToFileObserver">
+<em class="property">class </em><code class="descclassname">NeuroMechFly.experiments.network_optimization.multiobj_optimization.</code><code class="descname">WriteFullFrontToFileObserver</code><span class="sig-paren">(</span><em>output_directory: str</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.experiments.network_optimization.multiobj_optimization.WriteFullFrontToFileObserver" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sphinx.ext.autodoc.importer._MockObject</span></code></p>
+<p>Write full front to file.</p>
+<p>Write function values of the front into files.</p>
+<dl class="docutils">
+<dt>output_directory: &lt;str&gt;</dt>
+<dd>Output directory in which the optimization results will be saved.
+Objective functions will be saved on a file <cite>FUN.x</cite>.
+Variable values will be saved on a file <cite>VAR.x</cite>.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="NeuroMechFly.experiments.network_optimization.multiobj_optimization.read_optimization_results">
+<code class="descclassname">NeuroMechFly.experiments.network_optimization.multiobj_optimization.</code><code class="descname">read_optimization_results</code><span class="sig-paren">(</span><em>fun</em>, <em>var</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.experiments.network_optimization.multiobj_optimization.read_optimization_results" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read optimization results.</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="utils.html" class="btn btn-neutral float-right" title="Subpackage utils" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="simulation.html" class="btn btn-neutral float-left" title="Subpackage simulation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2021, nely
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

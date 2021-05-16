@@ -1,0 +1,1056 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Subpackage sdf &mdash; neuromechfly 1.0.dev0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Subpackage control" href="control.html" />
+    <link rel="prev" title="NeuroMechfly Documentation" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> neuromechfly
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0.dev0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html#angle-processing-obtaining-angles-from-pose-estimation">Angle Processing (Obtaining angles from pose estimation)</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../replication.html">Replicating our results</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../misc.html">Miscellaneous</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">NeuroMechfly Documentation</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Subpackage sdf</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-NeuroMechFly.sdf.sdf">sdf</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-NeuroMechFly.sdf.units">units</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-NeuroMechFly.sdf.utils">utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-NeuroMechFly.sdf.bullet_load_sdf">Bullet sdf loader</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="control.html">Subpackage control</a></li>
+<li class="toctree-l2"><a class="reference internal" href="simulation.html">Subpackage simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="experiments.html">Subpackage experiments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html">Subpackage utils</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">neuromechfly</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">NeuroMechfly Documentation</a> &raquo;</li>
+        
+      <li>Subpackage sdf</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/reference/sdf.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="subpackage-sdf">
+<h1>Subpackage sdf<a class="headerlink" href="#subpackage-sdf" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-NeuroMechFly.sdf.sdf">
+<span id="sdf"></span><h2>sdf<a class="headerlink" href="#module-NeuroMechFly.sdf.sdf" title="Permalink to this headline">¶</a></h2>
+<p>Licensed under the Apache License, Version 2.0 (the “License”);
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at</p>
+<blockquote>
+<div><a class="reference external" href="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</a></div></blockquote>
+<p>Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an “AS IS” BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+———————————————————————–</p>
+<p>Farms SDF</p>
+<dl class="class">
+<dt id="NeuroMechFly.sdf.sdf.Axis">
+<em class="property">class </em><code class="descclassname">NeuroMechFly.sdf.sdf.</code><code class="descname">Axis</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.Axis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="utils.html#NeuroMechFly.utils.options.Options" title="NeuroMechFly.utils.options.Options"><code class="xref py py-class docutils literal notranslate"><span class="pre">NeuroMechFly.utils.options.Options</span></code></a></p>
+<dl class="classmethod">
+<dt id="NeuroMechFly.sdf.sdf.Axis.from_xml">
+<em class="property">classmethod </em><code class="descname">from_xml</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.Axis.from_xml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate axis object from xml data</p>
+<dl class="docutils">
+<dt>cls <span class="classifier-delimiter">:</span> <span class="classifier">&lt;cls&gt;</span></dt>
+<dd>Class</dd>
+<dt>data <span class="classifier-delimiter">:</span> <span class="classifier">&lt;ET.ElemenTree&gt;</span></dt>
+<dd>Axis data from the sdf</dd>
+</dl>
+<dl class="docutils">
+<dt>out <span class="classifier-delimiter">:</span> <span class="classifier">&lt;Axis&gt;</span></dt>
+<dd>Axis object from xml</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="NeuroMechFly.sdf.sdf.Axis.xml">
+<code class="descname">xml</code><span class="sig-paren">(</span><em>joint</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.Axis.xml" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="NeuroMechFly.sdf.sdf.Box">
+<em class="property">class </em><code class="descclassname">NeuroMechFly.sdf.sdf.</code><code class="descname">Box</code><span class="sig-paren">(</span><em>size</em>, <em>units</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.Box" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="utils.html#NeuroMechFly.utils.options.Options" title="NeuroMechFly.utils.options.Options"><code class="xref py py-class docutils literal notranslate"><span class="pre">NeuroMechFly.utils.options.Options</span></code></a></p>
+<dl class="classmethod">
+<dt id="NeuroMechFly.sdf.sdf.Box.from_xml">
+<em class="property">classmethod </em><code class="descname">from_xml</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.Box.from_xml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate Box shape from xml data.</p>
+<dl class="docutils">
+<dt>cls <span class="classifier-delimiter">:</span> <span class="classifier">&lt;Box&gt;</span></dt>
+<dd>Box class data</dd>
+<dt>data <span class="classifier-delimiter">:</span> <span class="classifier">&lt;ET.ElementTree&gt;</span></dt>
+<dd>Box object data</dd>
+</dl>
+<dl class="docutils">
+<dt>out <span class="classifier-delimiter">:</span> <span class="classifier">&lt;Box&gt;</span></dt>
+<dd>Box model</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="NeuroMechFly.sdf.sdf.Box.xml">
+<code class="descname">xml</code><span class="sig-paren">(</span><em>parent</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.Box.xml" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="NeuroMechFly.sdf.sdf.Capsule">
+<em class="property">class </em><code class="descclassname">NeuroMechFly.sdf.sdf.</code><code class="descname">Capsule</code><span class="sig-paren">(</span><em>radius</em>, <em>length</em>, <em>units</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.Capsule" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="utils.html#NeuroMechFly.utils.options.Options" title="NeuroMechFly.utils.options.Options"><code class="xref py py-class docutils literal notranslate"><span class="pre">NeuroMechFly.utils.options.Options</span></code></a></p>
+<dl class="classmethod">
+<dt id="NeuroMechFly.sdf.sdf.Capsule.from_xml">
+<em class="property">classmethod </em><code class="descname">from_xml</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.Capsule.from_xml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate Capsule shape from xml data.</p>
+<dl class="docutils">
+<dt>cls <span class="classifier-delimiter">:</span> <span class="classifier">&lt;Capsule&gt;</span></dt>
+<dd>Capsule class data</dd>
+<dt>data <span class="classifier-delimiter">:</span> <span class="classifier">&lt;ET.ElementTree&gt;</span></dt>
+<dd>Capsule object data</dd>
+</dl>
+<dl class="docutils">
+<dt>out <span class="classifier-delimiter">:</span> <span class="classifier">&lt;Capsule&gt;</span></dt>
+<dd>Capsule model</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="NeuroMechFly.sdf.sdf.Capsule.xml">
+<code class="descname">xml</code><span class="sig-paren">(</span><em>parent</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.Capsule.xml" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="NeuroMechFly.sdf.sdf.Collision">
+<em class="property">class </em><code class="descclassname">NeuroMechFly.sdf.sdf.</code><code class="descname">Collision</code><span class="sig-paren">(</span><em>name</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.Collision" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#NeuroMechFly.sdf.sdf.Shape" title="NeuroMechFly.sdf.sdf.Shape"><code class="xref py py-class docutils literal notranslate"><span class="pre">NeuroMechFly.sdf.sdf.Shape</span></code></a></p>
+<dl class="classmethod">
+<dt id="NeuroMechFly.sdf.sdf.Collision.from_xml">
+<em class="property">classmethod </em><code class="descname">from_xml</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.Collision.from_xml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate collision shape model from xml.</p>
+<dl class="docutils">
+<dt>cls <span class="classifier-delimiter">:</span> <span class="classifier">&lt;Shape&gt;</span></dt>
+<dd>Shape class data</dd>
+<dt>data <span class="classifier-delimiter">:</span> <span class="classifier">&lt;ET.ElementTree&gt;</span></dt>
+<dd>Visual/Collision object data</dd>
+</dl>
+<dl class="docutils">
+<dt>out <span class="classifier-delimiter">:</span> <span class="classifier">&lt;Shape&gt;</span></dt>
+<dd>Shape model</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="NeuroMechFly.sdf.sdf.Cylinder">
+<em class="property">class </em><code class="descclassname">NeuroMechFly.sdf.sdf.</code><code class="descname">Cylinder</code><span class="sig-paren">(</span><em>radius</em>, <em>length</em>, <em>units</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.Cylinder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="utils.html#NeuroMechFly.utils.options.Options" title="NeuroMechFly.utils.options.Options"><code class="xref py py-class docutils literal notranslate"><span class="pre">NeuroMechFly.utils.options.Options</span></code></a></p>
+<dl class="classmethod">
+<dt id="NeuroMechFly.sdf.sdf.Cylinder.from_xml">
+<em class="property">classmethod </em><code class="descname">from_xml</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.Cylinder.from_xml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate Cylinder shape from xml data.</p>
+<dl class="docutils">
+<dt>cls <span class="classifier-delimiter">:</span> <span class="classifier">&lt;Cylinder&gt;</span></dt>
+<dd>Cylinder class data</dd>
+<dt>data <span class="classifier-delimiter">:</span> <span class="classifier">&lt;ET.ElementTree&gt;</span></dt>
+<dd>Cylinder object data</dd>
+</dl>
+<dl class="docutils">
+<dt>out <span class="classifier-delimiter">:</span> <span class="classifier">&lt;Cylinder&gt;</span></dt>
+<dd>Cylinder model</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="NeuroMechFly.sdf.sdf.Cylinder.xml">
+<code class="descname">xml</code><span class="sig-paren">(</span><em>parent</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.Cylinder.xml" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="NeuroMechFly.sdf.sdf.Heightmap">
+<em class="property">class </em><code class="descclassname">NeuroMechFly.sdf.sdf.</code><code class="descname">Heightmap</code><span class="sig-paren">(</span><em>uri</em>, <em>size</em>, <em>pos</em>, <em>units</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.Heightmap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="utils.html#NeuroMechFly.utils.options.Options" title="NeuroMechFly.utils.options.Options"><code class="xref py py-class docutils literal notranslate"><span class="pre">NeuroMechFly.utils.options.Options</span></code></a></p>
+<dl class="classmethod">
+<dt id="NeuroMechFly.sdf.sdf.Heightmap.from_xml">
+<em class="property">classmethod </em><code class="descname">from_xml</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.Heightmap.from_xml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate Heightmap shape from xml data.</p>
+<dl class="docutils">
+<dt>cls <span class="classifier-delimiter">:</span> <span class="classifier">&lt;Heightmap&gt;</span></dt>
+<dd>Heightmap class data</dd>
+<dt>data <span class="classifier-delimiter">:</span> <span class="classifier">&lt;ET.ElementTree&gt;</span></dt>
+<dd>Heightmap object data</dd>
+</dl>
+<dl class="docutils">
+<dt>out <span class="classifier-delimiter">:</span> <span class="classifier">&lt;Heightmap&gt;</span></dt>
+<dd>Heightmap model</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="NeuroMechFly.sdf.sdf.Heightmap.xml">
+<code class="descname">xml</code><span class="sig-paren">(</span><em>parent</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.Heightmap.xml" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="NeuroMechFly.sdf.sdf.Inertial">
+<em class="property">class </em><code class="descclassname">NeuroMechFly.sdf.sdf.</code><code class="descname">Inertial</code><span class="sig-paren">(</span><em>pose</em>, <em>mass</em>, <em>volume</em>, <em>inertias</em>, <em>units</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.Inertial" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="utils.html#NeuroMechFly.utils.options.Options" title="NeuroMechFly.utils.options.Options"><code class="xref py py-class docutils literal notranslate"><span class="pre">NeuroMechFly.utils.options.Options</span></code></a></p>
+<dl class="classmethod">
+<dt id="NeuroMechFly.sdf.sdf.Inertial.box">
+<em class="property">classmethod </em><code class="descname">box</code><span class="sig-paren">(</span><em>size</em>, <em>pose</em>, <em>units</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.Inertial.box" title="Permalink to this definition">¶</a></dt>
+<dd><p>Box</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="NeuroMechFly.sdf.sdf.Inertial.capsule">
+<em class="property">classmethod </em><code class="descname">capsule</code><span class="sig-paren">(</span><em>length</em>, <em>radius</em>, <em>pose</em>, <em>units</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.Inertial.capsule" title="Permalink to this definition">¶</a></dt>
+<dd><p>Capsule</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="NeuroMechFly.sdf.sdf.Inertial.cylinder">
+<em class="property">classmethod </em><code class="descname">cylinder</code><span class="sig-paren">(</span><em>length</em>, <em>radius</em>, <em>pose</em>, <em>units</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.Inertial.cylinder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cylinder</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="NeuroMechFly.sdf.sdf.Inertial.empty">
+<em class="property">classmethod </em><code class="descname">empty</code><span class="sig-paren">(</span><em>units</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.Inertial.empty" title="Permalink to this definition">¶</a></dt>
+<dd><p>Empty</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="NeuroMechFly.sdf.sdf.Inertial.from_mesh">
+<em class="property">classmethod </em><code class="descname">from_mesh</code><span class="sig-paren">(</span><em>mesh</em>, <em>scale</em>, <em>pose</em>, <em>units</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.Inertial.from_mesh" title="Permalink to this definition">¶</a></dt>
+<dd><p>From mesh</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="NeuroMechFly.sdf.sdf.Inertial.from_xml">
+<em class="property">classmethod </em><code class="descname">from_xml</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.Inertial.from_xml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create Inertial object from xml data.</p>
+<dl class="docutils">
+<dt>cls <span class="classifier-delimiter">:</span> <span class="classifier">&lt;cls&gt;</span></dt>
+<dd>Class</dd>
+<dt>data <span class="classifier-delimiter">:</span> <span class="classifier">&lt;ET.ElemenTree&gt;</span></dt>
+<dd>Inertial data from the sdf</dd>
+</dl>
+<dl class="docutils">
+<dt>out <span class="classifier-delimiter">:</span> <span class="classifier">&lt;Inertial&gt;</span></dt>
+<dd>Inertial object from xml</dd>
+</dl>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="NeuroMechFly.sdf.sdf.Inertial.sphere">
+<em class="property">classmethod </em><code class="descname">sphere</code><span class="sig-paren">(</span><em>radius</em>, <em>pose</em>, <em>units</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.Inertial.sphere" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sphere</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="NeuroMechFly.sdf.sdf.Inertial.valid_inertia">
+<em class="property">static </em><code class="descname">valid_inertia</code><span class="sig-paren">(</span><em>inertia</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.Inertial.valid_inertia" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if inertia matrix is positive, bounded and non zero.</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="NeuroMechFly.sdf.sdf.Inertial.valid_mass">
+<em class="property">static </em><code class="descname">valid_mass</code><span class="sig-paren">(</span><em>mass</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.Inertial.valid_mass" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if mass is positive, bounded and non zero.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="NeuroMechFly.sdf.sdf.Inertial.xml">
+<code class="descname">xml</code><span class="sig-paren">(</span><em>link</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.Inertial.xml" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="NeuroMechFly.sdf.sdf.Joint">
+<em class="property">class </em><code class="descclassname">NeuroMechFly.sdf.sdf.</code><code class="descname">Joint</code><span class="sig-paren">(</span><em>name</em>, <em>joint_type</em>, <em>parent</em>, <em>child</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.Joint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="utils.html#NeuroMechFly.utils.options.Options" title="NeuroMechFly.utils.options.Options"><code class="xref py py-class docutils literal notranslate"><span class="pre">NeuroMechFly.utils.options.Options</span></code></a></p>
+<dl class="classmethod">
+<dt id="NeuroMechFly.sdf.sdf.Joint.from_xml">
+<em class="property">classmethod </em><code class="descname">from_xml</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.Joint.from_xml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate joint object from xml data</p>
+<dl class="docutils">
+<dt>cls <span class="classifier-delimiter">:</span> <span class="classifier">&lt;cls&gt;</span></dt>
+<dd>Class</dd>
+<dt>data <span class="classifier-delimiter">:</span> <span class="classifier">&lt;ET.ElemenTree&gt;</span></dt>
+<dd>Joint data from the sdf</dd>
+</dl>
+<dl class="docutils">
+<dt>out <span class="classifier-delimiter">:</span> <span class="classifier">&lt;Joint&gt;</span></dt>
+<dd>Joint object from xml</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="NeuroMechFly.sdf.sdf.Joint.xml">
+<code class="descname">xml</code><span class="sig-paren">(</span><em>model</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.Joint.xml" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="NeuroMechFly.sdf.sdf.Link">
+<em class="property">class </em><code class="descclassname">NeuroMechFly.sdf.sdf.</code><code class="descname">Link</code><span class="sig-paren">(</span><em>name</em>, <em>pose</em>, <em>units</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.Link" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="utils.html#NeuroMechFly.utils.options.Options" title="NeuroMechFly.utils.options.Options"><code class="xref py py-class docutils literal notranslate"><span class="pre">NeuroMechFly.utils.options.Options</span></code></a></p>
+<dl class="classmethod">
+<dt id="NeuroMechFly.sdf.sdf.Link.box">
+<em class="property">classmethod </em><code class="descname">box</code><span class="sig-paren">(</span><em>name</em>, <em>pose</em>, <em>units</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.Link.box" title="Permalink to this definition">¶</a></dt>
+<dd><p>Box</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="NeuroMechFly.sdf.sdf.Link.capsule">
+<em class="property">classmethod </em><code class="descname">capsule</code><span class="sig-paren">(</span><em>name</em>, <em>pose</em>, <em>units</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.Link.capsule" title="Permalink to this definition">¶</a></dt>
+<dd><p>Capsule</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="NeuroMechFly.sdf.sdf.Link.cylinder">
+<em class="property">classmethod </em><code class="descname">cylinder</code><span class="sig-paren">(</span><em>name</em>, <em>pose</em>, <em>units</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.Link.cylinder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cylinder</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="NeuroMechFly.sdf.sdf.Link.empty">
+<em class="property">classmethod </em><code class="descname">empty</code><span class="sig-paren">(</span><em>name</em>, <em>pose</em>, <em>units</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.Link.empty" title="Permalink to this definition">¶</a></dt>
+<dd><p>Empty</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="NeuroMechFly.sdf.sdf.Link.from_mesh">
+<em class="property">classmethod </em><code class="descname">from_mesh</code><span class="sig-paren">(</span><em>name</em>, <em>mesh</em>, <em>pose</em>, <em>units</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.Link.from_mesh" title="Permalink to this definition">¶</a></dt>
+<dd><p>From mesh</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="NeuroMechFly.sdf.sdf.Link.from_xml">
+<em class="property">classmethod </em><code class="descname">from_xml</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.Link.from_xml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create link object from parsed xml data.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="NeuroMechFly.sdf.sdf.Link.heightmap">
+<em class="property">classmethod </em><code class="descname">heightmap</code><span class="sig-paren">(</span><em>name</em>, <em>uri</em>, <em>pose</em>, <em>size</em>, <em>pos</em>, <em>units</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.Link.heightmap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Heightmap</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="NeuroMechFly.sdf.sdf.Link.plane">
+<em class="property">classmethod </em><code class="descname">plane</code><span class="sig-paren">(</span><em>name</em>, <em>pose</em>, <em>units</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.Link.plane" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plane</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="NeuroMechFly.sdf.sdf.Link.sphere">
+<em class="property">classmethod </em><code class="descname">sphere</code><span class="sig-paren">(</span><em>name</em>, <em>pose</em>, <em>units</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.Link.sphere" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sphere</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="NeuroMechFly.sdf.sdf.Link.xml">
+<code class="descname">xml</code><span class="sig-paren">(</span><em>model</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.Link.xml" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="NeuroMechFly.sdf.sdf.Mesh">
+<em class="property">class </em><code class="descclassname">NeuroMechFly.sdf.sdf.</code><code class="descname">Mesh</code><span class="sig-paren">(</span><em>uri</em>, <em>scale</em>, <em>units</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.Mesh" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="utils.html#NeuroMechFly.utils.options.Options" title="NeuroMechFly.utils.options.Options"><code class="xref py py-class docutils literal notranslate"><span class="pre">NeuroMechFly.utils.options.Options</span></code></a></p>
+<dl class="classmethod">
+<dt id="NeuroMechFly.sdf.sdf.Mesh.from_xml">
+<em class="property">classmethod </em><code class="descname">from_xml</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.Mesh.from_xml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate Mesh shape from xml data.</p>
+<dl class="docutils">
+<dt>cls <span class="classifier-delimiter">:</span> <span class="classifier">&lt;Mesh&gt;</span></dt>
+<dd>Mesh class data</dd>
+<dt>data <span class="classifier-delimiter">:</span> <span class="classifier">&lt;ET.ElementTree&gt;</span></dt>
+<dd>Mesh object data</dd>
+</dl>
+<dl class="docutils">
+<dt>out <span class="classifier-delimiter">:</span> <span class="classifier">&lt;Mesh&gt;</span></dt>
+<dd>Mesh model</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="NeuroMechFly.sdf.sdf.Mesh.xml">
+<code class="descname">xml</code><span class="sig-paren">(</span><em>parent</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.Mesh.xml" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="NeuroMechFly.sdf.sdf.ModelSDF">
+<em class="property">class </em><code class="descclassname">NeuroMechFly.sdf.sdf.</code><code class="descname">ModelSDF</code><span class="sig-paren">(</span><em>name</em>, <em>pose</em>, <em>units</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.ModelSDF" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="utils.html#NeuroMechFly.utils.options.Options" title="NeuroMechFly.utils.options.Options"><code class="xref py py-class docutils literal notranslate"><span class="pre">NeuroMechFly.utils.options.Options</span></code></a></p>
+<p>Class to import SDF file in a PyBullet compatible way.</p>
+<dl class="method">
+<dt id="NeuroMechFly.sdf.sdf.ModelSDF.change_units">
+<code class="descname">change_units</code><span class="sig-paren">(</span><em>units</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.ModelSDF.change_units" title="Permalink to this definition">¶</a></dt>
+<dd><p>Change the units of all elements in the model.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="NeuroMechFly.sdf.sdf.ModelSDF.create_model">
+<em class="property">classmethod </em><code class="descname">create_model</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.ModelSDF.create_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create ModelSDF from parsed sdf model data.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="NeuroMechFly.sdf.sdf.ModelSDF.read">
+<em class="property">classmethod </em><code class="descname">read</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.ModelSDF.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read from an SDF FILE.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="NeuroMechFly.sdf.sdf.ModelSDF.write">
+<code class="descname">write</code><span class="sig-paren">(</span><em>filename='animat.sdf'</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.ModelSDF.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write SDF to file</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="NeuroMechFly.sdf.sdf.ModelSDF.xml">
+<code class="descname">xml</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.ModelSDF.xml" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="NeuroMechFly.sdf.sdf.ModelSDF.xml_str">
+<code class="descname">xml_str</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.ModelSDF.xml_str" title="Permalink to this definition">¶</a></dt>
+<dd><p>xml string</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="NeuroMechFly.sdf.sdf.Plane">
+<em class="property">class </em><code class="descclassname">NeuroMechFly.sdf.sdf.</code><code class="descname">Plane</code><span class="sig-paren">(</span><em>normal</em>, <em>size</em>, <em>units</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.Plane" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="utils.html#NeuroMechFly.utils.options.Options" title="NeuroMechFly.utils.options.Options"><code class="xref py py-class docutils literal notranslate"><span class="pre">NeuroMechFly.utils.options.Options</span></code></a></p>
+<dl class="classmethod">
+<dt id="NeuroMechFly.sdf.sdf.Plane.from_xml">
+<em class="property">classmethod </em><code class="descname">from_xml</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.Plane.from_xml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate Plane shape from xml data.</p>
+<dl class="docutils">
+<dt>cls <span class="classifier-delimiter">:</span> <span class="classifier">&lt;Plane&gt;</span></dt>
+<dd>Plane class data</dd>
+<dt>data <span class="classifier-delimiter">:</span> <span class="classifier">&lt;ET.ElementTree&gt;</span></dt>
+<dd>Plane object data</dd>
+</dl>
+<dl class="docutils">
+<dt>out <span class="classifier-delimiter">:</span> <span class="classifier">&lt;Plane&gt;</span></dt>
+<dd>Plane model</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="NeuroMechFly.sdf.sdf.Plane.xml">
+<code class="descname">xml</code><span class="sig-paren">(</span><em>parent</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.Plane.xml" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="NeuroMechFly.sdf.sdf.Shape">
+<em class="property">class </em><code class="descclassname">NeuroMechFly.sdf.sdf.</code><code class="descname">Shape</code><span class="sig-paren">(</span><em>name</em>, <em>geometry</em>, <em>suffix</em>, <em>units</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.Shape" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="utils.html#NeuroMechFly.utils.options.Options" title="NeuroMechFly.utils.options.Options"><code class="xref py py-class docutils literal notranslate"><span class="pre">NeuroMechFly.utils.options.Options</span></code></a></p>
+<dl class="classmethod">
+<dt id="NeuroMechFly.sdf.sdf.Shape.bounding_from_mesh">
+<em class="property">classmethod </em><code class="descname">bounding_from_mesh</code><span class="sig-paren">(</span><em>name</em>, <em>mesh</em>, <em>scale</em>, <em>units</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.Shape.bounding_from_mesh" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create bounding shape from mesh.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="NeuroMechFly.sdf.sdf.Shape.box">
+<em class="property">classmethod </em><code class="descname">box</code><span class="sig-paren">(</span><em>name</em>, <em>size</em>, <em>units</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.Shape.box" title="Permalink to this definition">¶</a></dt>
+<dd><p>Box</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="NeuroMechFly.sdf.sdf.Shape.capsule">
+<em class="property">classmethod </em><code class="descname">capsule</code><span class="sig-paren">(</span><em>name</em>, <em>radius</em>, <em>length</em>, <em>units</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.Shape.capsule" title="Permalink to this definition">¶</a></dt>
+<dd><p>Box</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="NeuroMechFly.sdf.sdf.Shape.cylinder">
+<em class="property">classmethod </em><code class="descname">cylinder</code><span class="sig-paren">(</span><em>name</em>, <em>radius</em>, <em>length</em>, <em>units</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.Shape.cylinder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cylinder</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="NeuroMechFly.sdf.sdf.Shape.from_mesh">
+<em class="property">classmethod </em><code class="descname">from_mesh</code><span class="sig-paren">(</span><em>name</em>, <em>mesh</em>, <em>scale</em>, <em>units</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.Shape.from_mesh" title="Permalink to this definition">¶</a></dt>
+<dd><p>From mesh</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="NeuroMechFly.sdf.sdf.Shape.heightmap">
+<em class="property">classmethod </em><code class="descname">heightmap</code><span class="sig-paren">(</span><em>name</em>, <em>uri</em>, <em>size</em>, <em>pos</em>, <em>units</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.Shape.heightmap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Heightmap</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="NeuroMechFly.sdf.sdf.Shape.plane">
+<em class="property">classmethod </em><code class="descname">plane</code><span class="sig-paren">(</span><em>name</em>, <em>normal</em>, <em>size</em>, <em>units</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.Shape.plane" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plane</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="NeuroMechFly.sdf.sdf.Shape.sphere">
+<em class="property">classmethod </em><code class="descname">sphere</code><span class="sig-paren">(</span><em>name</em>, <em>radius</em>, <em>units</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.Shape.sphere" title="Permalink to this definition">¶</a></dt>
+<dd><p>Box</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="NeuroMechFly.sdf.sdf.Shape.xml">
+<code class="descname">xml</code><span class="sig-paren">(</span><em>link</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.Shape.xml" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="NeuroMechFly.sdf.sdf.Sphere">
+<em class="property">class </em><code class="descclassname">NeuroMechFly.sdf.sdf.</code><code class="descname">Sphere</code><span class="sig-paren">(</span><em>radius</em>, <em>units</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.Sphere" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="utils.html#NeuroMechFly.utils.options.Options" title="NeuroMechFly.utils.options.Options"><code class="xref py py-class docutils literal notranslate"><span class="pre">NeuroMechFly.utils.options.Options</span></code></a></p>
+<dl class="classmethod">
+<dt id="NeuroMechFly.sdf.sdf.Sphere.from_xml">
+<em class="property">classmethod </em><code class="descname">from_xml</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.Sphere.from_xml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate Sphere shape from xml data.</p>
+<dl class="docutils">
+<dt>cls <span class="classifier-delimiter">:</span> <span class="classifier">&lt;Sphere&gt;</span></dt>
+<dd>Sphere class data</dd>
+<dt>data <span class="classifier-delimiter">:</span> <span class="classifier">&lt;ET.ElementTree&gt;</span></dt>
+<dd>Sphere object data</dd>
+</dl>
+<dl class="docutils">
+<dt>out <span class="classifier-delimiter">:</span> <span class="classifier">&lt;Sphere&gt;</span></dt>
+<dd>Sphere model</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="NeuroMechFly.sdf.sdf.Sphere.xml">
+<code class="descname">xml</code><span class="sig-paren">(</span><em>parent</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.Sphere.xml" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="NeuroMechFly.sdf.sdf.Visual">
+<em class="property">class </em><code class="descclassname">NeuroMechFly.sdf.sdf.</code><code class="descname">Visual</code><span class="sig-paren">(</span><em>name</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.Visual" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#NeuroMechFly.sdf.sdf.Shape" title="NeuroMechFly.sdf.sdf.Shape"><code class="xref py py-class docutils literal notranslate"><span class="pre">NeuroMechFly.sdf.sdf.Shape</span></code></a></p>
+<dl class="classmethod">
+<dt id="NeuroMechFly.sdf.sdf.Visual.from_xml">
+<em class="property">classmethod </em><code class="descname">from_xml</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.Visual.from_xml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate visual shape model from xml.</p>
+<dl class="docutils">
+<dt>cls <span class="classifier-delimiter">:</span> <span class="classifier">&lt;Shape&gt;</span></dt>
+<dd>Shape class data</dd>
+<dt>data <span class="classifier-delimiter">:</span> <span class="classifier">&lt;ET.ElementTree&gt;</span></dt>
+<dd>Visual/Collision object data</dd>
+</dl>
+<dl class="docutils">
+<dt>out <span class="classifier-delimiter">:</span> <span class="classifier">&lt;Shape&gt;</span></dt>
+<dd>Shape model</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="NeuroMechFly.sdf.sdf.Visual.xml">
+<code class="descname">xml</code><span class="sig-paren">(</span><em>link</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.sdf.Visual.xml" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-NeuroMechFly.sdf.units">
+<span id="units"></span><h2>units<a class="headerlink" href="#module-NeuroMechFly.sdf.units" title="Permalink to this headline">¶</a></h2>
+<p>Licensed under the Apache License, Version 2.0 (the “License”);
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at</p>
+<blockquote>
+<div><a class="reference external" href="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</a></div></blockquote>
+<p>Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an “AS IS” BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+———————————————————————–</p>
+<p>Module to apply units</p>
+<dl class="class">
+<dt id="NeuroMechFly.sdf.units.SimulationUnitScaling">
+<em class="property">class </em><code class="descclassname">NeuroMechFly.sdf.units.</code><code class="descname">SimulationUnitScaling</code><span class="sig-paren">(</span><em>meters=1</em>, <em>seconds=1</em>, <em>kilograms=1</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.units.SimulationUnitScaling" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="utils.html#NeuroMechFly.utils.options.Options" title="NeuroMechFly.utils.options.Options"><code class="xref py py-class docutils literal notranslate"><span class="pre">NeuroMechFly.utils.options.Options</span></code></a></p>
+<p>Simulation scaling</p>
+<p>1 [m] in reality = self.meterss [m] in simulation
+1 [s] in reality = self.seconds [s] in simulation
+1 [kg] in reality = self.kilograms [kg] in simulation</p>
+<dl class="attribute">
+<dt id="NeuroMechFly.sdf.units.SimulationUnitScaling.acceleration">
+<code class="descname">acceleration</code><a class="headerlink" href="#NeuroMechFly.sdf.units.SimulationUnitScaling.acceleration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Acceleration</p>
+<p>Scaled as self.gravity = self.meters/self.seconds**2</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="NeuroMechFly.sdf.units.SimulationUnitScaling.density">
+<code class="descname">density</code><a class="headerlink" href="#NeuroMechFly.sdf.units.SimulationUnitScaling.density" title="Permalink to this definition">¶</a></dt>
+<dd><p>Density</p>
+<p>Scaled as self.density = self.kilograms/self.meters**3</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="NeuroMechFly.sdf.units.SimulationUnitScaling.gravity">
+<code class="descname">gravity</code><a class="headerlink" href="#NeuroMechFly.sdf.units.SimulationUnitScaling.gravity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gravity</p>
+<p>Scaled as self.gravity = self.meters/self.seconds**2</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="NeuroMechFly.sdf.units.SimulationUnitScaling.hertz">
+<code class="descname">hertz</code><a class="headerlink" href="#NeuroMechFly.sdf.units.SimulationUnitScaling.hertz" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hertz (frequency)</p>
+<p>Scaled as self.hertz = 1/self.seconds</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="NeuroMechFly.sdf.units.SimulationUnitScaling.newtons">
+<code class="descname">newtons</code><a class="headerlink" href="#NeuroMechFly.sdf.units.SimulationUnitScaling.newtons" title="Permalink to this definition">¶</a></dt>
+<dd><p>Newtons</p>
+<p>Scaled as self.newtons = self.kilograms*self.meters/self.time**2</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="NeuroMechFly.sdf.units.SimulationUnitScaling.torques">
+<code class="descname">torques</code><a class="headerlink" href="#NeuroMechFly.sdf.units.SimulationUnitScaling.torques" title="Permalink to this definition">¶</a></dt>
+<dd><p>Torques</p>
+<p>Scaled as self.torques = self.kilograms*self.meters**2/self.time**2</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="NeuroMechFly.sdf.units.SimulationUnitScaling.velocity">
+<code class="descname">velocity</code><a class="headerlink" href="#NeuroMechFly.sdf.units.SimulationUnitScaling.velocity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Velocity</p>
+<p>Scaled as self.velocities = self.meters/self.seconds</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="NeuroMechFly.sdf.units.SimulationUnitScaling.volume">
+<code class="descname">volume</code><a class="headerlink" href="#NeuroMechFly.sdf.units.SimulationUnitScaling.volume" title="Permalink to this definition">¶</a></dt>
+<dd><p>Volume</p>
+<p>Scaled as self.volume = self.meters**3</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-NeuroMechFly.sdf.utils">
+<span id="utils"></span><h2>utils<a class="headerlink" href="#module-NeuroMechFly.sdf.utils" title="Permalink to this headline">¶</a></h2>
+<p>Licensed under the Apache License, Version 2.0 (the “License”);
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at</p>
+<blockquote>
+<div><a class="reference external" href="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</a></div></blockquote>
+<p>Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an “AS IS” BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+———————————————————————–</p>
+<p>Utility classes and methods for farms_sdf</p>
+<dl class="function">
+<dt id="NeuroMechFly.sdf.utils.add_nodes_to_tree">
+<code class="descclassname">NeuroMechFly.sdf.utils.</code><code class="descname">add_nodes_to_tree</code><span class="sig-paren">(</span><em>model</em>, <em>tree</em>, <em>links=None</em>, <em>joint_index=None</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.utils.add_nodes_to_tree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add nodes to links</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="NeuroMechFly.sdf.utils.construct_tree">
+<code class="descclassname">NeuroMechFly.sdf.utils.</code><code class="descname">construct_tree</code><span class="sig-paren">(</span><em>model</em><span class="sig-paren">)</span> &#x2192; &lt;sphinx.ext.autodoc.importer._MockObject object at 0x7f65b5e3d198&gt;<a class="headerlink" href="#NeuroMechFly.sdf.utils.construct_tree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct tree.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="NeuroMechFly.sdf.utils.find_child_joints">
+<code class="descclassname">NeuroMechFly.sdf.utils.</code><code class="descname">find_child_joints</code><span class="sig-paren">(</span><em>model</em>, <em>joint_name</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.utils.find_child_joints" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find all the joints parented to the given joint.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="NeuroMechFly.sdf.utils.find_link_joints">
+<code class="descclassname">NeuroMechFly.sdf.utils.</code><code class="descname">find_link_joints</code><span class="sig-paren">(</span><em>model</em>, <em>link_name</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.utils.find_link_joints" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the joints attached to a given link</p>
+<dl class="docutils">
+<dt>model <span class="classifier-delimiter">:</span> <span class="classifier">&lt;ModelSDF&gt;</span></dt>
+<dd>SDF model</dd>
+<dt>link_name <span class="classifier-delimiter">:</span> <span class="classifier">&lt;str&gt;</span></dt>
+<dd>Name of the link in the sdf</dd>
+</dl>
+<dl class="docutils">
+<dt>out <span class="classifier-delimiter">:</span> <span class="classifier">&lt;tuple&gt;</span></dt>
+<dd>Tuple of joint names attached to the link</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="NeuroMechFly.sdf.utils.find_neighboring_joints">
+<code class="descclassname">NeuroMechFly.sdf.utils.</code><code class="descname">find_neighboring_joints</code><span class="sig-paren">(</span><em>model</em>, <em>joint</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.utils.find_neighboring_joints" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find both parent and child neighboring joints.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="NeuroMechFly.sdf.utils.find_parent_joints">
+<code class="descclassname">NeuroMechFly.sdf.utils.</code><code class="descname">find_parent_joints</code><span class="sig-paren">(</span><em>model</em>, <em>joint_name</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.utils.find_parent_joints" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find all the joints parented to the given joint.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="NeuroMechFly.sdf.utils.find_root">
+<code class="descclassname">NeuroMechFly.sdf.utils.</code><code class="descname">find_root</code><span class="sig-paren">(</span><em>model</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.utils.find_root" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the root link.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="NeuroMechFly.sdf.utils.get_all_subtrees">
+<code class="descclassname">NeuroMechFly.sdf.utils.</code><code class="descname">get_all_subtrees</code><span class="sig-paren">(</span><em>model</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.utils.get_all_subtrees" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all the subtrees in the given model.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="NeuroMechFly.sdf.utils.joint_name_to_index">
+<code class="descclassname">NeuroMechFly.sdf.utils.</code><code class="descname">joint_name_to_index</code><span class="sig-paren">(</span><em>model</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.utils.joint_name_to_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a dictionary for link names and their indicies in the
+model.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="NeuroMechFly.sdf.utils.link_name_to_index">
+<code class="descclassname">NeuroMechFly.sdf.utils.</code><code class="descname">link_name_to_index</code><span class="sig-paren">(</span><em>model</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.utils.link_name_to_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a dictionary for link names and their indicies in the
+model.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="NeuroMechFly.sdf.utils.replace_file_name_in_path">
+<code class="descclassname">NeuroMechFly.sdf.utils.</code><code class="descname">replace_file_name_in_path</code><span class="sig-paren">(</span><em>file_path</em>, <em>new_name</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.utils.replace_file_name_in_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace a file name in a given path. File extension is retained</p>
+<dl class="docutils">
+<dt>file_path <span class="classifier-delimiter">:</span> <span class="classifier">&lt;str&gt;</span></dt>
+<dd>Path to the file object</dd>
+<dt>new_name <span class="classifier-delimiter">:</span> <span class="classifier">&lt;str&gt;</span></dt>
+<dd>Name to replace the original file name</dd>
+</dl>
+<dl class="docutils">
+<dt>out <span class="classifier-delimiter">:</span> <span class="classifier">&lt;str&gt;</span></dt>
+<dd>New path with the replaced file name</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-NeuroMechFly.sdf.bullet_load_sdf">
+<span id="bullet-sdf-loader"></span><h2>Bullet sdf loader<a class="headerlink" href="#module-NeuroMechFly.sdf.bullet_load_sdf" title="Permalink to this headline">¶</a></h2>
+<p>Licensed under the Apache License, Version 2.0 (the “License”);
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at</p>
+<blockquote>
+<div><a class="reference external" href="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</a></div></blockquote>
+<p>Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an “AS IS” BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+———————————————————————–</p>
+<p>SDF</p>
+<dl class="function">
+<dt id="NeuroMechFly.sdf.bullet_load_sdf.find_joint">
+<code class="descclassname">NeuroMechFly.sdf.bullet_load_sdf.</code><code class="descname">find_joint</code><span class="sig-paren">(</span><em>sdf_model</em>, <em>link</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.bullet_load_sdf.find_joint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find joint</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="NeuroMechFly.sdf.bullet_load_sdf.joint_pybullet_type">
+<code class="descclassname">NeuroMechFly.sdf.bullet_load_sdf.</code><code class="descname">joint_pybullet_type</code><span class="sig-paren">(</span><em>joint</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.bullet_load_sdf.joint_pybullet_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find joint</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="NeuroMechFly.sdf.bullet_load_sdf.load_sdf">
+<code class="descclassname">NeuroMechFly.sdf.bullet_load_sdf.</code><code class="descname">load_sdf</code><span class="sig-paren">(</span><em>sdf_path</em>, <em>force_concave=False</em>, <em>reset_control=False</em>, <em>verbose=False</em>, <em>links_options=None</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.bullet_load_sdf.load_sdf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load SDF</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="NeuroMechFly.sdf.bullet_load_sdf.load_sdf_pybullet">
+<code class="descclassname">NeuroMechFly.sdf.bullet_load_sdf.</code><code class="descname">load_sdf_pybullet</code><span class="sig-paren">(</span><em>sdf_path</em>, <em>index=0</em>, <em>morphology_links=None</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.bullet_load_sdf.load_sdf_pybullet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Original way of loading SDF - Deprecated</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="NeuroMechFly.sdf.bullet_load_sdf.pybullet_options_from_shape">
+<code class="descclassname">NeuroMechFly.sdf.bullet_load_sdf.</code><code class="descname">pybullet_options_from_shape</code><span class="sig-paren">(</span><em>shape</em>, <em>path=''</em>, <em>force_concave=False</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.bullet_load_sdf.pybullet_options_from_shape" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pybullet shape</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="NeuroMechFly.sdf.bullet_load_sdf.rearange_base_link_dict">
+<code class="descclassname">NeuroMechFly.sdf.bullet_load_sdf.</code><code class="descname">rearange_base_link_dict</code><span class="sig-paren">(</span><em>dictionary</em>, <em>base_link_index</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.bullet_load_sdf.rearange_base_link_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rarange base link to beginning of table</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="NeuroMechFly.sdf.bullet_load_sdf.rearange_base_link_list">
+<code class="descclassname">NeuroMechFly.sdf.bullet_load_sdf.</code><code class="descname">rearange_base_link_list</code><span class="sig-paren">(</span><em>table</em>, <em>base_link_index</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.bullet_load_sdf.rearange_base_link_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rarange base link to beginning of table</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="NeuroMechFly.sdf.bullet_load_sdf.reset_controllers">
+<code class="descclassname">NeuroMechFly.sdf.bullet_load_sdf.</code><code class="descname">reset_controllers</code><span class="sig-paren">(</span><em>identity</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.bullet_load_sdf.reset_controllers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reset controllers</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="NeuroMechFly.sdf.bullet_load_sdf.rot_diff">
+<code class="descclassname">NeuroMechFly.sdf.bullet_load_sdf.</code><code class="descname">rot_diff</code><span class="sig-paren">(</span><em>rot0</em>, <em>rot1</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.bullet_load_sdf.rot_diff" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rotation difference</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="NeuroMechFly.sdf.bullet_load_sdf.rot_invert">
+<code class="descclassname">NeuroMechFly.sdf.bullet_load_sdf.</code><code class="descname">rot_invert</code><span class="sig-paren">(</span><em>rot</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.bullet_load_sdf.rot_invert" title="Permalink to this definition">¶</a></dt>
+<dd><p>Invert rot</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="NeuroMechFly.sdf.bullet_load_sdf.rot_matrix">
+<code class="descclassname">NeuroMechFly.sdf.bullet_load_sdf.</code><code class="descname">rot_matrix</code><span class="sig-paren">(</span><em>rot</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.bullet_load_sdf.rot_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Matrix from Quaternion</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="NeuroMechFly.sdf.bullet_load_sdf.rot_mult">
+<code class="descclassname">NeuroMechFly.sdf.bullet_load_sdf.</code><code class="descname">rot_mult</code><span class="sig-paren">(</span><em>rot0</em>, <em>rot1</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.bullet_load_sdf.rot_mult" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rotation Multiplication</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="NeuroMechFly.sdf.bullet_load_sdf.rot_quat">
+<code class="descclassname">NeuroMechFly.sdf.bullet_load_sdf.</code><code class="descname">rot_quat</code><span class="sig-paren">(</span><em>rot</em><span class="sig-paren">)</span><a class="headerlink" href="#NeuroMechFly.sdf.bullet_load_sdf.rot_quat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Quaternion from Euler</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="control.html" class="btn btn-neutral float-right" title="Subpackage control" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral float-left" title="NeuroMechfly Documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2021, nely
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
