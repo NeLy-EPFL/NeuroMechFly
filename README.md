@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # NeuroMechFly
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Version](https://badge.fury.io/gh/tterb%2FHyde.svg)](https://badge.fury.io/gh/tterb%2FHyde)
@@ -200,4 +199,3 @@ plotting.plot_data(path_data,
 # README for the GitHub Pages Branch
 This branch is simply a cache for the website served from https://nely-epfl.github.io/NeuroMechFly/,
 and is  not intended to be viewed on github.com.
->>>>>>> 26684d67fffbe7602613b6c0c357d7d1bf3d86c3
