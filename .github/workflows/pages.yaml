@@ -1,0 +1,40 @@
+name: "Github pages CI/CD"
+on:
+  push:
+    branches:
+      - master # TODO: Change to main once branches are renamed
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+jobs:
+  pages:
+    name: Build and deploy github pages
+    runs-on: ubuntu-latest
+    container: debian:buster-slim
+    steps:
+      - name: Start
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "The job was automatically triggered by a ${{ github.event_name }} event."
+          echo "This job is now running on a ${{ runner.os }} server hosted by GitHub!"
+          echo "The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
+      - name: Install prerequisities and clone repo
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -x
+          apt-get update
+          apt-get install -y git
+          git clone "https://github.com/${GITHUB_REPOSITORY}.git" .
+          git checkout setup-github-pages
+        shell: bash
+      - run: |
+          echo "The ${{ github.repository }} repository has been cloned to the runner."
+          echo "The workflow is now ready to test your code on the runner."
+          echo "$(pwd)"
+          echo "$(ls -a)"
+      - name: Run build script for Sphinx pages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: "docs/buildsite.sh"
+        shell: bash
