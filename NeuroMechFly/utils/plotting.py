@@ -10,24 +10,6 @@ from matplotlib.lines import Line2D
 from matplotlib.markers import MarkerStyle
 from .sensitivity_analysis import calculate_forces
 
-"""
-import math
-import pickle
-import pkgutil
-import itertools
-from pathlib import Path
-import matplotlib.ticker as mtick
-import matplotlib.transforms as mtransforms
-from matplotlib.legend_handler import HandlerTuple
-from scipy import stats
-from scipy import ndimage
-from scipy.spatial.transform import Rotation as R
-from sklearn import svm
-from sklearn.metrics import mean_squared_error
-from statsmodels.stats import weightstats as stests
-"""
-
-
 def plot_mu_sem(
     mu,
     error,
@@ -43,7 +25,8 @@ def plot_mu_sem(
 ):
     """ Plots mean, confidence interval, and standard deviation (Author: JB)
 
-    Args:
+    Parameters
+    ----------
         mu (np.array): mean, shape [N_samples, N_lines] or [N_samples]
         error (np.array): error to be plotted, e.g. standard error of the mean, shape [N_samples, N_lines] or [N_samples]
         conf (int): confidence interval, if none, stderror is plotted instead of std
@@ -110,7 +93,8 @@ def plot_kp_joint(
 ):
     """Plot the joint info of one specific leg versus independent variable.
 
-    Args:
+    Parameters
+    ----------
         *args (np.array): force to be plotted, i.e. grf, lateral friction, thorax
         multiple (bool, optional): plots vectors instead of norm.
         data (dictionary, optional): dictionary to be plotted, i.e. joint torques
@@ -175,7 +159,8 @@ def heatmap_plot(
         cmap='viridis'):
     """ Plots a heatmap plot for global sensitivity analysis. 
     
-    Args:
+    Parameters
+    ----------
         title (str): Title of the heatmap
         joint_data (dict): Dictionary containing the joint information (angle etc)
         colorbar_title (str): Title of the colorbar
@@ -199,7 +184,20 @@ def heatmap_plot(
     ax.set_title(title)
     ax.invert_yaxis()
 
-def plot_pareto_front(path_data, g, s=''):
+def plot_pareto_front(path_data,
+                      g,
+                      s=''):
+    """ Plots solutions from optimization results. 
+    
+    Parameters
+    ----------
+    path_data: <str>
+        Path to optimization results.
+    g: <int, list>
+        Generations' number from where solutions 's' will be taken, it can be one number or a list of numbers.
+    s: <str, list>
+        Solutions' criteria or number to plot, it can be one name or a list of names.
+    """
     from ..experiments.network_optimization.neuromuscular_control import DrosophilaSimulation as ds
 
     if not isinstance(g, list):
@@ -247,7 +245,26 @@ def plot_pareto_front(path_data, g, s=''):
     plt.legend()
     plt.show()
 
-def read_muscles_act(path_data, equivalence, leg_order):
+def read_muscles_act(path_data,
+                     equivalence,
+                     leg_order):
+    """ Reads muscle's data obtained after running a simulation (run_neuromuscular_control). 
+    
+    Parameters
+    ----------
+    path_data: <str>
+        Path to simulation results.
+    equivalence: <dict>
+        Name's equivalence for same joints.
+    leg_order: <list>
+        List of legs with the order in which they will be plotted.
+
+    Returns
+    ----------
+    data: <dict>
+        Dictionary with muscles data.
+    """
+    
     muscles_path = os.path.join(path_data, 'muscle', 'outputs.h5')
     data_raw = pd.read_hdf(muscles_path)
     data={}
@@ -265,7 +282,25 @@ def read_muscles_act(path_data, equivalence, leg_order):
 
     return data
 
-def read_joint_positions(path_data, equivalence, leg_order):
+def read_joint_positions(path_data,
+                         equivalence,
+                         leg_order):
+    """ Reads joint position's data obtained after running a simulation (run_neuromuscular_control).
+    
+    Parameters
+    ----------
+    path_data: <str>
+        Path to simulation results.
+    equivalence: <dict>
+        Name's equivalence for same joints.
+    leg_order: <list>
+        List of legs with the order in which they will be plotted.
+
+    Returns
+    ----------
+    data: <dict>
+        Dictionary with joint position's data.
+    """
     angles_path = os.path.join(path_data, 'physics', 'joint_positions.h5')
     angles_raw = pd.read_hdf(angles_path)
     angles={}
@@ -282,13 +317,17 @@ def read_joint_positions(path_data, equivalence, leg_order):
         
 
 def read_ground_contacts(path_data):
-    """Read ground reaction forces data, calculates magnitude for each segment
+    """ Reads ground contact's data obtained after running a simulation.
+    
+    Parameters
+    ----------
+    path_data: <str>
+        Path to simulation results.
 
-    Parameters:
-        path_data (str): Path to data for plotting
-
-    Return:
-        grf (np.array): ground reaction forces for all segments in a specific leg
+    Returns
+    ----------
+    grf: <dict>
+        Ground reaction forces for all segments in all legs.
     """
     grf_data = os.path.join(path_data, 'physics', 'ground_contacts.h5')
     data = pd.read_hdf(grf_data)
@@ -311,15 +350,18 @@ def read_ground_contacts(path_data):
 
 
 def read_collision_forces(path_data):
-    """Read ground reaction forces data, calculates magnitude for each segment
+    """ Reads collision force's data obtained after running a simulation.
+    
+    Parameters
+    ----------
+    path_data: <str>
+        Path to simulation results.
 
-    Parameters:
-        path_data (str): Path to data for plotting
-
-    Return:
-        collisions (dict): dictionary with all collision forces for each segment
+    Returns
+    ----------
+    collisions: <dict>
+        Collision forces for all segments in all legs.
     """
-
     collisions_data = os.path.join(path_data, 'physics', 'collision_forces.h5')
     data = pd.read_hdf(collisions_data)
 
@@ -345,16 +387,22 @@ def read_collision_forces(path_data):
     return collisions
 
 def get_stance_periods(leg_force,start,stop):
-    """Read ground reaction forces data, calculates magnitude for each segment
+    """ Get stance periods from GRF data.
+    
+    Parameters
+    ----------
+    leg_force: <np.array>
+        GRF data associated with a leg.
+    start: <float>
+        Starting time for checking stance periods.
+    stop: <float>
+        Stoping time for checking stance periods.
 
-    Parameters:
-        leg_force (np.array): Forces associated with a leg
-        start (float): Starting time for checking stance periods
-        stop (float): Stoping time for checking stance periods
-    Return:
-        stance_plot (list): list with indices indicating beginning and ending of stance periods
+    Returns
+    ----------
+    stance_plot: <list>
+        Indices indicating beginning and ending of stance periods.
     """
-
     stance_ind = np.where(leg_force > 0)[0]
     if stance_ind.size != 0:
         stance_diff = np.diff(stance_ind)
@@ -408,29 +456,45 @@ def plot_data(
         grfScalingFactor=1e6
     ):
 
-    """Plot data from the simulation
-
-    Parameters:
-        path_data (str): Path to data for plotting
-        leg_key (str): Key for specifying a leg to plot (angles, torques, grf, collisions), e.g, LF, LM, LH, RF, RM, RH
-        joint_key (str): Key for specifying a joint to plot (angles_interleg, torques_muscles, muscles_act), e.g, Coxa, Femur, Tibia, Tarsus
-        sim_data (str, default walking): behavior from data, e.g., walking or grooming
-        angles (dict, optional): angles to plot calculated externally, e.g., using df3dPostProcessing
-        plot_muscles_act (bool, default True): Plotting muscle's activation
-        plot_torques_muscle (bool, default False): Plotting torques generated by muscles
-        plot_angles_interleg (bool, default False): Plotting angles from simulation
-        plot_angles_intraleg (bool, default True): Plotting angles from external source and defined in variable angles
-        plot_torques (bool, default True): Plotting torques generated by simulation controllers
-        plot_grf (bool, default True): Plotting ground reaction forces (if sim_data='walking')
-        plot_collisions (bool, default True): Plotting self-collision forces (if sim_data='grooming')
-        plot_collisions_across (bool, default True): Plotting grf/collisions across other plots
-        begin (float, default 0.0): Time point for starting the plot
-        end (float, default 0.0): Time point for finishing the plot, if 0.0, all time points are plotted
-        time_step (float, default 0.001): Data time step
-        torqueScalingFactor (float, default 1.0): Scaling factor for torques
-        grfScalingFactor (float, default 1.0): Scaling factor for ground reaction forces
-    """
+    """ Plots data from the simulation.
     
+    Parameters
+    ----------
+    path_data: <str>
+        Path to simulation results.
+    leg_key: <str>
+        Key for specifying a leg to plot: angles (intraleg or interleg), torques, grf, or collisions. Options: 'LF', 'LM', 'LH', 'RF', 'RM', 'RH'.
+    joint_key: <str>
+        Key for specifying a joint to plot: angles_interleg, torques_muscles, or muscles_act. Options 'ThC', 'CTr', 'FTi', 'TiTa'
+    sim_data: <str>
+        Behavior from data. Options: 'walking' or 'grooming'.
+    plot_muscles_act: <bool>
+        Plotting muscle's activation.
+    plot_torques_muscles: <bool>
+        Plotting torques generated by muscles.
+    plot_angles_interleg: <bool>
+        Plotting joint angles from joint 'joint_key' in all legs.
+    plot_angles_intraleg: <bool>
+        Plotting joint angles from all joints in leg 'leg_key'.
+    plot_torques: <bool>
+        Plotting torques generated by PyBullet controllers.
+    plot_grf: <bool>
+        Plotting ground reaction forces (if sim_data='walking').
+    plot_collisions: <bool>
+        Plotting self-collision forces (if sim_data='grooming').
+    plot_collisions_across: <bool>
+        Plotting grf/collisions as gray background across other plots.
+    begin: <float>
+        Starting time for initiating the plots.
+    end: <float>
+        Stoping time for finishing the plots. If 0.0, all data is plotted.
+    time_step: <float>
+        Data time step.
+    torqueScalingFactor: <float>
+        Scaling factor for torques (from Nm to uNmm).
+    grfScalingFactor: <float>
+        Scaling factor for ground reaction forces (from N to uN).
+    """    
     data2plot = {}
     mn_flex = {}
     mn_ext = {}
@@ -826,20 +890,21 @@ def plot_collision_diagram(
         end=0,
         time_step=0.001):
 
-    """Plot collision/gait diagrams
-
-    Parameters:
-        path_data (str): Path to data for plotting
-        sim_data (str): behavior from data, e.g., walking or grooming
-        
-        opt_res (bool, default False): Select if the collision/gait diagrams are from and optimization result
-        exp (str): experiment name (if opt_res is True)
-        generation (str): Generation number (if opt_res is True)
-        begin (float, default 0.0): Time point for starting the plot
-        end (float, default 0.0): Time point for finishing the plot, if 0.0, all time points are plotted
-        time_step (float, default 0.001): Data time step
-    """
+    """ Plots collision/gait diagrams.
     
+    Parameters
+    ----------
+    path_data: <str>
+        Path to simulation results.
+    sim_data: <str>
+        Behavior from data. Options: 'walking' or 'grooming'.    
+    begin: <float>
+        Starting time for initiating the plots.
+    end: <float>
+        Stoping time for finishing the plots. If 0.0, all data is plotted.
+    time_step: <float>
+        Data time step.
+    """ 
     data = {}
     length_data = 0
     
@@ -939,19 +1004,27 @@ def plot_fly_path(
         time_step=0.001
         ):
 
-    """Plot reconstruction of the fly path from ball rotations
-
-    Parameters:
-        path_data (str): Path to data for plotting
-        generations (list): Numbers of the generations to plot (for optimization experiments)
-        generations (list): Name of the solution to plot (for optimization experiments)
-        sequence (bool, default False): Plotting path every time step
-        heading (bool, default True): Plotting heading of the fly (if sequence=True)
-        begin (float, default 0.0): Time point for starting the plot
-        end (float, default 0.0): Time point for finishing the plot, if 0.0, all time points are plotted
-        time_step (float, default 0.001): Data time step
-    """
-
+    """ Plots collision/gait diagrams.
+    
+    Parameters
+    ----------
+    path_data: <str>
+        Path to simulation results.
+    generations: <list>
+        Numbers of the generations to plot (for optimization experiments).
+    solutions: <list>
+        Names of the solutions to plot (for optimization experiments).
+    sequence: <bool>
+        Plotting path every time step.
+    heading: <bool>
+        Plotting heading of the fly (if sequence=True).
+    begin: <float>
+        Starting time for initiating the plots.
+    end: <float>
+        Stoping time for finishing the plots. If 0.0, all data is plotted.
+    time_step: <float>
+        Data time step.
+    """ 
     ball_data_list = []
 
     val_max = 0
