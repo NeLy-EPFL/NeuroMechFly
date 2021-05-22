@@ -27,14 +27,22 @@ def plot_mu_sem(
 
     Parameters
     ----------
-        mu (np.array): mean, shape [N_samples, N_lines] or [N_samples]
-        error (np.array): error to be plotted, e.g. standard error of the mean, shape [N_samples, N_lines] or [N_samples]
-        conf (int): confidence interval, if none, stderror is plotted instead of std
-        plot_label (str, optional): the label for each line either a string if only one line or list of strings if multiple lines
-        x (np.array, optional): shape [N_samples]. If not specified will be np.arange(mu.shape[0])
-        alpha (float, optional): transparency of the shaded area. default 0.3
-        color ([type], optional): pre-specify colour. if None, use Python default colour cycle
-        ax ([type], optional): axis to be plotted on, otherwise the current is axis with plt.gca()
+    mu: <np.array>
+        Mean, shape [N_samples, N_lines] or [N_samples].
+    error: <np.array>
+        Error to be plotted, e.g. standard error of the mean, shape [N_samples, N_lines] or [N_samples].
+    conf: <int> 
+        Confidence interval, if none, stderror is plotted instead of std.
+    plot_label: <str> 
+        The label for each line either a string if only one line or list of strings if multiple lines.
+    x: <np.array>
+        shape [N_samples]. If not specified will be np.arange(mu.shape[0]).
+    alpha: <float>
+        Transparency of the shaded area. default 0.3.
+    color: 
+        Pre-specify colour. if None, use Python default colour cycle.
+    ax:  
+        axis to be plotted on, otherwise the current is axis with plt.gca().
     """
     if ax is None:
         ax = plt.gca()
@@ -95,16 +103,35 @@ def plot_kp_joint(
 
     Parameters
     ----------
-        *args (np.array): force to be plotted, i.e. grf, lateral friction, thorax
-        multiple (bool, optional): plots vectors instead of norm.
-        data (dictionary, optional): dictionary to be plotted, i.e. joint torques
-        full_name (str, optional): key name, 'joint_LMTibia'.
-        gain_range (np.array, optional): range of gains to be plotted, i.e. np.arange(0.1,1.4,0.2).
-        scaling_factor (int, optional): scale to change the units.
-        ax ([type], optional): axis to be plotted on, otherwise the current is axis with plt.gca()
-        beg (int, optional): beginning of the data to be plotted. the entire data is long
-        intv (int, optional): int of the data to be plotted
-        ground_truth (np.array, optional): ground truth for position or velocity
+    *args: <np.array> 
+        Force to be plotted, i.e. grf, lateral friction, thorax.
+        
+    multiple: <bool> 
+        Plots vectors instead of norm.
+
+    data: <dictionary> 
+        Dictionary to be plotted, i.e. joint torques.
+    
+    full_name: <str> 
+        Key name, e.g., 'joint_LMTibia'.
+
+    gain_range: <np.array> 
+        Range of gains to be plotted, i.e. np.arange(0.1,1.4,0.2).
+
+    scaling_factor: <int> 
+        Scale to change the units.
+
+    ax:  
+        Axis to be plotted on, otherwise the current is axis with plt.gca().
+
+    beg: <int> 
+        Beginning of the data to be plotted. the entire data is long.
+
+    intv: <int> 
+        Int of the data to be plotted.
+
+    ground_truth: <np.array> 
+        Ground truth for position or velocity.
     """
     if ax is None:
         ax = plt.gca()
@@ -161,13 +188,20 @@ def heatmap_plot(
     
     Parameters
     ----------
-        title (str): Title of the heatmap
-        joint_data (dict): Dictionary containing the joint information (angle etc)
-        colorbar_title (str): Title of the colorbar
-        precision (str): Precision of the heatmap entries
-        linewidth (str): Width of the lines in heatmap
-        ax (obj): axis to be plotted on, otherwise plt.gca()
-        cmap (str): color map of the heatmap
+    title: <str> 
+        Title of the heatmap.
+    joint_data: <dict> 
+        Dictionary containing the joint information (angle etc).
+    colorbar_title: <str>
+        Title of the colorbar.
+    precision: <str>
+        Precision of the heatmap entries.
+    linewidth: <str>
+        Width of the lines in heatmap.
+    ax: 
+        Axis to be plotted on, otherwise plt.gca().
+    cmap: <str>
+        Color map of the heatmap.
     """
     if ax is None:
         ax = plt.gca()
@@ -995,10 +1029,11 @@ def plot_collision_diagram(
 
 def plot_fly_path(
         path_data,
-        generations=[],
-        solutions=[],
+        generations=None,
+        solutions=None,
         sequence=False,
         heading=True,
+        ball_size = 10.0,
         begin=0,
         end=0,
         time_step=0.001
@@ -1018,6 +1053,8 @@ def plot_fly_path(
         Plotting path every time step.
     heading: <bool>
         Plotting heading of the fly (if sequence=True).
+    ball_size: <float>
+        Size of the spherical treadmill in millimeters.
     begin: <float>
         Starting time for initiating the plots.
     end: <float>
@@ -1031,11 +1068,21 @@ def plot_fly_path(
     val_min = np.inf
 
     if generations:
-        for gen in generations:
-            if not solutions:
+        if not isinstance(generations, list):
+            g = [generations]
+        else:
+            g = generations
+
+        for gen in g:
+            if solutions:
+                if not isinstance(solutions, list):
+                    s = [solutions]
+                else:
+                    s = solutions
+            else:
                 gen_folder = os.path.join(path_data, f'gen_{gen}')
-                solutions = [s.split('_')[-1] for s in os.listdir(gen_folder)]
-            for sol in solutions:
+                s = [d.split('_')[-1] for d in os.listdir(gen_folder)]
+            for sol in s:
                 sim_res_folder = os.path.join(path_data, f'gen_{gen}', f'sol_{sol}','physics','ball_rotations.h5')
                 ball_data_list.append(sim_res_folder)
     else:
@@ -1061,23 +1108,17 @@ def plot_fly_path(
         stop = int(end * steps)
 
         data_array = np.array(data.values)
-        x_diff = np.diff(-data_array.transpose()[0])
-        y_diff = np.diff(data_array.transpose()[1])
 
-        x = [0]
-        y = [0]
+        x = []
+        y = []
         
         for count, i in enumerate(range(start, stop-1)):
-            if heading:
-                th = data_array[i][2]
-                x_new = x_diff[i] * np.cos(th) - y_diff[i] * np.sin(th)
-                y_new = y_diff[i] * np.cos(th) + x_diff[i] * np.sin(th)
-                x.append(x[-1] + x_new)
-                y.append(y[-1] + y_new)
-            else:
-                x.append(data_array[i][0])
-                y.append(data_array[i][1])
-
+            th = data_array[i][2]
+            forward = -(data_array[i][0]-data_array[0][0]) * ball_size
+            lateral = (data_array[i][1]-data_array[0][1]) * ball_size
+            x.append(forward)
+            y.append(lateral)
+            
             if sequence:
                 ax.clear()
                 curr_time = (i+2)/steps
@@ -1108,26 +1149,24 @@ def plot_fly_path(
                 plt.draw()
                 plt.pause(0.001)
                 
-        
-        if generations:
-            max_x = np.max(np.array(x))
-            min_x = np.min(np.array(x))
+        max_x = np.max(np.array(x))
+        min_x = np.min(np.array(x))
+    
+        if max_x > val_max:
+            val_max = max_x
 
-            if max_x > val_max:
-                val_max = max_x
+        if min_x < val_min:
+            val_min = min_x
 
-            if min_x < val_min:
-                val_min = min_x
-
-            lim = val_max + 0.05 * val_max
-            low = val_min - 0.05 * val_min
-            ax.set_xlim(low, lim)
-            ax.set_ylim(-lim / 2, lim / 2)
+        lim = val_max + 0.05 * val_max
+        low = val_min - 0.05 * val_min
+        ax.set_xlim(low, lim)
+        ax.set_ylim(-lim / 2, lim / 2)
 
         if not sequence:
             if generations:
-                gen_label = generations[int(ind/len(solutions))] + 1
-                sol_label = solutions[int(ind%len(solutions))]
+                gen_label = g[int(ind/len(s))] + 1
+                sol_label = s[int(ind%len(s))]
                 ax.plot(x,
                         y,
                         linewidth=2,

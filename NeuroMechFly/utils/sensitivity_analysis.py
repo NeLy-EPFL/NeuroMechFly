@@ -20,16 +20,21 @@ joints = [
 def calculate_forces(leg, k_value, *args):
     """ Computes the ground reaction force on one single leg.
 
-    Args
-    ----
-        leg (string): name of the leg, i.e., 'LF' 'RM'
-        k_value (string): value of the gain, i.e. 'kp1.0_kv0.9'
-        args: dictionary containing the measured forces
+    Parameters
+    ----------
+    leg: <string> 
+        Name of the leg, e.g., 'LF' 'RM'.
+    k_value: <string> 
+        Value of the gain, e.g. 'kp1.0_kv0.9'.
+    args: 
+        Dictionary containing the measured forces.
     
     Returns
     -------
-        force_vector (np.array): (3, length) array containing GRF forces in x, y, z
-        force_norm (np.array): (length,) array containing the norm of the GRF forces
+    force_vector: <np.array> 
+        Array containing GRF forces in x, y, z.
+    force_norm: <np.array> 
+        Array containing the norm of the GRF forces.
     """
     force = {'x': 0, 'y': 0, 'z': 0}
     for key in args[0][k_value].keys():
@@ -52,18 +57,23 @@ def calculate_stack_array(
 ):
     """ Concatenates and scales physical quantities.
    
-    Args
-    ----
-        args: arrays to be concatenated
-        force_cal (bool): if true, then calculates the norm of the vector
-        leg (string): name of the leg, i.e., 'LF' 'RM'
-        constant (string): value of the constant gain, i.e. 'kv0.9'
-        scaling_factor: scales the force and torque measurements, used for unit changes 
-            i.e. 1e6 for forces and 1e9 for torques
+    Parameters
+    ----------
+    args: 
+        arrays to be concatenated.
+    force_cal: <bool> 
+        If true, then calculates the norm of the vector.
+    leg: <string> 
+        Name of the leg, e.g., 'LF' 'RM'.
+    constant: <string> 
+        Value of the constant gain, i.e. 'kv0.9'.
+    scaling_factor: <float> 
+        Scales the force and torque measurements, used for unit changes.
    
     Returns
     -------
-        stack_array(np.array): array of values that have the same constant gain (kp or kv)
+    stack_array: <np.array> 
+        array of values that have the same constant gain (kp or kv).
     """    
     first_iteration = True
     for k_value in args[0].keys():
@@ -99,16 +109,21 @@ def calculate_statistics_joints(
         'Tarsus1']):
     """ Calculates statistical properties of joint physical quantities.
 
-    Args
-    ----
-        scaling_factor (int, optional): scales the force and torque measurements, used for unit changes
-        constant (str, optional): used for fixing one of two independent variables. E.g. 'kv0.9'
-        force_calculation (bool, optional): true-> calculates force, false->calculates torque, angles, velocity
-        joints (list, optional): if GRF then ['LF', 'LM', 'LH', 'RF', 'RM', 'RH']
+    Parameters
+    ----------    
+    scaling_factor: <int> 
+        Scales the force and torque measurements, used for unit changes.
+    constant: <str> 
+        Used for fixing one of two independent variables. E.g. 'kv0.9'.
+    force_calculation: <bool> 
+        True-> calculates force, false->calculates torque, angles, velocity.
+    joints: <list> 
+        If GRF then ['LF', 'LM', 'LH', 'RF', 'RM', 'RH'].
 
     Returns
     -------
-        stat_joints (dict): dict contains mean, standard deviaton and standard error of the given data
+    stat_joints: <dict> 
+        Dictionary containing mean, standard deviaton and standard error of the given data.
     """
     stat_joints = {}
     for leg, joint in itertools.product(legs, joints):
@@ -127,13 +142,16 @@ def calculate_statistics_joints(
 def calculate_stats(data):
     """ Calculates, std, mean, and stderror of a given data. 
 
-    Args
-    ----
-        data (np.array): array(n_gains, length) containining the physical quantities of different gain values
+    Parameters
+    ----------
+    data: <np.array> 
+        Physical quantities of different gain values.
 
     Returns
     -------
-        stat_dict (dict): dict contains mean, standard deviaton and standard error of the given data"""
+    stat_dict: <dict> 
+        Dictionary containing mean, standard deviaton and standard error of the given data
+    """
     stat_dict = {}
     stat_dict['mu'] = np.mean(data, axis=0)
     stat_dict['stderr'] = np.std(data, ddof=1, axis=0) / np.sqrt(data.shape[0])
@@ -149,18 +167,21 @@ def calculate_mse_joints(
 ):
     """ Calculates MSE between the ground truth and given data.
 
-    Args
-    ----
-        joint_data (dict): dictionary containing the joint information (angle or velocity)
-        ground_truth (dict): dictionary containing the ground truth angle or velocity data
-        beg (int, optional): beginning of the process. Defaults to 100.
+    Parameters
+    ----------
+    joint_data: <dict> 
+        Dictionary containing the joint information (angle or velocity).
+    ground_truth: <dict> 
+        Dictionary containing the ground truth angle or velocity data.
+    beg: <int> 
+        Beginning of the process. Defaults to 100.
 
     Returns
     -------
-        error_df (pd.DataFrame): mean squared error between the baseline and the simulation values 
-        in a pandas data frame format
-        error_dict (dictionary): mean squared error between the baseline and the simulation values 
-        in a dictionary format
+    error_df: <pd.DataFrame> 
+        Mean squared error between the baseline and the simulation values.
+    error_dict: <dictionary> 
+        Mean squared error between the baseline and the simulation values.
     """
     leg_mse = []
     error_dict = {leg: {} for leg in legs}
