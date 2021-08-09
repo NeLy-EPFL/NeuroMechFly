@@ -12,14 +12,14 @@ If you use NeuroMechFly in your research, you can cite us:
 
 ```Latex
 @article {Lobato-Rios2021.04.17.440214,
-	author = {Lobato-Rios, Victor and {\"O}zdil, Pembe Gizem and Ramalingasetty, Shravan Tata and Arreguit, Jonathan and Clerc Rosset, St{\'e}phanie and Knott, Graham and Ijspeert, Auke Jan and Ramdya, Pavan},
+	author = {Lobato-Rios, Victor and {\"O}zdil, Pembe Gizem and Ramalingasetty, Shravan Tata and Arreguit, Jonathan and Ijspeert, Auke Jan and Ramdya,  Pavan},
 	title = {NeuroMechFly, a neuromechanical model of adult Drosophila melanogaster},
 	elocation-id = {2021.04.17.440214},
 	year = {2021},
 	doi = {10.1101/2021.04.17.440214},
 	publisher = {Cold Spring Harbor Laboratory},
-	URL = {https://www.biorxiv.org/content/early/2021/04/18/2021.04.17.440214},
-	eprint = {https://www.biorxiv.org/content/early/2021/04/18/2021.04.17.440214.full.pdf},
+	URL = {https://www.biorxiv.org/content/early/2021/05/17/2021.04.17.440214},
+	eprint = {https://www.biorxiv.org/content/early/2021/05/17/2021.04.17.440214.full.pdf},
 	journal = {bioRxiv}
 }
 ```
@@ -27,7 +27,7 @@ If you use NeuroMechFly in your research, you can cite us:
 ## Content
 
 - [Starting](#starting)
-- [Reproducing the experiments](#reproducing-the-experiments)
+- [Reproducing the experiments](#replicating-our-results)
 - [Miscellaneous](#miscellaneous)
 
 
@@ -72,7 +72,7 @@ Run the following commands on the terminal to reproduce the kinematic replay exp
 </p>
 
 Run the following commands on the terminal to reproduce the locomotor gait optimization experiments:
-- ```$ run_neuromuscular_control``` to run the latest generation of the last optimization run. By default, this script will read and run the files *FUN.txt* and *VAR.txt* under the *scripts/neuromuscular_optimization/* folder. To run different files, simply run ```$ run_neuromuscular_control -p <'path-of-the-optimization-results'> -g <'generation-number'> -s <'solution-type'>``` (solution type being fastest, medium, slowest, or a specific index). **The results path should be relative to the *scripts* folder.** To see the results that are already provided, go to the folder *scripts/neuromuscular_optimization/* and run: ```$ run_neuromuscular_control  -p optimization_results/run_Drosophila_example/ -g 50```.
+- ```$ run_neuromuscular_control``` to run the latest generation of the last optimization run. By default, this script will read and run the files *FUN.txt* and *VAR.txt* under the *scripts/neuromuscular_optimization/* folder. To run different files, simply run ```$ run_neuromuscular_control -p <'path-of-the-optimization-results'> -g <'generation-number'> -s <'solution-type'>``` (solution type being fastest, medium, slowest, or a specific index). **The results path should be relative to the *scripts* folder.** To see the results that are already provided, go to the folder *scripts/neuromuscular_optimization/* and run: ```$ run_neuromuscular_control  -p optimization_results/run_Drosophila_example/ -g 59```.
 
 **NOTE:** At the end of each simulation run, a folder named according to the chosen optimization run will be created under the *scripts/neuromuscular_optimization* folder which contains the network parameters and physical quantities.
 
@@ -111,8 +111,9 @@ Run the following commands on the terminal to reproduce the locomotor gait optim
 ```python
 from NeuroMechFly.utils import plotting
 import pickle
-
-path_data = /path/to/kinematic/replay/results/folder
+import glob
+	
+path_data = '~/NeuroMechFly/scripts/kinematic_replay/simulation_results/<name-of-the-results-folder>'
 
 # Selecting behavior (walking or grooming)
 behavior = 'walking'
@@ -121,7 +122,8 @@ behavior = 'walking'
 leg = 'RF'
 
 # Read angles from file
-with open(path/to/angles, 'rb') as f:
+angles_path = glob.glob(f'~/NeuroMechFly/data/joint_tracking/{behavior}/df3d/joint_angles*.pkl')[0]
+with open(angles_path, 'rb') as f:
     angles = pickle.load(f)
 
 # Defining time limits for the plot (seconds)
@@ -145,7 +147,7 @@ plotting.plot_data(path_data,
 ```python
 from NeuroMechFly.utils import plotting
 
-path_data = /path/to/kinematic/replay/results/folder
+path_data = '~/NeuroMechFly/scripts/kinematic_replay/simulation_results/<name-of-the-results-folder>'
 
 # Selecting walking behavior
 behavior = 'walking'
@@ -164,8 +166,9 @@ plotting.plot_collision_diagram(path_data,
 - For reproducing plots from Fig. 7 panel E, first, run the script *run_neuromuscular_control*, and then use:
 ```python
 from NeuroMechFly.utils import plotting
-
-path_data = /path/to/neuromuscular/control/results/folder
+	
+# e.g. type: fastest, slowest, medium, tradeoff and number: generation number of final
+path_data = '~/NeuroMechFly/scripts/neuromuscular_optimization/simulation_last_run/gen_<number>/sol_<type>' 
 
 # Selecting right front leg for plotting intraleg angles(other options are LF, RM, LM, LH, or RH)
 leg = 'RF'
@@ -196,6 +199,6 @@ plotting.plot_data(path_data,
 ## License
 [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0)
 =======
-# README for the GitHub Pages Branch
+## README for the GitHub Pages Branch
 This branch is simply a cache for the website served from https://nely-epfl.github.io/NeuroMechFly/,
 and is  not intended to be viewed on github.com.
