@@ -99,7 +99,7 @@ if __name__ == "__main__":
     }
 
     #: Paths of the position and velocity data
-    data_path = os.path.join(neuromechfly_path, f'data/joint_tracking/{behavior}/df3d')
+    data_path = os.path.join('/home/lobato/Desktop/DF3D_data/210414_CI9xG23_Fly2_005_coronal_behData/images/df3d')
     angles_path = glob.glob(data_path + '/joint_angles*.pkl')[0]
     velocity_path = glob.glob(data_path + '/joint_velocities*.pkl')[0]
 
