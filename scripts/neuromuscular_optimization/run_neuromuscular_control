@@ -15,8 +15,9 @@ from datetime import datetime
 
 neuromechfly_path = Path(pkgutil.get_loader("NeuroMechFly").get_filename()).parents[1]
 
-if __name__ == "__main__":
-    """ Main """
+def main():
+    """ Main function """
+
     parser = argparse.ArgumentParser()
     parser.add_argument('-g', '--gen', default='txt')
     parser.add_argument('-p', '--path', default='')
@@ -85,7 +86,7 @@ if __name__ == "__main__":
     model_path = os.path.join(neuromechfly_path, 'data/design/sdf/neuromechfly_limitsFromData.sdf')
     pose_path = os.path.join(neuromechfly_path, 'data/config/pose/pose_tripod.yaml')
     controller_path = os.path.join(neuromechfly_path, 'data/config/network/locomotion_network.graphml')
-    
+
     #: Get experiment information
     path = os.path.abspath(args.path)
     exp_name = path.split('/')[-1]
@@ -156,7 +157,8 @@ if __name__ == "__main__":
     )
     if not os.path.exists(results_path):
         os.makedirs(results_path)
-    animal.container.dump(
-        dump_path=results_path,
-        overwrite=True
-        )
+    animal.container.dump(dump_path=results_path, overwrite=True)
+
+if __name__ == "__main__":
+    """ Main """
+    main()
