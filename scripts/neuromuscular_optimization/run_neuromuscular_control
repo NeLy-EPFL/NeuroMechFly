@@ -23,8 +23,12 @@ def parse_args():
     parser.add_argument('-p', '--path', default='')
     parser.add_argument('-s', '--sol', default='fastest')
     parser.add_argument(
-        '-pf', '--profile', default=False, type=str, required=False,
+        '-pf', '--profile', default=False, type=bool, required=False,
         dest="profile"
+    )
+    parser.add_argument(
+        '-gui', '--gui', default=False, type=bool, required=False,
+        dest="gui"
     )
     args = parser.parse_args()
     return args
@@ -92,7 +96,8 @@ def main(args):
 
 
     #: Setting up the paths for the SDF and POSE files
-    model_path = os.path.join(neuromechfly_path, 'data/design/sdf/neuromechfly_limitsFromData.sdf')
+    # model_path = os.path.join(neuromechfly_path, 'data/design/sdf/neuromechfly_limitsFromData.sdf')
+    model_path = os.path.join("../../data/design/sdf/fly_locomotion.sdf")
     pose_path = os.path.join(neuromechfly_path, 'data/config/pose/pose_tripod.yaml')
     controller_path = os.path.join(neuromechfly_path, 'data/config/network/locomotion_network.graphml')
 
@@ -110,7 +115,7 @@ def main(args):
 
     #: Simulation options
     sim_options = {
-        "headless": True,
+        "headless": ~args.gui,
         "model": model_path,
         "model_offset": [0., 0., 11.2e-3],
         "run_time": run_time,
