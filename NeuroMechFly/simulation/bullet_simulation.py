@@ -800,7 +800,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         #: Step physics
         p.stepSimulation()
         #: Rendering
-        p.configureDebugVisualizer(p.COV_ENABLE_SINGLE_STEP_RENDERING,1)
+        # p.configureDebugVisualizer(p.COV_ENABLE_SINGLE_STEP_RENDERING,1)
         #: Update logs
         self.update_logs()
         #: Update container log
