@@ -22,16 +22,10 @@ def parse_args():
     parser.add_argument('-g', '--gen', default='txt')
     parser.add_argument('-p', '--path', default='')
     parser.add_argument('-s', '--sol', default='fastest')
-    parser.add_argument(
-        '-pf', '--profile', default=False, type=bool, required=False,
-        dest="profile"
-    )
-    parser.add_argument(
-        '-gui', '--gui', default=False, type=bool, required=False,
-        dest="gui"
-    )
-    args = parser.parse_args()
-    return args
+    parser.add_argument('--gui', dest='gui', action='store_true')
+    parser.add_argument('--profile', dest='profile', action='store_true')
+    parser.set_defaults(gui=False, profile=False)
+    return parser.parse_args()
 
 
 def main(args):
@@ -115,7 +109,7 @@ def main(args):
 
     #: Simulation options
     sim_options = {
-        "headless": ~args.gui,
+        "headless": not args.gui,
         "model": model_path,
         "model_offset": [0., 0., 11.2e-3],
         "run_time": run_time,
@@ -176,8 +170,8 @@ def main(args):
 if __name__ == "__main__":
     """ Main """
     # parse cli arguments
-    args = parse_args()
-    if args.profile:
-        profile(main, args=args)
+    cli_args = parse_args()
+    if cli_args.profile:
+        profile(main, args=cli_args)
     else:
-        main(args)
+        main(cli_args)
