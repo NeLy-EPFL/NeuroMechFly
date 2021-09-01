@@ -1,4 +1,4 @@
-# cython: linetrace=True
+# cython: nonecheck=False
 
 """ Helper functions for bullet to speed up code """
 
@@ -29,6 +29,14 @@ cdef class ContactSensors:
         self.imeters = 1./meters
         self.inewtons = 1./newtons
 
+    cdef force tuple_to_struct(self, tuple data):
+        """ Convert tuple to struct object for forces """
+        cdef force struct_data
+        struct_data.x = data[0]
+        struct_data.y = data[1]
+        struct_data.z = data[2]
+        return struct_data
+
     @cython.nonecheck(False)
     cpdef void update(self):
         """ Update contacts """
@@ -45,6 +53,17 @@ cdef class ContactSensors:
         cdef double[:] contact_normal_data
         cdef double[:] contact_lateral_data
 
+        cdef force normal_force_vec
+        cdef double normal_force
+
+        cdef force lateral_force_vec1
+        cdef double lateral_force1
+
+        cdef force lateral_force_vec2
+        cdef double lateral_force2
+
+        cdef force position
+
         for model_A, model_B, link_A, link_B in self.contact_ids:
             px = 0
             py = 0
@@ -59,24 +78,31 @@ cdef class ContactSensors:
                     model_A, model_B, link_A, link_B
             ):
                 # Normal reaction
-                rx = contact[9]*contact[7][0]*inewtons
-                ry = contact[9]*contact[7][1]*inewtons
-                rz = contact[9]*contact[7][2]*inewtons
+                normal_force_vec = self.tuple_to_struct(contact[7])
+                normal_force = contact[9]
+                rx = normal_force*normal_force_vec.x*inewtons
+                ry = normal_force*normal_force_vec.y*inewtons
+                rz = normal_force*normal_force_vec.z*inewtons
                 rx_tot += rx
                 ry_tot += ry
                 rz_tot += rz
                 # Lateral friction dir 1 + Lateral friction dir 2
-                fx = (contact[10]*contact[11][0] + contact[12]*contact[13][0])*inewtons
-                fy = (contact[10]*contact[11][1] + contact[12]*contact[13][1])*inewtons
-                fz = (contact[10]*contact[11][2] + contact[12]*contact[13][2])*inewtons
+                lateral_force_vec1 = self.tuple_to_struct(contact[11])
+                lateral_force1 = contact[10]
+                lateral_force_vec2 = self.tuple_to_struct(contact[13])
+                lateral_force2 = contact[12]
+                fx = (lateral_force1*lateral_force_vec1.x + lateral_force2*lateral_force_vec2.x)*inewtons
+                fy = (lateral_force1*lateral_force_vec1.y + lateral_force2*lateral_force_vec2.y)*inewtons
+                fz = (lateral_force1*lateral_force_vec1.z + lateral_force2*lateral_force_vec2.z)*inewtons
                 fx_tot += fx
                 fy_tot += fy
                 fz_tot += fz
                 # TODO: Check this computation
                 # Position
-                px += (rx+fx)*contact[5][0]*imeters
-                py += (ry+fy)*contact[5][1]*imeters
-                pz += (rz+fz)*contact[5][2]*imeters
+                position = self.tuple_to_struct(contact[5])
+                px += (rx+fx)*position.x*imeters
+                py += (ry+fy)*position.y*imeters
+                pz += (rz+fz)*position.z*imeters
             # Update data
             contact_normal_data = (
                 self.contact_normal_force.c_get_values()[
