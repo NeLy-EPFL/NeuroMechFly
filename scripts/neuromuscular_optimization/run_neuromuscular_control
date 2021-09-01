@@ -117,8 +117,8 @@ def main(args):
         "base_link": 'Thorax',
         "controller": controller_path,
         "ground_contacts": ground_contact,
-        'self_collisions': self_collision,
-        "draw_collisions": True, #: Set True to change the color of colliding segments
+        # 'self_collisions': self_collision,
+        "draw_collisions": False, #: Set True to change the color of colliding segments
         "record": False, #: Set True to record the simulation
         'camera_distance': 4.5,
         'track': False,
