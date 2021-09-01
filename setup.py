@@ -22,8 +22,8 @@ Options.warning_errors = True
 Options.profile = False
 
 extensions = [
-    Extension("NeuroMechFly.simulation.bullet_utils",
-              ["NeuroMechFly/simulation/bullet_utils.pyx"],
+    Extension("NeuroMechFly.simulation.bullet_sensors",
+              ["NeuroMechFly/simulation/bullet_sensors.pyx"],
               include_dirs=[numpy.get_include(), get_include()],
               extra_compile_args=['-ffast-math', '-O3'],
               extra_link_args=['-O3']
@@ -69,7 +69,7 @@ setuptools.setup(
             'cdivision': True,
             'language_level': 3,
             'infer_types': True,
-            'profile': True,
+            'profile': False,
             'wraparound': False,
             'boundscheck': DEBUG,
             'nonecheck': DEBUG,
