@@ -180,7 +180,7 @@ class DrosophilaSimulation(BulletSimulation):
     def controller_to_actuator(self, t):
         """ Implementation of abstract method. """
         self.muscle_controller()
-        self.fixed_joints_controller()
+        # self.fixed_joints_controller()
         #: Change the color of the colliding body segments
         if self.draw_collisions:
             draw = []
@@ -371,12 +371,12 @@ class DrosophilaSimulation(BulletSimulation):
         opti_active_muscle_gains = params[:5 * n_nodes]
         opti_joint_phases = params[5 * n_nodes:5 * n_nodes + edges_joints]
         opti_base_phases = params[5 * n_nodes + edges_joints: ]
-        
+
         #: Update active muscle parameters
         symmetry_joints = filter(
             lambda x: x.split('_')[1][0] != 'R', self.actuated_joints
         )
-        
+
         for j, joint in enumerate(symmetry_joints):
             self.active_muscles[joint.replace('L', 'R', 1)].update_parameters(
                 Parameters(*opti_active_muscle_gains[5 * j:5 * (j + 1)])
@@ -420,7 +420,7 @@ class DrosophilaSimulation(BulletSimulation):
                         parameters.get_parameter(
                             'phi_{}_to_{}'.format(node_2, node_1)
                         ).value = -1 * opti_joint_phases[4 * j0 + 2 * j1 + j2]
-                        
+
         #: Update the phases for interleg phase relationships
         coxae_edges =[
             ['LFCoxa', 'RFCoxa'],
@@ -440,7 +440,7 @@ class DrosophilaSimulation(BulletSimulation):
                 parameters.get_parameter(
                     'phi_{}_to_{}'.format(node_2, node_1)
                 ).value = -1*opti_base_phases[j1]
-                
+
     @staticmethod
     def select_solution(criteria, fun):
         """ Selects a solution given a criteria.
