@@ -615,6 +615,21 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         )
 
     @property
+    def contact_position(self):
+        """ Get the contact points of collision. """
+        return np.asarray(self.sim_data.contact_position.values).reshape((-1,3))
+
+    @property
+    def ground_reaction_forces(self):
+        """ Get the ground reaction forces between the surface. """
+        return np.asarray(self.sim_data.contact_normal_force.values).reshape((-1,3))
+
+    @property
+    def lateral_friction_forces(self):
+        """ Get the ground reaction forces between the surface. """
+        return np.asarray(self.sim_data.contact_lateral_force.values).reshape((-1,3))
+
+    @property
     def distance_x(self):
         """ Distance the animal has travelled in x-direction. """
         return self.base_position[0] / self.units.meters
@@ -656,6 +671,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             self.joint_torques)
         # Update contacts
         self.contact_sensors.update()
+
 
     @abc.abstractmethod
     def controller_to_actuator(self):

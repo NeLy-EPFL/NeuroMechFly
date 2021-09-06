@@ -186,8 +186,8 @@ class DrosophilaSimulation(BulletSimulation):
             draw = []
             links_contact = np.where(
                 np.linalg.norm(
-                    self.ground_reaction_forces,
-                    axis=1) > 0)[0]
+                    self.ground_reaction_forces, axis=1
+                ) > 0)[0]
             for i in links_contact:
                 link1 = self.ground_contacts[i][:-1]
                 if link1 not in draw:
