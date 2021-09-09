@@ -29,7 +29,7 @@ if __name__ == "__main__":
     time_step = 0.001
     behavior = args.behavior.lower()
 
-    #: Setting up the collision and ground sensors
+    # Setting up the collision and ground sensors
     side = ['L', 'R']
     pos = ['F', 'M', 'H']
     leg_segments = ['Tibia'] + ['Tarsus' + str(i) for i in range(1, 6)]
@@ -52,31 +52,14 @@ if __name__ == "__main__":
         p +
         name for s in side for p in pos for name in leg_segments if name != 'Tibia']
 
-    #: Setting the fixed joint angles, can be altered to change the appearance of the fly
-    fixed_positions = {
-        'joint_A3': -15,
-        'joint_A4': -15,
-        'joint_A5': -15,
-        'joint_A6': -15,
-        'joint_LAntenna': 33,
-        'joint_RAntenna': -33,
-        'joint_Rostrum': 90,
-        'joint_Haustellum': -60,
-        'joint_LWing_roll': 90,
-        'joint_LWing_yaw': -17,
-        'joint_RWing_roll': -90,
-        'joint_RWing_yaw': 17,
-        'joint_Head': 10
-    }
-
-    #: Setting up the paths for the SDF and POSE files
+    # Setting up the paths for the SDF and POSE files
     model_path = os.path.join(
         neuromechfly_path,
-        'data/design/sdf/neuromechfly_noLimits_noSupport.sdf')
+        'data/design/sdf/neuromechfly_kinematic_replay_no_support.sdf')
     pose_path = os.path.join(
         neuromechfly_path,
-        'data/config/pose/pose_default.yaml')
-    #: Simulation options
+        'data/config/pose/pose_tripod.yaml')
+    # Simulation options
     sim_options = {
         "headless": False,
         "model": model_path,
@@ -87,28 +70,28 @@ if __name__ == "__main__":
         "base_link": 'Thorax',
         "ground_contacts": ground_contact,
         "self_collisions": self_collision,
-        "record": False,  # : Set True to record the simulation
+        "record": False, # Set True to record the simulation
         'camera_distance': 7.0,
-        'track': False,  # : Set True to track the animal automatically
+        'track': False, # Set True to track the animal automatically
         'moviename': './kinematic_replay_ground.mp4',
-        'moviespeed': 0.2,  # : Speed of the recorded movie
+        'moviespeed': 0.2, # Speed of the recorded movie
         'slow_down': False,
         'sleep_time': 0.1,
         'rot_cam': False,
-        'behavior': behavior,  # : Set true to rotate the camera automatically
+        'behavior': behavior, # Set true to rotate the camera automatically
         'ground': 'floor',
         'num_substep': 5
     }
 
-    #: Paths of the position and velocity data
+    # Paths of the position and velocity data
     data_path = os.path.join(
         neuromechfly_path,
         f'data/joint_tracking/{behavior}/df3d')
     angles_path = glob.glob(data_path + '/joint_angles*.pkl')[0]
     velocity_path = glob.glob(data_path + '/joint_velocities*.pkl')[0]
-    #: Initialize the container
+    # Initialize the container
     container = Container(run_time / time_step)
-    #: Initialize the simulation
+    # Initialize the simulation
     animal = kinematic_replay_no_support.DrosophilaSimulation(
         container,
         sim_options,
@@ -116,11 +99,10 @@ if __name__ == "__main__":
         angles_path=angles_path,
         velocity_path=velocity_path,
         add_perturbation=args.perturbation,
-        fixed_positions=fixed_positions
     )
-    #: Run the simulation
+    # Run the simulation
     animal.run(optimization=False)
-    #: Dump the results based on the date
+    # Dump the results based on the date
     animal.container.dump(
         dump_path=os.path.join(
             neuromechfly_path,
