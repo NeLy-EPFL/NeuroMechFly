@@ -263,17 +263,15 @@ class DrosophilaSimulation(BulletSimulation):
         out :
 
         """
+        current_ground_contact_links = self.get_current_contacts()
         contact_points = [
             self.get_link_position(f"{side}Tarsus5")[:2]*self.units.meters
             for side in ["RF", "RM", "RH", "LH", "LM", "LF"]
             if any(
-                    [
-                        self.is_contact(f"{side}Tarsus{num}")
-                        for num in range(1, 6)
-                     ]
+                    self.link_id[f"{side}Tarsus{num}"] in current_ground_contact_links
+                    for num in range(1, 6)
                 )
         ]
-
         contact_points = [[]] if not contact_points else contact_points
         assert len(contact_points) <= 6
 
@@ -358,7 +356,7 @@ class DrosophilaSimulation(BulletSimulation):
         """ Check the optimization status and update the penalties. """
         self.check_movement()
         self.check_velocity_limit()
-        self.check_touch()
+        # self.check_touch()
         self.update_static_stability()
         return True
 
