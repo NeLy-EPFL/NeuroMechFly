@@ -381,7 +381,7 @@ class DrosophilaSimulation(BulletSimulation):
         #: Number of joints, muscle gains, phase variables
         edges_joints = int(self.controller.graph.number_of_nodes() / 3)
         opti_frequency = params.pop(0)
-        opti_active_muscle_gains = params[1:5 * n_nodes]
+        opti_active_muscle_gains = params[:5 * n_nodes]
         opti_joint_phases = params[5 * n_nodes:5 * n_nodes + edges_joints]
         opti_base_phases = params[5 * n_nodes + edges_joints: ]
 
