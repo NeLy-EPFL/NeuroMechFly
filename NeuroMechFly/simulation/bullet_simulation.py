@@ -171,7 +171,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             numSolverIterations=100,
             numSubSteps=self.num_substep,
             solverResidualThreshold=1e-10,
-            #erp = 1e-1,
+            # erp = 1e-1,
             contactERP=0.1,
             frictionERP=0.0,
         )
@@ -511,7 +511,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             ) * self.units.meters + self.model_offset
         # Create the sphere
         base_orientation = [0, 0, 0, 1]
-        link_masses = np.array([5e-11,5e-11,5e-11])*self.units.kilograms
+        link_masses = np.array([0, 0, 13e-6])*self.units.kilograms
         link_collision_shape_indices = [-1, -1, col_sphere_id]
         link_visual_shape_indices = [-1, -1, -1]
         link_positions = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
@@ -541,11 +541,34 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             linkJointAxis=axis)
         # Physical properties of the ball can be changed here
         p.changeDynamics(sphere_id,
-                         -1,
-                         spinningFriction=100,
-                         lateralFriction=1.0,
+                         2,
+                         spinningFriction=0,
+                         lateralFriction=.1,
                          linearDamping=0.0,
-                         restitution=1.0)
+                         angularDamping=0.0,
+                         restitution=.0)
+
+        # Disable default bullet controllers
+        p.setJointMotorControlArray(
+            sphere_id,
+            np.arange(3),
+            p.VELOCITY_CONTROL,
+            targetVelocities=np.zeros((3, 1)),
+            forces=np.zeros((3, 1))
+        )
+        p.setJointMotorControlArray(
+            sphere_id,
+            np.arange(3),
+            p.POSITION_CONTROL,
+            forces=np.zeros((3, 1))
+        )
+        p.setJointMotorControlArray(
+            sphere_id,
+            np.arange(3),
+            p.TORQUE_CONTROL,
+            forces=np.zeros((3, 1))
+        )
+
         texture_path = os.path.join(
             neuromechfly_path,
             'data/design/textures/ball/chequered_0048.jpg',
