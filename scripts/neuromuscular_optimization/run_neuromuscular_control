@@ -118,14 +118,14 @@ def main(args):
         "controller": controller_path,
         "ground_contacts": ground_contact,
         # 'self_collisions': self_collision,
-        "draw_collisions": True, #: Set True to change the color of colliding segments
+        "draw_collisions": False, #: Set True to change the color of colliding segments
         "record": False, #: Set True to record the simulation
         'camera_distance': 4.5,
         'track': False,
         'moviename': f'{exp}_gen_{gen}_sol_{args.sol}.mp4',
         'moviespeed': 0.3, #: Speed of the recorded movie
-        'slow_down': True,
-        'sleep_time': 0.01,
+        'slow_down': False,
+        'sleep_time': 1e-3,
         'rot_cam': False, #: Set true to rotate the camera automatically
         'ground': 'ball'
     }
