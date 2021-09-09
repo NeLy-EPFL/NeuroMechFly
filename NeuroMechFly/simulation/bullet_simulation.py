@@ -363,7 +363,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                 container=self.container,
             )
 
-        # DIisable default bullet controllers
+        # Disable default bullet controllers
 
         p.setJointMotorControlArray(
             self.animal,
@@ -459,14 +459,25 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         else:
             return None
 
-    def is_contact(self, link_name):
-        """ Check if link is in contact with floor or ball. """
-
-        return bool(p.getContactPoints(
-            self.animal, self.plane,
-            self.link_id[link_name],
-            self.link_plane
-        ))
+    def get_current_contacts(self):
+        """ Check for ground contact """
+        grf = np.argwhere(
+            np.any(
+                self.ground_reaction_forces[self.contact_sensors.ground_contact_indices, :] > 0.0,
+                axis=1
+            )
+        ).flatten()
+        lateral_force = np.argwhere(
+            np.any(
+                self.lateral_friction_forces[self.contact_sensors.ground_contact_indices, :] > 0.0,
+                axis=1
+            )
+        ).flatten()
+        contact_links_ids = tuple([
+            self.contact_sensors.contact_ids[index][2]
+            for index in np.union1d(grf, lateral_force)
+        ])
+        return contact_links_ids
 
     def get_link_position(self, link_name):
         """' Return the position of the link. """

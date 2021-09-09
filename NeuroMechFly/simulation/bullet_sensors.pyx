@@ -22,6 +22,16 @@ cdef class ContactSensors:
             meters=1, newtons=1
     ):
         self.contact_ids = contact_ids
+        self.ground_contact_indices = tuple([
+            index
+            for index, contact_id in enumerate(contact_ids)
+            if contact_id[0] != contact_id[1]
+        ])
+        self.self_contact_indices = tuple([
+            index
+            for index, contact_id in enumerate(contact_ids)
+            if contact_id[0] == contact_id[1]
+        ])
         self.contact_position = sim_data.contact_position
         self.contact_normal_force = sim_data.contact_normal_force
         self.contact_lateral_force = sim_data.contact_lateral_force

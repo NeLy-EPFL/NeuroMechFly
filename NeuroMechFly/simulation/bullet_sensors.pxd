@@ -12,6 +12,8 @@ cdef class ContactSensors:
     cdef Table contact_position
 
     cdef public tuple contact_ids
+    cdef public tuple ground_contact_indices
+    cdef public tuple self_contact_indices
 
     cdef public double imeters
     cdef public double inewtons
