@@ -86,7 +86,6 @@ class DrosophilaSimulation(BulletSimulation):
             self, container, sim_options, kp, kv,
             angles_path, velocity_path,
             add_perturbation,
-            fixed_positions,
             units=SimulationUnitScaling(meters=1000, kilograms=1000)
     ):
         super().__init__(container, units, **sim_options)
@@ -96,7 +95,6 @@ class DrosophilaSimulation(BulletSimulation):
         self.vel = [0] * self.num_joints
         self.angles = self.load_data(angles_path)
         self.velocities = self.load_data(velocity_path)
-        self.fixed_positions = fixed_positions
         self.impulse_sign = 1
         self.add_perturbation = add_perturbation
         self.pball = None
@@ -115,20 +113,21 @@ class DrosophilaSimulation(BulletSimulation):
             Returns the joint angles in a dictionary.
         """
         names_equivalence = {
-            'ThC_pitch':'Coxa',
-            'ThC_yaw':'Coxa_yaw',
-            'ThC_roll':'Coxa_roll',
-            'CTr_pitch':'Femur',
-            'CTr_roll':'Femur_roll',
-            'FTi_pitch':'Tibia',
-            'TiTa_pitch':'Tarsus1'
-            }
+            'ThC_pitch': 'Coxa',
+            'ThC_yaw': 'Coxa_yaw',
+            'ThC_roll': 'Coxa_roll',
+            'CTr_pitch': 'Femur',
+            'CTr_roll': 'Femur_roll',
+            'FTi_pitch': 'Tibia',
+            'TiTa_pitch': 'Tarsus1'
+        }
         converted_dict = {}
         try:
             data = pd.read_pickle(data_path)
             for leg, joints in data.items():
                 for joint_name, val in joints.items():
-                    new_name = 'joint_'+ leg[:2] + names_equivalence[joint_name]
+                    new_name = 'joint_' + leg[:2] + \
+                        names_equivalence[joint_name]
                     converted_dict[new_name] = val
             return converted_dict
         except BaseException:
@@ -145,7 +144,7 @@ class DrosophilaSimulation(BulletSimulation):
         t : int
             Time running in the physics engine.
         """
-        #: Throw mini balls at the fly during kinematic replay
+        # Throw mini balls at the fly during kinematic replay
         if self.add_perturbation:
             if ((t + 1) % 500) == 0:
                 print("Adding perturbation")
@@ -169,28 +168,34 @@ class DrosophilaSimulation(BulletSimulation):
                 )
                 p.changeDynamics(self.pball, -1, 0.3)
 
-
-        #: Setting the joint angular positions joints
-        for joint_name, joint_pos in self.fixed_positions.items():
+        # Setting the joint angular positions joints
+        # Setting the joint angular positions of the fixed joints
+        fixed_positions = {
+            'joint_LAntenna': 35,
+            'joint_RAntenna': -35,
+        }
+        for joint_name, joint_pos in fixed_positions.items():
             self.pose[self.joint_id[joint_name]] = np.deg2rad(joint_pos)
 
-        #: Setting the joint angular positions of leg DOFs based on pose estimation
+        # Setting the joint angular positions of leg DOFs based on pose
+        # estimation
         for joint_name, joint_pos in self.angles.items():
             self.pose[self.joint_id[joint_name]] = joint_pos[t]
 
-        #: Setting the joint angular velocities of leg DOFs based on pose estimation
+        # Setting the joint angular velocities of leg DOFs based on pose
+        # estimation
         for joint_name, joint_vel in self.velocities.items():
             self.vel[self.joint_id[joint_name]] = joint_vel[t]
 
-        #: Leg joint indices
+        # Leg joint indices
         joint_control_front = list(np.arange(17, 23)) + list(np.arange(56, 63))
         joint_control_middle = list(
             np.arange(42, 49)) + list(np.arange(81, 88))
         joint_control_hind = list(np.arange(28, 35)) + list(np.arange(67, 74))
         joint_control = joint_control_hind + joint_control_middle + joint_control_front
 
-        #: Control the joints through position controller
-        #: Velocity can be discarded if not available and gains can be changed
+        # Control the joints through position controller
+        # Velocity can be discarded if not available and gains can be changed
         for joint in range(self.num_joints):
             if joint in joint_control:
                 p.setJointMotorControl2(

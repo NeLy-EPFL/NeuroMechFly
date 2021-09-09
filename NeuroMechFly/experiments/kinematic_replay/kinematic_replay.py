@@ -16,8 +16,6 @@ class DrosophilaSimulation(BulletSimulation):
         Instance of the Container class.
     sim_options: <dict>
         Dictionary containing the simulation options.
-    fixed_positions: <dict>
-        Dictionary containing the positions for the fixed joints that should be different from the zero pose.
     kp: <float>
         Proportional gain of the position controller.
     kv: <float>
@@ -29,11 +27,11 @@ class DrosophilaSimulation(BulletSimulation):
     units: <obj>
         Instance of SimulationUnitScaling object to scale up the units during calculations.
     """
+
     def __init__(
         self,
         container,
         sim_options,
-        fixed_positions,
         kp,
         kv,
         angles_path,
@@ -45,7 +43,6 @@ class DrosophilaSimulation(BulletSimulation):
         super().__init__(container, units, **sim_options)
         self.last_draw = []
         self.grf = []
-        self.fixed_positions = fixed_positions
         self.kp = kp
         self.kv = kv
         self.pose = [0] * self.num_joints
@@ -68,20 +65,21 @@ class DrosophilaSimulation(BulletSimulation):
             Returns the joint angles in a dictionary.
         """
         names_equivalence = {
-            'ThC_pitch':'Coxa',
-            'ThC_yaw':'Coxa_yaw',
-            'ThC_roll':'Coxa_roll',
-            'CTr_pitch':'Femur',
-            'CTr_roll':'Femur_roll',
-            'FTi_pitch':'Tibia',
-            'TiTa_pitch':'Tarsus1'
-            }
+            'ThC_pitch': 'Coxa',
+            'ThC_yaw': 'Coxa_yaw',
+            'ThC_roll': 'Coxa_roll',
+            'CTr_pitch': 'Femur',
+            'CTr_roll': 'Femur_roll',
+            'FTi_pitch': 'Tibia',
+            'TiTa_pitch': 'Tarsus1'
+        }
         converted_dict = {}
         try:
             data = pd.read_pickle(data_path)
             for leg, joints in data.items():
                 for joint_name, val in joints.items():
-                    new_name = 'joint_'+ leg[:2] + names_equivalence[joint_name]
+                    new_name = 'joint_' + leg[:2] + \
+                        names_equivalence[joint_name]
                     converted_dict[new_name] = val
             return converted_dict
         except BaseException:
@@ -98,20 +96,25 @@ class DrosophilaSimulation(BulletSimulation):
         t : <int>
             Time running in the physics engine.
         """
-        #: Setting the joint angular positions of the fixed joints
-        for joint_name, joint_pos in self.fixed_positions.items():
+
+        # Setting the joint angular positions of the fixed joints
+        fixed_positions = {
+            'joint_LAntenna': 35,
+            'joint_RAntenna': -35,
+        }
+        for joint_name, joint_pos in fixed_positions.items():
             self.pose[self.joint_id[joint_name]] = np.deg2rad(joint_pos)
 
-        #: Setting the joint angular positions of leg DOFs based on pose estimation
+        # Setting the joint angular positions of leg DOFs based on pose estimation
         for joint_name, joint_pos in self.angles.items():
             self.pose[self.joint_id[joint_name]] = joint_pos[t]
 
-        #: Setting the joint angular velocities of leg DOFs based on pose estimation
+        # Setting the joint angular velocities of leg DOFs based on pose estimation
         for joint_name, joint_vel in self.velocities.items():
             self.vel[self.joint_id[joint_name]] = joint_vel[t]
 
-        #: Control the joints through position controller
-        #: Velocity can be discarded if not available and gains can be changed
+        # Control the joints through position controller
+        # Velocity can be discarded if not available and gains can be changed
         for joint in range(self.num_joints):
             p.setJointMotorControl2(
                 self.animal, joint,
@@ -122,13 +125,16 @@ class DrosophilaSimulation(BulletSimulation):
                 velocityGain=self.kv,
             )
 
-        #: Change the color of the colliding body segments
+        # Change the color of the colliding body segments
         if self.draw_collisions:
             draw = []
             if self.behavior == 'walking':
+                # Only take into account the ground sensors
+                ground_reaction_force = self.contact_normal_force[:len(
+                    self.ground_contacts), :]
                 links_contact = np.where(
                     np.linalg.norm(
-                        self.ground_reaction_forces,
+                        ground_reaction_force,
                         axis=1) > 0)[0]
                 for i in links_contact:
                     link1 = self.ground_contacts[i][:-1]
@@ -140,10 +146,12 @@ class DrosophilaSimulation(BulletSimulation):
                         self.change_color(link + '5', self.color_legs)
 
             elif self.behavior == 'grooming':
+                # Don't consider the ground sensors
+                collision_forces = self.contact_normal_force[len(
+                    self.ground_contacts):, :]
                 links_contact = np.where(
-                    np.linalg.norm(
-                        self.collision_forces,
-                        axis=1) > 0)[0]
+                    np.linalg.norm(collision_forces, axis=1) > 0
+                )[0]
                 for i in links_contact:
                     link1 = self.self_collisions[i][0]
                     link2 = self.self_collisions[i][1]
@@ -163,7 +171,10 @@ class DrosophilaSimulation(BulletSimulation):
 
     def change_color(self, identity, color):
         """ Change color of a given body segment. """
-        p.changeVisualShape(self.animal, self.link_id[identity], rgbaColor=color)
+        p.changeVisualShape(
+            self.animal,
+            self.link_id[identity],
+            rgbaColor=color)
 
     def feedback_to_controller(self):
         """
