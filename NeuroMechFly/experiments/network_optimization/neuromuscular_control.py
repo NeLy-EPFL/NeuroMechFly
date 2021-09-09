@@ -118,6 +118,13 @@ class DrosophilaSimulation(BulletSimulation):
         )
         #: Debug parameter
         self.debug = p.addUserDebugParameter('debug', -1, 1, 0.0)
+        self.draw_ss_line_ids = [
+            p.addUserDebugLine((0., 0., 0.), (0., 0., 0.),lineColorRGB=[1,0,0])
+            for j in range(6)
+        ]
+        self.draw_com_line_id = p.addUserDebugLine(
+            (0., 0., 0.), (0., 0., 0.),lineColorRGB=[1,0,0]
+        )
 
         #: Data variables
         self.opti_lava = 0
@@ -248,7 +255,7 @@ class DrosophilaSimulation(BulletSimulation):
             line[0]*point[0]+line[1]*point[1]+line[2]
         )/np.sqrt(line[0]**2 + line[1]**2)
 
-    def compute_static_stability(self, draw_polygon=False):
+    def compute_static_stability(self, draw_polygon=True):
         """ Computes static stability  of the model.
 
         Parameters
@@ -299,16 +306,23 @@ class DrosophilaSimulation(BulletSimulation):
                 p.addUserDebugLine(
                     list(polygon.exterior.coords[idx]) + [11.1],
                     list(polygon.exterior.coords[idx+1]) + [11.1],
-                    lifeTime = 1e-2,
-                    lineColorRGB = [1,0,0]
+                    lineColorRGB=[1,0,0],
+                    replaceItemUniqueId=self.draw_ss_line_ids[idx]
+                )
+            for idx in range(len(polygon.exterior.coords), 6):
+                p.addUserDebugLine(
+                    (0., 0., 0.),
+                    (0., 0., 0.),
+                    lineColorRGB=[0,0,0],
+                    replaceItemUniqueId=self.draw_ss_line_ids[idx]
                 )
             #: Draw a vertical line from center of mass
             color = [1,0,0] if polygon.contains(Point(center_of_mass)) else [0,1,0]
             p.addUserDebugLine(
                 list(center_of_mass) + [9.0],
                 list(center_of_mass) + [13.5],
-                lifeTime=1e-2,
-                lineColorRGB=color
+                lineColorRGB=color,
+                replaceItemUniqueId=self.draw_com_line_id
             )
 
         #: Compute minimum distance
