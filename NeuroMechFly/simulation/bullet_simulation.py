@@ -635,10 +635,13 @@ class BulletSimulation(metaclass=abc.ABCMeta):
     @property
     def joint_torques(self):
         """ Get the joint torques in the animal  """
-        _joints = np.arange(0, p.getNumJoints(self.animal))
         itoruqe = 1./self.units.torques
         return tuple(
-            state[-1]*itoruqe for state in p.getJointStates(self.animal, _joints)
+            state[-1]*itoruqe
+            for state in p.getJointStates(
+                    self.animal,
+                    np.arange(0, self.num_joints)
+            )
         )
 
     @property
