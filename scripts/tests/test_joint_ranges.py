@@ -8,7 +8,6 @@ from NeuroMechFly.control.spring_damper_muscles import (Parameters,
                                                         SDAntagonistMuscle)
 from NeuroMechFly.sdf.units import SimulationUnitScaling
 from NeuroMechFly.simulation.bullet_simulation import BulletSimulation
-from shapely.geometry import Point, Polygon
 
 
 class DrosophilaSimulation(BulletSimulation):
