@@ -62,6 +62,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         )
         self.self_collisions = kwargs.get('self_collisions', [])
         self.draw_collisions = kwargs.get('draw_collisions', False)
+        self.ball_info = kwargs.get('ball_info', False)
 
         #: Init
         self.time = 0.0
@@ -172,7 +173,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             numSolverIterations=100,
             numSubSteps=self.num_substep,
             solverResidualThreshold=1e-10,
-            #erp = 1e-1,
+            # erp = 1e-1,
             contactERP=0.1,
             frictionERP=0.0,
         )
@@ -194,8 +195,12 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                 'plane.urdf', [0, 0, -0.],
                 globalScaling=0.01 * self.units.meters
             )
-            self.ball_radius = 5e-3 * self.units.meters  # 1x (real size 10mm)
-            self.plane = self.add_ball(self.ball_radius)
+            if self.ball_info:
+                ball_rad, ball_pos = self.load_ball_info()
+            else:
+                ball_rad = 5e-3
+                ball_pos = np.array([]) 
+            self.plane = self.add_ball(ball_rad, ball_pos)
             #: When ball is used the plane id is 2 as the ball has 3 links
             self.link_plane = 2
             self.sim_data.add_table('ball_rotations')
@@ -519,33 +524,39 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             self.animal,
             self.link_id[link_name]))[0]) / self.units.meters
 
-    def add_ball(self, radius):
+    def add_ball(self, radius, position):
         """ Create a ball with specified radius """
+        ball_radius = radius * self.units.meters
         col_sphere_parent = p.createCollisionShape(
             p.GEOM_SPHERE,
-            radius=radius / 100,
+            radius=ball_radius / 100,
         )
-        col_sphere_id = p.createCollisionShape(p.GEOM_SPHERE, radius=radius)
+        col_sphere_id = p.createCollisionShape(p.GEOM_SPHERE, radius=ball_radius)
 
         mass_parent = 0
         visual_shape_id = -1
         #: Different ball positions used for different experiments
         #: Else corresponds to the ball position during optimization
-        if self.behavior == 'walking':
-            base_position = np.array(
-                [0.28e-3, -0.2e-3, -4.965e-3]
-            ) * self.units.meters+self.model_offset
-        elif self.behavior == 'grooming':
-            base_position = np.array(
-                [0.28e-3, 0.0e-3, -4.9e-3]
-            ) * self.units.meters + self.model_offset
+        if position.size == 0:
+            if self.behavior == 'walking':
+                base_position = np.array(
+                    [0.28e-3, -0.2e-3, -4.965e-3]
+                ) * self.units.meters+self.model_offset
+            elif self.behavior == 'grooming':
+                base_position = np.array(
+                    [0.28e-3, 0.0e-3, -4.9e-3]
+                ) * self.units.meters + self.model_offset
+            else:
+                base_position = np.array(
+                    [-0.09e-3, -0.0e-3,-5.11e-3]
+                ) * self.units.meters + self.model_offset
         else:
-            base_position = np.array(
-                [-0.09e-3, -0.0e-3,-5.11e-3]
-            ) * self.units.meters + self.model_offset
+            base_position = (np.array(position)+np.array([0.0, 0.0, 0.83e-3])) * self.units.meters + self.model_offset
+            print("Adding ball position from file:", base_position)
+            print("Adding ball radius from file:", ball_radius)
         #: Create the sphere
         base_orientation = [0, 0, 0, 1]
-        link_masses = np.array([5e-11,5e-11,5e-11])*self.units.kilograms
+        link_masses = np.array([0.0, 0.0, 54.6e-11])*self.units.kilograms
         link_collision_shape_indices = [-1, -1, col_sphere_id]
         link_visual_shape_indices = [-1, -1, -1]
         link_positions = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
@@ -575,11 +586,35 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             linkJointAxis=axis)
         #: Physical properties of the ball can be changed here
         p.changeDynamics(sphere_id,
-                         -1,
-                         spinningFriction=100,
-                         lateralFriction=1.0,
+                         2,
+                         spinningFriction=0.0,
+                         rollingFriction=0.0,
+                         lateralFriction=0.1,
                          linearDamping=0.0,
-                         restitution=1.0)
+                         angularDamping=0.0,
+                         restitution=0.0)
+
+        # Disable default bullet controllers
+        p.setJointMotorControlArray(
+            sphere_id,
+            np.arange(3),
+            p.VELOCITY_CONTROL,
+            targetVelocities=np.zeros((3, 1)),
+            forces=np.zeros((3, 1))
+        )
+        p.setJointMotorControlArray(
+            sphere_id,
+            np.arange(3),
+            p.POSITION_CONTROL,
+            forces=np.zeros((3, 1))
+        )
+        p.setJointMotorControlArray(
+            sphere_id,
+            np.arange(3),
+            p.TORQUE_CONTROL,
+            forces=np.zeros((3, 1))
+        )
+        
         texture_path = os.path.join(
             neuromechfly_path,
             'data/design/textures/ball/chequered_0048.jpg',

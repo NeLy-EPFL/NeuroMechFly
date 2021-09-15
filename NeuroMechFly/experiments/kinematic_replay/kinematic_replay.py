@@ -42,16 +42,20 @@ class DrosophilaSimulation(BulletSimulation):
             meters=1000,
             kilograms=1000)):
 
-        super().__init__(container, units, **sim_options)
         self.last_draw = []
         self.grf = []
         self.fixed_positions = fixed_positions
         self.kp = kp
         self.kv = kv
+        self.angles_path = angles_path
+        
+        super().__init__(container, units, **sim_options)
+        
         self.pose = [0] * self.num_joints
         self.vel = [0] * self.num_joints
         self.angles = self.load_data(angles_path)
         self.velocities = self.load_data(velocity_path)
+                    
 
     @staticmethod
     def load_data(data_path):
@@ -86,6 +90,22 @@ class DrosophilaSimulation(BulletSimulation):
             return converted_dict
         except BaseException:
             FileNotFoundError(f"File {data_path} not found!")
+
+    
+    def load_ball_info(self):
+
+        data_path = self.angles_path.replace('joint_angles','treadmill_info')
+        
+        try:
+            data = pd.read_pickle(data_path)
+            ball_rad = data['radius']
+            ball_pos = data['position']
+            
+            return ball_rad, ball_pos
+
+        except BaseException:
+            FileNotFoundError(f"File {data_path} not found!")
+    
 
     def controller_to_actuator(self, t):
         """

@@ -18,7 +18,7 @@ if __name__ == "__main__":
     parser.add_argument('-b', '--behavior', default='walking')
     args = parser.parse_args()
 
-    run_time = 8.0
+    run_time = 30.0
     time_step = 0.001
     behavior = args.behavior.lower()
 
@@ -47,6 +47,7 @@ if __name__ == "__main__":
 
     #: Setting the fixed joint angles to default values, can be altered to change the appearance of the fly
     fixed_positions = {
+            'revolute_support_1': 9,
             'joint_A3': -15,
             'joint_A4': -15,
             'joint_A5': -15,
@@ -77,7 +78,7 @@ if __name__ == "__main__":
         os.makedirs(results_path)
     #: Simulation options
     sim_options = {
-        "headless": False,
+        "headless": True,
         "model": model_path,
         "pose": pose_path,
         "model_offset": [0., 0, 11.2e-3],
@@ -95,11 +96,12 @@ if __name__ == "__main__":
         'sleep_time': 0.001,
         'rot_cam': False, #: Set true to rotate the camera automatically
         'behavior': behavior,
-        'ground': 'ball'
+        'ground': 'ball',
+        'ball_info': True
     }
 
     #: Paths of the position and velocity data
-    data_path = os.path.join('/home/lobato/Desktop/DF3D_data/210414_CI9xG23_Fly2_005_coronal_behData/images/df3d')
+    data_path = os.path.join('/home/lobato/Desktop/DF3D_data/210902_PR_Fly4_004_beh_behData/images/df3d')
     angles_path = glob.glob(data_path + '/joint_angles*.pkl')[0]
     velocity_path = glob.glob(data_path + '/joint_velocities*.pkl')[0]
 
