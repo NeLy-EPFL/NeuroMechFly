@@ -108,12 +108,16 @@ class DrosophilaEvolution(FloatProblem):
     def __init__(self):
         super(DrosophilaEvolution, self).__init__()
         #: Set number of variables, objectives, and contraints
-        self.number_of_variables = 62
+        self.number_of_variables = 63
         self.number_of_objectives = 2
         self.number_of_constraints = 0
         #: Minimize the objectives
         self.obj_directions = [self.MINIMIZE, self.MINIMIZE]
         self.obj_labels = ["Distance (negative)", "Stability"]
+
+        # Bounds for frequency
+        lower_bound_frequency = 7 # Hz
+        upper_bound_frequency = 11 # Hz
 
         #: Bounds for the muscle parameters 3 muscles per leg
         #: Each muscle has 5 variables to be optimized corresponding to
@@ -163,12 +167,14 @@ class DrosophilaEvolution(FloatProblem):
 
         self.lower_bound = np.hstack(
             (
+                lower_bound_frequency,
                 lower_bound_active_muscles,
                 lower_bound_phases
             )
         )
         self.upper_bound = np.hstack(
             (
+                upper_bound_frequency,
                 upper_bound_active_muscles,
                 upper_bound_phases
             )
