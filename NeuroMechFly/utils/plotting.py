@@ -731,7 +731,7 @@ def plot_data(
                 axs.set_ylim(-0.5, 0.5)
             else:
                 axs[i].set_ylabel('Joint torques\nfrom muscle ' + r'$(\mu Nmm)$')
-                axs[i].set_ylim(-0.5, 0.5)
+                #axs[i].set_ylim(-0.5, 0.5)
                 
         if plot == 'angles_sim':
             for joint, ang in data.items():
@@ -1033,7 +1033,7 @@ def plot_fly_path(
         solutions=None,
         sequence=False,
         heading=True,
-        ball_size = 10.0,
+        ball_radius = 5.0,
         begin=0,
         end=0,
         time_step=0.001
@@ -1053,8 +1053,8 @@ def plot_fly_path(
         Plotting path every time step.
     heading: <bool>
         Plotting heading of the fly (if sequence=True).
-    ball_size: <float>
-        Size of the spherical treadmill in millimeters.
+    ball_radius: <float>
+        Radius of the spherical treadmill in millimeters.
     begin: <float>
         Starting time for initiating the plots.
     end: <float>
@@ -1114,8 +1114,8 @@ def plot_fly_path(
         
         for count, i in enumerate(range(start, stop-1)):
             th = data_array[i][2]
-            forward = -(data_array[i][0]-data_array[0][0]) * ball_size
-            lateral = (data_array[i][1]-data_array[0][1]) * ball_size
+            forward = -(data_array[i][0]-data_array[0][0]) * ball_radius
+            lateral = (data_array[i][1]-data_array[0][1]) * ball_radius
             x.append(forward)
             y.append(lateral)
             
@@ -1177,4 +1177,183 @@ def plot_fly_path(
                 ax.plot(x, y, linewidth=2)
     
     plt.show()
+    
+def plot_fly_path_comparison(
+        fictrac_path,
+        ball_path,
+        ball_radius = 5,
+        begin=0,
+        end = 0,
+        offset_fictrac = 0,
+        time_step_fictrac=0.01,
+        time_step_sim=0.001
+        ):
+    """ Comparing fly path/ball rotations between ground truth (obtained from FicTrac) and simulation
+    
+    Parameters
+    ----------
+    path_data: <str>
+        Path to simulation results.
+    ball_radius: <float>
+        Radius of the spherical treadmill in millimeters.
+    begin: <float>
+        Starting time for initiating the plots.
+    end: <float>
+        Stoping time for finishing the plots. If 0.0, all data is plotted.
+    time_step: <float>
+        Data time step.
+    """
+    
+    fictrac_columns = ["Frame_counter",
+                       "delta_rot_cam_right",
+                       "delta_rot_cam_down",
+                       "delta_rot_cam_forward",
+                       "delta_rot_error",
+                       "delta_rot_lab_side",
+                       "delta_rot_lab_forward",
+                       "delta_rot_lab_turn",
+                       "abs_rot_cam_right",
+                       "abs_rot_cam_down",
+                       "abs_rot_cam_forward",
+                       "abs_rot_lab_side",
+                       "abs_rot_lab_forward",
+                       "abs_rot_lab_turn",
+                       "integrated_lab_x",
+                       "integrated_lab_y",
+                       "integrated_lab_heading",
+                       "animal_movement_direction_lab",
+                       "animal_movement_speed",
+                       "integrated_forward_movement",
+                       "integrated_side_movement",
+                       "timestamp",
+                       "seq_counter",
+                       "delta_time",
+                       "alt_time"]
 
+    fictrac_data_path = fictrac_path
+    fictrac_data = pd.read_csv(fictrac_data_path, header=None, names=fictrac_columns)
+
+    ball_data_path = os.path.join(ball_path, 'physics','ball_rotations.h5')
+    ball_data = np.array(pd.read_hdf(ball_data_path).values).transpose()
+
+    if end == 0:
+        end = len(fictrac_data) * time_step_fictrac
+
+    steps_fictrac = 1 / time_step_fictrac
+    start_fictrac = int((begin+offset_fictrac) * steps_fictrac)
+    stop_fictrac = int((end+offset_fictrac) * steps_fictrac)
+
+    y_fictrac = -(fictrac_data["integrated_lab_x"][start_fictrac:stop_fictrac]-fictrac_data["integrated_lab_x"][start_fictrac]) #* ball_radius
+    x_fictrac = (fictrac_data["integrated_lab_y"][start_fictrac:stop_fictrac] - fictrac_data["integrated_lab_y"][start_fictrac]) #* ball_radius
+    side_fictrac = (fictrac_data["integrated_forward_movement"][start_fictrac:stop_fictrac] - fictrac_data["integrated_forward_movement"][start_fictrac]) #* ball_radius
+    fw_fictrac = (fictrac_data["integrated_side_movement"][start_fictrac:stop_fictrac]-fictrac_data["integrated_side_movement"][start_fictrac]) #* ball_radius
+    heading_raw = (fictrac_data["integrated_lab_heading"][start_fictrac:stop_fictrac]-fictrac_data["integrated_lab_heading"][start_fictrac])
+
+    diff_heading = np.abs(np.diff(heading_raw))
+    cross_points = np.where(diff_heading>np.pi)[0]
+    if len(cross_points)%2 != 0:
+        cross_points.append(stop_fictrac)
+    heading_fictrac = heading_raw.copy()
+    for p in range(1,len(cross_points),2):
+        init = cross_points[p-1]+1
+        fin = cross_points[p]+1
+        heading_fictrac[init:fin]=heading_fictrac[init:fin]-2*np.pi
+
+    steps_sim = 1 / time_step_sim
+    start_sim = int(begin * steps_sim)
+    stop_sim = int(end * steps_sim)
+
+    fw_sim = -(ball_data[0][start_sim:stop_sim]-ball_data[0][start_sim+5]) #* ball_radius
+    side_sim = -(ball_data[1][start_sim:stop_sim]-ball_data[1][start_sim+5]) #* ball_radius
+    heading_sim = -(ball_data[2][start_sim:stop_sim]-ball_data[2][start_sim+5])
+
+
+    
+    x_head_fictrac, y_head_fictrac = get_flat_trajectory(fw_fictrac.values, side_fictrac.values, heading_fictrac.values)
+    x_head_sim, y_head_sim = get_flat_trajectory(fw_sim, side_sim, heading_sim)
+    
+    plt.figure(0)
+    plt.plot(x_head_fictrac, y_head_fictrac, label="fictrac path")
+    plt.plot(x_head_sim, y_head_sim, label="NeuroMechFly path")
+    plt.legend()
+
+    '''
+    plt.figure(1)
+    ax = plt.axes()
+    m = MarkerStyle(marker=r'$\rightarrow$')
+    gap = 0.5
+    max_x = np.max(x_fictrac) + gap
+    min_x = np.min(x_fictrac) - gap
+    max_y = np.max(y_fictrac) + gap
+    min_y = np.min(y_fictrac) - gap
+    #print(heading_fictrac)
+    #plt.plot(x_fictrac, y_fictrac)
+    for i in range(len(x_fictrac)):
+        ax.clear()
+        ax.set_xlim(min_x, max_x)
+        ax.set_ylim(min_y, max_y)
+        curr_time = (i+2)/steps_fictrac
+        print(f'\rTime: {curr_time:.3f}', end='')
+        sc = ax.scatter(
+            x_fictrac[0:i],
+            y_fictrac[0:i],
+            c=np.linspace(
+                begin,
+                begin+len(x_fictrac[0:i])/steps_fictrac,
+                len(x_fictrac[0:i])),
+            cmap='winter',
+            vmin=begin,
+            vmax=end)
+        m._transform.rotate_deg(heading_fictrac.values[i] * 180 / np.pi)
+        ax.scatter(x_fictrac.values[i], y_fictrac.values[i], marker=m, s=200, color='black')
+        m._transform.rotate_deg(-heading_fictrac.values[i] * 180 / np.pi)
+        if i == 0:
+            sc.set_clim([begin, end])
+            cb = plt.colorbar(sc)
+            cb.set_label('Time (s)')
+
+        ax.set_xlabel('x (mm)')
+        ax.set_ylabel('y (mm)')
+        plt.draw()
+        plt.pause(0.001)
+    '''
+    
+    time_fictrac = np.arange(begin, end, time_step_fictrac)
+    time_sim = np.arange(begin, end, time_step_sim)
+    
+    plt.figure(2)    
+    plt.plot(fw_fictrac, side_fictrac, label='Fictrac (x-y)')
+    plt.plot(fw_sim, side_sim, label='NeuroMechFly (x-y)')
+    plt.ylim(-0.5,1)
+    plt.legend()
+
+    plt.figure(3)    
+    plt.plot(time_fictrac, side_fictrac, label='Fictrac side')
+    plt.plot(time_sim, side_sim, label='NeuroMechFly side')
+    plt.legend()
+    
+    plt.figure(4)    
+    plt.plot(time_fictrac, fw_fictrac, label='Fictrac forward')
+    plt.plot(time_sim, fw_sim, label='NeuroMechFly forward')
+    plt.legend()
+    
+    plt.figure(5)    
+    plt.plot(time_fictrac, heading_fictrac, label='Fictrac heading')
+    plt.plot(time_sim, heading_sim, label='NeuroMechFly heading')
+    plt.legend()
+    
+    plt.show()
+
+def get_flat_trajectory(fw, side, heading):
+    
+    x_trajectory = [0]
+    y_trajectory = [0]
+    diff_x = np.diff(fw)
+    diff_y = np.diff(side)
+    for ind in range(len(diff_x)):
+        new_x = diff_x[ind]*np.cos(heading[ind+1]) + diff_y[ind]*np.sin(heading[ind+1]) + x_trajectory[-1]
+        new_y = diff_x[ind]*np.sin(heading[ind+1]) - diff_y[ind]*np.cos(heading[ind+1]) + y_trajectory[-1]
+        x_trajectory.append(new_x)
+        y_trajectory.append(new_y)
+
+    return x_trajectory, y_trajectory
