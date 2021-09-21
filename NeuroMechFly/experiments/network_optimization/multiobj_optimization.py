@@ -5,7 +5,7 @@ import os
 from pathlib import Path
 import pkgutil
 
-import farms_pylog as pylog
+from typing import Tuple
 import numpy as np
 from jmetal.core.observer import Observer
 from jmetal.core.problem import DynamicProblem, FloatProblem
@@ -14,6 +14,8 @@ from jmetal.util.solution import (
     print_function_values_to_file,
     print_variables_to_file,
 )
+
+import farms_pylog as pylog
 from farms_container import Container
 from NeuroMechFly.experiments.network_optimization.neuromuscular_control import \
     DrosophilaSimulation
@@ -100,6 +102,63 @@ class WriteFullFrontToFileObserver(Observer):
 def read_optimization_results(fun, var):
     """ Read optimization results. """
     return (np.loadtxt(fun), np.loadtxt(var))
+
+
+def print_penalties_to_file(penalties: Tuple) -> None:
+    """ Writes penalties into a txt file inside results. """
+
+    output_file_directory = os.path.join(
+                neuromechfly_path,
+                'scripts/neuromuscular_optimization',
+                'optimization_results',
+                'PENALTIES.txt'
+            )
+
+    pylog.info('Output file (penalty values): ' + output_file_directory)
+
+    with open(output_file_directory, 'a') as of:
+        for penalty in penalties:
+            of.write(str(penalty) + ' ')
+        of.write('\n')
+
+
+def separate_penalties_into_gens(n_gen: int, n_pop: int, output_directory: str) -> None:
+    """Saves penalties based on generations at the end of optimization
+    and removes the temporary txt file that stores the penalties.
+
+    Parameters
+    ----------
+    n_gen : int
+        Number of generations.
+    n_pop : int
+        Number of individuals in a generation.
+    output_directory : str
+        Directory where the FUN and VAR files are saved.
+    """
+
+    penalties_directory = os.path.join(
+            neuromechfly_path,
+            'scripts/neuromuscular_optimization',
+            'optimization_results',
+            'PENALTIES.txt'
+        )
+
+    penalties = np.loadtxt(penalties_directory)
+
+    for generation in range(n_gen):
+        np.savetxt(
+            os.path.join(
+                output_directory,
+                'PENALTIES.{}'.format(generation)
+            ),
+            penalties[generation * n_pop : (generation + 1) * n_pop, :],
+            '%.15f'
+        )
+
+    pylog.info('Penalties are saved separately!')
+
+    os.remove(penalties_directory)
+    pylog.info('{} is removed!'.format(penalties_directory))
 
 
 class DrosophilaEvolution(FloatProblem):
@@ -316,6 +375,16 @@ class DrosophilaEvolution(FloatProblem):
                 solution.objectives[1]
             )
         )
+
+        penalties_to_log = (
+            distance_weight * distance,
+            stability_weight * stability,
+            movement_weight * fly.opti_lava,
+            velocity_weight * fly.opti_velocity,
+            stance_weight * penalty_time_stance
+            )
+
+        print_penalties_to_file(penalties_to_log)
 
         return solution
 
