@@ -4,6 +4,7 @@ import logging
 import os
 from pathlib import Path
 import pkgutil
+from typing import Tuple
 
 import farms_pylog as pylog
 import numpy as np
@@ -23,6 +24,7 @@ LOGGER = logging.getLogger('jmetal')
 
 neuromechfly_path = Path(pkgutil.get_loader("NeuroMechFly").get_filename()).parents[1]
 
+pylog.set_level('error')
 
 
 class WriteFullFrontToFileObserver(Observer):
@@ -45,8 +47,8 @@ class WriteFullFrontToFileObserver(Observer):
                     self.directory,
                 )
             )
-            for file in os.listdir(self.directory):
-                os.remove('{0}/{1}'.format(self.directory, file))
+            # for file in os.listdir(self.directory):
+            #     os.remove('{0}/{1}'.format(self.directory, file))
         else:
             LOGGER.warning(
                 'Directory {} does not exist. Creating it.'.format(
@@ -58,7 +60,6 @@ class WriteFullFrontToFileObserver(Observer):
     def update(self, *args, **kwargs):
         problem = kwargs['PROBLEM']
         solutions = kwargs['SOLUTIONS']
-
         if solutions:
             if isinstance(problem, DynamicProblem):
                 termination_criterion_is_met = kwargs.get(
@@ -102,26 +103,83 @@ def read_optimization_results(fun, var):
     return (np.loadtxt(fun), np.loadtxt(var))
 
 
+def print_penalties_to_file(penalties: Tuple) -> None:
+    """ Writes penalties into a txt file inside results. """
+
+    output_file_directory = os.path.join(
+                neuromechfly_path,
+                'scripts/neuromuscular_optimization',
+                'optimization_results',
+                'PENALTIES.txt'
+            )
+
+    pylog.info('Output file (penalty values): ' + output_file_directory)
+
+    with open(output_file_directory, 'a') as of:
+        for penalty in penalties:
+            of.write(str(penalty) + ' ')
+        of.write('\n')
+
+
+def separate_penalties_into_gens(n_gen: int, n_pop: int, output_directory: str) -> None:
+    """Saves penalties based on generations at the end of optimization
+    and removes the temporary txt file that stores the penalties.
+
+    Parameters
+    ----------
+    n_gen : int
+        Number of generations.
+    n_pop : int
+        Number of individuals in a generation.
+    output_directory : str
+        Directory where the FUN and VAR files are saved.
+    """
+
+    penalties_directory = os.path.join(
+            neuromechfly_path,
+            'scripts/neuromuscular_optimization',
+            'optimization_results',
+            'PENALTIES.txt'
+        )
+
+    penalties = np.loadtxt(penalties_directory)
+
+    for generation in range(n_gen):
+        np.savetxt(
+            os.path.join(
+                output_directory,
+                'PENALTIES.{}'.format(generation)
+            ),
+            penalties[generation * n_pop : (generation + 1) * n_pop, :],
+            '%.15f'
+        )
+
+    pylog.info('Penalties are saved separately!')
+
+    os.remove(penalties_directory)
+    pylog.info('{} is removed!'.format(penalties_directory))
+
+
 class DrosophilaEvolution(FloatProblem):
     """ Class for Evolutionary Optimization. """
 
     def __init__(self):
         super(DrosophilaEvolution, self).__init__()
-        #: Set number of variables, objectives, and contraints
+        # Set number of variables, objectives, and contraints
         self.number_of_variables = 63
         self.number_of_objectives = 2
         self.number_of_constraints = 0
-        #: Minimize the objectives
+        # Minimize the objectives
         self.obj_directions = [self.MINIMIZE, self.MINIMIZE]
         self.obj_labels = ["Distance (negative)", "Stability"]
 
         # Bounds for frequency
-        lower_bound_frequency = 7 # Hz
-        upper_bound_frequency = 11 # Hz
+        lower_bound_frequency = 8 # Hz
+        upper_bound_frequency = 12 # Hz
 
-        #: Bounds for the muscle parameters 3 muscles per leg
-        #: Each muscle has 5 variables to be optimized corresponding to
-        #: Alpha, beta, gamma, delta, and resting pose of the Ekeberg model
+        # Bounds for the muscle parameters 3 muscles per leg
+        # Each muscle has 5 variables to be optimized corresponding to
+        # Alpha, beta, gamma, delta, and resting pose of the Ekeberg model
         lower_bound_active_muscles = (
                 np.asarray(
                     [# Front
@@ -300,13 +358,13 @@ class DrosophilaEvolution(FloatProblem):
         #: Print penalties and objectives
         print(
             f"OBJECTIVES\n===========\n\
-                Distance: {distance_weight * distance} \n \
-                Stability: {stability_weight * stability} \n \
-                Work: {fly.mechanical_work} \n \
+                Distance: {distance_weight * distance}\n \
+                Stability: {stability_weight * stability}\n \
+                Work: {fly.mechanical_work}\n \
                 PENALTIES\n=========\n \
-                Penalty lava: {movement_weight * fly.opti_lava} \n \
-                Penalty velocity: {velocity_weight*fly.opti_velocity} \n \
-                Penalty stance: {stance_weight * penalty_time_stance} \n \
+                Penalty lava: {movement_weight * fly.opti_lava}\n \
+                Penalty velocity: {velocity_weight*fly.opti_velocity}\n \
+                Penalty stance: {stance_weight * penalty_time_stance}\n \
             "
         )
 
@@ -315,13 +373,23 @@ class DrosophilaEvolution(FloatProblem):
 
         print(
             "OBJECTIVE FUNCTION EVALUATION:\n===========\n\
-                First: {} \n \
-                Second: {} \n \
+                First: {}\n \
+                Second: {}\n \
             ".format(
                 solution.objectives[0],
                 solution.objectives[1]
             )
         )
+
+        penalties_to_log = (
+            distance_weight * distance,
+            stability_weight * stability,
+            movement_weight * fly.opti_lava,
+            velocity_weight * fly.opti_velocity,
+            stance_weight * penalty_time_stance
+            )
+
+        print_penalties_to_file(penalties_to_log)
 
         return solution
 
