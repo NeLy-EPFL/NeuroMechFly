@@ -453,7 +453,7 @@ class Link(Options):
 class Inertial(Options):
     """Inertial"""
 
-    def __init__(self, pose, mass, volume, inertias, units):
+    def __init__(self, pose, mass, inertias, units):
         super(Inertial, self).__init__()
         self.mass = mass
         self.volume = volume
