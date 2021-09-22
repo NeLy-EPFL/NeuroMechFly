@@ -385,6 +385,12 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             forces=np.zeros((self.num_joints, 1))
         )
 
+        # Disable link linear and angular damping
+        for njoint in range(self.num_joints):
+            p.changeDynamics(self.animal, njoint, linearDamping=0.0)
+            p.changeDynamics(self.animal, njoint, angularDamping=0.0)
+            p.changeDynamics(self.animal, njoint, jointDamping=0.0)
+
         self.total_mass = 0.0
 
         for j in np.arange(-1, p.getNumJoints(self.animal)):
