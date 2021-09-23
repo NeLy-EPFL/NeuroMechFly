@@ -171,9 +171,10 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             numSolverIterations=100,
             numSubSteps=self.num_substep,
             solverResidualThreshold=1e-10,
-            # erp = 1e-1,
+            erp = 0.0,
             contactERP=0.1,
             frictionERP=0.0,
+            
         )
 
         # Turn off rendering while loading the models
@@ -499,7 +500,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         # Else corresponds to the ball position during optimization
         if self.behavior == 'walking':
             base_position = np.array(
-                [0.28e-3, -0.2e-3, -4.965e-3]
+                [0.15e-3, -0.2e-3, -5.05e-3]
             ) * self.units.meters+self.model_offset
         elif self.behavior == 'grooming':
             base_position = np.array(
@@ -511,7 +512,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             ) * self.units.meters + self.model_offset
         # Create the sphere
         base_orientation = [0, 0, 0, 1]
-        link_masses = np.array([0, 0, 13e-6])*self.units.kilograms
+        link_masses = np.array([0, 0, 54e-6])*self.units.kilograms
         link_collision_shape_indices = [-1, -1, col_sphere_id]
         link_visual_shape_indices = [-1, -1, -1]
         link_positions = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
@@ -539,14 +540,20 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             linkParentIndices=indices,
             linkJointTypes=joint_types,
             linkJointAxis=axis)
-        # Physical properties of the ball can be changed here
-        p.changeDynamics(sphere_id,
-                         2,
-                         spinningFriction=0,
-                         lateralFriction=.1,
-                         linearDamping=0.0,
-                         angularDamping=0.0,
-                         restitution=.0)
+
+        # Physical properties of the ball can be changed here individually
+        inertia_sim = p.getDynamicsInfo(sphere_id, 2)[2]
+        inertia_th = [2/5 * link_masses[-1] * (radius**2)] * 3
+
+        p.changeDynamics(sphere_id, 2, restitution=0.0)
+        p.changeDynamics(sphere_id, 2, lateralFriction=10.0)
+        p.changeDynamics(sphere_id, 2, spinningFriction=0.0)
+        p.changeDynamics(sphere_id, 2, linearDamping=0.0) 
+        p.changeDynamics(sphere_id, 2, angularDamping=0.0)     
+        p.changeDynamics(sphere_id, 2, rollingFriction=0.0)  
+
+        # Assert if theoretical and computed inertia values are not the same
+        assert any([np.isclose(s, t) for s,t in zip(inertia_sim, inertia_th)])
 
         # Disable default bullet controllers
         p.setJointMotorControlArray(
