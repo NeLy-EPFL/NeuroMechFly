@@ -559,7 +559,10 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         p.changeDynamics(sphere_id, 2, rollingFriction=0.0)  
 
         # Assert if theoretical and computed inertia values are not the same
-        assert any([np.isclose(s, t) for s,t in zip(inertia_sim, inertia_th)])
+        assert any([np.isclose(s, t) for s,t in zip(inertia_sim, inertia_th)]), \
+        'Theoretical inertia ({}}) does not match with the simulation result ({})!'.format(
+                inertia_th, inertia_sim
+            )
 
         # Disable default bullet controllers
         p.setJointMotorControlArray(
