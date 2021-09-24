@@ -344,8 +344,12 @@ class DrosophilaSimulation(BulletSimulation):
 
     def check_movement(self):
         """ State of lava approaching the model. """
+        # The fly travels 2 rad (10 mm) in one second, set the min ang pos 1.2 rad (6 mm)
+        # The min desired angular pos of the ball at the end of run time
+        total_angular_dist = 1.2 * self.run_time 
         ball_angular_position = -np.array(self.ball_rotations)[0]
-        moving_limit = ((self.time/self.run_time)*4.40)-0.40
+        moving_limit = ((self.time/self.run_time) * total_angular_dist) - 0.20
+        # print(f'Movement Lim: {moving_limit} and Current Pos: {ball_angular_position}')
         self.opti_lava += 1.0 if np.any(
             ball_angular_position < moving_limit
         ) else 0.0
