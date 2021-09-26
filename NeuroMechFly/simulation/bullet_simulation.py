@@ -84,6 +84,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         self.sim_data.add_table('joint_positions')
         self.sim_data.add_table('joint_velocities')
         self.sim_data.add_table('joint_torques')
+        self.sim_data.add_table('contact_flag')
         self.sim_data.add_table('contact_position')
         self.sim_data.add_table('contact_normal_force')
         self.sim_data.add_table('contact_lateral_force')
@@ -306,6 +307,9 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                     self.link_plane
                 )
             )
+            self.sim_data.contact_flag.add_parameter(
+                f"{contact}_flag"
+            )
             for axis in ('x', 'y', 'z'):
                 self.sim_data.contact_position.add_parameter(
                     contact + '_' + axis)
@@ -467,21 +471,10 @@ class BulletSimulation(metaclass=abc.ABCMeta):
 
     def get_current_contacts(self):
         """ Check for ground contact """
-        grf = np.argwhere(
-            np.any(
-                self.ground_reaction_forces[self.contact_sensors.ground_contact_indices, :] > 0.0,
-                axis=1
-            )
-        ).flatten()
-        lateral_force = np.argwhere(
-            np.any(
-                self.lateral_friction_forces[self.contact_sensors.ground_contact_indices, :] > 0.0,
-                axis=1
-            )
-        ).flatten()
+        contacts = np.argwhere(self.sim_data.contact_flag.values).flatten()
         contact_links_ids = tuple([
             self.contact_sensors.contact_ids[index][2]
-            for index in np.union1d(grf, lateral_force)
+            for index in contacts
         ])
         return contact_links_ids
 

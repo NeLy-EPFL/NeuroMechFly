@@ -7,6 +7,7 @@ cdef struct force:
 
 cdef class ContactSensors:
     """ Contact sensors """
+    cdef Table contact_flag
     cdef Table contact_normal_force
     cdef Table contact_lateral_force
     cdef Table contact_position
