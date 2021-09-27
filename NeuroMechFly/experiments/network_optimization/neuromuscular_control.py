@@ -241,14 +241,7 @@ class DrosophilaSimulation(BulletSimulation):
         contact_points = [[]] if not contact_points else contact_points
         assert len(contact_points) <= 6
 
-        # Get fly center_of_mass (Centroid for now)
-        center_of_mass = (
-            np.array(p.getJointInfo(
-                self.animal, self.joint_id['joint_LHCoxa']
-            )[14][:2]) +
-            np.array(
-                p.getJointInfo(self.animal, self.joint_id['joint_RHCoxa']
-                               )[14][:2])) * 0.5
+        center_of_mass = self.center_of_mass
 
         # Update number of legs in stance
         self.stance_count += len(contact_points)
@@ -270,17 +263,15 @@ class DrosophilaSimulation(BulletSimulation):
                     from_coord = polygon.coords[idx]
                     to_coord = polygon.coords[idx+1]
                 p.addUserDebugLine(
-                    from_coord,
-                    to_coord,
-                    lineColorRGB=(1,0,0),
+                    from_coord, to_coord, lineColorRGB=(1,0,0),
                     replaceItemUniqueId=line_id
                 )
             # Draw a vertical line from center of mass
             color = [1, 0, 0] if polygon.contains(
                 Point(center_of_mass)) else [0, 1, 0]
             p.addUserDebugLine(
-                list(center_of_mass) + [9.0],
-                list(center_of_mass) + [13.5],
+                center_of_mass + [0, 0, -1e0],
+                center_of_mass + [0, 0, 1e0],
                 lineColorRGB=color,
                 replaceItemUniqueId=self.draw_com_line_id
             )
