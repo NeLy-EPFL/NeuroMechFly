@@ -105,14 +105,11 @@ class DrosophilaSimulation(BulletSimulation):
             for name, value in dynamics.items():
                 p.changeDynamics(self.animal, idx, **{name: value})
 
-        # Disable collisions
-        p.setCollisionFilterPair(
-            self.animal, self.plane, self.link_id['Head'], -1, 0
-        )
         # Debug parameter
-        self.debug = p.addUserDebugParameter('debug', -1, 1, 0.0)
         self.draw_ss_line_ids = [
-            p.addUserDebugLine((0., 0., 0.), (0., 0., 0.), lineColorRGB=[1, 0, 0])
+            p.addUserDebugLine(
+                (0., 0., 0.), (0., 0., 0.), lineColorRGB=[1, 0, 0]
+            )
             for j in range(6)
         ]
         self.draw_com_line_id = p.addUserDebugLine(
@@ -127,10 +124,7 @@ class DrosophilaSimulation(BulletSimulation):
         self.stance_count = 0
         self.last_draw = []
         self.check_is_all_legs = np.asarray(
-            [False
-             for leg in self.feet_links
-             if "Tarsus5" in leg
-             ]
+            [False for leg in self.feet_links if "Tarsus5" in leg]
         )
 
     def muscle_controller(self):
