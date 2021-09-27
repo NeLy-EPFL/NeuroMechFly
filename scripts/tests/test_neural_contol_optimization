@@ -71,7 +71,7 @@ def main(args):
     sim_options = {
         "headless": not args.gui,
         "model": model_path,
-        "model_offset": [0., 0., 0.2e-3],
+        "model_offset": [0., 0., 11.2e-3],
         "run_time": run_time,
         "time_step": time_step,
         "pose": pose_path,
@@ -88,7 +88,7 @@ def main(args):
         'slow_down': args.slow,
         'sleep_time': time_step,
         'rot_cam': False, # Set true to rotate the camera automatically
-        'ground': 'floor'
+        'ground': 'ball'
     }
     # Initialize the container
     container = Container(run_time / time_step)
