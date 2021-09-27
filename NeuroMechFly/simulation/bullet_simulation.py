@@ -776,10 +776,8 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             yaw = 30
             pitch = -10
             p.resetDebugVisualizerCamera(
-                self.camera_distance,
-                yaw,
-                pitch,
-                base)
+                self.camera_distance, yaw, pitch, base
+            )
 
         # Walking camera sequence, set rotate_camera to True to activate
         if self.gui == p.GUI and self.rotate_camera and self.behavior == 'walking':
