@@ -26,7 +26,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         # Simulation options
         self.gui = p.DIRECT if kwargs['headless'] else p.GUI
         self.gravity = np.array(kwargs.get('gravity', [0, 0, -9.81]))
-        self.time_step = kwargs.get('time_step', 0.001) * self.units.seconds
+        self.time_step = kwargs.get('time_step', 1e-3) * self.units.seconds
         self.real_time = kwargs.get('real_time', 0)
         self.run_time = kwargs.get('run_time', 10) * self.units.seconds
         self.solver_iterations = kwargs.get('solver_iterations', 50)
