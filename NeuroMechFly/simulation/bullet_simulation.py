@@ -407,6 +407,13 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         self.bodyweight = -1 * self.total_mass * self.gravity[2]
         print('Total mass = {}'.format(self.total_mass))
 
+        # TODO: Clean up this code
+        # Set up link masses list
+        self.animal_link_masses = tuple(
+            p.getDynamicsInfo(self.animal, link_index)[0]
+            for link_index in range(-1, self.num_joints)
+        )
+
         if self.gui == p.GUI:
             self.rendering(1)
 
@@ -705,6 +712,21 @@ class BulletSimulation(metaclass=abc.ABCMeta):
     def distance_z(self):
         """ Distance the animal has travelled in z-direction. """
         return self.base_position[2] / self.units.meters
+
+    @property
+    def center_of_mass(self):
+        """ Compute the center of mass  """
+        link_states = p.getLinkStates(
+            self.animal, range(self.num_joints)
+        )
+        # Base
+        com = np.array(
+            p.getBasePositionAndOrientation(self.animal)[0]
+        )*self.animal_link_masses[0]
+        # Links
+        for link_id, state in enumerate(link_states):
+            com += np.array(state[0])*self.animal_link_masses[link_id+1]
+        return com/(self.total_mass*self.units.kilograms)
 
     def update_logs(self):
         """ Update all the physics logs. """
