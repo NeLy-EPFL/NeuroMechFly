@@ -279,11 +279,11 @@ class DrosophilaEvolution(FloatProblem):
         #: Set how long the simulation will run to evaluate the solution
         run_time = 3.0
         #: Set a time step for the physics engine
-        time_step = 0.001
+        time_step = 5e-4
         #: Setting up the paths for the SDF and POSE files
         model_path = os.path.join(
             neuromechfly_path,
-            'data/design/sdf/neuromechfly_limitsFromData.sdf',
+            'data/design/sdf/neuromechfly_locomotion_optimization_limits.sdf',
         )
         pose_path = os.path.join(
             neuromechfly_path,

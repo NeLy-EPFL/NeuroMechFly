@@ -32,8 +32,8 @@ def parse_args():
 def main(args):
     """ Main function """
 
-    run_time = 1.
-    time_step = 1e-3
+    run_time = 2.5
+    time_step = 5e-4
 
     #: Set collision segments
     side = ['L', 'R']
@@ -91,8 +91,7 @@ def main(args):
 
 
     #: Setting up the paths for the SDF and POSE files
-    # model_path = os.path.join(neuromechfly_path, 'data/design/sdf/neuromechfly_limitsFromData.sdf')
-    model_path = os.path.join(neuromechfly_path, 'data/design/sdf/fly_locomotion.sdf')
+    model_path = os.path.join(neuromechfly_path, 'data/design/sdf/neuromechfly_locomotion_optimization_limits.sdf')
     pose_path = os.path.join(neuromechfly_path, 'data/config/pose/pose_tripod.yaml')
     controller_path = os.path.join(neuromechfly_path, 'data/config/network/locomotion_network.graphml')
 
@@ -114,6 +113,7 @@ def main(args):
         "model": model_path,
         "model_offset": [0., 0., 11.2e-3],
         "run_time": run_time,
+        "time_step": time_step,
         "pose": pose_path,
         "base_link": 'Thorax',
         "controller": controller_path,

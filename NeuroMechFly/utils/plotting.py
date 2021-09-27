@@ -1,6 +1,8 @@
 """ Script to plot the simulation results. """
 import os
 import cv2 as cv
+
+from typing import List
 import numpy as np
 import pandas as pd
 import seaborn as sns
@@ -278,6 +280,68 @@ def plot_pareto_front(path_data,
     plt.title(title)
     plt.legend()
     plt.show()
+
+
+
+def plot_penalties(
+    result_directory: str,
+    generations: List[int],
+    individual_number: int,
+    variable_names: List[str],
+    **kwargs) -> None:
+    """ Plots the relative contribution of penalties in overall objective value as a bar chart.
+    Parameters
+    ----------
+    result_directory : str
+        Directory that PENALTIES files are in.
+    generations : List[int]
+        Generations to be plotted.
+    individual_number : int
+        Individual number, recommended: chosen through the
+        select_solution method in bullet_simulation.py
+    variable_names : List[str]
+        Names of columns in PENALTIES.
+    Usage:
+        path = '~/NeuroMechFly/scripts/neuromuscular_optimization/optimization_results/run_Drosophila_var_63_obj_2_pop_4_gen_5_210921_201940'
+        gens = [0, 1, 2, 3, 4]
+        ind_num = 1
+        variable_names = ['Obj 1', 'Obj 2', 'Pen 1', 'Pen 2', 'Pen 3']
+        plot_penalties(path, gens, ind_num, variable_names)
+        plt.show()
+    """
+    ylabel = kwargs.get('ylabel', '')
+    title_obj1 = kwargs.get('title_obj1', 'First Objective')
+    title_obj2 = kwargs.get('title_obj2', 'Second Objective')
+    alpha = kwargs.get('alpha', 0.65)
+
+    penalties = np.zeros((len(generations), len(variable_names)))
+
+    for i, generation in enumerate(generations):
+        penalties[i, :] = np.loadtxt(
+            os.path.join(
+                result_directory, f'PENALTIES.{generation}'
+            )
+        )[individual_number, :]
+
+    labels = [f'Gen {gen}' for gen in generations]
+
+    penalties_df = pd.DataFrame(penalties, columns=variable_names, index=labels)
+
+    ax1 = penalties_df.drop([variable_names[1]], axis=1).plot(kind = 'bar', stacked=True, alpha=alpha)
+    ax2 = penalties_df.drop([variable_names[0]], axis=1).plot(kind = 'bar', stacked=True, alpha=alpha)
+
+    ax1.set_ylabel(ylabel)
+    ax1.set_title(title_obj1)
+    ax1.spines['right'].set_visible(False)
+    ax1.spines['top'].set_visible(False)
+    ax1.legend()
+
+    ax2.set_ylabel(ylabel)
+    ax2.set_title(title_obj2)
+    ax2.spines['right'].set_visible(False)
+    ax2.spines['top'].set_visible(False)
+    ax2.legend()
+
 
 def read_muscles_act(path_data,
                      equivalence,
