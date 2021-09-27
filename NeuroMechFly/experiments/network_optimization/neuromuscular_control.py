@@ -96,22 +96,14 @@ class DrosophilaSimulation(BulletSimulation):
         self.container.initialize()
 
         # Set the physical properties of the environment
+        dynamics = {
+            "lateralFriction": 1.0, "restitution": 0.0, "spinningFriction": 0.0,
+            "rollingFriction": 0.0, "linearDamping": 0.0, "angularDamping": 0.0,
+            "maxJointVelocity": 1e8
+        }
         for _link, idx in self.link_id.items():
-            p.changeDynamics(
-                self.animal,
-                idx,
-                lateralFriction=1.0,
-                restitution=0.1,
-                spinningFriction=0.0,
-                rollingFriction=0.0,
-                linearDamping=0.0,
-                angularDamping=0.0,
-            )
-            p.changeDynamics(
-                self.animal,
-                idx,
-                maxJointVelocity=10000.0
-            )
+            for name, value in dynamics.items():
+                p.changeDynamics(self.animal, idx, **{name: value})
 
         # Disable collisions
         p.setCollisionFilterPair(
