@@ -2,12 +2,13 @@
 
 import farms_pylog as pylog
 import numpy as np
-from shapely.geometry import Point, Polygon
 import pybullet as p
-from NeuroMechFly.control.spring_damper_muscles import (Parameters,
-                                                        SDAntagonistMuscle)
+from NeuroMechFly.control.spring_damper_muscles import (
+    Parameters, SDAntagonistMuscle
+)
 from NeuroMechFly.sdf.units import SimulationUnitScaling
 from NeuroMechFly.simulation.bullet_simulation import BulletSimulation
+from shapely.geometry import LinearRing, Point
 
 pylog.set_level('error')
 
@@ -272,8 +273,8 @@ class DrosophilaSimulation(BulletSimulation):
         """
         current_ground_contact_links = self.get_current_contacts()
         contact_points = [
-            self.get_link_position(f"{side}Tarsus5")[:2]*self.units.meters
-            for side in ["RF", "RM", "RH", "LH", "LM", "LF"]
+            self.get_link_position(f"{side}Tarsus5")*self.units.meters + [0, 0, .15]
+            for side in ("RF", "RM", "RH", "LH", "LM", "LF")
             if any(
                     self.link_id[f"{side}Tarsus{num}"] in current_ground_contact_links
                     for num in range(1, 6)
@@ -296,25 +297,25 @@ class DrosophilaSimulation(BulletSimulation):
 
         # Make polygon from contact points
         try:
-            polygon = Polygon(contact_points)
+            # polygon = Polygon(contact_points)
+            polygon = LinearRing(contact_points)
         except ValueError:
             return -1
 
         if draw_polygon:
+            # assert polygon.is_closed, f"Polygon contacts not closed : {list(polygon.exterior.coords)}"
             # Draw the polygon
-            for idx in range(len(polygon.exterior.coords)-1):
+            num_coords = len(polygon.coords)
+            for idx, line_id in enumerate(self.draw_ss_line_ids):
+                from_coord, to_coord = (0, 0, 0), (0, 0, 0)
+                if idx < num_coords-1:
+                    from_coord = polygon.coords[idx]
+                    to_coord = polygon.coords[idx+1]
                 p.addUserDebugLine(
-                    list(polygon.exterior.coords[idx]) + [11.1],
-                    list(polygon.exterior.coords[idx+1]) + [11.1],
-                    lineColorRGB=[1,0,0],
-                    replaceItemUniqueId=self.draw_ss_line_ids[idx]
-                )
-            for idx in range(len(polygon.exterior.coords), 6):
-                p.addUserDebugLine(
-                    (0., 0., 0.),
-                    (0., 0., 0.),
-                    lineColorRGB=[0,0,0],
-                    replaceItemUniqueId=self.draw_ss_line_ids[idx]
+                    from_coord,
+                    to_coord,
+                    lineColorRGB=(1,0,0),
+                    replaceItemUniqueId=line_id
                 )
             # Draw a vertical line from center of mass
             color = [1,0,0] if polygon.contains(Point(center_of_mass)) else [0,1,0]
@@ -329,12 +330,12 @@ class DrosophilaSimulation(BulletSimulation):
         distance = np.min([
             DrosophilaSimulation.compute_perpendicular_distance(
                 DrosophilaSimulation.compute_line_coefficients(
-                    polygon.exterior.coords[idx],
-                    polygon.exterior.coords[idx+1]
+                    polygon.coords[idx],
+                    polygon.coords[idx+1]
                 ),
                 center_of_mass
             )
-            for idx in range(len(polygon.exterior.coords)-1)
+            for idx in range(len(polygon.coords)-1)
         ])
         return distance if polygon.contains(Point(center_of_mass)) else -distance
 
