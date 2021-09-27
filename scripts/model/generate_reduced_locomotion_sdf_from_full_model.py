@@ -29,22 +29,29 @@ for joint, _ in objs_of_farms_types(joint=True):
     if any((name == joint["farms_name"] for name in default_pose["joints"])):
         joint["farms_joint_type"] = "fixed"
 
+# Change joints
+for joint, _ in objs_of_farms_types(joint=True):
+    if joint["farms_joint_type"] == "revolute":
+        joint["farms_joint_type"] = "continuous"
+
 # Remove collision shapes from the body
 remove_collision_names = (
     "Wing",
     "A1A2", "A3", "A4", "A5", "A6",
     "Thorax", "Haltere",
-    "Head", "Eye", "Antenna" "Rostrum",
+    "Head", "Eye", "Antenna", "Rostrum", "Haustellum",
     "Coxa", "Femur", "Tibia"
 )
+
+check_names = lambda obj, names : any((name in obj.name for name in names))
 
 remove_collision_objs = [
     obj
     for obj, _ in objs_of_farms_types(collision=True)
-    if any((name in obj.name for name in remove_collision_names))
+    if check_names(obj, remove_collision_names)
 ]
 
 remove_objects(remove_collision_objs)
 
 # Export the model
-export_sdf("neuromechfly_noLimits", SDF_MODEL_PATH.joinpath("fly_locomotion.sdf"))
+export_sdf("neuromechfly_noLimits", SDF_MODEL_PATH.joinpath("neuromechfly_locomotion_optimization.sdf"))
