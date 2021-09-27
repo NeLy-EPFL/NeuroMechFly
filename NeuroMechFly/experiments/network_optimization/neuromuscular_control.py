@@ -152,44 +152,11 @@ class DrosophilaSimulation(BulletSimulation):
                 force=value.compute_torque(only_passive=False)
             )
 
-    def fixed_joints_controller(self):
-        """Controller for the fixed joints"""
-        fixed_positions = {
-            'joint_A3': -15, 'joint_A4': -15,
-            'joint_A5': -15, 'joint_A6': -15, 'joint_Head': 10,
-            'joint_LAntenna': 33, 'joint_RAntenna': -33,
-            'joint_Rostrum': 90, 'joint_Haustellum': -60,
-            'joint_LWing_roll': 90, 'joint_LWing_yaw': -17,
-            'joint_RWing_roll': -90, 'joint_RWing_yaw': 17,
-            'joint_LFCoxa_roll': 10, 'joint_RFCoxa_roll': -10,
-            'joint_LFTarsus1': -46, 'joint_RFTarsus1': -46,
-            'joint_LMCoxa_yaw': 2, 'joint_RMCoxa_yaw': 2,
-            'joint_LMCoxa': -3, 'joint_RMCoxa': -3,
-            'joint_LMTarsus1': -56, 'joint_RMTarsus1': -56,
-            'joint_LHCoxa_yaw': 3, 'joint_RHCoxa_yaw': 3,
-            'joint_LHCoxa': 11, 'joint_RHCoxa': 11,
-            'joint_LHTarsus1': -50, 'joint_RHTarsus1': -50
-        }
-        for joint in range(self.num_joints):
-            joint_name = [
-                name for name,
-                ind_num in self.joint_id.items() if joint == ind_num][0]
-            if joint_name not in self.actuated_joints:
-                try:
-                    pos = np.deg2rad(fixed_positions[joint_name])
-                except KeyError:
-                    pos = 0
-
-                p.setJointMotorControl2(
-                    self.animal, joint,
-                    controlMode=p.POSITION_CONTROL,
-                    targetPosition=pos,
-                    force=1e36)
-
     def controller_to_actuator(self, t):
         """ Implementation of abstract method. """
+        # Update muscles
         self.muscle_controller()
-        # self.fixed_joints_controller()
+
         # Change the color of the colliding body segments
         if self.draw_collisions:
             draw = []
