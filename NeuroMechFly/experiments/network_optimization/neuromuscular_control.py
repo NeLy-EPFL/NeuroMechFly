@@ -143,13 +143,14 @@ class DrosophilaSimulation(BulletSimulation):
 
     def muscle_controller(self):
         """ Muscle controller. """
-        # from IPython import embed; embed()
+        utorque = self.units.torques
         for key, value in self.active_muscles.items():
+            torque = value.compute_torque(only_passive=False)*utorque
             p.setJointMotorControl2(
                 self.animal,
                 self.joint_id[key],
                 controlMode=p.TORQUE_CONTROL,
-                force=value.compute_torque(only_passive=False)
+                force=torque
             )
 
     def controller_to_actuator(self, t):
