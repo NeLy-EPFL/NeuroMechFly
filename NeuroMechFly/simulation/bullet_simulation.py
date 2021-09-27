@@ -839,7 +839,10 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                 yaw,
                 pitch,
                 base)
-
+        # Update logs
+        self.update_logs()
+        # Update container log
+        self.container.update_log()
         # Update the feedback to controller
         self.feedback_to_controller()
         # Step controller
@@ -856,10 +859,6 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         p.stepSimulation()
         # Rendering
         # p.configureDebugVisualizer(p.COV_ENABLE_SINGLE_STEP_RENDERING,1)
-        # Update logs
-        self.update_logs()
-        # Update container log
-        self.container.update_log()
         # Slow down the simulation
         if self.slow_down:
             time.sleep(self.sleep_time)
