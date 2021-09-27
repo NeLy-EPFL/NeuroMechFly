@@ -287,6 +287,7 @@ class DrosophilaSimulation(BulletSimulation):
                     from_coord,
                     to_coord,
                     lineColorRGB=(1,0,0),
+                    replaceItemUniqueId=line_id
                 )
             # Draw a vertical line from center of mass
             color = [1, 0, 0] if polygon.contains(
