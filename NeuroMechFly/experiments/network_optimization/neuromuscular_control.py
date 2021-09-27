@@ -297,30 +297,26 @@ class DrosophilaSimulation(BulletSimulation):
     @property
     def mechanical_work(self):
         """ Mechanical work done by the animal. """
-        joint_torques = [
-            value.compute_torque(only_passive=False)
-            for key, value in self.active_muscles.items()
+        muscle_torques = np.abs(self.container.muscle.active_torques.log)
+        active_joint_ids = [
+            self.joint_id[name] for name in self.actuated_joints
         ]
-        joint_velocities = [
-            self.joint_velocities[self.joint_id[joint_name]]
-            for joint_name in self.active_muscles.keys()
-        ]
-
-        return np.sum(np.sum(
-            np.abs(np.asarray(joint_torques)
-                   * np.asarray(joint_velocities))
-        )) * self.time_step / self.run_time
+        joint_velocities = np.abs(
+            self.container.physics.joint_velocities.log
+        )[:, active_joint_ids]
+        return (
+            muscle_torques@joint_velocities.T
+        ) * self.time_step / self.run_time
 
     @property
     def thermal_loss(self):
         """ Thermal loss for the animal. """
-        joint_torques = [
-            value.compute_torque(only_passive=False)
-            for key, value in self.active_muscles.items()
-        ]
-        return np.sum(np.sum(
-            np.asarray(joint_torques)**2
-        )) * self.time_step / self.run_time
+        muscle_torques = np.array(
+            self.container.muscle.active_torques.log
+        )
+        return np.sum(
+            np.sum(muscle_torques**2)
+        ) * self.time_step / self.run_time
 
     def check_movement(self):
         """ State of lava approaching the model. """
@@ -336,16 +332,6 @@ class DrosophilaSimulation(BulletSimulation):
             ball_angular_position < moving_limit
         ) else 0.0
 
-    def check_touch(self):
-        """ Check if certain links touch. """
-        self.opti_touch += 1 if np.any(
-            [
-                self.is_contact(link)
-                for link in self.link_id.keys()
-                if 'Tarsus' not in link
-            ]
-        ) else 0.0
-
     def check_velocity_limit(self):
         """ Check velocity limits. """
         self.opti_velocity += 1.0 if np.any(
@@ -356,7 +342,6 @@ class DrosophilaSimulation(BulletSimulation):
         """ Check the optimization status and update the penalties. """
         self.check_movement()
         self.check_velocity_limit()
-        # self.check_touch()
         self.update_static_stability()
         return True
 
