@@ -42,58 +42,23 @@ def main(args):
         ['Tarsus' + str(i) for i in range(1, 6)]
 
     ground_contact = [
-        s +
-        p +
-        name for s in side for p in pos for name in leg_segments if 'Tarsus' in name]
-
-    left_front_leg = ['LF' + name for name in leg_segments]
-    left_middle_leg = ['LM' + name for name in leg_segments]
-    left_hind_leg = ['LH' + name for name in leg_segments]
-
-    right_front_leg = ['RF' + name for name in leg_segments]
-    right_middle_leg = ['RM' + name for name in leg_segments]
-    right_hind_leg = ['RH' + name for name in leg_segments]
-
-    body_segments = ['A1A2', 'A3', 'A4', 'A5', 'A6', 'Thorax', 'Head']
-
-    self_collision = []
-    for link0 in left_front_leg:
-        for link1 in left_middle_leg:
-            self_collision.append([link0, link1])
-    for link0 in left_middle_leg:
-        for link1 in left_hind_leg:
-            self_collision.append([link0, link1])
-    for link0 in left_front_leg:
-        for link1 in body_segments:
-            self_collision.append([link0, link1])
-    for link0 in left_middle_leg:
-        for link1 in body_segments:
-            self_collision.append([link0, link1])
-    for link0 in left_hind_leg:
-        for link1 in body_segments:
-            self_collision.append([link0, link1])
-
-    for link0 in right_front_leg:
-        for link1 in right_middle_leg:
-            self_collision.append([link0, link1])
-    for link0 in right_middle_leg:
-        for link1 in right_hind_leg:
-            self_collision.append([link0, link1])
-    for link0 in right_front_leg:
-        for link1 in body_segments:
-            self_collision.append([link0, link1])
-    for link0 in right_middle_leg:
-        for link1 in body_segments:
-            self_collision.append([link0, link1])
-    for link0 in right_hind_leg:
-        for link1 in body_segments:
-            self_collision.append([link0, link1])
-
+        s + p + name
+        for s in side
+        for p in pos
+        for name in leg_segments
+        if 'Tarsus' in name
+    ]
 
     #: Setting up the paths for the SDF and POSE files
-    model_path = os.path.join(neuromechfly_path, 'data/design/sdf/neuromechfly_locomotion_optimization_limits.sdf')
-    pose_path = os.path.join(neuromechfly_path, 'data/config/pose/pose_tripod.yaml')
-    controller_path = os.path.join(neuromechfly_path, 'data/config/network/locomotion_network.graphml')
+    model_path = neuromechfly_path.joinpath(
+        "data/design/sdf/neuromechfly_locomotion_optimization.sdf"
+    )
+    pose_path = neuromechfly_path.joinpath(
+        "data/config/pose/pose_tripod.yaml"
+    )
+    controller_path = neuromechfly_path.joinpath(
+        "data/config/network/locomotion_network.graphml"
+    )
 
     #: Get experiment information
     path = os.path.abspath(args.path)
