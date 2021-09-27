@@ -406,25 +406,23 @@ class DrosophilaSimulation(BulletSimulation):
         )
 
         for j, joint in enumerate(symmetry_joints):
-            self.active_muscles[joint.replace('L', 'R', 1)].update_parameters(
-                Parameters(*opti_active_muscle_gains[5 * j:5 * (j + 1)])
+            right_parameters = Parameters(
+                *opti_active_muscle_gains[5 * j:5 * (j + 1)]
+            )
+            left_parameters = Parameters(
+                *opti_active_muscle_gains[5 * j:5 * (j + 1)]
             )
             # It is important to mirror the joint angles for rest position
             # especially for coxa
             if "Coxa_roll" in joint:
-                opti_active_muscle_gains[(5 * j) + 0] *= -1
-                opti_active_muscle_gains[(5 * j) + 3] *= -1
-                opti_active_muscle_gains[(5 * j) + 4] *= -1
-            self.active_muscles[joint].update_parameters(
-                Parameters(*opti_active_muscle_gains[5 * j:5 * (j + 1)])
+                left_parameters.rest_pos = -1*left_parameters.rest_pos
+            self.active_muscles[joint.replace('L', 'R', 1)].update_parameters(
+                right_parameters
             )
+            self.active_muscles[joint].update_parameters(left_parameters)
         # Update phases for intraleg phase relationships
         # Edges to set phases for
-        phase_edges = [
-            ['Coxa', 'Femur'],
-            ['Femur', 'Tibia'],
-        ]
-
+        phase_edges = [['Coxa', 'Femur'], ['Femur', 'Tibia']]
         for side in ('L', 'R'):
             for j0, pos in enumerate(('F', 'M', 'H')):
                 if pos != 'F':
@@ -438,16 +436,14 @@ class DrosophilaSimulation(BulletSimulation):
                         from_node = ed[0]
                     to_node = ed[1]
                     for j2, action in enumerate(('flexion', 'extension')):
-                        node_1 = "joint_{}{}{}_{}".format(
-                            side, pos, from_node, action)
-                        node_2 = "joint_{}{}{}_{}".format(
-                            side, pos, to_node, action)
+                        node_1 = f"joint_{side}{pos}{from_node}_{action}"
+                        node_2 = f"joint_{side}{pos}{to_node}_{action}"
                         parameters.get_parameter(
-                            'phi_{}_to_{}'.format(node_1, node_2)
+                            f"phi_{node_1}_to_{node_2}"
                         ).value = opti_joint_phases[4 * j0 + 2 * j1 + j2]
                         parameters.get_parameter(
-                            'phi_{}_to_{}'.format(node_2, node_1)
-                        ).value = -1 * opti_joint_phases[4 * j0 + 2 * j1 + j2]
+                            f"phi_{node_2}_to_{node_1}"
+                        ).value = -1*opti_joint_phases[4 * j0 + 2 * j1 + j2]
 
         # Update the phases for interleg phase relationships
         coxae_edges = [
@@ -460,13 +456,13 @@ class DrosophilaSimulation(BulletSimulation):
 
         for j1, ed in enumerate(coxae_edges):
             for j2, action in enumerate(('flexion', 'extension')):
-                node_1 = "joint_{}_{}".format(ed[0], action)
-                node_2 = "joint_{}_{}".format(ed[1], action)
+                node_1 = f"joint_{ed[0]}_{action}"
+                node_2 = f"joint_{ed[1]}_{action}"
                 parameters.get_parameter(
-                    'phi_{}_to_{}'.format(node_1, node_2)
+                    f"phi_{node_1}_to_{node_2}"
                 ).value = opti_base_phases[j1]
                 parameters.get_parameter(
-                    'phi_{}_to_{}'.format(node_2, node_1)
+                    f"phi_{node_2}_to_{node_1}"
                 ).value = -1 * opti_base_phases[j1]
 
     @staticmethod
