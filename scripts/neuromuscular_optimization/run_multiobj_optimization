@@ -25,8 +25,8 @@ neuromechfly_path = Path(pkgutil.get_loader("NeuroMechFly").get_filename()).pare
 
 if __name__ == "__main__":
     """ Main """
-    n_pop = 20
-    n_gen = 50
+    n_pop = 2
+    n_gen = 5
     max_evaluations = n_pop*n_gen
     # Problem
     problem = multiobj_optimization.DrosophilaEvolution()
@@ -104,6 +104,8 @@ if __name__ == "__main__":
 
     # Save penalties into separate files
     separate_penalties_into_gens(n_gen, n_pop, os.path.join(output_dir, result_path))
+    # Move the config file inside the results directory
+    Path(os.path.join(output_dir, 'optimization_results/CONFIG.yaml')).rename(os.path.join(output_dir, result_path, 'CONFIG.yaml'))
 
     print('Algorithm (continuous problem): ' + algorithm.get_name())
     print('Problem: ' + problem.get_name())
