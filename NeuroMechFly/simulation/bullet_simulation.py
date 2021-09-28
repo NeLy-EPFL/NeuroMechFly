@@ -728,6 +728,18 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             com += np.array(state[0])*self.animal_link_masses[link_id+1]
         return com/(self.total_mass*self.units.kilograms)
 
+    def compute_mechanical_work(self, joint_velocities, joint_torques):
+        """ Computes the mechanical work spent by the animal. """
+        return np.abs(
+            joint_torques@joint_velocities.T
+        ) * self.time_step / self.run_time
+
+    def compute_thermal_loss(self, joint_torques):
+        """ Computes the thermal loss exerted by the animal. """
+        return np.sum(
+            np.sum(joint_torques**2)
+        ) * self.time_step / self.run_time
+
     def update_logs(self):
         """ Update all the physics logs. """
         self.sim_data.base_position.values = np.asarray(
