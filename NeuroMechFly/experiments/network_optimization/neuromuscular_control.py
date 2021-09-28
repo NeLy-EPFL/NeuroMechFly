@@ -3,12 +3,11 @@
 import farms_pylog as pylog
 import numpy as np
 import pybullet as p
-from NeuroMechFly.control.spring_damper_muscles import (
-    Parameters, SDAntagonistMuscle
-)
+from NeuroMechFly.control.spring_damper_muscles import (Parameters,
+                                                        SDAntagonistMuscle)
 from NeuroMechFly.sdf.units import SimulationUnitScaling
 from NeuroMechFly.simulation.bullet_simulation import BulletSimulation
-from shapely.geometry import LinearRing, Point
+from shapely.geometry import LinearRing, Point, Polygon
 
 pylog.set_level('error')
 
@@ -112,7 +111,10 @@ class DrosophilaSimulation(BulletSimulation):
             )
             for j in range(6)
         ]
-        self.draw_com_line_id = p.addUserDebugLine(
+        self.draw_com_line_vert_id = p.addUserDebugLine(
+            (0., 0., 0.), (0., 0., 0.), lineColorRGB=[1, 0, 0]
+        )
+        self.draw_com_line_horz_id = p.addUserDebugLine(
             (0., 0., 0.), (0., 0., 0.), lineColorRGB=[1, 0, 0]
         )
 
@@ -214,7 +216,34 @@ class DrosophilaSimulation(BulletSimulation):
             line[0] * point[0] + line[1] * point[1] + line[2]
         ) / np.sqrt(line[0]**2 + line[1]**2)
 
-    def compute_static_stability(self, draw_polygon=True):
+    @staticmethod
+    def compute_perpendicular_point(point_a, point_b, point_c):
+        """ Compute the perpendicular point between line and point
+
+        Parameters
+        ----------
+        point_a: <array>
+            2D point in space
+        point_b: <array>
+            2D point in space
+        point_c: <array>
+            2D point in space
+
+        Returns
+        -------
+        point_d: <array>
+            Perpendicular point from point to line
+        """
+        x1, y1 = point_a
+        x2, y2 = point_b
+        x3, y3 = point_c
+        dx, dy = x2-x1, y2-y1
+        det = dx*dx + dy*dy
+        a = (dy*(y3-y1)+dx*(x3-x1))/det
+        point_d = np.array([x1+a*dx, y1+a*dy])
+        return point_d
+
+    def compute_static_stability(self, draw_polygon=False):
         """ Computes static stability  of the model.
 
         Parameters
@@ -226,12 +255,16 @@ class DrosophilaSimulation(BulletSimulation):
 
         Returns
         -------
-        out :
+        static_stability : <float>
+            Value of static stability for the fly
 
         """
+        # Initialize static stability
+        static_stability = -10.0 # Why 10?
+        # Ground contacts
         current_ground_contact_links = self.get_current_contacts()
         contact_points = [
-            self.get_link_position(f"{side}Tarsus5")*self.units.meters + [0, 0, .15]
+            self.get_link_position(f"{side}Tarsus5")*self.units.meters + [0, 0, .2]
             for side in ("RF", "RM", "RH", "LH", "LM", "LF")
             if any(
                 self.link_id[f"{side}Tarsus{num}"] in current_ground_contact_links
@@ -240,55 +273,66 @@ class DrosophilaSimulation(BulletSimulation):
         ]
         contact_points = [[]] if not contact_points else contact_points
         assert len(contact_points) <= 6
-
+        # compute center of mass of the model
         center_of_mass = self.center_of_mass
-
         # Update number of legs in stance
         self.stance_count += len(contact_points)
-
         # Make polygon from contact points
+        # TODO: Refactor
         try:
-            # polygon = Polygon(contact_points)
-            polygon = LinearRing(contact_points)
+            polygon = Polygon(LinearRing(contact_points))
         except ValueError:
-            return -1
-
+            return static_stability
+        # Get polygon exterior coords
+        coords = polygon.exterior.coords
+        # Compute distances to COM
+        # NOTE : This only works for flat cases. Not for inclined walking
+        distances = [
+            DrosophilaSimulation.compute_perpendicular_distance(
+                DrosophilaSimulation.compute_line_coefficients(
+                    coords[idx], coords[idx+1]
+                ),
+                center_of_mass
+            )
+            for idx in range(len(coords)-1)
+        ]
+        # Check if COM is within the polygon
+        com_inside = polygon.contains(Point(center_of_mass))
+        # Compute static_stability
+        min_distance = np.min(distances)
+        static_stability =  min_distance if com_inside else -1*min_distance
+        # DEBUG : Drawing
         if draw_polygon:
-            # assert polygon.is_closed, f"Polygon contacts not closed : {list(polygon.exterior.coords)}"
             # Draw the polygon
-            num_coords = len(polygon.coords)
+            num_coords = len(coords)
             for idx, line_id in enumerate(self.draw_ss_line_ids):
                 from_coord, to_coord = (0, 0, 0), (0, 0, 0)
                 if idx < num_coords-1:
-                    from_coord = polygon.coords[idx]
-                    to_coord = polygon.coords[idx+1]
+                    from_coord, to_coord = coords[idx], coords[idx+1]
                 p.addUserDebugLine(
                     from_coord, to_coord, lineColorRGB=(1,0,0),
                     replaceItemUniqueId=line_id
                 )
             # Draw a vertical line from center of mass
-            color = [1, 0, 0] if polygon.contains(
-                Point(center_of_mass)) else [0, 1, 0]
+            color = (0, 1, 0) if com_inside else (1, 0, 0)
             p.addUserDebugLine(
                 center_of_mass + [0, 0, -1e0],
                 center_of_mass + [0, 0, 1e0],
                 lineColorRGB=color,
-                replaceItemUniqueId=self.draw_com_line_id
+                replaceItemUniqueId=self.draw_com_line_vert_id
             )
-
-        # Compute minimum distance
-        distance = np.min([
-            DrosophilaSimulation.compute_perpendicular_distance(
-                DrosophilaSimulation.compute_line_coefficients(
-                    polygon.coords[idx],
-                    polygon.coords[idx+1]
-                ),
-                center_of_mass
+            # Draw a horizontal line from com to intersecting line
+            p.addUserDebugLine(
+                center_of_mass + [0, 0, -1e0],
+                list(DrosophilaSimulation.compute_perpendicular_point(
+                    np.array(coords[int(np.argmin(distances))])[:2],
+                    np.array(coords[int(np.argmin(distances))+1])[:2],
+                    center_of_mass[:2],
+                )) + [np.array(coords[int(np.argmin(distances))])[-1]],
+                lineColorRGB=(0, 1, 0),
+                replaceItemUniqueId=self.draw_com_line_horz_id
             )
-            for idx in range(len(polygon.coords)-1)
-        ])
-        return distance if polygon.contains(
-            Point(center_of_mass)) else -distance
+        return static_stability
 
     def update_static_stability(self):
         """ Calculates the stability coefficient. """
@@ -326,7 +370,7 @@ class DrosophilaSimulation(BulletSimulation):
         ball_angular_position = -np.array(self.ball_rotations)[0]
         moving_limit = ((self.time / self.run_time)
                         * total_angular_dist) - 0.20
-        if np.isclose(self.time, 2.990):
+        if np.isclose([self.time], [2.990]):
             print(f'Movement Lim: {moving_limit} and Current Pos: {ball_angular_position}')
         self.opti_lava += 1.0 if np.any(
             ball_angular_position < moving_limit
