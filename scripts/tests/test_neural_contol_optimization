@@ -33,7 +33,7 @@ def parse_args():
 def main(args):
     """ Main function """
 
-    run_time = 2.5
+    run_time = 12.5
     time_step = 1e-4
 
     # Set collision segments
@@ -70,7 +70,7 @@ def main(args):
     # Simulation options
     sim_options = {
         "headless": not args.gui,
-        "model": model_path,
+        "model": str(model_path),
         "model_offset": [0., 0., 11.2e-3],
         "run_time": run_time,
         "time_step": time_step,
@@ -88,7 +88,7 @@ def main(args):
         'slow_down': args.slow,
         'sleep_time': time_step,
         'rot_cam': False, # Set true to rotate the camera automatically
-        'ground': 'ball'
+        'ground': 'floor'
     }
     # Initialize the container
     container = Container(run_time / time_step)
@@ -98,10 +98,10 @@ def main(args):
     problem = multiobj_optimization.DrosophilaEvolution()
 
     # Run the selected parameter values in the simulation
-    # animal.update_parameters(problem.lower_bound)
+    animal.update_parameters(problem.lower_bound)
     # animal.update_parameters((problem.lower_bound + problem.upper_bound)/2)
     animal.update_parameters(problem.upper_bound)
-    animal.run(optimization=True)
+    animal.run(optimization=False)
     # Dump the optimization results
     results_path = neuromechfly_path.joinpath("scripts/tests/test")
     animal.container.dump(dump_path=results_path, overwrite=True)
