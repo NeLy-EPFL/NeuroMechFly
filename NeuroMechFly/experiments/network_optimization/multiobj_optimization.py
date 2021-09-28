@@ -279,29 +279,36 @@ class DrosophilaEvolution(FloatProblem):
         #: Set how long the simulation will run to evaluate the solution
         run_time = 3.0
         #: Set a time step for the physics engine
-        time_step = 5e-4
+        time_step = 1e-4
         #: Setting up the paths for the SDF and POSE files
-        model_path = os.path.join(
-            neuromechfly_path,
-            'data/design/sdf/neuromechfly_locomotion_optimization_limits.sdf',
+        model_path = neuromechfly_path.joinpath(
+            "data/design/sdf/neuromechfly_locomotion_optimization.sdf"
         )
-        pose_path = os.path.join(
-            neuromechfly_path,
-            'data/config/pose/pose_tripod.yaml',
+        pose_path = neuromechfly_path.joinpath(
+            "data/config/pose/pose_tripod.yaml"
         )
-        controller_path = os.path.join(
-            neuromechfly_path,
-            'data/config/network/locomotion_network.graphml',
+        controller_path = neuromechfly_path.joinpath(
+            "data/config/network/locomotion_network.graphml"
+        )
+        # Set collision segments
+        ground_contacts = tuple(
+            f"{side}{leg}{segment}"
+            for side in ('L', 'R')
+            for leg in ('F', 'M', 'H')
+            for segment in tuple(f"Tarsus{i}" for i in range(1, 6))
         )
         #: Simulation options
         sim_options = {
             "headless": True,
-            "model": model_path,
+            "model": str(model_path),
             "model_offset": [0., 0., 11.2e-3],
             "pose": pose_path,
             "run_time": run_time,
+            "controller": controller_path,
             "base_link": 'Thorax',
-            "controller": controller_path
+            "ground_contacts": ground_contacts,
+            "camera_distance": 4.5,
+            "track": False,
         }
         #: Create the container instance that the simulation results will be dumped
         container = Container(run_time / time_step)
