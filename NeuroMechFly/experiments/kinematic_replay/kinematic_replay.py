@@ -332,8 +332,7 @@ class DrosophilaSimulation(BulletSimulation):
 
     def update_data_logs(self):
         """ Update the logs that are implemented in this class. """
-        self.analysis_data.mechanical_work.values = self.mechanical_work
-        self.analysis_data.thermal_loss.values = self.thermal_loss
-        self.analysis_data.static_stability.values = np.asarray(
-            self.compute_static_stability(), dtype='double'
-        ).reshape((1,))
+        self.analysis_data.mechanical_work.values = np.asarray(self.mechanical_work, dtype='double').reshape((1,))
+        self.analysis_data.thermal_loss.values = np.asarray(self.thermal_loss, dtype='double').reshape((1,))
+        self.analysis_data.static_stability.values = np.asarray(self.compute_static_stability(), dtype='double').reshape((1,))
+        
