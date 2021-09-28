@@ -145,7 +145,6 @@ class DrosophilaSimulation(BulletSimulation):
         """ Implementation of abstract method. """
         # Update muscles
         self.muscle_controller()
-
         # Change the color of the colliding body segments
         if self.draw_collisions:
             draw = []
@@ -348,9 +347,7 @@ class DrosophilaSimulation(BulletSimulation):
         joint_velocities = np.abs(
             self.container.physics.joint_velocities.log
         )[:, active_joint_ids]
-        return (
-            muscle_torques@joint_velocities.T
-        ) * self.time_step / self.run_time
+        return self.compute_mechanical_work(joint_velocities, muscle_torques)
 
     @property
     def thermal_loss(self):
@@ -358,9 +355,7 @@ class DrosophilaSimulation(BulletSimulation):
         muscle_torques = np.array(
             self.container.muscle.active_torques.log
         )
-        return np.sum(
-            np.sum(muscle_torques**2)
-        ) * self.time_step / self.run_time
+        return self.compute_thermal_loss(muscle_torques)
 
     def check_movement(self):
         """ State of lava approaching the model. """
