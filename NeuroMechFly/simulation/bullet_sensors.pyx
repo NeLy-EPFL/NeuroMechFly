@@ -7,10 +7,6 @@ import pybullet as p
 cimport cython
 cimport numpy as np
 
-DTYPE = np.double
-
-ctypedef np.double_t DTYPE_t
-
 
 cdef class ContactSensors:
     """ Contact sensors """
@@ -38,14 +34,6 @@ cdef class ContactSensors:
         self.imeters = 1./meters
         self.inewtons = 1./newtons
 
-    cdef force tuple_to_struct(self, tuple data):
-        """ Convert tuple to struct object for forces """
-        cdef force struct_data
-        struct_data.x = data[0]
-        struct_data.y = data[1]
-        struct_data.z = data[2]
-        return struct_data
-
     @cython.nonecheck(False)
     cpdef void update(self):
         """ Update contacts """
@@ -64,16 +52,16 @@ cdef class ContactSensors:
         cdef double[:] contact_normal_data
         cdef double[:] contact_lateral_data
 
-        cdef force normal_force_vec
+        cdef ARRAY3 normal_force_vec
         cdef double normal_force
 
-        cdef force lateral_force_vec1
+        cdef ARRAY3 lateral_force_vec1
         cdef double lateral_force1
 
-        cdef force lateral_force_vec2
+        cdef ARRAY3 lateral_force_vec2
         cdef double lateral_force2
 
-        cdef force position
+        cdef ARRAY3 position
 
         for model_A, model_B, link_A, link_B in self.contact_ids:
             px = 0.0
@@ -88,7 +76,7 @@ cdef class ContactSensors:
             contacts = p.getContactPoints(model_A, model_B, link_A, link_B)
             for contact in contacts:
                 # Normal reaction
-                normal_force_vec = self.tuple_to_struct(contact[7])
+                normal_force_vec = tuple_to_struct(contact[7])
                 normal_force = contact[9]
                 rx = normal_force*normal_force_vec.x*inewtons
                 ry = normal_force*normal_force_vec.y*inewtons
@@ -97,9 +85,9 @@ cdef class ContactSensors:
                 ry_tot += ry
                 rz_tot += rz
                 # Lateral friction dir 1 + Lateral friction dir 2
-                lateral_force_vec1 = self.tuple_to_struct(contact[11])
+                lateral_force_vec1 = tuple_to_struct(contact[11])
                 lateral_force1 = contact[10]
-                lateral_force_vec2 = self.tuple_to_struct(contact[13])
+                lateral_force_vec2 = tuple_to_struct(contact[13])
                 lateral_force2 = contact[12]
                 fx = (lateral_force1*lateral_force_vec1.x + lateral_force2*lateral_force_vec2.x)*inewtons
                 fy = (lateral_force1*lateral_force_vec1.y + lateral_force2*lateral_force_vec2.y)*inewtons
@@ -109,7 +97,7 @@ cdef class ContactSensors:
                 fz_tot += fz
                 # TODO: Check this computation
                 # Position
-                position = self.tuple_to_struct(contact[5])
+                position = tuple_to_struct(contact[5])
                 px += (rx+fx)*position.x*imeters
                 py += (ry+fy)*position.y*imeters
                 pz += (rz+fz)*position.z*imeters
@@ -149,3 +137,57 @@ cdef class ContactSensors:
             contact_position_data[2] = pz
             # Update sensor index
             sensor_index += 1
+
+
+cdef class COMSensor:
+    """ Center of Mass sensor """
+
+    def __init__(self, model_id, sim_data, meters=1, kilograms=1):
+        # Model id
+        self.model_id = model_id
+        # Units
+        self.imeters = 1./meters
+        self.ikilograms = 1./kilograms
+        # Number of links in the model
+        self.num_links = p.getNumJoints(self.model_id)
+        # Initialize masses
+        cdef int link_index
+        self.link_masses = np.asarray(
+            [p.getDynamicsInfo(self.model_id, link_index)[0]
+             for link_index in np.arange(-1, self.num_links)],
+            dtype=np.double
+        )
+        self.total_mass = np.sum(self.link_masses)*self.ikilograms
+        # Data
+        self.center_of_mass = sim_data.center_of_mass
+
+    cpdef void update(self):
+        """ Update center of mass """
+        link_states = p.getLinkStates(
+            self.model_id, range(self.num_links)
+        )
+        # Declarations
+        cdef ARRAY3 com
+        cdef double mass
+        cdef double[:] center_of_mass_data
+        # Base
+        cdef ARRAY3 base_position = tuple_to_struct(
+            p.getBasePositionAndOrientation(self.model_id)[0]
+        )
+        com.x = base_position.x*self.link_masses[0]
+        com.y = base_position.y*self.link_masses[0]
+        com.z = base_position.z*self.link_masses[0]
+        # Links
+        cdef int link_id
+        cdef ARRAY3 link_com
+        for link_id, state in enumerate(link_states):
+            mass = self.link_masses[link_id+1]
+            link_com = tuple_to_struct(state[0])
+            com.x += link_com.x*mass
+            com.y += link_com.y*mass
+            com.z += link_com.z*mass
+        # Update the data
+        center_of_mass_data = self.center_of_mass.c_get_values()
+        center_of_mass_data[0] = com.x*self.imeters/self.total_mass
+        center_of_mass_data[1] = com.y*self.imeters/self.total_mass
+        center_of_mass_data[2] = com.z*self.imeters/self.total_mass
