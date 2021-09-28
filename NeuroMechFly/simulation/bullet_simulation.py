@@ -12,7 +12,7 @@ import pybullet_data
 import yaml
 from farms_network.neural_system import NeuralSystem
 from NeuroMechFly.sdf.bullet_load_sdf import load_sdf
-from NeuroMechFly.simulation.bullet_sensors import ContactSensors
+from NeuroMechFly.simulation.bullet_sensors import ContactSensors, COMSensor
 from tqdm import tqdm
 
 neuromechfly_path = Path(pkgutil.get_loader(
@@ -78,11 +78,13 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         self.joint_type = {}
         self.link_id = {}
         self.contact_sensors = None
+        self.com_sensor = None
 
         # ADD 'Physics' namespace to container
         self.sim_data = self.container.add_namespace('physics')
         # ADD Tables to physics container
         self.sim_data.add_table('base_position')
+        self.sim_data.add_table('center_of_mass')
         self.sim_data.add_table('joint_positions')
         self.sim_data.add_table('joint_velocities')
         self.sim_data.add_table('joint_torques')
@@ -174,7 +176,8 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             numSolverIterations=100,
             numSubSteps=self.num_substep,
             solverResidualThreshold=1e-10,
-            erp=0.0,
+            # erp=0.0,
+            # TODO: CHECK
             contactERP=0.1,
             frictionERP=0.0,
 
@@ -300,7 +303,6 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             )
 
         # ADD container columns
-
         # ADD ground reaction forces and friction forces
         _ground_sensor_ids = []
         for contact in self.ground_contacts:
@@ -339,11 +341,15 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                 self.sim_data.contact_lateral_force.add_parameter(
                     contacts + '_' + axis)
 
-        # Generate contact sensors
+        # Generate sensors
         self.contact_sensors = ContactSensors(
             self.sim_data,
             tuple([*_ground_sensor_ids, *_collision_sensor_ids]),
             meters=self.units.meters, newtons=self.units.newtons
+        )
+        self.com_sensor = COMSensor(
+            self.animal, self.sim_data, meters=self.units.meters,
+            kilograms=self.units.kilograms
         )
 
         # ADD base position parameters
@@ -358,6 +364,10 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             self.sim_data.joint_positions.add_parameter(name)
             self.sim_data.joint_velocities.add_parameter(name)
             self.sim_data.joint_torques.add_parameter(name)
+
+        # ADD Center of mass parameters
+        for axis in ('x', 'y', 'z'):
+            self.sim_data.center_of_mass.add_parameter(f"{axis}")
 
         # ADD muscles
         if self.use_muscles:
@@ -406,13 +416,6 @@ class BulletSimulation(metaclass=abc.ABCMeta):
 
         self.bodyweight = -1 * self.total_mass * self.gravity[2]
         print('Total mass = {}'.format(self.total_mass))
-
-        # TODO: Clean up this code
-        # Set up link masses list
-        self.animal_link_masses = tuple(
-            p.getDynamicsInfo(self.animal, link_index)[0]
-            for link_index in range(-1, self.num_joints)
-        )
 
         if self.gui == p.GUI:
             self.rendering(1)
@@ -716,17 +719,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
     @property
     def center_of_mass(self):
         """ Compute the center of mass  """
-        link_states = p.getLinkStates(
-            self.animal, range(self.num_joints)
-        )
-        # Base
-        com = np.array(
-            p.getBasePositionAndOrientation(self.animal)[0]
-        )*self.animal_link_masses[0]
-        # Links
-        for link_id, state in enumerate(link_states):
-            com += np.array(state[0])*self.animal_link_masses[link_id+1]
-        return com/(self.total_mass*self.units.kilograms)
+        return np.array(self.sim_data.center_of_mass.values)
 
     def compute_mechanical_work(self, joint_velocities, joint_torques):
         """ Computes the mechanical work spent by the animal. """
@@ -748,10 +741,11 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             self.joint_positions)
         self.sim_data.joint_velocities.values = np.asarray(
             self.joint_velocities)
-        self.sim_data.joint_torques.values = np.asarray(
-            self.joint_torques)
-        # Update contacts
+        # self.sim_data.joint_torques.values = np.asarray(
+        #     self.joint_torques)
+        # Update sensors
         self.contact_sensors.update()
+        self.com_sensor.update()
 
     @abc.abstractmethod
     def controller_to_actuator(self):
@@ -910,7 +904,8 @@ class BulletSimulation(metaclass=abc.ABCMeta):
     def run(self, optimization=False):
         """ Run the full simulation. """
         total = int(self.run_time / self.time_step)
-        for t in tqdm(range(0, total), disable=optimization):
+        for t in tqdm(range(0, total), # disable=optimization
+                      ):
             status = self.step(t, optimization=optimization)
             if not status:
                 return False
