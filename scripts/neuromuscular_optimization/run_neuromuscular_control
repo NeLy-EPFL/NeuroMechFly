@@ -32,21 +32,15 @@ def parse_args():
 def main(args):
     """ Main function """
 
-    run_time = 2.5
-    time_step = 5e-4
+    run_time = 3.0
+    time_step = 1e-4
 
     #: Set collision segments
-    side = ['L', 'R']
-    pos = ['F', 'M', 'H']
-    leg_segments = ['Femur', 'Tibia'] + \
-        ['Tarsus' + str(i) for i in range(1, 6)]
-
     ground_contact = [
-        s + p + name
-        for s in side
-        for p in pos
-        for name in leg_segments
-        if 'Tarsus' in name
+            f"{side}{leg}{segment}"
+            for side in ('L', 'R')
+            for leg in ('F', 'M', 'H')
+            for segment in tuple(f"Tarsus{i}" for i in range(1, 6))
     ]
 
     #: Setting up the paths for the SDF and POSE files
@@ -75,7 +69,7 @@ def main(args):
     #: Simulation options
     sim_options = {
         "headless": not args.gui,
-        "model": model_path,
+        "model": str(model_path),
         "model_offset": [0., 0., 11.2e-3],
         "run_time": run_time,
         "time_step": time_step,
