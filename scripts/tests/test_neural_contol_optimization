@@ -37,23 +37,23 @@ def main(args):
     time_step = 1e-4
 
     # Set collision segments
-    side = ['L', 'R']
-    pos = ['F', 'M', 'H']
-    leg_segments = ['Femur', 'Tibia'] + \
-        ['Tarsus' + str(i) for i in range(1, 6)]
-
     ground_contact = [
-        s + p + name
-        for s in side
-        for p in pos
-        for name in leg_segments
-        if 'Tarsus' in name
+            f"{side}{leg}{segment}"
+            for side in ('L', 'R')
+            for leg in ('F', 'M', 'H')
+            for segment in tuple(f"Tarsus{i}" for i in range(1, 6))
     ]
 
     # Setting up the paths for the SDF and POSE files
-    model_path = os.path.join(neuromechfly_path, 'data/design/sdf/neuromechfly_locomotion_optimization.sdf')
-    pose_path = os.path.join(neuromechfly_path, 'data/config/pose/pose_tripod.yaml')
-    controller_path = os.path.join(neuromechfly_path, 'data/config/network/locomotion_network.graphml')
+    model_path = neuromechfly_path.joinpath(
+        "data/design/sdf/neuromechfly_locomotion_optimization.sdf"
+    )
+    pose_path = neuromechfly_path.joinpath(
+        "data/config/pose/pose_tripod.yaml"
+    )
+    controller_path = neuromechfly_path.joinpath(
+        "data/config/network/locomotion_network.graphml"
+    )
 
     # Get experiment information
     path = os.path.abspath(args.path)
@@ -101,18 +101,12 @@ def main(args):
     # animal.update_parameters(problem.lower_bound)
     # animal.update_parameters((problem.lower_bound + problem.upper_bound)/2)
     animal.update_parameters(problem.upper_bound)
-    animal.run(optimization=False)
+    animal.run(optimization=True)
     # Dump the optimization results
-    results_path = os.path.join(
-        neuromechfly_path,
-        'scripts/neuromuscular_optimization',
-        f"simulation_{exp}",
-        f"gen_{gen}",
-        f"sol_{args.sol}"
-    )
-    if not os.path.exists(results_path):
-        os.makedirs(results_path)
+    results_path = neuromechfly_path.joinpath("scripts/tests/test")
     animal.container.dump(dump_path=results_path, overwrite=True)
+    #
+
 
 if __name__ == "__main__":
     """ Main """
