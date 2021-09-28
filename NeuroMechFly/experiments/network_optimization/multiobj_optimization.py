@@ -4,6 +4,7 @@ import logging
 import os
 from pathlib import Path
 import pkgutil
+import yaml
 from typing import Tuple
 
 import farms_pylog as pylog
@@ -121,6 +122,22 @@ def print_penalties_to_file(penalties: Tuple) -> None:
         of.write('\n')
 
 
+def generate_config_file(log: dict) -> None:
+    """ Generates a config file of the weights used in the optimization. """
+
+    output_file_directory = os.path.join(
+                neuromechfly_path,
+                'scripts/neuromuscular_optimization',
+                'optimization_results',
+                'CONFIG.yaml'
+            )
+
+    pylog.info('Output config file : ' + output_file_directory)
+
+    with open(output_file_directory, 'w') as of:
+        yaml.dump(log, of, default_flow_style=False)
+
+
 def separate_penalties_into_gens(n_gen: int, n_pop: int, output_directory: str) -> None:
     """Saves penalties based on generations at the end of optimization
     and removes the temporary txt file that stores the penalties.
@@ -183,17 +200,17 @@ class DrosophilaEvolution(FloatProblem):
         lower_bound_active_muscles = (
                 np.asarray(
                     [# Front
-                    [1e-11, 1e-11, 5.0, 5e-15, -0.22], # Coxa
-                    [1e-11, 1e-11, 5.0, 5e-15, -2.5], # Femur
-                    [1e-11, 1e-11, 5.0, 5e-15, 0.76], # Tibia
+                    [1e-11, 1e-11, 5.0, 5e-15, 0.0], # Coxa
+                    [1e-11, 1e-11, 5.0, 5e-15, -2.0], # Femur
+                    [1e-11, 1e-11, 5.0, 5e-15, 1.31], # Tibia
                     # Mid
-                    [1e-11, 1e-11, 5.0, 5e-15, -2.2], # Coxa_roll
-                    [1e-11, 1e-11, 5.0, 5e-15, -2.35], # Femur
-                    [1e-11, 1e-11, 5.0, 5e-15, 1.73], # Tibia
+                    [1e-11, 1e-11, 5.0, 5e-15, -2.18], # Coxa_roll
+                    [1e-11, 1e-11, 5.0, 5e-15, -2.14], # Femur
+                    [1e-11, 1e-11, 5.0, 5e-15, 1.96], # Tibia
                     # Hind
-                    [1e-11, 1e-11, 5.0, 5e-15, -2.78], # Coxa_roll
-                    [1e-11, 1e-11, 5.0, 5e-15, -2.46], # Femur
-                    [1e-11, 1e-11, 5.0, 5e-15, 1.12], # Tibia
+                    [1e-11, 1e-11, 5.0, 5e-15, -2.69], # Coxa_roll
+                    [1e-11, 1e-11, 5.0, 5e-15, -2.14], # Femur
+                    [1e-11, 1e-11, 5.0, 5e-15, 1.43], # Tibia
                     ]
                 )
         ).flatten()
@@ -202,17 +219,17 @@ class DrosophilaEvolution(FloatProblem):
                 np.asarray(
                     [
                     # Front
-                    [2.5e-9, 1e-9, 10.0, 1e-11, 0.49], # Coxa
-                    [2.5e-9, 1e-9, 10.0, 1e-11, -1.3], # Femur
-                    [2.5e-9, 1e-9, 10.0, 1e-11, 2.19], # Tibia
+                    [2.5e-9, 1e-9, 10.0, 1e-11, 0.47], # Coxa
+                    [2.5e-9, 1e-9, 10.0, 1e-11, -1.68], # Femur
+                    [2.5e-9, 1e-9, 10.0, 1e-11, 2.05], # Tibia
                     # Mid
-                    [2.5e-9, 1e-9, 10.0, 1e-11, -1.75], # Coxa_roll
-                    [2.5e-9, 1e-9, 10.0, 1e-11, -1.84], # Femur
-                    [2.5e-9, 1e-9, 10.0, 1e-11, 2.63], # Tibia
+                    [2.5e-9, 1e-9, 10.0, 1e-11, -2.01], # Coxa_roll
+                    [2.5e-9, 1e-9, 10.0, 1e-11, -2.0], # Femur
+                    [2.5e-9, 1e-9, 10.0, 1e-11, 2.22], # Tibia
                     # Hind
-                    [2.5e-9, 1e-9, 10.0, 1e-11, -2.44], # Coxa_roll
-                    [2.5e-9, 1e-9, 10.0, 1e-11, -1.31], # Femur
-                    [2.5e-9, 1e-9, 10.0, 1e-11, 2.79], # Tibia
+                    [2.5e-9, 1e-9, 10.0, 1e-11, -2.53], # Coxa_roll
+                    [2.5e-9, 1e-9, 10.0, 1e-11, -1.55], # Femur
+                    [2.5e-9, 1e-9, 10.0, 1e-11, 2.26], # Tibia
                     ]
                 )
         ).flatten()
@@ -319,84 +336,72 @@ class DrosophilaEvolution(FloatProblem):
         #: Check if any of the termination criteria is met
         _successful = fly.run(optimization=True)
 
-        #: Objectives
-        #: Minimize activations
-        m_out = np.asarray(container.muscle.outputs.log)
-        m_names = container.muscle.outputs.names
-        act = np.asarray([
-            m_out[:, j]
-            for j, name in enumerate(m_names)
-            if 'flexor_act' in name or 'extensor_act' in name
-        ])
-        #: Normalize it by the maximum activation possible [0- ~2]
-        act = np.sum(act**2) / 1e5
+        #: OBJECTIVES
+        objectives = {}
 
         #: Forward distance (backward rotation of the ball)
-        distance = -np.array(
-            fly.ball_rotations
-        )[0] * fly.ball_radius
+        objectives['distance'] = -np.array(fly.ball_rotations)[0] * fly.ball_radius
+        objectives['stability'] = fly.opti_stability
+        # objectives['mechanical_work'] = fly.mechanical_work
 
-        #: Stability coefficient
-        stability = fly.opti_stability
-
-        #: Penalties
+        #: PENALTIES
+        penalties = {}
         #: Penalty long stance periods
-
         expected_stance_legs = 3.6
         min_legs = 3
         mean_stance_legs = fly.stance_count * fly.time_step / fly.time
-        penalty_time_stance = (
+        penalties['stance'] = (
             0.0
             if min_legs <= mean_stance_legs < expected_stance_legs
             else abs(mean_stance_legs - min_legs)
         )
-        distance_weight = -1e1
-        stability_weight = -1e-1
-        movement_weight = 1e-2
-        touch_weight = 1e-2
-        velocity_weight = 1e-1
-        stance_weight = 1e2
-        penalties = (
-            movement_weight * fly.opti_lava + \
-            velocity_weight * fly.opti_velocity + \
-            stance_weight * penalty_time_stance
-        )
+
+        penalties['lava'] = fly.opti_lava
+        penalties['velocity'] = fly.opti_velocity
+
+        weights = {
+            'distance': -1e1,
+            'stability': -1e-1,
+            'mechanical_work': 1e1,
+            'stance': 1e2,
+            'lava': 1e-2,
+            'velocity': 1e-1
+        }
+
+        objectives_weighted = {
+            obj_name: obj_value * weights[obj_name]
+            for obj_name, obj_value in objectives.items()
+        }
+
+        penalties_weighted = {
+            pen_name: pen_value * weights[pen_name]
+            for pen_name, pen_value in penalties.items()
+        }
 
         #: Print penalties and objectives
-        print(
-            f"OBJECTIVES\n===========\n\
-                Distance: {distance_weight * distance}\n \
-                Stability: {stability_weight * stability}\n \
-                Work: {fly.mechanical_work}\n \
-                PENALTIES\n=========\n \
-                Penalty lava: {movement_weight * fly.opti_lava}\n \
-                Penalty velocity: {velocity_weight*fly.opti_velocity}\n \
-                Penalty stance: {stance_weight * penalty_time_stance}\n \
-            "
-        )
-
-        solution.objectives[0] = distance_weight * distance + penalties
-        solution.objectives[1] = stability_weight * stability + penalties
-
-        print(
-            "OBJECTIVE FUNCTION EVALUATION:\n===========\n\
-                First: {}\n \
-                Second: {}\n \
-            ".format(
-                solution.objectives[0],
-                solution.objectives[1]
+        print('\nObjectives\n==========')
+        for name, item in objectives_weighted.items():
+            print(
+                '{}: {}'.format(name, item)
             )
-        )
-
-        penalties_to_log = (
-            distance_weight * distance,
-            stability_weight * stability,
-            movement_weight * fly.opti_lava,
-            velocity_weight * fly.opti_velocity,
-            stance_weight * penalty_time_stance
+        print('\nPenalties\n=========')
+        for name, item in penalties_weighted.items():
+            print(
+                '{}: {}'.format(name,item)
             )
 
-        print_penalties_to_file(penalties_to_log)
+        solution.objectives[0] = objectives_weighted['distance'] + sum(penalties_weighted.values())
+        solution.objectives[1] = objectives_weighted['stability'] + sum(penalties_weighted.values())
+
+        print(
+            f'\nObjective func eval:\nFirst: {solution.objectives[0]}\nSecond: {solution.objectives[1]}\n'
+        )
+
+        print_penalties_to_file((*objectives_weighted.values(), *penalties_weighted.values()))
+        generate_config_file({
+            weight_name: weight for weight_name, weight in weights.items()
+            if weight_name in {**objectives, **penalties}
+        })
 
         return solution
 
