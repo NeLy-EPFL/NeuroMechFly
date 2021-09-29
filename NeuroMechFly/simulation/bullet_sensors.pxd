@@ -16,6 +16,23 @@ cdef inline ARRAY3 tuple_to_struct(tuple data):
     return struct_data
 
 
+cdef class JointSensors:
+    """ Joint sensors """
+    cdef Table joint_positions
+    cdef Table joint_velocities
+    cdef Table joint_torques
+
+    cdef int model_id
+    cdef unsigned int num_joints
+    cdef unsigned int[:] joint_types
+
+    cdef public double imeters
+    cdef public double ivelocity
+    cdef public double itorques
+
+    cpdef void update(self)
+
+
 cdef class ContactSensors:
     """ Contact sensors """
     cdef Table contact_flag

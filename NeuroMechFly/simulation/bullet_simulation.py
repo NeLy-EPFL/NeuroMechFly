@@ -1,10 +1,10 @@
 """ Class to run animal model. """
 
 import abc
+import os
+import pkgutil
 import time
 from pathlib import Path
-import pkgutil
-import os
 
 import numpy as np
 import pybullet as p
@@ -12,7 +12,8 @@ import pybullet_data
 import yaml
 from farms_network.neural_system import NeuralSystem
 from NeuroMechFly.sdf.bullet_load_sdf import load_sdf
-from NeuroMechFly.simulation.bullet_sensors import ContactSensors, COMSensor
+from NeuroMechFly.simulation.bullet_sensors import (COMSensor, ContactSensors,
+                                                    JointSensors)
 from tqdm import tqdm
 
 neuromechfly_path = Path(pkgutil.get_loader(
@@ -77,6 +78,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         self.joint_id = {}
         self.joint_type = {}
         self.link_id = {}
+        self.joint_sensors = None
         self.contact_sensors = None
         self.com_sensor = None
 
@@ -342,6 +344,10 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                     contacts + '_' + axis)
 
         # Generate sensors
+        self.joint_sensors = JointSensors(
+            self.animal, self.sim_data, meters=self.units.meters,
+            velocity=self.units.velocity, torques=self.units.torques
+        )
         self.contact_sensors = ContactSensors(
             self.sim_data,
             tuple([*_ground_sensor_ids, *_collision_sensor_ids]),
@@ -628,14 +634,6 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         )
 
     @property
-    def joint_states(self):
-        """ Get all joint states. """
-        return p.getJointStates(
-            self.animal,
-            np.arange(0, p.getNumJoints(self.animal))
-        )
-
-    @property
     def base_position(self):
         """ Get the position of the animal  """
         imeter = 1. / self.units.meters
@@ -651,33 +649,22 @@ class BulletSimulation(metaclass=abc.ABCMeta):
     @property
     def joint_positions(self):
         """ Get the joint positions in the animal  """
-        return tuple(
-            state[0] for state in p.getJointStates(
-                self.animal,
-                np.arange(0, p.getNumJoints(self.animal))
-            )
+        return np.asarray(
+            self.sim_data.joint_positions.values
         )
 
     @property
     def joint_torques(self):
         """ Get the joint torques in the animal  """
-        itorque = 1. / self.units.torques
-        return tuple(
-            state[-1] * itorque
-            for state in p.getJointStates(
-                self.animal,
-                np.arange(0, self.num_joints)
-            )
+        return np.asarray(
+            self.sim_data.joint_torques.values
         )
 
     @property
     def joint_velocities(self):
         """ Get the joint velocities in the animal  """
-        return tuple(
-            state[1] for state in p.getJointStates(
-                self.animal,
-                np.arange(0, p.getNumJoints(self.animal))
-            )
+        return np.asarray(
+            self.sim_data.joint_velocities.values
         )
 
     @property
@@ -700,16 +687,6 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         return np.asarray(
             self.sim_data.contact_lateral_force.values).reshape(
             (-1, 3))
-
-    @property
-    def distance_x(self):
-        """ Distance the animal has travelled in x-direction. """
-        return self.base_position[0] / self.units.meters
-
-    @property
-    def distance_y(self):
-        """ Distance the animal has travelled in y-direction. """
-        return -self.base_position[1] / self.units.meters
 
     @property
     def distance_z(self):
@@ -737,13 +714,8 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         """ Update all the physics logs. """
         self.sim_data.base_position.values = np.asarray(
             self.base_position)
-        self.sim_data.joint_positions.values = np.asarray(
-            self.joint_positions)
-        self.sim_data.joint_velocities.values = np.asarray(
-            self.joint_velocities)
-        # self.sim_data.joint_torques.values = np.asarray(
-        #     self.joint_torques)
         # Update sensors
+        self.joint_sensors.update()
         self.contact_sensors.update()
         self.com_sensor.update()
 
@@ -904,8 +876,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
     def run(self, optimization=False):
         """ Run the full simulation. """
         total = int(self.run_time / self.time_step)
-        for t in tqdm(range(0, total), # disable=optimization
-                      ):
+        for t in tqdm(range(0, total), disable=optimization):
             status = self.step(t, optimization=optimization)
             if not status:
                 return False

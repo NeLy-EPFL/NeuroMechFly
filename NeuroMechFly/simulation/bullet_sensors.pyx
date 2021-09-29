@@ -8,6 +8,64 @@ cimport cython
 cimport numpy as np
 
 
+
+cdef class JointSensors:
+    """ Joint sensors """
+    def __init__(
+            self, model_id, sim_data, meters=1, velocity=1, torques=1
+    ):
+        # model id
+        self.model_id = model_id
+        # num-joints
+        self.num_joints = p.getNumJoints(self.model_id)
+        # get joint types
+        self.joint_types = np.array(
+            [
+                p.getJointInfo(self.model_id, joint_id)[2]
+                for joint_id in range(self.num_joints)
+            ], dtype=np.uintc
+        )
+        # joint positions
+        self.joint_positions = sim_data.joint_positions
+        # joint velocities
+        self.joint_velocities = sim_data.joint_velocities
+        # joint torques
+        self.joint_torques = sim_data.joint_torques
+        # Units
+        self.imeters = 1./meters
+        self.ivelocity = 1./velocity
+        self.itorques = 1./torques
+
+    cpdef void update(self):
+        """ Update joint data """
+        cdef double[:] joint_positions_data = self.joint_positions.c_get_values()
+        cdef double[:] joint_velocities_data = self.joint_velocities.c_get_values()
+        cdef double[:] joint_torques_data = self.joint_torques.c_get_values()
+
+        # get current joint states
+        cdef tuple joint_states = p.getJointStates(
+            self.model_id, range(self.num_joints)
+        )
+        cdef tuple joint_state
+        cdef unsigned int joint_index
+        for joint_index, joint_state in enumerate(joint_states):
+            # position
+            joint_positions_data[joint_index] = (
+                joint_state[0]*self.imeters
+                if self.joint_types[joint_index] == 1
+                else joint_state[0]
+            )
+            # velocity
+            joint_velocities_data[joint_index] = (
+                joint_state[1]*self.ivelocity
+                if self.joint_types[joint_index] == 1
+                else joint_state[1]
+            )
+            # torque
+            joint_torques_data[joint_index] = joint_state[3]*self.itorques
+
+
+
 cdef class ContactSensors:
     """ Contact sensors """
 

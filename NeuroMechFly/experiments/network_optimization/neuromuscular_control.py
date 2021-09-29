@@ -132,14 +132,16 @@ class DrosophilaSimulation(BulletSimulation):
     def muscle_controller(self):
         """ Muscle controller. """
         utorque = self.units.torques
-        for key, value in self.active_muscles.items():
-            torque = value.compute_torque(only_passive=False)*utorque
-            p.setJointMotorControl2(
-                self.animal,
-                self.joint_id[key],
-                controlMode=p.TORQUE_CONTROL,
-                force=torque
-            )
+        torques = {
+            self.joint_id[key] : value.compute_torque(only_passive=False)*utorque
+            for key, value in self.active_muscles.items()
+        }
+        p.setJointMotorControlArray(
+            self.animal,
+            jointIndices=torques.keys(),
+            controlMode=p.TORQUE_CONTROL,
+            forces=torques.values()
+        )
 
     def controller_to_actuator(self, t):
         """ Implementation of abstract method. """
@@ -242,7 +244,7 @@ class DrosophilaSimulation(BulletSimulation):
         point_d = np.array([x1+a*dx, y1+a*dy])
         return point_d
 
-    def compute_static_stability(self, draw_polygon=False):
+    def compute_static_stability(self, draw_polygon=True):
         """ Computes static stability  of the model.
 
         Parameters
@@ -362,14 +364,18 @@ class DrosophilaSimulation(BulletSimulation):
         # The fly travels 2 rad (10 mm) in one second, set the min ang pos 1.2 rad (6 mm)
         # The min desired angular pos of the ball at the end of run time
         total_angular_dist = 1.2 * self.run_time
-        ball_angular_position = -np.array(self.ball_rotations)[0]
-        moving_limit = ((self.time / self.run_time)
+        ball_angular_position = np.array(self.ball_rotations)[0]
+        moving_limit_lower = ((self.time / self.run_time)
                         * total_angular_dist) - 0.20
-        if np.isclose([self.time], [2.990]):
-            print(f'Movement Lim: {moving_limit} and Current Pos: {ball_angular_position}')
+        moving_limit_upper = ((self.time / self.run_time)
+                        * 4 * total_angular_dist) - 0.20
         self.opti_lava += 1.0 if np.any(
-            ball_angular_position < moving_limit
-        ) else 0.0
+            np.abs(ball_angular_position) < moving_limit_lower
+        ) and ball_angular_position > 0 else 0.0
+
+        self.opti_lava += 1.0 if np.any(
+            np.abs(ball_angular_position) > moving_limit_upper
+        ) and ball_angular_position > 0 else 0.0
 
     def check_velocity_limit(self):
         """ Check velocity limits. """
