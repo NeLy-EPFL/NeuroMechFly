@@ -347,20 +347,21 @@ class DrosophilaEvolution(FloatProblem):
         #: PENALTIES
         penalties = {}
         #: Penalty long stance periods
-        expected_stance_legs = 3.6
-        min_legs = 3
+        constraints = {}
+        constraints['expected_stance_legs'] = 4
+        constraints['min_legs'] = 2
         mean_stance_legs = fly.stance_count * fly.time_step / fly.time
         penalties['stance'] = (
             0.0
-            if min_legs <= mean_stance_legs < expected_stance_legs
-            else abs(mean_stance_legs - min_legs)
+            if constraints['min_legs'] <= mean_stance_legs < constraints['expected_stance_legs']
+            else abs(mean_stance_legs - constraints['min_legs'])
         )
 
         penalties['lava'] = fly.opti_lava
         penalties['velocity'] = fly.opti_velocity
 
         weights = {
-            'distance': -1e1,
+            'distance': -1e0,
             'stability': -1e-1,
             'mechanical_work': 1e1,
             'stance': 1e2,
@@ -398,10 +399,15 @@ class DrosophilaEvolution(FloatProblem):
         )
 
         print_penalties_to_file((*objectives_weighted.values(), *penalties_weighted.values()))
-        generate_config_file({
+
+        config_file = {
             weight_name: weight for weight_name, weight in weights.items()
             if weight_name in {**objectives, **penalties}
-        })
+        }
+
+        config_file = {**config_file, **constraints} if 'stance' in penalties else config_file
+
+        generate_config_file(config_file)
 
         return solution
 
