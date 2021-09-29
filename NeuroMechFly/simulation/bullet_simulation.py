@@ -1,10 +1,10 @@
 """ Class to run animal model. """
 
 import abc
+import os
+import pkgutil
 import time
 from pathlib import Path
-import pkgutil
-import os
 
 import numpy as np
 import pybullet as p
@@ -12,7 +12,8 @@ import pybullet_data
 import yaml
 from farms_network.neural_system import NeuralSystem
 from NeuroMechFly.sdf.bullet_load_sdf import load_sdf
-from NeuroMechFly.simulation.bullet_sensors import ContactSensors
+from NeuroMechFly.simulation.bullet_sensors import (COMSensor, ContactSensors,
+                                                    JointSensors)
 from tqdm import tqdm
 
 neuromechfly_path = Path(pkgutil.get_loader(
@@ -77,12 +78,15 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         self.joint_id = {}
         self.joint_type = {}
         self.link_id = {}
+        self.joint_sensors = None
         self.contact_sensors = None
+        self.com_sensor = None
 
         # ADD 'Physics' namespace to container
         self.sim_data = self.container.add_namespace('physics')
         # ADD Tables to physics container
         self.sim_data.add_table('base_position')
+        self.sim_data.add_table('center_of_mass')
         self.sim_data.add_table('joint_positions')
         self.sim_data.add_table('joint_velocities')
         self.sim_data.add_table('joint_torques')
@@ -174,7 +178,8 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             numSolverIterations=100,
             numSubSteps=self.num_substep,
             solverResidualThreshold=1e-10,
-            erp=0.0,
+            # erp=0.0,
+            # TODO: CHECK
             contactERP=0.1,
             frictionERP=0.0,
 
@@ -300,7 +305,6 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             )
 
         # ADD container columns
-
         # ADD ground reaction forces and friction forces
         _ground_sensor_ids = []
         for contact in self.ground_contacts:
@@ -339,11 +343,19 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                 self.sim_data.contact_lateral_force.add_parameter(
                     contacts + '_' + axis)
 
-        # Generate contact sensors
+        # Generate sensors
+        self.joint_sensors = JointSensors(
+            self.animal, self.sim_data, meters=self.units.meters,
+            velocity=self.units.velocity, torques=self.units.torques
+        )
         self.contact_sensors = ContactSensors(
             self.sim_data,
             tuple([*_ground_sensor_ids, *_collision_sensor_ids]),
             meters=self.units.meters, newtons=self.units.newtons
+        )
+        self.com_sensor = COMSensor(
+            self.animal, self.sim_data, meters=self.units.meters,
+            kilograms=self.units.kilograms
         )
 
         # ADD base position parameters
@@ -358,6 +370,10 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             self.sim_data.joint_positions.add_parameter(name)
             self.sim_data.joint_velocities.add_parameter(name)
             self.sim_data.joint_torques.add_parameter(name)
+
+        # ADD Center of mass parameters
+        for axis in ('x', 'y', 'z'):
+            self.sim_data.center_of_mass.add_parameter(f"{axis}")
 
         # ADD muscles
         if self.use_muscles:
@@ -406,13 +422,6 @@ class BulletSimulation(metaclass=abc.ABCMeta):
 
         self.bodyweight = -1 * self.total_mass * self.gravity[2]
         print('Total mass = {}'.format(self.total_mass))
-
-        # TODO: Clean up this code
-        # Set up link masses list
-        self.animal_link_masses = tuple(
-            p.getDynamicsInfo(self.animal, link_index)[0]
-            for link_index in range(-1, self.num_joints)
-        )
 
         if self.gui == p.GUI:
             self.rendering(1)
@@ -625,14 +634,6 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         )
 
     @property
-    def joint_states(self):
-        """ Get all joint states. """
-        return p.getJointStates(
-            self.animal,
-            np.arange(0, p.getNumJoints(self.animal))
-        )
-
-    @property
     def base_position(self):
         """ Get the position of the animal  """
         imeter = 1. / self.units.meters
@@ -648,33 +649,22 @@ class BulletSimulation(metaclass=abc.ABCMeta):
     @property
     def joint_positions(self):
         """ Get the joint positions in the animal  """
-        return tuple(
-            state[0] for state in p.getJointStates(
-                self.animal,
-                np.arange(0, p.getNumJoints(self.animal))
-            )
+        return np.asarray(
+            self.sim_data.joint_positions.values
         )
 
     @property
     def joint_torques(self):
         """ Get the joint torques in the animal  """
-        itorque = 1. / self.units.torques
-        return tuple(
-            state[-1] * itorque
-            for state in p.getJointStates(
-                self.animal,
-                np.arange(0, self.num_joints)
-            )
+        return np.asarray(
+            self.sim_data.joint_torques.values
         )
 
     @property
     def joint_velocities(self):
         """ Get the joint velocities in the animal  """
-        return tuple(
-            state[1] for state in p.getJointStates(
-                self.animal,
-                np.arange(0, p.getNumJoints(self.animal))
-            )
+        return np.asarray(
+            self.sim_data.joint_velocities.values
         )
 
     @property
@@ -699,16 +689,6 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             (-1, 3))
 
     @property
-    def distance_x(self):
-        """ Distance the animal has travelled in x-direction. """
-        return self.base_position[0] / self.units.meters
-
-    @property
-    def distance_y(self):
-        """ Distance the animal has travelled in y-direction. """
-        return -self.base_position[1] / self.units.meters
-
-    @property
     def distance_z(self):
         """ Distance the animal has travelled in z-direction. """
         return self.base_position[2] / self.units.meters
@@ -716,30 +696,28 @@ class BulletSimulation(metaclass=abc.ABCMeta):
     @property
     def center_of_mass(self):
         """ Compute the center of mass  """
-        link_states = p.getLinkStates(
-            self.animal, range(self.num_joints)
-        )
-        # Base
-        com = np.array(
-            p.getBasePositionAndOrientation(self.animal)[0]
-        )*self.animal_link_masses[0]
-        # Links
-        for link_id, state in enumerate(link_states):
-            com += np.array(state[0])*self.animal_link_masses[link_id+1]
-        return com/(self.total_mass*self.units.kilograms)
+        return np.array(self.sim_data.center_of_mass.values)
+
+    def compute_mechanical_work(self, joint_velocities, joint_torques):
+        """ Computes the mechanical work spent by the animal. """
+        return np.abs(
+            joint_torques@joint_velocities.T
+        ) * self.time_step / self.run_time
+
+    def compute_thermal_loss(self, joint_torques):
+        """ Computes the thermal loss exerted by the animal. """
+        return np.sum(
+            np.sum(joint_torques**2)
+        ) * self.time_step / self.run_time
 
     def update_logs(self):
         """ Update all the physics logs. """
         self.sim_data.base_position.values = np.asarray(
             self.base_position)
-        self.sim_data.joint_positions.values = np.asarray(
-            self.joint_positions)
-        self.sim_data.joint_velocities.values = np.asarray(
-            self.joint_velocities)
-        self.sim_data.joint_torques.values = np.asarray(
-            self.joint_torques)
-        # Update contacts
+        # Update sensors
+        self.joint_sensors.update()
         self.contact_sensors.update()
+        self.com_sensor.update()
 
     @abc.abstractmethod
     def controller_to_actuator(self):

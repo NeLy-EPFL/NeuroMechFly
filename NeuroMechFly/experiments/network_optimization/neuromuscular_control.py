@@ -132,14 +132,16 @@ class DrosophilaSimulation(BulletSimulation):
     def muscle_controller(self):
         """ Muscle controller. """
         utorque = self.units.torques
-        for key, value in self.active_muscles.items():
-            torque = value.compute_torque(only_passive=False)*utorque
-            p.setJointMotorControl2(
-                self.animal,
-                self.joint_id[key],
-                controlMode=p.TORQUE_CONTROL,
-                force=torque
-            )
+        torques = {
+            self.joint_id[key] : value.compute_torque(only_passive=False)*utorque
+            for key, value in self.active_muscles.items()
+        }
+        p.setJointMotorControlArray(
+            self.animal,
+            jointIndices=torques.keys(),
+            controlMode=p.TORQUE_CONTROL,
+            forces=torques.values()
+        )
 
     def controller_to_actuator(self, t):
         """ Implementation of abstract method. """
@@ -347,9 +349,7 @@ class DrosophilaSimulation(BulletSimulation):
         joint_velocities = np.abs(
             self.container.physics.joint_velocities.log
         )[:, active_joint_ids]
-        return (
-            muscle_torques@joint_velocities.T
-        ) * self.time_step / self.run_time
+        return self.compute_mechanical_work(joint_velocities, muscle_torques)
 
     @property
     def thermal_loss(self):
@@ -357,9 +357,7 @@ class DrosophilaSimulation(BulletSimulation):
         muscle_torques = np.array(
             self.container.muscle.active_torques.log
         )
-        return np.sum(
-            np.sum(muscle_torques**2)
-        ) * self.time_step / self.run_time
+        return self.compute_thermal_loss(muscle_torques)
 
     def check_movement(self):
         """ State of lava approaching the model. """
