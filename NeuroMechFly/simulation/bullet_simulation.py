@@ -121,7 +121,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
 
     def __del__(self):
         print('Simulation has ended')
-        # p.disconnect()
+        p.disconnect()
 
     @staticmethod
     def rendering(render=1):
