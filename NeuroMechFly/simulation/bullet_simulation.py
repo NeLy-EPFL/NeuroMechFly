@@ -876,8 +876,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
     def run(self, optimization=False):
         """ Run the full simulation. """
         total = int(self.run_time / self.time_step)
-        for t in tqdm(range(0, total), # disable=optimization
-                      ):
+        for t in tqdm(range(0, total), disable=optimization):
             status = self.step(t, optimization=optimization)
             if not status:
                 return False
