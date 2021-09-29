@@ -132,14 +132,16 @@ class DrosophilaSimulation(BulletSimulation):
     def muscle_controller(self):
         """ Muscle controller. """
         utorque = self.units.torques
-        for key, value in self.active_muscles.items():
-            torque = value.compute_torque(only_passive=False)*utorque
-            p.setJointMotorControl2(
-                self.animal,
-                self.joint_id[key],
-                controlMode=p.TORQUE_CONTROL,
-                force=torque
-            )
+        torques = {
+            self.joint_id[key] : value.compute_torque(only_passive=False)*utorque
+            for key, value in self.active_muscles.items()
+        }
+        p.setJointMotorControlArray(
+            self.animal,
+            jointIndices=torques.keys(),
+            controlMode=p.TORQUE_CONTROL,
+            forces=torques.values()
+        )
 
     def controller_to_actuator(self, t):
         """ Implementation of abstract method. """
