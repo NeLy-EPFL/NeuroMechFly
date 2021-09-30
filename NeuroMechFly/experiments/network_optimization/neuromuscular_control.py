@@ -5,6 +5,7 @@ import numpy as np
 import pybullet as p
 from NeuroMechFly.control.spring_damper_muscles import (Parameters,
                                                         SDAntagonistMuscle)
+from NeuroMechFly.sdf.sdf import ModelSDF
 from NeuroMechFly.sdf.units import SimulationUnitScaling
 from NeuroMechFly.simulation.bullet_simulation import BulletSimulation
 from shapely.geometry import LinearRing, Point, Polygon
@@ -123,11 +124,19 @@ class DrosophilaSimulation(BulletSimulation):
         self.opti_touch = 0
         self.opti_velocity = 0
         self.opti_stability = 0
+        self.opti_joint_limit = 0
         self.stance_count = 0
         self.last_draw = []
         self.check_is_all_legs = np.asarray(
             [False for leg in self.feet_links if "Tarsus5" in leg]
         )
+        # Read joint limits from the model
+        _sdf_model = ModelSDF.read(self.model)[0]
+        self.joint_limits = {
+            joint.name : joint.axis.limits[:2]
+            for joint in _sdf_model.joints
+            if joint.axis.limits
+        }
 
     def muscle_controller(self):
         """ Muscle controller. """
@@ -377,6 +386,14 @@ class DrosophilaSimulation(BulletSimulation):
             np.abs(ball_angular_position) > moving_limit_upper
         ) and ball_angular_position > 0 else 0.0
 
+    def check_joint_limits(self):
+        """ Check if the active exceed joint limits """
+        for joint in self.actuated_joints:
+            joint_position = self.physics.joint_positions.get_parameter_value(joint)
+            limits = self.joint_limits[joint]
+            if (joint_position < limits[0]) or (joint_position > limits[1]):
+                self.opti_joint_limit += 1
+
     def check_velocity_limit(self):
         """ Check velocity limits. """
         self.opti_velocity += 1.0 if np.any(
@@ -388,6 +405,7 @@ class DrosophilaSimulation(BulletSimulation):
         self.check_movement()
         self.check_velocity_limit()
         self.update_static_stability()
+        self.check_joint_limits()
         return True
 
     def update_parameters(self, params):

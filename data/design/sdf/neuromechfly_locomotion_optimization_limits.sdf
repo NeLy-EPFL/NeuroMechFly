@@ -141,15 +141,6 @@
           <izz>8.014157063555477e-08</izz>
         </inertia>
       </inertial>
-      <collision name="Haustellum_collision">
-        <pose>7.152558367806705e-08 2.3283064712331658e-11 2.3841861818141297e-08 0.0 -0.0 0.0</pose>
-        <geometry>
-          <mesh>
-            <uri>../meshes/stl/Haustellum.stl</uri>
-            <scale>1000.0 1000.0 1000.0</scale>
-          </mesh>
-        </geometry>
-      </collision>
       <visual name="Haustellum_visual">
         <pose>7.152558367806705e-08 2.3283064712331658e-11 2.3841861818141297e-08 0.0 -0.0 0.0</pose>
         <geometry>
@@ -230,15 +221,6 @@
           <izz>4.970367756570775e-09</izz>
         </inertia>
       </inertial>
-      <collision name="LAntenna_collision">
-        <pose>-9.536743306171047e-08 8.344650836988876e-08 1.3113022134803032e-07 0.0 1.2207031829802872e-08 6.103516358990646e-09</pose>
-        <geometry>
-          <mesh>
-            <uri>../meshes/stl/LAntenna.stl</uri>
-            <scale>1000.0 1000.0 1000.0</scale>
-          </mesh>
-        </geometry>
-      </collision>
       <visual name="LAntenna_visual">
         <pose>-9.536743306171047e-08 8.344650836988876e-08 1.3113022134803032e-07 0.0 1.2207031829802872e-08 6.103516358990646e-09</pose>
         <geometry>
@@ -1299,15 +1281,6 @@
           <izz>4.978045946204023e-09</izz>
         </inertia>
       </inertial>
-      <collision name="RAntenna_collision">
-        <pose>-9.536743306171047e-08 3.5762788286319847e-08 1.668930025289228e-07 0.0 1.2207031829802872e-08 -6.103516358990646e-09</pose>
-        <geometry>
-          <mesh>
-            <uri>../meshes/stl/RAntenna.stl</uri>
-            <scale>1000.0 1000.0 1000.0</scale>
-          </mesh>
-        </geometry>
-      </collision>
       <visual name="RAntenna_visual">
         <pose>-9.536743306171047e-08 3.5762788286319847e-08 1.668930025289228e-07 0.0 1.2207031829802872e-08 -6.103516358990646e-09</pose>
         <geometry>
@@ -2283,15 +2256,6 @@
           <izz>2.1081350608473025e-07</izz>
         </inertia>
       </inertial>
-      <collision name="Rostrum_collision">
-        <pose>5.960464477539063e-08 4.6566129424663316e-11 0.0 0.0 -0.0 0.0</pose>
-        <geometry>
-          <mesh>
-            <uri>../meshes/stl/Rostrum.stl</uri>
-            <scale>1000.0 1000.0 1000.0</scale>
-          </mesh>
-        </geometry>
-      </collision>
       <visual name="Rostrum_visual">
         <pose>5.960464477539063e-08 4.6566129424663316e-11 0.0 0.0 -0.0 0.0</pose>
         <geometry>
@@ -2552,15 +2516,15 @@
         </limit>
       </axis>
     </joint>
-    <joint name="joint_LFCoxa" type="revolute">
+    <joint name="joint_LFCoxa" type="continuous">
       <parent>LFCoxa_yaw</parent>
       <child>LFCoxa</child>
       <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
       <axis>
         <xyz>0.0 1.0 0.0</xyz>
         <limit>
-          <lower>-0.21915684051536694</lower>
-          <upper>0.693183856082638</upper>
+          <lower>-0.4122592952311641</lower>
+          <upper>0.5658698497740794</upper>
           <effort>10000000000.0</effort>
           <velocity>628.3185307179587</velocity>
         </limit>
@@ -2594,15 +2558,15 @@
         </limit>
       </axis>
     </joint>
-    <joint name="joint_LFFemur" type="revolute">
+    <joint name="joint_LFFemur" type="continuous">
       <parent>LFCoxa</parent>
       <child>LFFemur</child>
       <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
       <axis>
         <xyz>0.0 1.0 0.0</xyz>
         <limit>
-          <lower>-2.5785957147652923</lower>
-          <upper>-1.2888690073044335</upper>
+          <lower>-2.6662613939920927</lower>
+          <upper>-1.2265979890155232</upper>
           <effort>10000000000.0</effort>
           <velocity>628.3185307179587</velocity>
         </limit>
@@ -2692,15 +2656,15 @@
         </limit>
       </axis>
     </joint>
-    <joint name="joint_LFTibia" type="revolute">
+    <joint name="joint_LFTibia" type="continuous">
       <parent>LFFemur_roll</parent>
       <child>LFTibia</child>
       <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
       <axis>
         <xyz>0.0 1.0 0.0</xyz>
         <limit>
-          <lower>-1.011016408931937</lower>
-          <upper>-0.4964715198726596</upper>
+          <lower>0.755579943967942</lower>
+          <upper>2.537248153705797</upper>
           <effort>10000000000.0</effort>
           <velocity>628.3185307179587</velocity>
         </limit>
@@ -2762,15 +2726,15 @@
         </limit>
       </axis>
     </joint>
-    <joint name="joint_LHCoxa_roll" type="revolute">
+    <joint name="joint_LHCoxa_roll" type="continuous">
       <parent>LHCoxa_yaw</parent>
       <child>LHCoxa_roll</child>
       <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
       <axis>
         <xyz>0.0 0.0 1.0</xyz>
         <limit>
-          <lower>2.3979288615889227</lower>
-          <upper>2.742443694104408</upper>
+          <lower>2.342643179253425</lower>
+          <upper>2.7964939180771236</upper>
           <effort>10000000000.0</effort>
           <velocity>628.3185307179587</velocity>
         </limit>
@@ -2790,15 +2754,15 @@
         </limit>
       </axis>
     </joint>
-    <joint name="joint_LHFemur" type="revolute">
+    <joint name="joint_LHFemur" type="continuous">
       <parent>LHCoxa_roll</parent>
       <child>LHFemur</child>
       <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
       <axis>
         <xyz>0.0 1.0 0.0</xyz>
         <limit>
-          <lower>-2.3175829556536867</lower>
-          <upper>-1.3791426540707934</upper>
+          <lower>-2.4611009381052775</lower>
+          <upper>-1.2565385270550669</upper>
           <effort>10000000000.0</effort>
           <velocity>628.3185307179587</velocity>
         </limit>
@@ -2888,15 +2852,15 @@
         </limit>
       </axis>
     </joint>
-    <joint name="joint_LHTibia" type="revolute">
+    <joint name="joint_LHTibia" type="continuous">
       <parent>LHFemur_roll</parent>
       <child>LHTibia</child>
       <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
       <axis>
         <xyz>0.0 1.0 0.0</xyz>
         <limit>
-          <lower>-1.1311578202427521</lower>
-          <upper>-0.4728915117169539</upper>
+          <lower>0.9004679093523356</lower>
+          <upper>2.610439744875883</upper>
           <effort>10000000000.0</effort>
           <velocity>628.3185307179587</velocity>
         </limit>
@@ -2916,15 +2880,15 @@
         </limit>
       </axis>
     </joint>
-    <joint name="joint_LMCoxa_roll" type="revolute">
+    <joint name="joint_LMCoxa_roll" type="continuous">
       <parent>LMCoxa_yaw</parent>
       <child>LMCoxa_roll</child>
       <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
       <axis>
         <xyz>0.0 0.0 1.0</xyz>
         <limit>
-          <lower>1.7667440159137668</lower>
-          <upper>2.300846414894966</upper>
+          <lower>1.7633980792760797</lower>
+          <upper>2.3280868205896708</upper>
           <effort>10000000000.0</effort>
           <velocity>628.3185307179587</velocity>
         </limit>
@@ -2944,15 +2908,15 @@
         </limit>
       </axis>
     </joint>
-    <joint name="joint_LMFemur" type="revolute">
+    <joint name="joint_LMFemur" type="continuous">
       <parent>LMCoxa_roll</parent>
       <child>LMFemur</child>
       <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
       <axis>
         <xyz>0.0 1.0 0.0</xyz>
         <limit>
-          <lower>-2.2307608470714375</lower>
-          <upper>-1.6822046823569332</upper>
+          <lower>-2.363638739290062</lower>
+          <upper>-1.6424144373215874</upper>
           <effort>10000000000.0</effort>
           <velocity>628.3185307179587</velocity>
         </limit>
@@ -3042,15 +3006,15 @@
         </limit>
       </axis>
     </joint>
-    <joint name="joint_LMTibia" type="revolute">
+    <joint name="joint_LMTibia" type="continuous">
       <parent>LMFemur_roll</parent>
       <child>LMTibia</child>
       <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
       <axis>
         <xyz>0.0 1.0 0.0</xyz>
         <limit>
-          <lower>-1.1318226456347666</lower>
-          <upper>-0.7137014922788405</upper>
+          <lower>1.5013089603392067</lower>
+          <upper>2.612560417725856</upper>
           <effort>10000000000.0</effort>
           <velocity>628.3185307179587</velocity>
         </limit>
@@ -3126,15 +3090,15 @@
         </limit>
       </axis>
     </joint>
-    <joint name="joint_RFCoxa" type="revolute">
+    <joint name="joint_RFCoxa" type="continuous">
       <parent>RFCoxa_yaw</parent>
       <child>RFCoxa</child>
       <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
       <axis>
         <xyz>0.0 1.0 0.0</xyz>
         <limit>
-          <lower>-0.11373639717392808</lower>
-          <upper>0.8074985865153028</upper>
+          <lower>-0.3230026538529655</lower>
+          <upper>0.5548562980669347</upper>
           <effort>10000000000.0</effort>
           <velocity>628.3185307179587</velocity>
         </limit>
@@ -3168,15 +3132,15 @@
         </limit>
       </axis>
     </joint>
-    <joint name="joint_RFFemur" type="revolute">
+    <joint name="joint_RFFemur" type="continuous">
       <parent>RFCoxa</parent>
       <child>RFFemur</child>
       <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
       <axis>
         <xyz>0.0 1.0 0.0</xyz>
         <limit>
-          <lower>-2.7344023392940393</lower>
-          <upper>-1.4216327930790331</upper>
+          <lower>-2.7070260597076814</lower>
+          <upper>-1.1927677266616241</upper>
           <effort>10000000000.0</effort>
           <velocity>628.3185307179587</velocity>
         </limit>
@@ -3266,15 +3230,15 @@
         </limit>
       </axis>
     </joint>
-    <joint name="joint_RFTibia" type="revolute">
+    <joint name="joint_RFTibia" type="continuous">
       <parent>RFFemur_roll</parent>
       <child>RFTibia</child>
       <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
       <axis>
         <xyz>0.0 1.0 0.0</xyz>
         <limit>
-          <lower>-1.1813584035881446</lower>
-          <upper>-0.5598939228639979</upper>
+          <lower>0.7795120577106078</lower>
+          <upper>2.5142727572427592</upper>
           <effort>10000000000.0</effort>
           <velocity>628.3185307179587</velocity>
         </limit>
@@ -3336,15 +3300,15 @@
         </limit>
       </axis>
     </joint>
-    <joint name="joint_RHCoxa_roll" type="revolute">
+    <joint name="joint_RHCoxa_roll" type="continuous">
       <parent>RHCoxa_yaw</parent>
       <child>RHCoxa_roll</child>
       <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
       <axis>
         <xyz>0.0 0.0 1.0</xyz>
         <limit>
-          <lower>-2.7832521588820693</lower>
-          <upper>-2.4417174346553105</upper>
+          <lower>-2.8665233073854983</lower>
+          <upper>-2.328081579351015</upper>
           <effort>10000000000.0</effort>
           <velocity>628.3185307179587</velocity>
         </limit>
@@ -3364,15 +3328,15 @@
         </limit>
       </axis>
     </joint>
-    <joint name="joint_RHFemur" type="revolute">
+    <joint name="joint_RHFemur" type="continuous">
       <parent>RHCoxa_roll</parent>
       <child>RHFemur</child>
       <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
       <axis>
         <xyz>0.0 1.0 0.0</xyz>
         <limit>
-          <lower>-2.4587828196408985</lower>
-          <upper>-1.311090278954852</upper>
+          <lower>-2.4822204407825286</lower>
+          <upper>-1.1429577335102055</upper>
           <effort>10000000000.0</effort>
           <velocity>628.3185307179587</velocity>
         </limit>
@@ -3462,15 +3426,15 @@
         </limit>
       </axis>
     </joint>
-    <joint name="joint_RHTibia" type="revolute">
+    <joint name="joint_RHTibia" type="continuous">
       <parent>RHFemur_roll</parent>
       <child>RHTibia</child>
       <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
       <axis>
         <xyz>0.0 1.0 0.0</xyz>
         <limit>
-          <lower>-1.2374147198702925</lower>
-          <upper>-0.5058916845158613</upper>
+          <lower>0.6137228182602668</lower>
+          <upper>2.6959491072995783</upper>
           <effort>10000000000.0</effort>
           <velocity>628.3185307179587</velocity>
         </limit>
@@ -3490,15 +3454,15 @@
         </limit>
       </axis>
     </joint>
-    <joint name="joint_RMCoxa_roll" type="revolute">
+    <joint name="joint_RMCoxa_roll" type="continuous">
       <parent>RMCoxa_yaw</parent>
       <child>RMCoxa_roll</child>
       <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
       <axis>
         <xyz>0.0 0.0 1.0</xyz>
         <limit>
-          <lower>-2.2767980914266652</lower>
-          <upper>-1.8238347961215278</upper>
+          <lower>-2.3208026592658286</lower>
+          <upper>-1.7614289631855025</upper>
           <effort>10000000000.0</effort>
           <velocity>628.3185307179587</velocity>
         </limit>
@@ -3518,15 +3482,15 @@
         </limit>
       </axis>
     </joint>
-    <joint name="joint_RMFemur" type="revolute">
+    <joint name="joint_RMFemur" type="continuous">
       <parent>RMCoxa_roll</parent>
       <child>RMFemur</child>
       <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
       <axis>
         <xyz>0.0 1.0 0.0</xyz>
         <limit>
-          <lower>-2.35122413867625</lower>
-          <upper>-1.8427554184770734</upper>
+          <lower>-2.4202848346149346</lower>
+          <upper>-1.7940671597190856</upper>
           <effort>10000000000.0</effort>
           <velocity>628.3185307179587</velocity>
         </limit>
@@ -3616,15 +3580,15 @@
         </limit>
       </axis>
     </joint>
-    <joint name="joint_RMTibia" type="revolute">
+    <joint name="joint_RMTibia" type="continuous">
       <parent>RMFemur_roll</parent>
       <child>RMTibia</child>
       <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
       <axis>
         <xyz>0.0 1.0 0.0</xyz>
         <limit>
-          <lower>-1.147720608334646</lower>
-          <upper>-0.823571595025455</upper>
+          <lower>1.5742404712255267</lower>
+          <upper>2.4686521684717793</upper>
           <effort>10000000000.0</effort>
           <velocity>628.3185307179587</velocity>
         </limit>
