@@ -26,11 +26,11 @@ neuromechfly_path = Path(pkgutil.get_loader("NeuroMechFly").get_filename()).pare
 if __name__ == "__main__":
     """ Main """
     n_pop = 2
-    n_gen = 5
-    max_evaluations = n_pop*n_gen
+    n_gen = 3
+
     # Problem
-    problem = multiobj_optimization.DrosophilaEvolution()
     max_evaluations = n_pop*n_gen
+    problem = multiobj_optimization.DrosophilaEvolution()
 
     # Algorithm
     algorithm = NSGAII(
@@ -39,13 +39,13 @@ if __name__ == "__main__":
         offspring_population_size=n_pop,
         mutation=PolynomialMutation(
             probability=1.0 / problem.number_of_variables,
-            distribution_index=0.20,
-        ),
-        crossover=SBXCrossover(
-            probability=1.0,
             distribution_index=20,
         ),
-        population_evaluator=MultiprocessEvaluator(8),
+        crossover=SBXCrossover(
+            probability=0.9,
+            distribution_index=15,
+        ),
+        population_evaluator=MultiprocessEvaluator(6),
         termination_criterion=StoppingByEvaluations(
             max_evaluations=max_evaluations
         ),
