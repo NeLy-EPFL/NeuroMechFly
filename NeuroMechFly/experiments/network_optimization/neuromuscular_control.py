@@ -422,6 +422,7 @@ class DrosophilaSimulation(BulletSimulation):
             # It is important to mirror the joint angles for rest position
             # especially for coxa
             if "Coxa_roll" in joint:
+                left_parameters.alpha = -1*left_parameters.alpha
                 left_parameters.rest_pos = -1*left_parameters.rest_pos
             self.active_muscles[joint.replace('L', 'R', 1)].update_parameters(
                 right_parameters
