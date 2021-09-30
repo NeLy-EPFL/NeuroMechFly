@@ -25,14 +25,14 @@ joints:
 
   joint_RMCoxa: -5
   joint_RMCoxa_yaw: 7.45
-  joint_RMCoxa_roll: -80
+  joint_RMCoxa_roll: 80
   joint_RMFemur: -107
   joint_RMTibia: 130
   joint_RMTarsus1: -54
 
   joint_RHCoxa: 6.2
   joint_RHCoxa_yaw: 3.45
-  joint_RHCoxa_roll: -143
+  joint_RHCoxa_roll: 143
   joint_RHFemur: -109
   joint_RHTibia: 90
   joint_RHTarsus1: -45

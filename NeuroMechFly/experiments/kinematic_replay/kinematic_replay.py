@@ -163,7 +163,9 @@ class DrosophilaSimulation(BulletSimulation):
                 targetVelocity=self.vel[joint],
                 positionGain=self.kp,
                 velocityGain=self.kv,
+                maxVelocity=1e8
             )
+            p.changeDynamics(self.animal, joint, maxJointVelocity=1e8)
 
         # Change the color of the colliding body segments
         if self.draw_collisions:

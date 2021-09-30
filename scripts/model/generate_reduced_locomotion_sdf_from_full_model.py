@@ -3,12 +3,13 @@
 import os
 from pathlib import Path
 
+import bpy
 from farms_blender.core.objects import objs_of_farms_types, remove_objects
 from farms_blender.core.pose import set_model_pose
 from farms_blender.core.sdf import export_sdf, load_sdf
 from farms_data.io.yaml import read_yaml
-from farms_sdf.sdf import ModelSDF, Link
 from farms_sdf import utils
+from farms_sdf.sdf import Link, ModelSDF
 
 # Global config paths
 SCRIPT_PATH = Path(__file__).parent.absolute()
@@ -52,6 +53,24 @@ remove_collision_objs = [
 ]
 
 remove_objects(remove_collision_objs)
+
+# Fix contralateral side joint axis and limits
+for joint, _ in objs_of_farms_types(joint=True):
+    joint_side = joint.name[6]
+    if (joint_side == "R") and ("roll" in joint.name) or ("yaw" in joint.name):
+        # Get left joint
+        limits = (
+            bpy.data.objects[
+                joint["farms_name"].replace("joint_R", "joint_L")
+            ]["farms_joint_limits"]
+        )
+        # Invert limits for right joint
+        joint["farms_joint_limits"][0] = limits[0]
+        joint["farms_joint_limits"][1] = limits[1]
+        # Invert axis direction for right joint
+        joint["farms_axis_xyz"][0] *= -1
+        joint["farms_axis_xyz"][1] *= -1
+        joint["farms_axis_xyz"][2] *= -1
 
 # Export the model
 export_sdf("neuromechfly_noLimits", SDF_MODEL_PATH.joinpath("neuromechfly_locomotion_optimization.sdf"))

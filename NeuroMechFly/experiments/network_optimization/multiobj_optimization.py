@@ -204,11 +204,11 @@ class DrosophilaEvolution(FloatProblem):
                     [1e-11, 1e-11, 5.0, 5e-15, -2.0], # Femur
                     [1e-11, 1e-11, 5.0, 5e-15, 1.31], # Tibia
                     # Mid
-                    [1e-11, 1e-11, 5.0, 5e-15, -2.18], # Coxa_roll
+                    [1e-11, 1e-11, 5.0, 5e-15, 2.18], # Coxa_roll
                     [1e-11, 1e-11, 5.0, 5e-15, -2.14], # Femur
                     [1e-11, 1e-11, 5.0, 5e-15, 1.96], # Tibia
                     # Hind
-                    [1e-11, 1e-11, 5.0, 5e-15, -2.69], # Coxa_roll
+                    [1e-11, 1e-11, 5.0, 5e-15, 2.69], # Coxa_roll
                     [1e-11, 1e-11, 5.0, 5e-15, -2.14], # Femur
                     [1e-11, 1e-11, 5.0, 5e-15, 1.43], # Tibia
                     ]
@@ -219,17 +219,17 @@ class DrosophilaEvolution(FloatProblem):
                 np.asarray(
                     [
                     # Front
-                    [2.5e-9, 1e-9, 10.0, 1e-11, 0.47], # Coxa
-                    [2.5e-9, 1e-9, 10.0, 1e-11, -1.68], # Femur
-                    [2.5e-9, 1e-9, 10.0, 1e-11, 2.05], # Tibia
+                    [5e-9, 1e-9, 10.0, 1e-11, 0.47], # Coxa
+                    [5e-10, 1e-9, 10.0, 1e-11, -1.68], # Femur
+                    [5e-10, 1e-9, 10.0, 1e-11, 2.05], # Tibia
                     # Mid
-                    [2.5e-9, 1e-9, 10.0, 1e-11, -2.01], # Coxa_roll
-                    [2.5e-9, 1e-9, 10.0, 1e-11, -2.0], # Femur
-                    [2.5e-9, 1e-9, 10.0, 1e-11, 2.22], # Tibia
+                    [5e-9, 1e-9, 10.0, 1e-11, 2.01], # Coxa_roll
+                    [5e-10, 1e-9, 10.0, 1e-11, -2.0], # Femur
+                    [5e-10, 1e-9, 10.0, 1e-11, 2.22], # Tibia
                     # Hind
-                    [2.5e-9, 1e-9, 10.0, 1e-11, -2.53], # Coxa_roll
-                    [2.5e-9, 1e-9, 10.0, 1e-11, -1.55], # Femur
-                    [2.5e-9, 1e-9, 10.0, 1e-11, 2.26], # Tibia
+                    [5e-9, 1e-9, 10.0, 1e-11, 2.53], # Coxa_roll
+                    [5e-10, 1e-9, 10.0, 1e-11, -1.55], # Femur
+                    [5e-10, 1e-9, 10.0, 1e-11, 2.26], # Tibia
                     ]
                 )
         ).flatten()
@@ -262,7 +262,7 @@ class DrosophilaEvolution(FloatProblem):
         # )
 
         # self.initial_solutions =  list(var) # [var[np.argmin(fun[:, 0])]]
-        self.initial_solutions = []
+        self.initial_solutions = [self.upper_bound.tolist()]
         self._initial_solutions = self.initial_solutions.copy()
 
     def create_solution(self):
@@ -360,6 +360,7 @@ class DrosophilaEvolution(FloatProblem):
 
         penalties['lava'] = fly.opti_lava
         penalties['velocity'] = fly.opti_velocity
+        penalties['joint_limits'] = fly.opti_joint_limit
 
         weights = {
             'distance': -1e0,
@@ -367,7 +368,8 @@ class DrosophilaEvolution(FloatProblem):
             'mechanical_work': 1e1,
             'stance': 1e2,
             'lava': 1e-2,
-            'velocity': 1e-1
+            'velocity': 1e-1,
+            'joint_limits': 1e-2
         }
 
         objectives_weighted = {
@@ -406,9 +408,6 @@ class DrosophilaEvolution(FloatProblem):
         }
 
         config_file = {**config_file, **constraints} if 'stance' in penalties else config_file
-
-        generate_config_file(config_file)
-
         return solution
 
     def get_name(self):
