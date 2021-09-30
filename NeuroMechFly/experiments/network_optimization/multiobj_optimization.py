@@ -318,6 +318,7 @@ class DrosophilaEvolution(FloatProblem):
         sim_options = {
             "headless": True,
             "model": str(model_path),
+            "time_step": time_step,
             "model_offset": [0., 0., 11.2e-3],
             "pose": pose_path,
             "run_time": run_time,
