@@ -294,7 +294,7 @@ class DrosophilaEvolution(FloatProblem):
             Evaluated solution.
         """
         #: Set how long the simulation will run to evaluate the solution
-        run_time = 3.0
+        run_time = 2.0
         #: Set a time step for the physics engine
         time_step = 1e-4
         #: Setting up the paths for the SDF and POSE files
@@ -318,6 +318,7 @@ class DrosophilaEvolution(FloatProblem):
         sim_options = {
             "headless": True,
             "model": str(model_path),
+            "time_step": time_step,
             "model_offset": [0., 0., 11.2e-3],
             "pose": pose_path,
             "run_time": run_time,
@@ -399,7 +400,6 @@ class DrosophilaEvolution(FloatProblem):
         )
 
         print_penalties_to_file((*objectives_weighted.values(), *penalties_weighted.values()))
-
         config_file = {
             weight_name: weight for weight_name, weight in weights.items()
             if weight_name in {**objectives, **penalties}

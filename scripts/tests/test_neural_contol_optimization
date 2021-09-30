@@ -88,7 +88,7 @@ def main(args):
         'slow_down': args.slow,
         'sleep_time': time_step,
         'rot_cam': False, # Set true to rotate the camera automatically
-        'ground': 'floor'
+        'ground': 'ball'
     }
     # Initialize the container
     container = Container(run_time / time_step)

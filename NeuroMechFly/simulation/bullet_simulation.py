@@ -123,7 +123,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
 
     def __del__(self):
         print('Simulation has ended')
-        # p.disconnect()
+        p.disconnect()
 
     @staticmethod
     def rendering(render=1):
@@ -182,7 +182,6 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             # TODO: CHECK
             contactERP=0.1,
             frictionERP=0.0,
-
         )
 
         # Turn off rendering while loading the models
