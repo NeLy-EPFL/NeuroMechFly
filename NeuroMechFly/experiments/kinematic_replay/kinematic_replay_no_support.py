@@ -205,6 +205,7 @@ class DrosophilaSimulation(BulletSimulation):
                     targetVelocity=self.vel[joint],
                     positionGain=self.kp,
                     velocityGain=self.kv,
+                    maxVelocity=1e8
                 )
             else:
                 p.setJointMotorControl2(
@@ -212,6 +213,7 @@ class DrosophilaSimulation(BulletSimulation):
                     controlMode=p.POSITION_CONTROL,
                     targetPosition=self.pose[joint],
                 )
+            p.changeDynamics(self.animal, joint, maxJointVelocity=1e8)
 
     def feedback_to_controller(self):
         """
