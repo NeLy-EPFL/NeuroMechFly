@@ -398,7 +398,7 @@ class DrosophilaSimulation(BulletSimulation):
     def check_velocity_limit(self):
         """ Check velocity limits. """
         self.opti_velocity += 1.0 if np.any(
-            np.array(self.joint_velocities) > 100
+            np.array(self.joint_velocities) > 250.0 # Can be changed!!
         ) else 0.0
 
     def optimization_check(self):
