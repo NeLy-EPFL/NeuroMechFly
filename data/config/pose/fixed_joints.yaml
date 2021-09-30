@@ -66,15 +66,15 @@ joints:
   joint_RFCoxa_roll: -10
   joint_RFCoxa_yaw: 0.0
   joint_RFFemur_roll: 0.0
-  joint_RFTarsus1: -52
+  joint_RFTarsus1: -39
   joint_RFTarsus2: 0.0
   joint_RFTarsus3: 0.0
   joint_RFTarsus4: 0.0
   joint_RFTarsus5: 0.0
   # RM
-  joint_RMCoxa: -8.75
-  joint_RMCoxa_yaw: -0.22
-  # joint_RMCoxa_roll: -113
+  joint_RMCoxa: -5
+  joint_RMCoxa_yaw: -7.45
+  # joint_RMCoxa_roll: -80
   joint_RMFemur_roll: 0.0
   joint_RMTarsus1: -54
   joint_RMTarsus2: 0.0
@@ -82,11 +82,11 @@ joints:
   joint_RMTarsus4: 0.0
   joint_RMTarsus5: 0.0
   # RH
-  joint_RHCoxa: 10
-  joint_RHCoxa_yaw: 0.74
-  # joint_RHCoxa_roll: -150
+  joint_RHCoxa: 6.2
+  joint_RHCoxa_yaw: -3.45
+  # joint_RHCoxa_roll: -143
   joint_RHFemur_roll: 0.0
-  joint_RHTarsus1: -51
+  joint_RHTarsus1: -45
   joint_RHTarsus2: 0.0
   joint_RHTarsus3: 0.0
   joint_RHTarsus4: 0.0

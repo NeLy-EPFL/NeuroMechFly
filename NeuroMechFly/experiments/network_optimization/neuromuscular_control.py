@@ -96,6 +96,7 @@ class DrosophilaSimulation(BulletSimulation):
         self.container.initialize()
 
         # Set the physical properties of the environment
+        # TODO: Move this to bullet
         dynamics = {
             "lateralFriction": 1.0, "restitution": 0.0, "spinningFriction": 0.0,
             "rollingFriction": 0.0, "linearDamping": 0.0, "angularDamping": 0.0,
@@ -437,11 +438,6 @@ class DrosophilaSimulation(BulletSimulation):
             left_parameters = Parameters(
                 *opti_active_muscle_gains[5 * j:5 * (j + 1)]
             )
-            # It is important to mirror the joint angles for rest position
-            # especially for coxa
-            if "Coxa_roll" in joint:
-                left_parameters.alpha = -1*left_parameters.alpha
-                left_parameters.rest_pos = -1*left_parameters.rest_pos
             self.active_muscles[joint.replace('L', 'R', 1)].update_parameters(
                 right_parameters
             )

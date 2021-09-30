@@ -53,5 +53,13 @@ remove_collision_objs = [
 
 remove_objects(remove_collision_objs)
 
+# Fix contralateral side joint axis
+for joint, _ in objs_of_farms_types(joint=True):
+    joint_side = joint.name[6]
+    if (joint_side == "R") and ("roll" in joint.name) or ("yaw" in joint.name):
+        joint["farms_axis_xyz"][0] *= -1
+        joint["farms_axis_xyz"][1] *= -1
+        joint["farms_axis_xyz"][2] *= -1
+
 # Export the model
 export_sdf("neuromechfly_noLimits", SDF_MODEL_PATH.joinpath("neuromechfly_locomotion_optimization.sdf"))
