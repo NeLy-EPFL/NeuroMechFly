@@ -351,11 +351,11 @@ class DrosophilaEvolution(FloatProblem):
         expected_stance_legs = 3.6
         min_legs = 3
         mean_stance_legs = fly.stance_count * fly.time_step / fly.time
-        penalties['stance'] = (
-            0.0
-            if min_legs <= mean_stance_legs < expected_stance_legs
-            else abs(mean_stance_legs - min_legs)
-        )
+        # penalties['stance'] = (
+        #     0.0
+        #     if min_legs <= mean_stance_legs < expected_stance_legs
+        #     else abs(mean_stance_legs - min_legs)
+        # )
 
         penalties['lava'] = fly.opti_lava
         penalties['velocity'] = fly.opti_velocity
