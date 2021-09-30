@@ -294,7 +294,7 @@ class DrosophilaEvolution(FloatProblem):
             Evaluated solution.
         """
         #: Set how long the simulation will run to evaluate the solution
-        run_time = 3.0
+        run_time = 2.0
         #: Set a time step for the physics engine
         time_step = 1e-4
         #: Setting up the paths for the SDF and POSE files
