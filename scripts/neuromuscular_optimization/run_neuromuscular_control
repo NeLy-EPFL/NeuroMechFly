@@ -114,7 +114,7 @@ def main(args):
 
     #: Run the selected parameter values in the simulation
     animal.update_parameters(params)
-    animal.run(optimization=False)
+    animal.run(optimization=True)
     #: Dump the optimization results
     results_path = os.path.join(
         neuromechfly_path,
@@ -123,6 +123,7 @@ def main(args):
         f"gen_{gen}",
         f"sol_{args.sol}"
     )
+
     if not os.path.exists(results_path):
         os.makedirs(results_path)
     animal.container.dump(dump_path=results_path, overwrite=True)
