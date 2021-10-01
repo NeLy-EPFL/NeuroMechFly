@@ -381,11 +381,11 @@ class DrosophilaSimulation(BulletSimulation):
                         * 4 * total_angular_dist) - 0.20
         self.opti_lava += 1.0 if np.any(
             np.abs(ball_angular_position) < moving_limit_lower
-        ) and ball_angular_position > 0 else 0.0
+        ) or ball_angular_position > 0 else 0.0
 
         self.opti_lava += 1.0 if np.any(
             np.abs(ball_angular_position) > moving_limit_upper
-        ) and ball_angular_position > 0 else 0.0
+        ) or ball_angular_position > 0 else 0.0
 
     def check_joint_limits(self):
         """ Check if the active exceed joint limits """
