@@ -352,18 +352,18 @@ class DrosophilaEvolution(FloatProblem):
         constraints['expected_stance_legs'] = 4
         constraints['min_legs'] = 2
         mean_stance_legs = fly.stance_count * fly.time_step / fly.time
-        # penalties['stance'] = (
-        #     0.0
-        #     if constraints['min_legs'] <= mean_stance_legs < constraints['expected_stance_legs']
-        #     else abs(mean_stance_legs - constraints['min_legs'])
-        # )
+        penalties['stance'] = (
+            0.0
+            if constraints['min_legs'] <= mean_stance_legs < constraints['expected_stance_legs']
+            else abs(mean_stance_legs - constraints['min_legs'])
+        )
 
         penalties['lava'] = fly.opti_lava
         penalties['velocity'] = fly.opti_velocity
         penalties['joint_limits'] = fly.opti_joint_limit
 
         weights = {
-            'distance': -1e1,
+            'distance': -1e0,
             'stability': -1e-1,
             'mechanical_work': 1e1,
             'stance': 1e2,

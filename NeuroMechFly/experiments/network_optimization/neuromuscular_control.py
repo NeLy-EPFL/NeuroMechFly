@@ -393,21 +393,24 @@ class DrosophilaSimulation(BulletSimulation):
                         * total_angular_dist) - 0.20
         moving_limit_upper = ((self.time / self.run_time)
                         * 4 * total_angular_dist) - 0.20
+        # print(moving_limit_lower, -ball_angular_position, moving_limit_upper)
         self.opti_lava += 1.0 if np.any(
             np.abs(ball_angular_position) < moving_limit_lower
-        ) and ball_angular_position > 0 else 0.0
+        ) or ball_angular_position > 0 else 0.0
 
         self.opti_lava += 1.0 if np.any(
             np.abs(ball_angular_position) > moving_limit_upper
-        ) and ball_angular_position > 0 else 0.0
+        ) or ball_angular_position > 0 else 0.0
 
     def check_joint_limits(self):
         """ Check if the active exceed joint limits """
         for joint in self.actuated_joints:
             joint_position = self.physics.joint_positions.get_parameter_value(joint)
             limits = self.joint_limits[joint]
-            if (joint_position < limits[0]) or (joint_position > limits[1]):
-                self.opti_joint_limit += 1
+            if joint_position < limits[0]:
+                self.opti_joint_limit += limits[0]-joint_position
+            elif joint_position > limits[1]:
+                self.opti_joint_limit += joint_position-limits[1]
 
     def check_velocity_limit(self):
         """ Check velocity limits. """
