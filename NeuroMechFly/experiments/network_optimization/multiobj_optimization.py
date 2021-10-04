@@ -348,15 +348,15 @@ class DrosophilaEvolution(FloatProblem):
         #: PENALTIES
         penalties = {}
         #: Penalty long stance periods
-        constraints = {}
-        constraints['expected_stance_legs'] = 4
-        constraints['min_legs'] = 2
-        mean_stance_legs = fly.stance_count * fly.time_step / fly.time
-        penalties['stance'] = (
-            0.0
-            if constraints['min_legs'] <= mean_stance_legs < constraints['expected_stance_legs']
-            else abs(mean_stance_legs - constraints['min_legs'])
-        )
+        # constraints = {}
+        # constraints['expected_stance_legs'] = 4
+        # constraints['min_legs'] = 2
+        # mean_stance_legs = fly.stance_count * fly.time_step / fly.time
+        # penalties['stance'] = (
+        #     0.0
+        #     if constraints['min_legs'] <= mean_stance_legs < constraints['expected_stance_legs']
+        #     else abs(mean_stance_legs - constraints['min_legs'])
+        # )
 
         penalties['lava'] = fly.opti_lava
         penalties['velocity'] = fly.opti_velocity
@@ -364,12 +364,12 @@ class DrosophilaEvolution(FloatProblem):
 
         weights = {
             'distance': -1e0,
-            'stability': -1e-1,
+            'stability': -1e1,
             'mechanical_work': 1e1,
             'stance': 1e2,
-            'lava': 1e-2,
+            'lava': 1e-1,
             'velocity': 1e-1,
-            'joint_limits': 1e-2
+            'joint_limits': 1e-1
         }
 
         objectives_weighted = {
@@ -408,6 +408,8 @@ class DrosophilaEvolution(FloatProblem):
         }
 
         config_file = {**config_file, **constraints} if 'stance' in penalties else config_file
+        generate_config_file(config_file)
+
         return solution
 
     def get_name(self):
