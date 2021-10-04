@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 import matplotlib.pyplot as plt
-from NeuroMechFly.utils.plotting import plot_penalties
+from NeuroMechFly.utils.plotting import plot_penalties, plot_pareto_front
 
 joints = ['Coxa','Femur', 'Tibia']
 legs = ['LF','LM','LH','RF','RM','RH']
@@ -45,16 +45,20 @@ if __name__ == '__main__':
     opt_path = os.path.join(os.getcwd(), '../neuromuscular_optimization')
 
     plot_penalty = True
-    plot_joints = True
+    plot_joints = False
 
     if plot_penalty:
-        path = os.path.join(opt_path, 'optimization_results/run_Drosophila_var_63_obj_2_pop_2_gen_5_210928_153935')
+        # path = os.path.join(opt_path, '/run_Drosophila_var_63_obj_2_pop_20_gen_70_211003_180829')
+        path = os.path.join(opt_path, 'optimization_results/run_Drosophila_var_63_obj_2_pop_20_gen_70_211003_225816')
         print(path)
-        gens = list(np.arange(0,5,1))
+        gens = list(np.arange(8,70,2))
         ind_num = 1
-        variable_names = ['Distance', 'Mech work', 'Lava', 'Velocity', 'Stance']
+        variable_names = ['Distance', 'Stability', 'Lava', 'Velocity', 'Joint Lim']
 
         plot_penalties(path, gens, ind_num, variable_names)
+        plt.show()
+
+        plot_pareto_front(path, gens)
         plt.show()
 
     if plot_joints:
