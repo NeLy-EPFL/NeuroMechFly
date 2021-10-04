@@ -23,6 +23,7 @@ def parse_args():
     parser.add_argument('-p', '--path', default='')
     parser.add_argument('-s', '--sol', default='fastest')
     parser.add_argument('--gui', dest='gui', action='store_true')
+    parser.add_argument('--record', dest='record', action='store_true')
     parser.add_argument('--slow', dest='slow', action='store_true')
     parser.add_argument('--profile', dest='profile', action='store_true')
     parser.set_defaults(gui=False, profile=False)
@@ -79,11 +80,11 @@ def main(args):
         "ground_contacts": ground_contact,
         # 'self_collisions': self_collision,
         "draw_collisions": False, #: Set True to change the color of colliding segments
-        "record": False, #: Set True to record the simulation
+        "record": args.record, #: Set True to record the simulation
         'camera_distance': 4.5,
         'track': False,
         'moviename': f'{exp}_gen_{gen}_sol_{args.sol}.mp4',
-        'moviespeed': 0.3, #: Speed of the recorded movie
+        'moviespeed': 0.1, #: Speed of the recorded movie
         'slow_down': args.slow,
         'sleep_time': 1e-3,
         'rot_cam': False, #: Set true to rotate the camera automatically
