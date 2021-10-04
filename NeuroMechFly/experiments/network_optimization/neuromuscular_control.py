@@ -113,6 +113,12 @@ class DrosophilaSimulation(BulletSimulation):
             )
             for j in range(6)
         ]
+        self.draw_ss_horz_line_ids = [
+            p.addUserDebugLine(
+                (0., 0., 0.), (0., 0., 0.), lineColorRGB=[1, 0, 0]
+            )
+            for j in range(6)
+        ]
         self.draw_com_line_vert_id = p.addUserDebugLine(
             (0., 0., 0.), (0., 0., 0.), lineColorRGB=[1, 0, 0]
         )
@@ -282,18 +288,13 @@ class DrosophilaSimulation(BulletSimulation):
                 for num in range(1, 6)
             )
         ]
-        contact_points = [[]] if not contact_points else contact_points
-        assert len(contact_points) <= 6
         # compute center of mass of the model
         center_of_mass = self.center_of_mass
         # Update number of legs in stance
         self.stance_count += len(contact_points)
         # Make polygon from contact points
-        # TODO: Refactor
-        try:
-            polygon = Polygon(LinearRing(contact_points))
-        except ValueError:
-            return static_stability
+        polygon = Polygon(LinearRing(contact_points)) if (
+            len(contact_points) > 2) else Polygon()
         # Get polygon exterior coords
         coords = polygon.exterior.coords
         # Compute distances to COM
@@ -310,19 +311,25 @@ class DrosophilaSimulation(BulletSimulation):
         # Check if COM is within the polygon
         com_inside = polygon.contains(Point(center_of_mass))
         # Compute static_stability
-        min_distance = np.min(distances)
-        static_stability =  min_distance if com_inside else -1*min_distance
+        static_stability =  np.min(distances) if com_inside else static_stability
         # DEBUG : Drawing
         if draw_polygon:
             # Draw the polygon
             num_coords = len(coords)
             for idx, line_id in enumerate(self.draw_ss_line_ids):
                 from_coord, to_coord = (0, 0, 0), (0, 0, 0)
+                contact_pos = (0, 0, 0)
                 if idx < num_coords-1:
                     from_coord, to_coord = coords[idx], coords[idx+1]
+                    contact_pos = contact_points[idx] - [0, 0, .2]
                 p.addUserDebugLine(
                     from_coord, to_coord, lineColorRGB=(1,0,0),
                     replaceItemUniqueId=line_id
+                )
+                # Draw a vertical line from contact point to polygon
+                p.addUserDebugLine(
+                    contact_pos, from_coord, lineColorRGB=(0,0,1),
+                    replaceItemUniqueId=self.draw_ss_horz_line_ids[idx]
                 )
             # Draw a vertical line from center of mass
             color = (0, 1, 0) if com_inside else (1, 0, 0)
@@ -333,16 +340,23 @@ class DrosophilaSimulation(BulletSimulation):
                 replaceItemUniqueId=self.draw_com_line_vert_id
             )
             # Draw a horizontal line from com to intersecting line
-            p.addUserDebugLine(
-                center_of_mass + [0, 0, -1e0],
-                list(DrosophilaSimulation.compute_perpendicular_point(
-                    np.array(coords[int(np.argmin(distances))])[:2],
-                    np.array(coords[int(np.argmin(distances))+1])[:2],
-                    center_of_mass[:2],
-                )) + [np.array(coords[int(np.argmin(distances))])[-1]],
-                lineColorRGB=(0, 1, 0),
-                replaceItemUniqueId=self.draw_com_line_horz_id
-            )
+            if distances:
+                p.addUserDebugLine(
+                    center_of_mass + [0, 0, -1e0],
+                    list(DrosophilaSimulation.compute_perpendicular_point(
+                        np.array(coords[int(np.argmin(distances))])[:2],
+                        np.array(coords[int(np.argmin(distances))+1])[:2],
+                        center_of_mass[:2],
+                    )) + [np.array(coords[int(np.argmin(distances))])[-1]],
+                    lineColorRGB=(0, 1, 0),
+                    replaceItemUniqueId=self.draw_com_line_horz_id
+                )
+            else:
+                p.addUserDebugLine(
+                    (0, 0, 0), (0, 0, 0),
+                    lineColorRGB=(0, 1, 0),
+                    replaceItemUniqueId=self.draw_com_line_horz_id
+                )
         return static_stability
 
     def update_static_stability(self):
