@@ -236,9 +236,9 @@ def plot_pareto_front(path_data,
         Solutions' criteria or number to plot, it can be one name or a list of names.
     """
     from ..experiments.network_optimization.neuromuscular_control import DrosophilaSimulation as ds
-    import matplotlib as mpl
+    from matplotlib import colors
 
-    alpha = kwargs.get('alpha', 0.5)
+    alpha = kwargs.get('alpha', 0.6)
 
     if not isinstance(generation_list, list):
         generations = [generation_list]
@@ -252,12 +252,14 @@ def plot_pareto_front(path_data,
 
     edge = plt.cm.cool(np.linspace(0,1,len(solutions)))
     ax = plt.gca()
-    for gen in generations:
+    for i, gen in enumerate(generations):
         fun_path = os.path.join(path_data,f"FUN.{gen}")
         fun = np.loadtxt(fun_path)
 
-        color = plt.cm.winter(int(gen)*10)
-        color = mpl.colors.to_hex(color, keep_alpha=False)
+        color = next(ax._get_lines.prop_cycler)['color']
+        formation_colors = np.random.choice(list(colors.XKCD_COLORS), 70, replace=False)  # 70 random color names
+        formation_colors = np.asarray(formation_colors)
+        color = formation_colors[i]
 
         plt.scatter(fun[:,0],
                     fun[:,1],
