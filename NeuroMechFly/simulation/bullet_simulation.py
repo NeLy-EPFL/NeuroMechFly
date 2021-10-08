@@ -60,6 +60,10 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         self.rotate_camera = kwargs.get('rot_cam', False)
         self.behavior = kwargs.get('behavior', None)
         self.ground = kwargs.get('ground', 'ball')
+        # Ball properties
+        self.ball_density = kwargs.get('ball_density', 96) * (self.units.kilograms / self.units.volume) # kg/m^3
+        self.ball_radius = kwargs.get('ball_radius', 5.0e-3) * self.units.meters  # 1x (real size 10mm)
+        self.ball_mass = kwargs.get('ball_mass', 0) * self.units.kilograms
         self.enable_concave_mesh = kwargs.get(
             'enable_concave_mesh',
             True if self.behavior == 'grooming' else False
@@ -201,8 +205,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                 'plane.urdf', [0, 0, -0.],
                 globalScaling=0.01 * self.units.meters
             )
-            self.ball_radius = 5e-3 * self.units.meters  # 1x (real size 10mm)
-            self.plane = self.add_ball(self.ball_radius)
+            self.plane = self.add_ball(self.ball_radius, self.ball_density, self.ball_mass)
             # When ball is used the plane id is 2 as the ball has 3 links
             self.link_plane = 2
             self.sim_data.add_table('ball_rotations')
@@ -507,8 +510,19 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             self.animal,
             self.link_id[link_name]))[0]) / self.units.meters
 
-    def add_ball(self, radius):
+    def add_ball(self, radius, density, mass):
         """ Create a ball with specified radius """
+        volume = 4/3 * np.pi * radius**3
+        calculated_mass = density * volume
+
+        if mass != 0:
+            assert abs(mass - calculated_mass) < 1.0e-6 * self.units.kilograms, "Calculated ({} kg) and measured ({} kg) ball masses do not match!".format(
+                calculated_mass / self.units.kilograms, mass / self.units.kilograms
+            )
+        else:
+            mass = calculated_mass
+
+
         col_sphere_parent = p.createCollisionShape(
             p.GEOM_SPHERE,
             radius=radius / 100,
@@ -533,7 +547,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             ) * self.units.meters + self.model_offset
         # Create the sphere
         base_orientation = [0, 0, 0, 1]
-        link_masses = np.array([0, 0, 54e-6]) * self.units.kilograms
+        link_masses = np.array([0, 0, mass])
         link_collision_shape_indices = [-1, -1, col_sphere_id]
         link_visual_shape_indices = [-1, -1, -1]
         link_positions = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
@@ -836,7 +850,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
 
         if self.gui == p.GUI and self.rotate_camera and self.behavior is None:
             base = np.array(self.base_position) * self.units.meters
-            yaw = (t - 4500) / 4500 * 360
+            yaw = (t - (self.run_time/self.time_step)) / (self.run_time/self.time_step) * 360
             pitch = -10
             p.resetDebugVisualizerCamera(
                 self.camera_distance,
