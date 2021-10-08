@@ -397,7 +397,7 @@ class DrosophilaSimulation(BulletSimulation):
                         * total_angular_dist) - 0.20
         moving_limit_upper = ((self.time / self.run_time)
                         * 6 * total_angular_dist) - 0.20
-        print(moving_limit_lower, -ball_angular_position, moving_limit_upper)
+        # print(moving_limit_lower, -ball_angular_position, moving_limit_upper)
         self.opti_lava += 1.0 if np.any(
             np.abs(ball_angular_position) < moving_limit_lower
         ) or ball_angular_position > 0 else 0.0
