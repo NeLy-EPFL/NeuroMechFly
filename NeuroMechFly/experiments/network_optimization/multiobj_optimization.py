@@ -314,7 +314,14 @@ class DrosophilaEvolution(FloatProblem):
             for leg in ('F', 'M', 'H')
             for segment in tuple(f"Tarsus{i}" for i in range(1, 6))
         )
-        #: Simulation options
+
+        # Set the ball specs based on your experimental setup
+        ball_specs = {
+            'ball_density': 96,
+            'ball_radius': 5.0e-3,
+            'ball_friction_coef': 10.0
+        }
+        # Simulation options
         sim_options = {
             "headless": True,
             "model": str(model_path),
@@ -327,6 +334,7 @@ class DrosophilaEvolution(FloatProblem):
             "ground_contacts": ground_contacts,
             "camera_distance": 4.5,
             "track": False,
+            **ball_specs
         }
         #: Create the container instance that the simulation results will be dumped
         container = Container(run_time / time_step)
@@ -343,7 +351,7 @@ class DrosophilaEvolution(FloatProblem):
         #: Forward distance (backward rotation of the ball)
         objectives['distance'] = -np.array(fly.ball_rotations)[0] * fly.ball_radius
         objectives['stability'] = fly.opti_stability
-        # objectives['mechanical_work'] = fly.mechanical_work
+        # objectives['mechanical_work'] = np.sum(fly.mechanical_work)
 
         #: PENALTIES
         penalties = {}
@@ -363,9 +371,9 @@ class DrosophilaEvolution(FloatProblem):
         penalties['joint_limits'] = fly.opti_joint_limit
 
         weights = {
-            'distance': -1e0,
-            'stability': -1e1,
-            'mechanical_work': 1e1,
+            'distance': -1e1,
+            'stability': -1e-2,
+            'mechanical_work': 1e-2,
             'stance': 1e2,
             'lava': 1e-1,
             'velocity': 1e-1,
