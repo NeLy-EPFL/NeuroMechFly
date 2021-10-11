@@ -64,6 +64,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         self.ball_density = kwargs.get('ball_density', 96) * (self.units.kilograms / self.units.volume) # kg/m^3
         self.ball_radius = kwargs.get('ball_radius', 5.0e-3) * self.units.meters  # 1x (real size 10mm)
         self.ball_mass = kwargs.get('ball_mass', 0) * self.units.kilograms
+        self.ball_friction_coef = kwargs.get('ball_friction_coef', 10)
         self.enable_concave_mesh = kwargs.get(
             'enable_concave_mesh',
             True if self.behavior == 'grooming' else False
@@ -205,7 +206,12 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                 'plane.urdf', [0, 0, -0.],
                 globalScaling=0.01 * self.units.meters
             )
-            self.plane = self.add_ball(self.ball_radius, self.ball_density, self.ball_mass)
+            self.plane = self.add_ball(
+                self.ball_radius,
+                self.ball_density,
+                self.ball_mass,
+                self.ball_friction_coef
+                )
             # When ball is used the plane id is 2 as the ball has 3 links
             self.link_plane = 2
             self.sim_data.add_table('ball_rotations')
@@ -510,18 +516,18 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             self.animal,
             self.link_id[link_name]))[0]) / self.units.meters
 
-    def add_ball(self, radius, density, mass):
+    def add_ball(self, radius, density, mass, ball_friction_coef):
         """ Create a ball with specified radius """
         volume = 4/3 * np.pi * radius**3
         calculated_mass = density * volume
-
+        # Assert if calculated and measured ball mass are not the same
         if mass != 0:
+            # TODO: Decide the threshold here, it is 1 mg now
             assert abs(mass - calculated_mass) < 1.0e-6 * self.units.kilograms, "Calculated ({} kg) and measured ({} kg) ball masses do not match!".format(
                 calculated_mass / self.units.kilograms, mass / self.units.kilograms
             )
         else:
             mass = calculated_mass
-
 
         col_sphere_parent = p.createCollisionShape(
             p.GEOM_SPHERE,
@@ -581,7 +587,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         inertia_th = [2 / 5 * link_masses[-1] * (radius**2)] * 3
 
         p.changeDynamics(sphere_id, 2, restitution=0.0)
-        p.changeDynamics(sphere_id, 2, lateralFriction=10.0)
+        p.changeDynamics(sphere_id, 2, lateralFriction=ball_friction_coef)
         p.changeDynamics(sphere_id, 2, spinningFriction=0.0)
         p.changeDynamics(sphere_id, 2, linearDamping=0.0)
         p.changeDynamics(sphere_id, 2, angularDamping=0.0)
