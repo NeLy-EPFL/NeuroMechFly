@@ -29,7 +29,7 @@ def parse_args():
 
 def main(args):
     """ Main function """
-    run_time = 30.0
+    run_time = 6.0
     time_step = 0.001
     behavior = args.behavior.lower()
 
@@ -57,8 +57,9 @@ def main(args):
         name for s in side for p in pos for name in leg_segments if name != 'Tibia']
 
     #: Setting the fixed joint angles to default values, can be altered to change the appearance of the fly
+    
     fixed_positions = {
-            'revolute_support_1': 9,
+            'revolute_support_1': 3.6,
             'joint_A3': -15,
             'joint_A4': -15,
             'joint_A5': -15,
@@ -73,11 +74,8 @@ def main(args):
             'joint_RWing_yaw': 17,
             'joint_Head': 10
         }
-
-    #: Setting up the paths for the SDF and POSE files
-    #model_path = os.path.join(neuromechfly_path, 'data/design/sdf/neuromechfly_noLimits.sdf')
-    #pose_path = os.path.join(neuromechfly_path, 'data/config/pose/pose_default.yaml')
-
+    
+    
     # Setting up the paths for the SDF and POSE files
     model_path = os.path.join(
         neuromechfly_path,
@@ -141,7 +139,8 @@ def main(args):
         sim_options,
         kp=0.4, kv=0.9,
         angles_path=angles_path,
-        velocity_path=velocity_path
+        velocity_path=velocity_path,
+        fixed_positions=fixed_positions
     )
     # Run the simulation
     animal.run(optimization=False)

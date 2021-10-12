@@ -4,6 +4,7 @@ import cv2 as cv
 import numpy as np
 import pandas as pd
 import seaborn as sns
+import scipy.signal
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from matplotlib.lines import Line2D
@@ -363,15 +364,15 @@ def read_ground_contacts(path_data):
     grf: <dict>
         Ground reaction forces for all segments in all legs.
     """
-    grf_data = os.path.join(path_data, 'physics', 'ground_contacts.h5')
+    grf_data = os.path.join(path_data, 'physics', 'contact_normal_force.h5')
     data = pd.read_hdf(grf_data)
     grf = {}
     check = []
     for key, force in data.items():
         leg, force_axis = key.split('_')
-        if leg not in check:
+        if leg not in check and "-" not in leg:
             check.append(leg)
-            components = [k for k in data.keys() if leg in k]
+            components = [k for k in data.keys() if leg in k and "-" not in k]
             data_x = data[components[0]].values
             data_y = data[components[1]].values
             data_z = data[components[2]].values
@@ -920,6 +921,7 @@ def plot_data(
 def plot_collision_diagram(
         path_data,
         sim_data,
+        gt=False,
         begin=0,
         end=0,
         time_step=0.001):
@@ -943,15 +945,20 @@ def plot_collision_diagram(
     length_data = 0
     
     if sim_data == 'walking':
-        data = read_ground_contacts(path_data)
         title_plot = 'Gait diagram'
         collisions = {
-            'LF': [],
-            'LM': [],
-            'LH': [],
-            'RF': [],
-            'RM': [],
-            'RH': []}
+                'LF': [],
+                'LM': [],
+                'LH': [],
+                'RF': [],
+                'RM': [],
+                'RH': []}
+        if not gt:
+            data = read_ground_contacts(path_data)
+        else:
+            file_path = os.path.join(path_data,"ground_truth_contact.pkl")
+            data = np.load(file_path,allow_pickle=True)
+
         for leg in collisions.keys():
             sum_force = np.sum(np.array(data[leg]), axis=0)
             segment_force = np.delete(sum_force, 0)
@@ -1177,8 +1184,195 @@ def plot_fly_path(
                 ax.plot(x, y, linewidth=2)
     
     plt.show()
-    
+
+def get_data(data_path, begin, end, time_step, data_from=[], offset=0):
+    fictrac_columns = ["Frame_counter",
+                       "delta_rot_cam_x",
+                       "delta_rot_cam_y",
+                       "delta_rot_cam_z",
+                       "delta_rot_error",
+                       "delta_rot_lab_x",
+                       "delta_rot_lab_y",
+                       "delta_rot_lab_z",
+                       "abs_rot_cam_x",
+                       "abs_rot_cam_y",
+                       "abs_rot_cam_z",
+                       "abs_rot_lab_x",
+                       "abs_rot_lab_y",
+                       "abs_rot_lab_z",
+                       "integrated_lab_x",
+                       "integrated_lab_y",
+                       "integrated_lab_heading",
+                       "animal_movement_direction_lab",
+                       "animal_movement_speed",
+                       "integrated_side_movement",
+                       "integrated_forward_movement",
+                       "timestamp",
+                       "seq_counter",
+                       "delta_time",
+                       "alt_time"]
+
+    if ".dat" in data_path:
+        data = pd.read_csv(data_path, header=None, names=fictrac_columns)
+
+    if ".h5" in data_path:
+        data = pd.read_hdf(data_path)
+        
+    if end == 0:
+        end = len(data) * time_step
+
+    steps = 1 / time_step
+    start = int((begin+offset) * steps)
+    stop = int((end+offset) * steps)
+
+    if not data_from:
+        data_from = list(data.columns)
+
+    norm_data={}
+    for key in data_from:
+        baseline = np.mean(data[key][start:start+10])
+        norm_data[key] = (data[key][start:stop] - baseline).values
+        if "lab_heading" in key:
+            diff_heading = np.abs(np.diff(norm_data[key]))
+            cross_points = np.where(diff_heading>np.pi)[0]
+            if len(cross_points)%2 != 0:
+                cross_points = np.append(cross_points, stop)
+            heading_fictrac = norm_data[key].copy()
+            for p in range(1,len(cross_points),2):
+                init = cross_points[p-1]+1
+                fin = cross_points[p]+1
+                heading_fictrac[init:fin]=heading_fictrac[init:fin]-2*np.pi
+            norm_data[key] = heading_fictrac
+
+    return norm_data
+
 def plot_fly_path_comparison(
+        fictrac_path,
+        sim_path,
+        ball_radius = 5,
+        begin=0,
+        end = 0,
+        offset_fictrac = 0,
+        time_step_fictrac=0.01,
+        time_step_sim=0.001
+        ):
+    """ Comparing fly path/ball rotations between ground truth (obtained from FicTrac) and simulation
+    
+    Parameters
+    ----------
+    path_data: <str>
+        Path to simulation results.
+    ball_radius: <float>
+        Radius of the spherical treadmill in millimeters.
+    begin: <float>
+        Starting time for initiating the plots.
+    end: <float>
+        Stoping time for finishing the plots. If 0.0, all data is plotted.
+    time_step: <float>
+        Data time step.
+    """
+    data_from_fictrac= ["integrated_forward_movement",
+                        "integrated_side_movement",
+                        "integrated_lab_heading"]
+    fictrac_data = get_data(fictrac_path,begin,end,time_step_fictrac,data_from_fictrac,offset_fictrac)
+    fw_fictrac = fictrac_data["integrated_forward_movement"] * ball_radius
+    side_fictrac = fictrac_data["integrated_side_movement"] * ball_radius
+    heading_fictrac = fictrac_data["integrated_lab_heading"]
+    
+
+    data_from_sim = ["x", "y", "z"]
+    sim_data_path = os.path.join(sim_path, 'physics','ball_rotations.h5')
+    ball_data = get_data(sim_data_path,begin,end,time_step_sim,data_from_sim)
+    fw_sim = ball_data["x"] * ball_radius
+    side_sim = ball_data["y"] * ball_radius
+    heading_sim = ball_data["z"]
+
+    
+    window = 11
+    order = 3
+
+    vel_fw_fictrac = scipy.signal.savgol_filter(fw_fictrac, window, order, deriv=1, delta=time_step_fictrac, mode='nearest')
+    vel_side_fictrac = scipy.signal.savgol_filter(side_fictrac, window, order, deriv=1, delta=time_step_fictrac, mode='nearest')
+    vel_heading_fictrac = scipy.signal.savgol_filter(heading_fictrac, window, order, deriv=1, delta=time_step_fictrac, mode='nearest')
+    
+    vel_fw_sim = scipy.signal.savgol_filter(fw_sim, 111, order, deriv=1, delta=time_step_sim, mode='nearest')
+    vel_side_sim = scipy.signal.savgol_filter(side_sim, 111, order, deriv=1, delta=time_step_sim, mode='nearest')
+    vel_heading_sim = scipy.signal.savgol_filter(heading_sim, 111, order, deriv=1, delta=time_step_sim, mode='nearest')
+
+    
+    x_head_fictrac, y_head_fictrac = get_flat_trajectory(fw_fictrac,side_fictrac,heading_fictrac)
+    x_head_sim, y_head_sim = get_flat_trajectory(-fw_sim, -side_sim, -heading_sim)
+    
+    plt.figure(0)
+    plt.plot(x_head_fictrac, y_head_fictrac, label="fictrac path")
+    plt.plot(x_head_sim, y_head_sim, label="NeuroMechFly path")
+    plt.xlabel('Distance (mm)')
+    plt.ylabel('Distance (mm)')
+    plt.legend()
+
+        
+    time_fictrac = np.arange(begin, end, time_step_fictrac)
+    time_sim = np.arange(begin, end, time_step_sim)
+
+    plt.figure(2)    
+    plt.plot(fw_fictrac, side_fictrac, label='Fictrac (x-y)')
+    plt.plot(fw_sim, side_sim, label='NeuroMechFly (x-y)')
+    #plt.ylim(-0.5,1)
+    plt.xlabel('Distance (mm)')
+    plt.ylabel('Distance (mm)')
+    plt.legend()
+
+    plt.figure(3)    
+    plt.plot(time_fictrac, side_fictrac, label='Fictrac side')
+    plt.plot(time_sim, side_sim, label='NeuroMechFly side')
+    plt.xlabel('Time (s)')
+    plt.ylabel('Distance (mm)')
+    plt.legend()
+    
+    plt.figure(4)    
+    plt.plot(time_fictrac, fw_fictrac, label='Fictrac forward')
+    plt.plot(time_sim, fw_sim, label='NeuroMechFly forward')
+    plt.xlabel('Time (s)')
+    plt.ylabel('Distance (mm)')
+    plt.legend()
+    
+    plt.figure(5)    
+    plt.plot(time_fictrac, heading_fictrac, label='Fictrac heading')
+    plt.plot(time_sim, heading_sim, label='NeuroMechFly heading')
+    plt.xlabel('Time (s)')
+    plt.ylabel('Distance (rad)')
+    plt.legend()
+    
+    plt.figure(6)    
+    #plt.plot(time_fictrac, delta_fw_fictrac, label='delta fw fictrac')
+    plt.plot(time_fictrac, vel_fw_fictrac, label='vel fw fictrac')
+    plt.plot(time_sim, vel_fw_sim, label='vel fw sim')
+    #plt.plot(time_sim, delta_fw_sim, label='delta fw sim')    
+    plt.xlabel('Time (s)')
+    plt.ylabel('Velocity (mm/s)')
+    plt.legend()
+
+    plt.figure(7)
+    #plt.plot(time_fictrac, delta_side_fictrac, label='delta side fictrac')
+    plt.plot(time_fictrac, vel_side_fictrac, label='vel side fictrac')
+    plt.plot(time_sim, vel_side_sim, label='vel side sim')
+    #plt.plot(time_sim, delta_side_sim, label='delta side sim')    
+    plt.xlabel('Time (s)')
+    plt.ylabel('Velocity (mm/s)')
+    plt.legend()
+
+    plt.figure(8)
+    #plt.plot(time_fictrac, delta_heading_fictrac, label='delta heading fictrac')
+    plt.plot(time_fictrac, vel_heading_fictrac, label='vel heading fictrac')
+    plt.plot(time_sim, vel_heading_sim, label='vel heading sim')
+    #plt.plot(time_sim, delta_heading_sim, label='delta heading sim')    
+    plt.xlabel('Time (s)')
+    plt.ylabel('Velocity (rad/s)')
+    plt.legend()
+    
+    plt.show()
+    
+def plot_fly_path_comparison_old(
         fictrac_path,
         ball_path,
         ball_radius = 5,
@@ -1205,26 +1399,26 @@ def plot_fly_path_comparison(
     """
     
     fictrac_columns = ["Frame_counter",
-                       "delta_rot_cam_right",
-                       "delta_rot_cam_down",
-                       "delta_rot_cam_forward",
+                       "delta_rot_cam_x",
+                       "delta_rot_cam_y",
+                       "delta_rot_cam_z",
                        "delta_rot_error",
-                       "delta_rot_lab_side",
-                       "delta_rot_lab_forward",
-                       "delta_rot_lab_turn",
-                       "abs_rot_cam_right",
-                       "abs_rot_cam_down",
-                       "abs_rot_cam_forward",
-                       "abs_rot_lab_side",
-                       "abs_rot_lab_forward",
-                       "abs_rot_lab_turn",
+                       "delta_rot_lab_x",
+                       "delta_rot_lab_y",
+                       "delta_rot_lab_z",
+                       "abs_rot_cam_x",
+                       "abs_rot_cam_y",
+                       "abs_rot_cam_z",
+                       "abs_rot_lab_x",
+                       "abs_rot_lab_y",
+                       "abs_rot_lab_z",
                        "integrated_lab_x",
                        "integrated_lab_y",
                        "integrated_lab_heading",
                        "animal_movement_direction_lab",
                        "animal_movement_speed",
-                       "integrated_forward_movement",
                        "integrated_side_movement",
+                       "integrated_forward_movement",
                        "timestamp",
                        "seq_counter",
                        "delta_time",
@@ -1236,6 +1430,9 @@ def plot_fly_path_comparison(
     ball_data_path = os.path.join(ball_path, 'physics','ball_rotations.h5')
     ball_data = np.array(pd.read_hdf(ball_data_path).values).transpose()
 
+    vel_data_path = os.path.join(ball_path, 'physics','ball_velocities.h5')
+    vel_data = np.array(pd.read_hdf(vel_data_path).values).transpose()
+
     if end == 0:
         end = len(fictrac_data) * time_step_fictrac
 
@@ -1243,16 +1440,21 @@ def plot_fly_path_comparison(
     start_fictrac = int((begin+offset_fictrac) * steps_fictrac)
     stop_fictrac = int((end+offset_fictrac) * steps_fictrac)
 
-    y_fictrac = -(fictrac_data["integrated_lab_x"][start_fictrac:stop_fictrac]-fictrac_data["integrated_lab_x"][start_fictrac]) #* ball_radius
-    x_fictrac = (fictrac_data["integrated_lab_y"][start_fictrac:stop_fictrac] - fictrac_data["integrated_lab_y"][start_fictrac]) #* ball_radius
-    side_fictrac = (fictrac_data["integrated_forward_movement"][start_fictrac:stop_fictrac] - fictrac_data["integrated_forward_movement"][start_fictrac]) #* ball_radius
-    fw_fictrac = (fictrac_data["integrated_side_movement"][start_fictrac:stop_fictrac]-fictrac_data["integrated_side_movement"][start_fictrac]) #* ball_radius
-    heading_raw = (fictrac_data["integrated_lab_heading"][start_fictrac:stop_fictrac]-fictrac_data["integrated_lab_heading"][start_fictrac])
+    #y_fictrac = -(fictrac_data["integrated_lab_x"][start_fictrac:stop_fictrac]-fictrac_data["integrated_lab_x"][start_fictrac]) #* ball_radius
+    #x_fictrac = (fictrac_data["integrated_lab_y"][start_fictrac:stop_fictrac] - fictrac_data["integrated_lab_y"][start_fictrac]) #* ball_radius
+
+    side_fictrac = (fictrac_data["integrated_side_movement"][start_fictrac:stop_fictrac] - fictrac_data["integrated_side_movement"][start_fictrac+5]) * ball_radius
+    fw_fictrac = (fictrac_data["integrated_forward_movement"][start_fictrac:stop_fictrac]-fictrac_data["integrated_forward_movement"][start_fictrac+5]) * ball_radius
+    heading_raw = (fictrac_data["integrated_lab_heading"][start_fictrac:stop_fictrac]-fictrac_data["integrated_lab_heading"][start_fictrac+5])
+
+    delta_fw_fictrac = -(fictrac_data["delta_rot_lab_x"][start_fictrac:stop_fictrac] - fictrac_data["delta_rot_lab_x"][start_fictrac+5]) / time_step_fictrac
+    delta_side_fictrac = -(fictrac_data["delta_rot_lab_y"][start_fictrac:stop_fictrac] - fictrac_data["delta_rot_lab_y"][start_fictrac+5]) / time_step_fictrac
+    delta_heading_fictrac = -(fictrac_data["delta_rot_lab_z"][start_fictrac:stop_fictrac] - fictrac_data["delta_rot_lab_z"][start_fictrac+5]) / time_step_fictrac
 
     diff_heading = np.abs(np.diff(heading_raw))
     cross_points = np.where(diff_heading>np.pi)[0]
     if len(cross_points)%2 != 0:
-        cross_points.append(stop_fictrac)
+        cross_points = np.append(cross_points, stop_fictrac)
     heading_fictrac = heading_raw.copy()
     for p in range(1,len(cross_points),2):
         init = cross_points[p-1]+1
@@ -1263,18 +1465,42 @@ def plot_fly_path_comparison(
     start_sim = int(begin * steps_sim)
     stop_sim = int(end * steps_sim)
 
-    fw_sim = -(ball_data[0][start_sim:stop_sim]-ball_data[0][start_sim+5]) #* ball_radius
-    side_sim = -(ball_data[1][start_sim:stop_sim]-ball_data[1][start_sim+5]) #* ball_radius
-    heading_sim = -(ball_data[2][start_sim:stop_sim]-ball_data[2][start_sim+5])
+    fw_sim = (ball_data[0][start_sim:stop_sim]-ball_data[0][start_sim+5]) * ball_radius
+    side_sim = (ball_data[1][start_sim:stop_sim]-ball_data[1][start_sim+5]) * ball_radius
+    heading_sim = (ball_data[2][start_sim:stop_sim]-ball_data[2][start_sim+5])
 
+    delta_fw_sim = np.diff(fw_sim)
+    delta_side_sim = np.diff(side_sim)
+    delta_heading_sim = np.diff(heading_sim)
+
+    delta_fw_sim = np.insert(delta_fw_sim,0,0) / time_step_sim
+    delta_side_sim = np.insert(delta_side_sim,0,0) / time_step_sim
+    delta_heading_sim = np.insert(delta_heading_sim,0,0) / time_step_sim
+    
+    #vel_x = (vel_data[0][start_sim:stop_sim]-vel_data[0][start_sim+5])
+    #vel_y = (vel_data[1][start_sim:stop_sim]-vel_data[1][start_sim+5])
+    #vel_z = (vel_data[2][start_sim:stop_sim]-vel_data[2][start_sim+5])
+
+    window = 11
+    order = 3
+
+    vel_fw_fictrac = scipy.signal.savgol_filter(fw_fictrac, window, order, deriv=1, delta=time_step_fictrac, mode='nearest')
+    vel_side_fictrac = scipy.signal.savgol_filter(side_fictrac, window, order, deriv=1, delta=time_step_fictrac, mode='nearest')
+    vel_heading_fictrac = scipy.signal.savgol_filter(heading_fictrac, window, order, deriv=1, delta=time_step_fictrac, mode='nearest')
+    
+    vel_fw_sim = scipy.signal.savgol_filter(fw_sim, 111, order, deriv=1, delta=time_step_sim, mode='nearest')
+    vel_side_sim = scipy.signal.savgol_filter(side_sim, 111, order, deriv=1, delta=time_step_sim, mode='nearest')
+    vel_heading_sim = scipy.signal.savgol_filter(heading_sim, 111, order, deriv=1, delta=time_step_sim, mode='nearest')
 
     
     x_head_fictrac, y_head_fictrac = get_flat_trajectory(fw_fictrac.values, side_fictrac.values, heading_fictrac.values)
-    x_head_sim, y_head_sim = get_flat_trajectory(fw_sim, side_sim, heading_sim)
+    x_head_sim, y_head_sim = get_flat_trajectory(-fw_sim, -side_sim, -heading_sim)
     
     plt.figure(0)
     plt.plot(x_head_fictrac, y_head_fictrac, label="fictrac path")
     plt.plot(x_head_sim, y_head_sim, label="NeuroMechFly path")
+    plt.xlabel('Distance (mm)')
+    plt.ylabel('Distance (mm)')
     plt.legend()
 
     '''
@@ -1320,26 +1546,83 @@ def plot_fly_path_comparison(
     
     time_fictrac = np.arange(begin, end, time_step_fictrac)
     time_sim = np.arange(begin, end, time_step_sim)
+
+    '''
+    plt.figure(10)    
+    plt.plot(time_fictrac, fw_fictrac, label='Fictrac forward')    
+    plt.plot(time_fictrac, side_fictrac, label='Fictrac side')    
+    plt.plot(time_fictrac, heading_fictrac, label='Fictrac heading')
+    plt.xlabel('Time (s)')
+    plt.ylabel('Distance (mm)')
+    plt.legend()
+
+    plt.figure(11)    
+    plt.plot(time_fictrac, delta_fw_fictrac, label='Fictrac forward')    
+    plt.plot(time_fictrac, delta_side_fictrac, label='Fictrac side')    
+    plt.plot(time_fictrac, delta_heading_fictrac, label='Fictrac heading')
+    plt.xlabel('Time (s)')
+    plt.ylabel('Distance (mm)')
+    plt.legend()
+    
+    plt.show()
+    quit()
+    '''
+    
     
     plt.figure(2)    
     plt.plot(fw_fictrac, side_fictrac, label='Fictrac (x-y)')
     plt.plot(fw_sim, side_sim, label='NeuroMechFly (x-y)')
-    plt.ylim(-0.5,1)
+    #plt.ylim(-0.5,1)
+    plt.xlabel('Distance (mm)')
+    plt.ylabel('Distance (mm)')
     plt.legend()
 
     plt.figure(3)    
     plt.plot(time_fictrac, side_fictrac, label='Fictrac side')
     plt.plot(time_sim, side_sim, label='NeuroMechFly side')
+    plt.xlabel('Time (s)')
+    plt.ylabel('Distance (mm)')
     plt.legend()
     
     plt.figure(4)    
     plt.plot(time_fictrac, fw_fictrac, label='Fictrac forward')
     plt.plot(time_sim, fw_sim, label='NeuroMechFly forward')
+    plt.xlabel('Time (s)')
+    plt.ylabel('Distance (mm)')
     plt.legend()
     
     plt.figure(5)    
     plt.plot(time_fictrac, heading_fictrac, label='Fictrac heading')
     plt.plot(time_sim, heading_sim, label='NeuroMechFly heading')
+    plt.xlabel('Time (s)')
+    plt.ylabel('Distance (rad)')
+    plt.legend()
+    
+    plt.figure(6)    
+    #plt.plot(time_fictrac, delta_fw_fictrac, label='delta fw fictrac')
+    plt.plot(time_fictrac, vel_fw_fictrac, label='vel fw fictrac')
+    plt.plot(time_sim, vel_fw_sim, label='vel fw sim')
+    #plt.plot(time_sim, delta_fw_sim, label='delta fw sim')    
+    plt.xlabel('Time (s)')
+    plt.ylabel('Velocity (mm/s)')
+    plt.legend()
+
+    plt.figure(7)
+    #plt.plot(time_fictrac, delta_side_fictrac, label='delta side fictrac')
+    plt.plot(time_fictrac, vel_side_fictrac, label='vel side fictrac')
+    plt.plot(time_sim, vel_side_sim, label='vel side sim')
+    #plt.plot(time_sim, delta_side_sim, label='delta side sim')    
+    plt.xlabel('Time (s)')
+    plt.ylabel('Velocity (mm/s)')
+    plt.legend()
+
+    plt.figure(8)
+    #plt.plot(time_fictrac, delta_heading_fictrac, label='delta heading fictrac')
+    plt.plot(time_fictrac, vel_heading_fictrac, label='vel heading fictrac')
+    plt.plot(time_sim, vel_heading_sim, label='vel heading sim')
+    #plt.plot(time_sim, delta_heading_sim, label='delta heading sim')    
+    plt.xlabel('Time (s)')
+    plt.ylabel('Velocity (rad/s)')
     plt.legend()
     
     plt.show()
@@ -1357,3 +1640,196 @@ def get_flat_trajectory(fw, side, heading):
         y_trajectory.append(new_y)
 
     return x_trajectory, y_trajectory
+
+
+def compare_collision_diagram(
+        path_data,
+        gt_data,
+        sim_data,
+        begin=0,
+        end=0,
+        time_step_sim=0.001,
+        time_step_gt=0.01):
+
+    """ Plots collision/gait diagrams.
+    
+    Parameters
+    ----------
+    path_data: <str>
+        Path to simulation results.
+    sim_data: <str>
+        Behavior from data. Options: 'walking' or 'grooming'.    
+    begin: <float>
+        Starting time for initiating the plots.
+    end: <float>
+        Stoping time for finishing the plots. If 0.0, all data is plotted.
+    time_step: <float>
+        Data time step.
+    """ 
+    data = {}
+    length_data = 0
+    
+    if sim_data == 'walking':
+        title_plot = 'Gait diagram'
+        collisions = {
+                'LF': [],
+                'LM': [],
+                'LH': [],
+                'RF': [],
+                'RM': [],
+                'RH': []}
+
+        collisions_gt = {
+                'LF': [],
+                'LM': [],
+                'LH': [],
+                'RF': [],
+                'RM': [],
+                'RH': []}
+        
+        data_sim = read_ground_contacts(path_data)
+
+        gt_file_path = os.path.join(gt_data,"ground_truth_contact.pkl")
+        data_gt = np.load(gt_file_path,allow_pickle=True)
+
+        
+        for leg in collisions.keys():
+            sum_force = np.sum(np.array(data_sim[leg]), axis=0)
+            segment_force = np.delete(sum_force, 0)
+            collisions[leg].append(segment_force)
+            if length_data == 0:
+                length_data = len(segment_force)
+
+        for leg in collisions_gt.keys():
+            sum_force = np.sum(np.array(data_gt[leg]), axis=0)
+            segment_force = np.delete(sum_force, 0)
+            collisions_gt[leg].append(segment_force)
+            if length_data == 0:
+                length_data = len(segment_force)
+                
+    elif sim_data == 'grooming':
+        data = read_collision_forces(path_data)
+        title_plot = 'Collisions diagram'
+        collisions = {
+            'LAntenna': [],
+            'LFTibia': [],
+            'LFTarsus1': [],
+            'LFTarsus2': [],
+            'LFTarsus3': [],
+            'LFTarsus4': [],
+            'LFTarsus5': [],
+            'RFTarsus5': [],
+            'RFTarsus4': [],
+            'RFTarsus3': [],
+            'RFTarsus2': [],
+            'RFTarsus1': [],
+            'RFTibia': [],
+            'RAntenna': []}  
+
+        for segment1 in collisions.keys():
+            seg_forces=[]
+            for segment2, force in data[segment1].items():
+                seg_forces.append(force)    
+            sum_force = np.sum(np.array(seg_forces), axis=0)
+            segment_force = np.delete(sum_force, 0)
+            collisions[segment1].append(segment_force)
+            if length_data == 0:
+                length_data = len(segment_force)
+
+    if end == 0:
+        end = length_data * time_step_sim
+
+    steps_sim = 1 / time_step_sim
+    start_sim = int(begin * steps_sim)
+    stop_sim = int(end * steps_sim)
+
+    steps_gt = 1 / time_step_gt
+    start_gt = int(begin * steps_gt)
+    stop_gt = int(end * steps_gt)
+
+    fig, axs = plt.subplots(len(collisions.keys()),
+                            sharex=True, gridspec_kw={'hspace': 0})
+    fig.suptitle(title_plot)
+    stance_frames={}
+    stance_frames_gt={}
+    for i, (segment, force) in enumerate(collisions.items()):
+        time = np.arange(0, len(force[0]), 1) / steps_sim
+        stance_plot = get_stance_periods(force[0],start_sim,stop_sim)
+        stance_frames[segment] = []
+        for ind in range(0, len(stance_plot), 2):
+                axs[i].fill_between(time[stance_plot[ind]:stance_plot[ind + 1]], 0, 1,
+                                    facecolor='deepskyblue', alpha=0.5, transform=axs[i].get_xaxis_transform())
+                num_steps = stance_plot[ind + 1]-stance_plot[ind]
+                stance_frames[segment].extend(np.linspace(stance_plot[ind],stance_plot[ind + 1],num_steps, endpoint=False))
+
+        axs[i].fill_between(time[start_sim:stance_plot[0]], 0, 1, facecolor='white', alpha=0.5, transform=axs[i].get_xaxis_transform())
+
+        axs[i].fill_between(time[stance_plot[-1]:stop_sim], 0, 1, facecolor='white', alpha=0.5, transform=axs[i].get_xaxis_transform())
+        
+        axs[i].set_yticks((0.5,))
+        axs[i].set_yticklabels((segment,))
+
+    for i, (segment, force) in enumerate(collisions_gt.items()):
+        time = np.arange(0, len(force[0]), 1) / steps_gt
+        stance_plot = get_stance_periods(force[0],start_gt,stop_gt)
+        stance_frames_gt[segment] = []
+        for ind in range(0, len(stance_plot), 2):
+                axs[i].fill_between(time[stance_plot[ind]:stance_plot[ind + 1]], 0, 1,
+                                    facecolor='y', alpha=0.5, transform=axs[i].get_xaxis_transform())
+                scale_factor = int(time_step_gt/time_step_sim)
+                
+                num_steps = (stance_plot[ind + 1]-stance_plot[ind])*scale_factor
+                
+                stance_frames_gt[segment].extend(np.linspace(stance_plot[ind]*scale_factor,stance_plot[ind + 1]*scale_factor,num_steps,endpoint=False))
+                    
+        axs[i].fill_between(time[start_gt:stance_plot[0]], 0, 1, facecolor='white', alpha=0.5, transform=axs[i].get_xaxis_transform())
+
+        axs[i].fill_between(time[stance_plot[-1]:stop_gt], 0, 1, facecolor='white', alpha=0.5, transform=axs[i].get_xaxis_transform())
+        
+        axs[i].set_yticks((0.5,))
+        axs[i].set_yticklabels((segment,))
+
+    #results = {}
+    results = pd.DataFrame()
+    tot_frames = stop_sim-start_sim
+    for leg, frames in stance_frames.items():
+        #if leg not in results.keys():
+        #    results[leg]={}
+        tp = np.count_nonzero(np.isin(np.array(frames),np.array(stance_frames_gt[leg])))
+        fp = len(frames)-tp
+        tp_count_gt = np.count_nonzero(np.isin(np.array(stance_frames_gt[leg]),np.array(frames)))
+        fn = len(stance_frames_gt[leg])-tp_count_gt
+        tn = tot_frames-tp-fp-fn
+
+        df_vals = pd.DataFrame([[tp/tot_frames,tn/tot_frames,fp/tot_frames,fn/tot_frames,(tp+tn)/tot_frames]],columns=['True positive','True negative','False positive','False negative','Accuracy'])
+        df_vals['Leg'] = leg
+        results = results.append(df_vals, ignore_index=True)
+        #print(leg, [[key, v/tot_frames] for key, v in results[leg].items()])
+        
+    axs[len(axs) - 1].set_xlabel('Time (s)')
+    if sim_data == 'walking':
+        gt_patch = mpatches.Patch(color='y', alpha=0.5, label='GT-Stance')
+        sim_patch = mpatches.Patch(color='deepskyblue', alpha=0.5, label='NMF-Stance')
+        patches = [gt_patch,sim_patch]
+    elif sim_data == 'grooming':
+        black_patch = mpatches.Patch(color='black', label='Collision')
+        patches = [black_patch]
+    axs[0].legend(
+        handles=patches,
+        loc='upper right',
+        bbox_to_anchor=(
+            1.1,
+            1))
+
+    print(results)
+    print(np.mean(results['Accuracy']))
+    fig, ax2 = plt.subplots()
+    ax2.bar(results['Leg'],results['True positive'], label='True positive')
+    ax2.bar(results['Leg'],results['True negative'],bottom=results['True positive'],label='True negative')
+    ax2.bar(results['Leg'],results['False negative'],bottom=results['True positive']+results['True negative'],label='False negative')
+    ax2.bar(results['Leg'],results['False positive'],bottom=results['True positive']+results['True negative']+results['False negative'],label='False positive')
+    ax2.set_xlabel('Leg')
+    ax2.set_ylabel('Percentage')
+    ax2.legend()
+
+    plt.show()

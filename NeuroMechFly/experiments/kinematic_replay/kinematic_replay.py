@@ -24,6 +24,8 @@ class DrosophilaSimulation(BulletSimulation):
         Path of the joint position .pkl file.
     velocity_path: <str>
         Path of the joint velocity .pkl file.
+    fixed_positions: <dict>
+        Dictionary containing the positions for the fixed joints that should be different from the zero pose.
     units: <obj>
         Instance of SimulationUnitScaling object to scale up the units during calculations.
     """
@@ -36,6 +38,7 @@ class DrosophilaSimulation(BulletSimulation):
         kv,
         angles_path,
         velocity_path,
+        fixed_positions=None,
         units=SimulationUnitScaling(
             meters=1000,
             kilograms=1000)):
@@ -45,6 +48,7 @@ class DrosophilaSimulation(BulletSimulation):
         self.kp = kp
         self.kv = kv
         self.angles_path = angles_path
+        self.fixed_positions = fixed_positions
         
         super().__init__(container, units, **sim_options)
         
@@ -118,20 +122,21 @@ class DrosophilaSimulation(BulletSimulation):
         """
 
         # Setting the joint angular positions of the fixed joints
-        fixed_positions = {
-            'joint_LAntenna': 35,
-            'joint_RAntenna': -35,
-        }
-        for joint_name, joint_pos in fixed_positions.items():
+        if not self.fixed_positions:
+            self.fixed_positions = {
+                'joint_LAntenna': 35,
+                'joint_RAntenna': -35,
+            }
+        for joint_name, joint_pos in self.fixed_positions.items():
             self.pose[self.joint_id[joint_name]] = np.deg2rad(joint_pos)
 
         # Setting the joint angular positions of leg DOFs based on pose estimation
         for joint_name, joint_pos in self.angles.items():
-            self.pose[self.joint_id[joint_name]] = joint_pos[t]
+            self.pose[self.joint_id[joint_name]] = joint_pos[t+14000]
 
         # Setting the joint angular velocities of leg DOFs based on pose estimation
         for joint_name, joint_vel in self.velocities.items():
-            self.vel[self.joint_id[joint_name]] = joint_vel[t]
+            self.vel[self.joint_id[joint_name]] = joint_vel[t+14000]
 
         # Control the joints through position controller
         # Velocity can be discarded if not available and gains can be changed
@@ -150,14 +155,17 @@ class DrosophilaSimulation(BulletSimulation):
             draw = []
             if self.behavior == 'walking':
                 # Only take into account the ground sensors
-                ground_reaction_force = self.contact_normal_force[:len(
-                    self.ground_contacts), :]
-                links_contact = np.where(
-                    np.linalg.norm(
-                        ground_reaction_force,
-                        axis=1) > 0)[0]
+                #ground_reaction_force = self.contact_normal_force[:len(
+                #    self.ground_contacts), :]
+                #links_contact = np.where(
+                #    np.linalg.norm(
+                #        ground_reaction_force,
+                #        axis=1) > 0)[0]
+                links_contact = self.get_current_contacts()
+                link_names = list(self.link_id.keys())
+                link_ids = list(self.link_id.values())
                 for i in links_contact:
-                    link1 = self.ground_contacts[i][:-1]
+                    link1 = link_names[link_ids.index(i)][:-1]
                     if link1 not in draw:
                         draw.append(link1)
                         self.change_color(link1 + '5', self.color_collision)

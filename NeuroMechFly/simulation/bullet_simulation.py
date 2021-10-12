@@ -172,7 +172,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             numSolverIterations=100,
             numSubSteps=self.num_substep,
             solverResidualThreshold=1e-10,
-            # erp = 1e-1,
+            erp = 0.0,
             contactERP=0.1,
             frictionERP=0.0,
         )
@@ -205,6 +205,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
 
             self.link_plane = 2
             self.sim_data.add_table('ball_rotations')
+            self.sim_data.add_table('ball_velocities')
 
         # Add the animal model
         if '.sdf' in self.model and self.behavior is not None:
@@ -352,6 +353,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             #self.sim_data.thorax_force.add_parameter(f'{axis}')
             if self.ground == 'ball':
                 self.sim_data.ball_rotations.add_parameter(f'{axis}')
+                self.sim_data.ball_velocities.add_parameter(f'{axis}')
 
         # ADD joint parameters
         for name, _ in self.joint_id.items():
@@ -494,7 +496,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
 
     def add_ball(self, radius, position):
         """ Create a ball with specified radius """
-        ball_radius = radius * self.units.meters
+        ball_radius = radius * self.units.meters - 0.011e-3 * self.units.meters
         col_sphere_parent = p.createCollisionShape(
             p.GEOM_SPHERE,
             radius=ball_radius / 100,
@@ -520,23 +522,21 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                     [-0.09e-3, -0.0e-3,-5.11e-3]
                 ) * self.units.meters + self.model_offset
         else:
-            base_position = (np.array(position)+np.array([0.0, 0.0, 0.83e-3])) * self.units.meters + self.model_offset
-            print("Adding ball position from file:", base_position)
+            base_position = np.array(position) * self.units.meters + self.model_offset + np.array([0.0e-3, 0.0e-3, 0.90e-3]) * self.units.meters
+            print("Adding ball position from file:", base_position, self.model_offset)
             print("Adding ball radius from file:", ball_radius)
         #: Create the sphere
         base_orientation = [0, 0, 0, 1]
-        link_masses = np.array([0.0, 0.0, 13.6e-6])*self.units.kilograms
-
+        link_masses = np.array([54.6e-6/3, 54.6e-6/3, 54.6e-6/3])*self.units.kilograms
         link_collision_shape_indices = [-1, -1, col_sphere_id]
         link_visual_shape_indices = [-1, -1, -1]
         link_positions = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
         link_orientations = [[0, 0, 0, 1], [0, 0, 0, 1], [0, 0, 0, 1]]
         link_inertial_frame_positions = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
-        link_inertial_frame_orientations = [
-            [0, 0, 0, 1], [0, 0, 0, 1], [0, 0, 0, 1]]
+        link_inertial_frame_orientations = [[0, 0, 0, 1], [0, 0, 0, 1], [0, 0, 0, 1]]
         indices = [0, 1, 2]
         joint_types = [p.JOINT_REVOLUTE, p.JOINT_REVOLUTE, p.JOINT_REVOLUTE]
-        axis = [[0, 1, 0], [1, 0, 0], [0, 0, 1]]
+        axis = [[0, -1, 0], [1, 0, 0], [0, 0, -1]]
 
         sphere_id = p.createMultiBody(
             mass_parent,
@@ -555,14 +555,42 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             linkJointTypes=joint_types,
             linkJointAxis=axis)
         # Physical properties of the ball can be changed here
-        p.changeDynamics(sphere_id,
-                         2,
-                         spinningFriction=0.0,
-                         rollingFriction=0.0,
-                         lateralFriction=0.1,
-                         linearDamping=0.0,
-                         angularDamping=0.0,
-                         restitution=0.0)
+        #p.changeDynamics(sphere_id,
+        #                 2,
+        #                 spinningFriction=0.0,
+        #                 rollingFriction=0.0,
+        #                 lateralFriction=0.1,
+        #                 linearDamping=0.0,
+        #                 angularDamping=0.0,
+        #                 restitution=0.0)
+
+        # Physical properties of the ball can be changed here individually
+        inertia_sim = p.getDynamicsInfo(sphere_id, 2)[2]
+        inertia_th = [2/5 * link_masses[-1] * (ball_radius**2)] * 3
+        
+        p.changeDynamics(sphere_id, 2, restitution=0.0)
+        p.changeDynamics(sphere_id, 2, lateralFriction=1.5)
+        p.changeDynamics(sphere_id, 2, spinningFriction=0.0)
+        p.changeDynamics(sphere_id, 2, linearDamping=0.0) 
+        p.changeDynamics(sphere_id, 2, angularDamping=0.0)     
+        p.changeDynamics(sphere_id, 2, rollingFriction=0.0)
+
+        
+        p.changeDynamics(sphere_id, 1, restitution=0.0)
+        p.changeDynamics(sphere_id, 1, spinningFriction=0.0)
+        p.changeDynamics(sphere_id, 1, linearDamping=0.0) 
+        p.changeDynamics(sphere_id, 1, angularDamping=0.0)     
+        p.changeDynamics(sphere_id, 1, rollingFriction=0.0)
+
+        p.changeDynamics(sphere_id, 0, restitution=0.0)
+        p.changeDynamics(sphere_id, 0, spinningFriction=0.0)
+        p.changeDynamics(sphere_id, 0, linearDamping=0.0) 
+        p.changeDynamics(sphere_id, 0, angularDamping=0.0)     
+        p.changeDynamics(sphere_id, 0, rollingFriction=0.0)
+        
+
+        # Assert if theoretical and computed inertia values are not the same
+        assert any([np.isclose(s, t) for s,t in zip(inertia_sim, inertia_th)])
 
         # Disable default bullet controllers
         p.setJointMotorControlArray(
@@ -609,9 +637,19 @@ class BulletSimulation(metaclass=abc.ABCMeta):
 
     @property
     def ball_rotations(self):
-        """ Return the ball position. """
+        """ Return the ball angular position. """
         return tuple(
             state[0] for state in p.getJointStates(
+                self.plane,
+                np.arange(0, p.getNumJoints(self.plane))
+            )
+        )
+
+    @property
+    def ball_velocities(self):
+        """ Return the ball angular velocity. """
+        return tuple(
+            state[1] for state in p.getJointStates(
                 self.plane,
                 np.arange(0, p.getNumJoints(self.plane))
             )
@@ -727,7 +765,11 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             self.joint_torques)
         # Update contacts
         self.contact_sensors.update()
-
+        if self.ground == 'ball':
+            self.sim_data.ball_rotations.values = np.asarray(
+                self.ball_rotations).flatten()
+            self.sim_data.ball_velocities.values = np.asarray(
+                self.ball_velocities).flatten()
 
     @abc.abstractmethod
     def controller_to_actuator(self):
