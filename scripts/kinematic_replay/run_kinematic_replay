@@ -10,7 +10,7 @@ from pathlib import Path
 
 from farms_container import Container
 from NeuroMechFly.experiments.kinematic_replay import kinematic_replay
-from NeuroMechFly.utils.profile import profile
+from NeuroMechFly.utils.profiler import profile
 
 neuromechfly_path = Path(pkgutil.get_loader(
     "NeuroMechFly").get_filename()).parents[1]

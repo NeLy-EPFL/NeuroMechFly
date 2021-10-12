@@ -4,6 +4,8 @@ import logging
 import os
 from pathlib import Path
 import pkgutil
+import yaml
+from typing import Tuple
 
 import farms_pylog as pylog
 import numpy as np
@@ -23,6 +25,7 @@ LOGGER = logging.getLogger('jmetal')
 
 neuromechfly_path = Path(pkgutil.get_loader("NeuroMechFly").get_filename()).parents[1]
 
+pylog.set_level('error')
 
 
 class WriteFullFrontToFileObserver(Observer):
@@ -45,8 +48,8 @@ class WriteFullFrontToFileObserver(Observer):
                     self.directory,
                 )
             )
-            for file in os.listdir(self.directory):
-                os.remove('{0}/{1}'.format(self.directory, file))
+            # for file in os.listdir(self.directory):
+            #     os.remove('{0}/{1}'.format(self.directory, file))
         else:
             LOGGER.warning(
                 'Directory {} does not exist. Creating it.'.format(
@@ -58,7 +61,6 @@ class WriteFullFrontToFileObserver(Observer):
     def update(self, *args, **kwargs):
         problem = kwargs['PROBLEM']
         solutions = kwargs['SOLUTIONS']
-
         if solutions:
             if isinstance(problem, DynamicProblem):
                 termination_criterion_is_met = kwargs.get(
@@ -102,40 +104,113 @@ def read_optimization_results(fun, var):
     return (np.loadtxt(fun), np.loadtxt(var))
 
 
+def print_penalties_to_file(penalties: Tuple) -> None:
+    """ Writes penalties into a txt file inside results. """
+
+    output_file_directory = os.path.join(
+                neuromechfly_path,
+                'scripts/neuromuscular_optimization',
+                'optimization_results',
+                'PENALTIES.txt'
+            )
+
+    pylog.info('Output file (penalty values): ' + output_file_directory)
+
+    with open(output_file_directory, 'a') as of:
+        for penalty in penalties:
+            of.write(str(penalty) + ' ')
+        of.write('\n')
+
+
+def generate_config_file(log: dict) -> None:
+    """ Generates a config file of the weights used in the optimization. """
+
+    output_file_directory = os.path.join(
+                neuromechfly_path,
+                'scripts/neuromuscular_optimization',
+                'optimization_results',
+                'CONFIG.yaml'
+            )
+
+    pylog.info('Output config file : ' + output_file_directory)
+
+    with open(output_file_directory, 'w') as of:
+        yaml.dump(log, of, default_flow_style=False)
+
+
+def separate_penalties_into_gens(n_gen: int, n_pop: int, output_directory: str) -> None:
+    """Saves penalties based on generations at the end of optimization
+    and removes the temporary txt file that stores the penalties.
+
+    Parameters
+    ----------
+    n_gen : int
+        Number of generations.
+    n_pop : int
+        Number of individuals in a generation.
+    output_directory : str
+        Directory where the FUN and VAR files are saved.
+    """
+
+    penalties_directory = os.path.join(
+            neuromechfly_path,
+            'scripts/neuromuscular_optimization',
+            'optimization_results',
+            'PENALTIES.txt'
+        )
+
+    penalties = np.loadtxt(penalties_directory)
+
+    for generation in range(n_gen):
+        np.savetxt(
+            os.path.join(
+                output_directory,
+                'PENALTIES.{}'.format(generation)
+            ),
+            penalties[generation * n_pop : (generation + 1) * n_pop, :],
+            '%.15f'
+        )
+
+    pylog.info('Penalties are saved separately!')
+
+    os.remove(penalties_directory)
+    pylog.info('{} is removed!'.format(penalties_directory))
+
+
 class DrosophilaEvolution(FloatProblem):
     """ Class for Evolutionary Optimization. """
 
     def __init__(self):
         super(DrosophilaEvolution, self).__init__()
-        #: Set number of variables, objectives, and contraints
+        # Set number of variables, objectives, and contraints
         self.number_of_variables = 63
         self.number_of_objectives = 2
         self.number_of_constraints = 0
-        #: Minimize the objectives
+        # Minimize the objectives
         self.obj_directions = [self.MINIMIZE, self.MINIMIZE]
         self.obj_labels = ["Distance (negative)", "Stability"]
 
         # Bounds for frequency
-        lower_bound_frequency = 7 # Hz
-        upper_bound_frequency = 11 # Hz
+        lower_bound_frequency = 6 # Hz
+        upper_bound_frequency = 10 # Hz
 
-        #: Bounds for the muscle parameters 3 muscles per leg
-        #: Each muscle has 5 variables to be optimized corresponding to
-        #: Alpha, beta, gamma, delta, and resting pose of the Ekeberg model
+        # Bounds for the muscle parameters 3 muscles per leg
+        # Each muscle has 5 variables to be optimized corresponding to
+        # Alpha, beta, gamma, delta, and resting pose of the Ekeberg model
         lower_bound_active_muscles = (
                 np.asarray(
                     [# Front
-                    [1e-3, 1e-3, 1e-3, 1e-4, -0.22], # Coxa
-                    [1e-3, 1e-3, 1e-3, 1e-4, -2.5], # Femur
-                    [1e-3, 1e-3, 1e-3, 1e-4, 0.76], # Tibia
+                    [1e-11, 1e-11, 5.0, 5e-15, 0.0], # Coxa
+                    [1e-11, 1e-11, 5.0, 5e-15, -2.0], # Femur
+                    [1e-11, 1e-11, 5.0, 5e-15, 1.31], # Tibia
                     # Mid
-                    [1e-3, 1e-3, 1e-3, 1e-4, -2.2], # Coxa_roll
-                    [1e-3, 1e-3, 1e-3, 1e-4, -2.35], # Femur
-                    [1e-3, 1e-3, 1e-3, 1e-4, 1.73], # Tibia
+                    [1e-11, 1e-11, 5.0, 5e-15, 2.18], # Coxa_roll
+                    [1e-11, 1e-11, 5.0, 5e-15, -2.14], # Femur
+                    [1e-11, 1e-11, 5.0, 5e-15, 1.96], # Tibia
                     # Hind
-                    [1e-3, 1e-3, 1e-3, 1e-4, -2.78], # Coxa_roll
-                    [1e-3, 1e-3, 1e-3, 1e-4, -2.46], # Femur
-                    [1e-3, 1e-3, 1e-3, 1e-4, 1.12], # Tibia
+                    [1e-11, 1e-11, 5.0, 5e-15, 2.69], # Coxa_roll
+                    [1e-11, 1e-11, 5.0, 5e-15, -2.14], # Femur
+                    [1e-11, 1e-11, 5.0, 5e-15, 1.43], # Tibia
                     ]
                 )
         ).flatten()
@@ -144,17 +219,17 @@ class DrosophilaEvolution(FloatProblem):
                 np.asarray(
                     [
                     # Front
-                    [7e-2, 3e-3, 1e-2, 1e-3, 0.49], # Coxa
-                    [7e-2, 3e-3, 1e-2, 1e-3, -1.3], # Femur
-                    [7e-2, 3e-3, 1e-2, 1e-3, 2.19], # Tibia
+                    [5e-9, 1e-9, 10.0, 1e-11, 0.47], # Coxa
+                    [5e-10, 1e-9, 10.0, 1e-11, -1.68], # Femur
+                    [5e-10, 1e-9, 10.0, 1e-11, 2.05], # Tibia
                     # Mid
-                    [2e-1, 3e-3, 1e-2, 3e-3, -1.75], # Coxa_roll
-                    [2e-1, 3e-3, 1e-2, 3e-3, -1.84], # Femur
-                    [2e-1, 3e-3, 1e-2, 3e-3, 2.63], # Tibia
+                    [5e-9, 1e-9, 10.0, 1e-11, 2.01], # Coxa_roll
+                    [5e-10, 1e-9, 10.0, 1e-11, -2.0], # Femur
+                    [5e-10, 1e-9, 10.0, 1e-11, 2.22], # Tibia
                     # Hind
-                    [3e-1, 3e-3, 1e-2, 3e-3, -2.44], # Coxa_roll
-                    [2e-1, 3e-3, 1e-2, 3e-3, -1.31], # Femur
-                    [2e-1, 3e-3, 1e-2, 3e-3, 2.79], # Tibia
+                    [5e-9, 1e-9, 10.0, 1e-11, 2.53], # Coxa_roll
+                    [5e-10, 1e-9, 10.0, 1e-11, -1.55], # Femur
+                    [5e-10, 1e-9, 10.0, 1e-11, 2.26], # Tibia
                     ]
                 )
         ).flatten()
@@ -187,7 +262,7 @@ class DrosophilaEvolution(FloatProblem):
         # )
 
         # self.initial_solutions =  list(var) # [var[np.argmin(fun[:, 0])]]
-        self.initial_solutions = []
+        self.initial_solutions = [self.upper_bound.tolist()]
         self._initial_solutions = self.initial_solutions.copy()
 
     def create_solution(self):
@@ -219,31 +294,47 @@ class DrosophilaEvolution(FloatProblem):
             Evaluated solution.
         """
         #: Set how long the simulation will run to evaluate the solution
-        run_time = 3.0
+        run_time = 2.0
         #: Set a time step for the physics engine
-        time_step = 0.001
+        time_step = 1e-4
         #: Setting up the paths for the SDF and POSE files
-        model_path = os.path.join(
-            neuromechfly_path,
-            'data/design/sdf/neuromechfly_limitsFromData.sdf',
+        model_path = neuromechfly_path.joinpath(
+            "data/design/sdf/neuromechfly_locomotion_optimization.sdf"
         )
-        pose_path = os.path.join(
-            neuromechfly_path,
-            'data/config/pose/pose_tripod.yaml',
+        pose_path = neuromechfly_path.joinpath(
+            "data/config/pose/pose_tripod.yaml"
         )
-        controller_path = os.path.join(
-            neuromechfly_path,
-            'data/config/network/locomotion_network.graphml',
+        controller_path = neuromechfly_path.joinpath(
+            "data/config/network/locomotion_network.graphml"
         )
-        #: Simulation options
+        # Set collision segments
+        ground_contacts = tuple(
+            f"{side}{leg}{segment}"
+            for side in ('L', 'R')
+            for leg in ('F', 'M', 'H')
+            for segment in tuple(f"Tarsus{i}" for i in range(1, 6))
+        )
+
+        # Set the ball specs based on your experimental setup
+        ball_specs = {
+            'ball_density': 96,
+            'ball_radius': 5.0e-3,
+            'ball_friction_coef': 10.0
+        }
+        # Simulation options
         sim_options = {
             "headless": True,
-            "model": model_path,
+            "model": str(model_path),
+            "time_step": time_step,
             "model_offset": [0., 0., 11.2e-3],
             "pose": pose_path,
             "run_time": run_time,
+            "controller": controller_path,
             "base_link": 'Thorax',
-            "controller": controller_path
+            "ground_contacts": ground_contacts,
+            "camera_distance": 4.5,
+            "track": False,
+            **ball_specs
         }
         #: Create the container instance that the simulation results will be dumped
         container = Container(run_time / time_step)
@@ -254,74 +345,78 @@ class DrosophilaEvolution(FloatProblem):
         #: Check if any of the termination criteria is met
         _successful = fly.run(optimization=True)
 
-        #: Objectives
-        #: Minimize activations
-        m_out = np.asarray(container.muscle.outputs.log)
-        m_names = container.muscle.outputs.names
-        act = np.asarray([
-            m_out[:, j]
-            for j, name in enumerate(m_names)
-            if 'flexor_act' in name or 'extensor_act' in name
-        ])
-        #: Normalize it by the maximum activation possible [0- ~2]
-        act = np.sum(act**2) / 1e5
+        #: OBJECTIVES
+        objectives = {}
 
         #: Forward distance (backward rotation of the ball)
-        distance = -np.array(
-            fly.ball_rotations
-        )[0] * fly.ball_radius
+        objectives['distance'] = -np.array(fly.ball_rotations)[0] * fly.ball_radius
+        objectives['stability'] = fly.opti_stability
+        # objectives['mechanical_work'] = np.sum(fly.mechanical_work)
 
-        #: Stability coefficient
-        stability = fly.opti_stability
-
-        #: Penalties
+        #: PENALTIES
+        penalties = {}
         #: Penalty long stance periods
+        # constraints = {}
+        # constraints['expected_stance_legs'] = 4
+        # constraints['min_legs'] = 2
+        # mean_stance_legs = fly.stance_count * fly.time_step / fly.time
+        # penalties['stance'] = (
+        #     0.0
+        #     if constraints['min_legs'] <= mean_stance_legs < constraints['expected_stance_legs']
+        #     else abs(mean_stance_legs - constraints['min_legs'])
+        # )
 
-        expected_stance_legs = 3.6
-        min_legs = 3
-        mean_stance_legs = fly.stance_count * fly.time_step / fly.time
-        penalty_time_stance = (
-            0.0
-            if min_legs <= mean_stance_legs < expected_stance_legs
-            else abs(mean_stance_legs - min_legs)
-        )
-        distance_weight = -1e1
-        stability_weight = -1e-1
-        movement_weight = 1e-2
-        touch_weight = 1e-2
-        velocity_weight = 1e-1
-        stance_weight = 1e2
-        penalties = (
-            movement_weight * fly.opti_lava + \
-            velocity_weight * fly.opti_velocity + \
-            stance_weight * penalty_time_stance
-        )
+        penalties['lava'] = fly.opti_lava
+        penalties['velocity'] = fly.opti_velocity
+        penalties['joint_limits'] = fly.opti_joint_limit
+
+        weights = {
+            'distance': -1e1,
+            'stability': -1e-2,
+            'mechanical_work': 1e-2,
+            'stance': 1e2,
+            'lava': 1e-1,
+            'velocity': 1e-1,
+            'joint_limits': 1e-1
+        }
+
+        objectives_weighted = {
+            obj_name: obj_value * weights[obj_name]
+            for obj_name, obj_value in objectives.items()
+        }
+
+        penalties_weighted = {
+            pen_name: pen_value * weights[pen_name]
+            for pen_name, pen_value in penalties.items()
+        }
 
         #: Print penalties and objectives
-        print(
-            f"OBJECTIVES\n===========\n\
-                Distance: {distance_weight * distance} \n \
-                Stability: {stability_weight * stability} \n \
-                Work: {fly.mechanical_work} \n \
-                PENALTIES\n=========\n \
-                Penalty lava: {movement_weight * fly.opti_lava} \n \
-                Penalty velocity: {velocity_weight*fly.opti_velocity} \n \
-                Penalty stance: {stance_weight * penalty_time_stance} \n \
-            "
-        )
-
-        solution.objectives[0] = distance_weight * distance + penalties
-        solution.objectives[1] = stability_weight * stability + penalties
-
-        print(
-            "OBJECTIVE FUNCTION EVALUATION:\n===========\n\
-                First: {} \n \
-                Second: {} \n \
-            ".format(
-                solution.objectives[0],
-                solution.objectives[1]
+        print('\nObjectives\n==========')
+        for name, item in objectives_weighted.items():
+            print(
+                '{}: {}'.format(name, item)
             )
+        print('\nPenalties\n=========')
+        for name, item in penalties_weighted.items():
+            print(
+                '{}: {}'.format(name,item)
+            )
+
+        solution.objectives[0] = objectives_weighted['distance'] + sum(penalties_weighted.values())
+        solution.objectives[1] = objectives_weighted['stability'] + sum(penalties_weighted.values())
+
+        print(
+            f'\nObjective func eval:\nFirst: {solution.objectives[0]}\nSecond: {solution.objectives[1]}\n'
         )
+
+        print_penalties_to_file((*objectives_weighted.values(), *penalties_weighted.values()))
+        config_file = {
+            weight_name: weight for weight_name, weight in weights.items()
+            if weight_name in {**objectives, **penalties}
+        }
+
+        config_file = {**config_file, **constraints} if 'stance' in penalties else config_file
+        generate_config_file(config_file)
 
         return solution
 

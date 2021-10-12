@@ -9,7 +9,8 @@ from pathlib import Path
 
 import numpy as np
 from farms_container import Container
-from NeuroMechFly.experiments.network_optimization import neuromuscular_control
+from NeuroMechFly.experiments.network_optimization import (
+    multiobj_optimization, neuromuscular_control)
 from NeuroMechFly.utils.plotting import plot_collision_diagram, plot_data
 from NeuroMechFly.utils.profiler import profile
 
@@ -23,7 +24,6 @@ def parse_args():
     parser.add_argument('-p', '--path', default='')
     parser.add_argument('-s', '--sol', default='fastest')
     parser.add_argument('--gui', dest='gui', action='store_true')
-    parser.add_argument('--record', dest='record', action='store_true')
     parser.add_argument('--slow', dest='slow', action='store_true')
     parser.add_argument('--profile', dest='profile', action='store_true')
     parser.set_defaults(gui=False, profile=False)
@@ -33,10 +33,10 @@ def parse_args():
 def main(args):
     """ Main function """
 
-    run_time = 3.0
+    run_time = 12.5
     time_step = 1e-4
 
-    #: Set collision segments
+    # Set collision segments
     ground_contact = [
             f"{side}{leg}{segment}"
             for side in ('L', 'R')
@@ -44,7 +44,7 @@ def main(args):
             for segment in tuple(f"Tarsus{i}" for i in range(1, 6))
     ]
 
-    #: Setting up the paths for the SDF and POSE files
+    # Setting up the paths for the SDF and POSE files
     model_path = neuromechfly_path.joinpath(
         "data/design/sdf/neuromechfly_locomotion_optimization.sdf"
     )
@@ -55,7 +55,7 @@ def main(args):
         "data/config/network/locomotion_network.graphml"
     )
 
-    #: Get experiment information
+    # Get experiment information
     path = os.path.abspath(args.path)
     exp_name = path.split('/')[-1]
     exp_info = exp_name.split('_')
@@ -67,7 +67,7 @@ def main(args):
         exp = 'last_run'
         gen = 'final'
 
-    #: Simulation options
+    # Simulation options
     sim_options = {
         "headless": not args.gui,
         "model": str(model_path),
@@ -79,55 +79,34 @@ def main(args):
         "controller": controller_path,
         "ground_contacts": ground_contact,
         # 'self_collisions': self_collision,
-        "draw_collisions": False, #: Set True to change the color of colliding segments
-        "record": args.record, #: Set True to record the simulation
+        "draw_collisions": False, # Set True to change the color of colliding segments
+        "record": False, # Set True to record the simulation
         'camera_distance': 4.5,
         'track': False,
-        'moviename': f'{exp}_gen_{gen}_sol_{args.sol}.mp4',
-        'moviespeed': 0.1, #: Speed of the recorded movie
+        'moviename': f'test_neural_control_params.mp4',
+        'moviespeed': 0.3, # Speed of the recorded movie
         'slow_down': args.slow,
-        'sleep_time': 1e-3,
-        'rot_cam': False, #: Set true to rotate the camera automatically
+        'sleep_time': time_step,
+        'rot_cam': False, # Set true to rotate the camera automatically
         'ground': 'ball'
     }
-    #: Initialize the container
+    # Initialize the container
     container = Container(run_time / time_step)
     animal = neuromuscular_control.DrosophilaSimulation(container, sim_options)
-    #: Load the results of the latest generation of the last optimization run
-    fun_path = os.path.join(
-        neuromechfly_path,
-        'scripts/neuromuscular_optimization',
-        args.path,
-        'FUN.' + args.gen
-        )
-    var_path = os.path.join(
-        neuromechfly_path,
-        'scripts/neuromuscular_optimization',
-        args.path,
-        'VAR.' + args.gen
-        )
-    fun, var = np.loadtxt(fun_path), np.loadtxt(var_path)
 
-    #: Select which solution to use (fastest, in this case)
-    ind = animal.select_solution(args.sol, fun)
-    params = var[ind]
-    params = np.array(params)
+    # Get parameters from optimization class
+    problem = multiobj_optimization.DrosophilaEvolution()
 
-    #: Run the selected parameter values in the simulation
-    animal.update_parameters(params)
-    animal.run(optimization=True)
-    #: Dump the optimization results
-    results_path = os.path.join(
-        neuromechfly_path,
-        'scripts/neuromuscular_optimization',
-        f"simulation_{exp}",
-        f"gen_{gen}",
-        f"sol_{args.sol}"
-    )
-
-    if not os.path.exists(results_path):
-        os.makedirs(results_path)
+    # Run the selected parameter values in the simulation
+    animal.update_parameters(problem.lower_bound)
+    # animal.update_parameters((problem.lower_bound + problem.upper_bound)/2)
+    animal.update_parameters(problem.upper_bound)
+    animal.run(optimization=False)
+    # Dump the optimization results
+    results_path = neuromechfly_path.joinpath("scripts/tests/test")
     animal.container.dump(dump_path=results_path, overwrite=True)
+    #
+
 
 if __name__ == "__main__":
     """ Main """

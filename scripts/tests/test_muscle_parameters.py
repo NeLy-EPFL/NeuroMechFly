@@ -9,6 +9,8 @@ from NeuroMechFly.control.spring_damper_muscles import (Parameters,
 from NeuroMechFly.sdf.units import SimulationUnitScaling
 from NeuroMechFly.simulation.bullet_simulation import BulletSimulation
 
+pylog.set_level("error")
+
 
 class DrosophilaSimulation(BulletSimulation):
     """Drosophila Simulation Class
@@ -54,7 +56,7 @@ class DrosophilaSimulation(BulletSimulation):
         self.physics = self.container.physics
         self.muscle = self.container.muscle
         ########## Initialize joint muscles ##########
-        self.debug_joint = 'joint_RFFemur'
+        self.debug_joint = 'joint_RFTibia'
         for joint in [self.debug_joint,]:
             fmn = self.neural.states.get_parameter(
                 'phase_' + joint + '_flexion')
@@ -162,10 +164,6 @@ class DrosophilaSimulation(BulletSimulation):
                 only_passive=False
             )
         )
-        # print(
-        #     self.active_muscles[self.debug_joint].active_torque.value,
-        #     self.active_muscles[self.debug_joint].passive_torque.value,
-        # )
 
     def feedback_to_controller(self):
         """ Implementation of abstractmethod. """
@@ -187,6 +185,7 @@ def main():
 
     sim_options = {
         "headless": False,
+        "time_step": 5e-4,
         # Scaled SDF model
         "model": "../../data/design/sdf/fly_locomotion.sdf",
         "model_offset": [0., 0., 11.2e-3],
@@ -196,7 +195,7 @@ def main():
         "controller": '../../data/config/network/locomotion_network.graphml',
         "draw_collisions": False,
         'camera_distance': 3.5,
-        'slow_down': True,
+        'slow_down': False,
         "ground": "floor",
         'sleep_time': 1e-3,
         "is_ball": False
