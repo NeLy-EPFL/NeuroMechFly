@@ -33,17 +33,17 @@ def plot_mu_sem(
         Mean, shape [N_samples, N_lines] or [N_samples].
     error: <np.array>
         Error to be plotted, e.g. standard error of the mean, shape [N_samples, N_lines] or [N_samples].
-    conf: <int> 
+    conf: <int>
         Confidence interval, if none, stderror is plotted instead of std.
-    plot_label: <str> 
+    plot_label: <str>
         The label for each line either a string if only one line or list of strings if multiple lines.
     x: <np.array>
         shape [N_samples]. If not specified will be np.arange(mu.shape[0]).
     alpha: <float>
         Transparency of the shaded area. default 0.3.
-    color: 
+    color:
         Pre-specify colour. if None, use Python default colour cycle.
-    ax:  
+    ax:
         axis to be plotted on, otherwise the current is axis with plt.gca().
     """
     if ax is None:
@@ -105,34 +105,34 @@ def plot_kp_joint(
 
     Parameters
     ----------
-    *args: <np.array> 
+    *args: <np.array>
         Force to be plotted, i.e. grf, lateral friction, thorax.
-        
-    multiple: <bool> 
+
+    multiple: <bool>
         Plots vectors instead of norm.
 
-    data: <dictionary> 
+    data: <dictionary>
         Dictionary to be plotted, i.e. joint torques.
-    
-    full_name: <str> 
+
+    full_name: <str>
         Key name, e.g., 'joint_LMTibia'.
 
-    gain_range: <np.array> 
+    gain_range: <np.array>
         Range of gains to be plotted, i.e. np.arange(0.1,1.4,0.2).
 
-    scaling_factor: <int> 
+    scaling_factor: <int>
         Scale to change the units.
 
-    ax:  
+    ax:
         Axis to be plotted on, otherwise the current is axis with plt.gca().
 
-    beg: <int> 
+    beg: <int>
         Beginning of the data to be plotted. the entire data is long.
 
-    intv: <int> 
+    intv: <int>
         Int of the data to be plotted.
 
-    ground_truth: <np.array> 
+    ground_truth: <np.array>
         Ground truth for position or velocity.
     """
     if ax is None:
@@ -186,13 +186,13 @@ def heatmap_plot(
         linewidth="0.005",
         ax=None,
         cmap='viridis'):
-    """ Plots a heatmap plot for global sensitivity analysis. 
-    
+    """ Plots a heatmap plot for global sensitivity analysis.
+
     Parameters
     ----------
-    title: <str> 
+    title: <str>
         Title of the heatmap.
-    joint_data: <dict> 
+    joint_data: <dict>
         Dictionary containing the joint information (angle etc).
     colorbar_title: <str>
         Title of the colorbar.
@@ -200,7 +200,7 @@ def heatmap_plot(
         Precision of the heatmap entries.
     linewidth: <str>
         Width of the lines in heatmap.
-    ax: 
+    ax:
         Axis to be plotted on, otherwise plt.gca().
     cmap: <str>
         Color map of the heatmap.
@@ -221,10 +221,11 @@ def heatmap_plot(
     ax.invert_yaxis()
 
 def plot_pareto_front(path_data,
-                      g,
-                      s=''):
-    """ Plots solutions from optimization results. 
-    
+                      generation_list,
+                      solution_ind='',
+                      **kwargs):
+    """ Plots solutions from optimization results.
+
     Parameters
     ----------
     path_data: <str>
@@ -235,29 +236,37 @@ def plot_pareto_front(path_data,
         Solutions' criteria or number to plot, it can be one name or a list of names.
     """
     from ..experiments.network_optimization.neuromuscular_control import DrosophilaSimulation as ds
+    from matplotlib import colors
 
-    if not isinstance(g, list):
-        generations = [g]
-    else:
-        generations = g
+    alpha = kwargs.get('alpha', 0.6)
 
-    if not isinstance(s, list):
-        solutions = [s]
+    if not isinstance(generation_list, list):
+        generations = [generation_list]
     else:
-        solutions = s
+        generations = generation_list
+
+    if not isinstance(solution_ind, list):
+        solutions = [solution_ind]
+    else:
+        solutions = solution_ind
 
     edge = plt.cm.cool(np.linspace(0,1,len(solutions)))
     ax = plt.gca()
-    for gen in generations:
-        fun_path = os.path.join(path_data,f"FUN.{gen}")    
+    for i, gen in enumerate(generations):
+        fun_path = os.path.join(path_data,f"FUN.{gen}")
         fun = np.loadtxt(fun_path)
 
         color = next(ax._get_lines.prop_cycler)['color']
+        formation_colors = np.random.choice(list(colors.XKCD_COLORS), 70, replace=False)  # 70 random color names
+        formation_colors = np.asarray(formation_colors)
+        color = formation_colors[i]
+
         plt.scatter(fun[:,0],
                     fun[:,1],
                     c=color,
                     s=60,
-                    label=f"gen: {gen+1}")
+                    label=f"gen: {gen+1}",
+                    alpha=alpha)
 
         for i, sol in enumerate(solutions):
             if sol != '':
@@ -272,8 +281,9 @@ def plot_pareto_front(path_data,
                             s=60,
                             edgecolors=edge[i],
                             linewidth=3.5,
-                            label=f'sol: {ind} ({sol})')
-    
+                            label=f'sol: {ind} ({sol})',
+                            alpha=alpha)
+
     plt.xlabel('Distance')
     plt.ylabel('Stability')
     title = 'Pareto front'
@@ -346,8 +356,8 @@ def plot_penalties(
 def read_muscles_act(path_data,
                      equivalence,
                      leg_order):
-    """ Reads muscle's data obtained after running a simulation (run_neuromuscular_control). 
-    
+    """ Reads muscle's data obtained after running a simulation (run_neuromuscular_control).
+
     Parameters
     ----------
     path_data: <str>
@@ -362,7 +372,7 @@ def read_muscles_act(path_data,
     data: <dict>
         Dictionary with muscles data.
     """
-    
+
     muscles_path = os.path.join(path_data, 'muscle', 'outputs.h5')
     data_raw = pd.read_hdf(muscles_path)
     data={}
@@ -384,7 +394,7 @@ def read_joint_positions(path_data,
                          equivalence,
                          leg_order):
     """ Reads joint position's data obtained after running a simulation (run_neuromuscular_control).
-    
+
     Parameters
     ----------
     path_data: <str>
@@ -405,18 +415,18 @@ def read_joint_positions(path_data,
     for leg in leg_order:
         name = f"{leg}_leg"
         angles[name]={}
-        
+
     for leg in angles.keys():
         for new_name, old_name in equivalence.items():
             key = f"joint_{leg[:2]}{old_name}"
             angles[leg][new_name] = angles_raw[key].values
 
     return angles
-        
+
 
 def read_ground_contacts(path_data):
     """ Reads ground contact's data obtained after running a simulation.
-    
+
     Parameters
     ----------
     path_data: <str>
@@ -443,13 +453,13 @@ def read_ground_contacts(path_data):
             if leg[:2] not in grf.keys():
                 grf[leg[:2]] = []
             grf[leg[:2]].append(res_force)
-    
+
     return grf
 
 
 def read_collision_forces(path_data):
     """ Reads collision force's data obtained after running a simulation.
-    
+
     Parameters
     ----------
     path_data: <str>
@@ -486,7 +496,7 @@ def read_collision_forces(path_data):
 
 def get_stance_periods(leg_force,start,stop):
     """ Get stance periods from GRF data.
-    
+
     Parameters
     ----------
     leg_force: <np.array>
@@ -530,7 +540,7 @@ def get_stance_periods(leg_force,start,stop):
             stance_plot = [start, start]
     else:
         stance_plot = [start, start]
-    
+
     return stance_plot
 
 def plot_data(
@@ -555,7 +565,7 @@ def plot_data(
     ):
 
     """ Plots data from the simulation.
-    
+
     Parameters
     ----------
     path_data: <str>
@@ -592,7 +602,7 @@ def plot_data(
         Scaling factor for torques (from Nm to uNmm).
     grfScalingFactor: <float>
         Scaling factor for ground reaction forces (from N to uN).
-    """    
+    """
     data2plot = {}
     mn_flex = {}
     mn_ext = {}
@@ -627,7 +637,7 @@ def plot_data(
 
         data2plot['mn_prot'] = mn_flex
         data2plot['mn_ret'] = mn_ext
-        
+
     if plot_torques_muscles:
         muscles_data = read_muscles_act(path_data, equivalence, leg_order)
 
@@ -639,9 +649,9 @@ def plot_data(
                         torques_muscles[name] = data
                     if length_data == 0:
                         length_data = len(data)
-                        
+
         data2plot['torques_muscles'] = torques_muscles
-    
+
     if plot_angles_interleg:
         angles_data = read_joint_positions(path_data, equivalence, leg_order)
 
@@ -649,18 +659,18 @@ def plot_data(
             for joint, data in joint_data.items():
                 if joint_key == joint:
                     name = f"{leg[:2]} {joint.replace('_',' ')}"
-                    angles_sim[name] = data                
+                    angles_sim[name] = data
                 elif joint_key in joint and 'pitch' in joint:
                     if not ('ThC' in joint_key and ('M' in leg or 'H' in leg)):
                         name = f"{leg[:2]} {joint.replace('_',' ')}"
-                        angles_sim[name] = data                    
+                        angles_sim[name] = data
                 elif joint_key in joint and 'roll' in joint:
                     if 'ThC' in joint_key and ('M' in leg or 'H' in leg):
                         name = f"{leg[:2]} {joint.replace('_',' ')}"
                         angles_sim[name] = data
-                
+
                 if length_data == 0:
-                    length_data = len(data)                
+                    length_data = len(data)
         data2plot['angles_sim'] = angles_sim
 
     if plot_angles_intraleg:
@@ -796,7 +806,7 @@ def plot_data(
             else:
                 axs[i].set_ylabel('Joint torques\nfrom muscle ' + r'$(\mu Nmm)$')
                 axs[i].set_ylim(-0.5, 0.5)
-                
+
         if plot == 'angles_sim':
             for joint, ang in data.items():
                 time = np.arange(0, len(ang), 1) / steps
@@ -928,7 +938,7 @@ def plot_data(
                     all_handles = plot_handles + \
                         [dark_line] + [gray_line]
                     all_labels = plot_labels + ['Leg vs leg force'] + [
-                        'Leg vs antenna force'] 
+                        'Leg vs antenna force']
                 else:
                     all_handles = plot_handles + \
                         [gray_patch] + [darkgray_patch]
@@ -975,7 +985,7 @@ def plot_data(
                                         1, facecolor=c, alpha=0.5, transform=axs[i].get_xaxis_transform())
 
     if len(data2plot.keys()) == 1:
-        axs.set_xlabel('Time (s)') 
+        axs.set_xlabel('Time (s)')
     else:
         axs[len(axs) - 1].set_xlabel('Time (s)')
     plt.show()
@@ -989,23 +999,23 @@ def plot_collision_diagram(
         time_step=0.001):
 
     """ Plots collision/gait diagrams.
-    
+
     Parameters
     ----------
     path_data: <str>
         Path to simulation results.
     sim_data: <str>
-        Behavior from data. Options: 'walking' or 'grooming'.    
+        Behavior from data. Options: 'walking' or 'grooming'.
     begin: <float>
         Starting time for initiating the plots.
     end: <float>
         Stoping time for finishing the plots. If 0.0, all data is plotted.
     time_step: <float>
         Data time step.
-    """ 
+    """
     data = {}
     length_data = 0
-    
+
     if sim_data == 'walking':
         data = read_ground_contacts(path_data)
         title_plot = 'Gait diagram'
@@ -1022,7 +1032,7 @@ def plot_collision_diagram(
             collisions[leg].append(segment_force)
             if length_data == 0:
                 length_data = len(segment_force)
-                
+
     elif sim_data == 'grooming':
         data = read_collision_forces(path_data)
         title_plot = 'Collisions diagram'
@@ -1040,12 +1050,12 @@ def plot_collision_diagram(
             'RFTarsus2': [],
             'RFTarsus1': [],
             'RFTibia': [],
-            'RAntenna': []}  
+            'RAntenna': []}
 
         for segment1 in collisions.keys():
             seg_forces=[]
             for segment2, force in data[segment1].items():
-                seg_forces.append(force)    
+                seg_forces.append(force)
             sum_force = np.sum(np.array(seg_forces), axis=0)
             segment_force = np.delete(sum_force, 0)
             collisions[segment1].append(segment_force)
@@ -1073,7 +1083,7 @@ def plot_collision_diagram(
         axs[i].fill_between(time[start:stance_plot[0]], 0, 1, facecolor='white', alpha=1, transform=axs[i].get_xaxis_transform())
 
         axs[i].fill_between(time[stance_plot[-1]:stop], 0, 1, facecolor='white', alpha=1, transform=axs[i].get_xaxis_transform())
-        
+
         axs[i].set_yticks((0.5,))
         axs[i].set_yticklabels((segment,))
 
@@ -1104,7 +1114,7 @@ def plot_fly_path(
         ):
 
     """ Plots collision/gait diagrams.
-    
+
     Parameters
     ----------
     path_data: <str>
@@ -1125,7 +1135,7 @@ def plot_fly_path(
         Stoping time for finishing the plots. If 0.0, all data is plotted.
     time_step: <float>
         Data time step.
-    """ 
+    """
     ball_data_list = []
 
     val_max = 0
@@ -1175,14 +1185,14 @@ def plot_fly_path(
 
         x = []
         y = []
-        
+
         for count, i in enumerate(range(start, stop-1)):
             th = data_array[i][2]
             forward = -(data_array[i][0]-data_array[0][0]) * ball_size
             lateral = (data_array[i][1]-data_array[0][1]) * ball_size
             x.append(forward)
             y.append(lateral)
-            
+
             if sequence:
                 ax.clear()
                 curr_time = (i+2)/steps
@@ -1212,10 +1222,10 @@ def plot_fly_path(
                 ax.set_ylabel('y (mm)')
                 plt.draw()
                 plt.pause(0.001)
-                
+
         max_x = np.max(np.array(x))
         min_x = np.min(np.array(x))
-    
+
         if max_x > val_max:
             val_max = max_x
 
@@ -1239,6 +1249,6 @@ def plot_fly_path(
                 ax.legend()
             else:
                 ax.plot(x, y, linewidth=2)
-    
+
     plt.show()
 

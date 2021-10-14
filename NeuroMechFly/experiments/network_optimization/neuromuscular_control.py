@@ -163,6 +163,10 @@ class DrosophilaSimulation(BulletSimulation):
         """ Implementation of abstract method. """
         # Update muscles
         self.muscle_controller()
+        if t == 2.999 * 1e4:
+            average_speed = abs((self.ball_radius * self.ball_rotations[0]) / 3.0)
+            print(f'Fly average speed is: {average_speed} mm/s')
+
         # Change the color of the colliding body segments
         if self.draw_collisions:
             draw = []
@@ -260,7 +264,7 @@ class DrosophilaSimulation(BulletSimulation):
         point_d = np.array([x1+a*dx, y1+a*dy])
         return point_d
 
-    def compute_static_stability(self, draw_polygon=False):
+    def compute_static_stability(self, draw_polygon=True):
         """ Computes static stability  of the model.
 
         Parameters
@@ -277,7 +281,7 @@ class DrosophilaSimulation(BulletSimulation):
 
         """
         # Initialize static stability
-        static_stability = -10.0 # Why 10?
+        static_stability = -1.0 # Why 10?
         # Ground contacts
         current_ground_contact_links = self.get_current_contacts()
         contact_points = [
@@ -385,14 +389,14 @@ class DrosophilaSimulation(BulletSimulation):
 
     def check_movement(self):
         """ State of lava approaching the model. """
-        # The fly travels 2 rad (10 mm) in one second, set the min ang pos 1.2 rad (6 mm)
-        # The min desired angular pos of the ball at the end of run time
+        # Slow 2 rad (10 mm/sec), fast 6.8 rad (34 mm/sec)
+        # The range is 1.2 < ball rotation per second < 7.2 rad/sec
         total_angular_dist = 1.2 * self.run_time
         ball_angular_position = np.array(self.ball_rotations)[0]
         moving_limit_lower = ((self.time / self.run_time)
                         * total_angular_dist) - 0.20
         moving_limit_upper = ((self.time / self.run_time)
-                        * 4 * total_angular_dist) - 0.20
+                        * 6 * total_angular_dist) - 0.20
         # print(moving_limit_lower, -ball_angular_position, moving_limit_upper)
         self.opti_lava += 1.0 if np.any(
             np.abs(ball_angular_position) < moving_limit_lower
