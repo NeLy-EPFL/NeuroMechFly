@@ -694,14 +694,14 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             (-1, 3))
 
     @property
-    def ground_reaction_forces(self):
+    def contact_normal_force(self):
         """ Get the ground reaction forces between the surface. """
         return np.asarray(
             self.sim_data.contact_normal_force.values).reshape(
             (-1, 3))
 
     @property
-    def lateral_friction_forces(self):
+    def contact_lateral_force(self):
         """ Get the ground reaction forces between the surface. """
         return np.asarray(
             self.sim_data.contact_lateral_force.values).reshape(
