@@ -67,6 +67,12 @@ def main(args):
         exp = 'last_run'
         gen = 'final'
 
+    # Set the ball specs based on your experimental setup
+    ball_specs = {
+        'ball_density': 96,
+        'ball_radius': 5.0e-3,
+        'ball_friction_coef': 10.0
+    }
     #: Simulation options
     sim_options = {
         "headless": not args.gui,
@@ -88,7 +94,8 @@ def main(args):
         'slow_down': args.slow,
         'sleep_time': 1e-3,
         'rot_cam': False, #: Set true to rotate the camera automatically
-        'ground': 'ball'
+        'ground': 'ball',
+        **ball_specs
     }
     #: Initialize the container
     container = Container(run_time / time_step)
