@@ -522,8 +522,8 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         calculated_mass = density * volume
         # Assert if calculated and measured ball mass are not the same
         if mass != 0:
-            # TODO: Decide the threshold here, it is 1 mg now
-            assert abs(mass - calculated_mass) < 1.0e-6 * self.units.kilograms, "Calculated ({} kg) and measured ({} kg) ball masses do not match!".format(
+            # TODO: Decide the threshold here, it is 8 mg now
+            assert abs(mass - calculated_mass) < 8.0e-6 * self.units.kilograms, "Calculated ({} kg) and measured ({} kg) ball masses do not match!".format(
                 calculated_mass / self.units.kilograms, mass / self.units.kilograms
             )
         else:
