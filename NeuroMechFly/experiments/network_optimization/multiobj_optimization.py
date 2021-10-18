@@ -200,17 +200,17 @@ class DrosophilaEvolution(FloatProblem):
         lower_bound_active_muscles = (
                 np.asarray(
                     [# Front
-                    [1e-11, 1e-11, 5.0, 5e-15, 0.0], # Coxa
-                    [1e-11, 1e-11, 5.0, 5e-15, -2.0], # Femur
-                    [1e-11, 1e-11, 5.0, 5e-15, 1.31], # Tibia
+                    [1e-11, 1e-11, 0.1, 5e-15, 0.0], # Coxa
+                    [1e-11, 1e-11, 0.1, 5e-15, -2.0], # Femur
+                    [1e-11, 1e-11, 0.1, 5e-15, 1.31], # Tibia
                     # Mid
-                    [1e-11, 1e-11, 5.0, 5e-15, 2.18], # Coxa_roll
-                    [1e-11, 1e-11, 5.0, 5e-15, -2.14], # Femur
-                    [1e-11, 1e-11, 5.0, 5e-15, 1.96], # Tibia
+                    [1e-11, 1e-11, 0.1, 5e-15, 2.18], # Coxa_roll
+                    [1e-11, 1e-11, 0.1, 5e-15, -2.14], # Femur
+                    [1e-11, 1e-11, 0.1, 5e-15, 1.96], # Tibia
                     # Hind
-                    [1e-11, 1e-11, 5.0, 5e-15, 2.69], # Coxa_roll
-                    [1e-11, 1e-11, 5.0, 5e-15, -2.14], # Femur
-                    [1e-11, 1e-11, 5.0, 5e-15, 1.43], # Tibia
+                    [1e-11, 1e-11, 0.1, 5e-15, 2.69], # Coxa_roll
+                    [1e-11, 1e-11, 0.1, 5e-15, -2.14], # Femur
+                    [1e-11, 1e-11, 0.1, 5e-15, 1.43], # Tibia
                     ]
                 )
         ).flatten()
