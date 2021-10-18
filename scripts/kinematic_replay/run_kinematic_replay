@@ -24,13 +24,16 @@ def parse_args():
         '-pf', '--profile', default=False, type=str, required=False,
         dest="profile"
     )
+    parser.add_argument('-erp', '--contactERP', default='0.1')
+    parser.add_argument('-cfm', '--globalCFM', default='5.0')
     args = parser.parse_args()
     return args
 
 def main(args):
     """ Main function """
     run_time = 6.0
-    time_step = 0.001
+    time_step = 5e-4
+    starting_time = 14.3
     behavior = args.behavior.lower()
 
     # Setting up the collision and ground sensors
@@ -102,6 +105,7 @@ def main(args):
         "pose": pose_path,
         "model_offset": [0., 0, 11.2e-3],
         "run_time": run_time,
+        "time_step": time_step,
         "base_link": 'Thorax',
         "ground_contacts": ground_contact,
         "self_collisions": self_collision,
@@ -116,7 +120,11 @@ def main(args):
         'rot_cam': False,  # Set true to rotate the camera automatically
         'behavior': behavior,
         'ground': 'ball',
-        'ball_info': True
+        'ball_info': True,
+        'ball_mass': 54.6e-6,
+        'ball_friction_coef': 1.4,
+        'contactERP': float(args.contactERP),
+        'globalCFM': float(args.globalCFM)
     }
 
 
@@ -128,8 +136,8 @@ def main(args):
     #    neuromechfly_path,
     #    f'data/joint_tracking/{behavior}/df3d')
     
-    angles_path = glob.glob(data_path + '/joint_angles*.pkl')[0]
-    velocity_path = glob.glob(data_path + '/joint_velocities*.pkl')[0]
+    angles_path = glob.glob(data_path + '/joint_angles5e-4*.pkl')[0]
+    velocity_path = glob.glob(data_path + '/joint_velocities5e-4*.pkl')[0]
 
     # Initialize the container
     container = Container(run_time / time_step)
@@ -140,6 +148,7 @@ def main(args):
         kp=0.4, kv=0.9,
         angles_path=angles_path,
         velocity_path=velocity_path,
+        starting_time=starting_time,
         fixed_positions=fixed_positions
     )
     # Run the simulation

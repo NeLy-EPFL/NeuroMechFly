@@ -41,6 +41,7 @@ class DrosophilaSimulation(BulletSimulation):
         kv,
         angles_path,
         velocity_path,
+        starting_time = 0.0,
         fixed_positions=None,
         units=SimulationUnitScaling(
             meters=1000,
@@ -66,8 +67,8 @@ class DrosophilaSimulation(BulletSimulation):
         
         self.pose = [0] * self.num_joints
         self.vel = [0] * self.num_joints
-        self.angles = self.load_data(angles_path)
-        self.velocities = self.load_data(velocity_path)
+        self.angles = self.load_data(angles_path,starting_time)
+        self.velocities = self.load_data(velocity_path,starting_time)
                     
 
         # Debug parameter
@@ -84,8 +85,7 @@ class DrosophilaSimulation(BulletSimulation):
             (0., 0., 0.), (0., 0., 0.), lineColorRGB=[1, 0, 0]
         )
 
-    @staticmethod
-    def load_data(data_path):
+    def load_data(self, data_path,starting_time):
         """ Function that loads the pickle format joint angle or velocity gile.
 
         Parameters
@@ -110,19 +110,20 @@ class DrosophilaSimulation(BulletSimulation):
         converted_dict = {}
         try:
             data = pd.read_pickle(data_path)
+            start = int(np.round(starting_time/self.time_step))
             for leg, joints in data.items():
                 for joint_name, val in joints.items():
                     new_name = 'joint_' + leg[:2] + \
                         names_equivalence[joint_name]
-                    converted_dict[new_name] = val
+                    converted_dict[new_name] = val[start:]
             return converted_dict
         except BaseException:
             FileNotFoundError(f"File {data_path} not found!")
 
     
     def load_ball_info(self):
-
-        data_path = self.angles_path.replace('joint_angles','treadmill_info')
+        to_replace = self.angles_path[self.angles_path.find('joint_angles'):self.angles_path.find('__')]
+        data_path = self.angles_path.replace(to_replace,'treadmill_info')
         
         try:
             data = pd.read_pickle(data_path)
@@ -162,12 +163,12 @@ class DrosophilaSimulation(BulletSimulation):
         # Setting the joint angular positions of leg DOFs based on pose
         # estimation
         for joint_name, joint_pos in self.angles.items():
-            self.pose[self.joint_id[joint_name]] = joint_pos[t+14000]
+            self.pose[self.joint_id[joint_name]] = joint_pos[t]
 
         # Setting the joint angular velocities of leg DOFs based on pose
         # estimation
         for joint_name, joint_vel in self.velocities.items():
-            self.vel[self.joint_id[joint_name]] = joint_vel[t+14000]
+            self.vel[self.joint_id[joint_name]] = joint_vel[t]
 
         # Control the joints through position controller
         # Velocity can be discarded if not available and gains can be changed

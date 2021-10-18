@@ -6,12 +6,15 @@ from typing import List
 import numpy as np
 import pandas as pd
 import seaborn as sns
+import scipy.stats
 import scipy.signal
+import scipy.ndimage
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from matplotlib.lines import Line2D
 from matplotlib.markers import MarkerStyle
 from .sensitivity_analysis import calculate_forces
+from scipy.interpolate import pchip_interpolate
 
 def plot_mu_sem(
     mu,
@@ -1259,7 +1262,7 @@ def plot_fly_path(
 
     plt.show()
 
-def get_data(data_path, begin, end, time_step, data_from=[], offset=0):
+def get_data(data_path, begin, end, time_step, data_from=[], offset=0, window_time=0.2):
     fictrac_columns = ["Frame_counter",
                        "delta_rot_cam_x",
                        "delta_rot_cam_y",
@@ -1304,8 +1307,12 @@ def get_data(data_path, begin, end, time_step, data_from=[], offset=0):
 
     norm_data={}
     for key in data_from:
-        baseline = np.mean(data[key][start:start+10])
-        norm_data[key] = (data[key][start:stop] - baseline).values
+        if window_time > 0:
+            filtered_data = scipy.ndimage.median_filter(data[key],size=int(window_time/time_step))
+        else:
+            filtered_data = np.array(data[key].values)
+        baseline = np.mean(filtered_data[start:start+int(0.1/time_step)])
+        norm_data[key] = filtered_data[start:stop] - baseline
         if "lab_heading" in key:
             diff_heading = np.abs(np.diff(norm_data[key]))
             cross_points = np.where(diff_heading>np.pi)[0]
@@ -1323,12 +1330,16 @@ def get_data(data_path, begin, end, time_step, data_from=[], offset=0):
 def plot_fly_path_comparison(
         fictrac_path,
         sim_path,
+        plot_vel = True,
+        plot_traj = False,
         ball_radius = 5,
         begin=0,
         end = 0,
         offset_fictrac = 0,
+        offset_sim = 0,
         time_step_fictrac=0.01,
-        time_step_sim=0.001
+        time_step_sim=0.001,
+        filter_window_time=0.2
         ):
     """ Comparing fly path/ball rotations between ground truth (obtained from FicTrac) and simulation
     
@@ -1345,26 +1356,39 @@ def plot_fly_path_comparison(
     time_step: <float>
         Data time step.
     """
-    data_from_fictrac= ["integrated_forward_movement",
-                        "integrated_side_movement",
-                        "integrated_lab_heading"]
-    fictrac_data = get_data(fictrac_path,begin,end,time_step_fictrac,data_from_fictrac,offset_fictrac)
+    data_from_fictrac = ["integrated_forward_movement",
+                         "integrated_side_movement",
+                         "integrated_lab_heading",
+                         "delta_rot_lab_x",
+                         "delta_rot_lab_y",
+                         "delta_rot_lab_z"]
+    
+    fictrac_data = get_data(fictrac_path,begin,end,time_step_fictrac,data_from_fictrac,offset_fictrac,filter_window_time)
     fw_fictrac = fictrac_data["integrated_forward_movement"] * ball_radius
     side_fictrac = fictrac_data["integrated_side_movement"] * ball_radius
     heading_fictrac = fictrac_data["integrated_lab_heading"]
-    
+
+    vel_fw_fictrac = -fictrac_data["delta_rot_lab_x"] / time_step_fictrac
+    vel_side_fictrac = -fictrac_data["delta_rot_lab_y"] / time_step_fictrac
+    vel_heading_fictrac = -fictrac_data["delta_rot_lab_z"] / time_step_fictrac
 
     data_from_sim = ["x", "y", "z"]
     sim_data_path = os.path.join(sim_path, 'physics','ball_rotations.h5')
-    ball_data = get_data(sim_data_path,begin,end,time_step_sim,data_from_sim)
+    ball_data = get_data(sim_data_path,begin,end,time_step_sim,data_from_sim, offset_sim, filter_window_time)
     fw_sim = ball_data["x"] * ball_radius
     side_sim = ball_data["y"] * ball_radius
     heading_sim = ball_data["z"]
 
+    sim_vel_data_path = os.path.join(sim_path, 'physics','ball_velocities.h5')
+    vel_data = get_data(sim_vel_data_path,begin,end,time_step_sim,data_from_sim, offset_sim, filter_window_time)
+    vel_fw_sim = -vel_data["y"] 
+    vel_side_sim = vel_data["x"] 
+    vel_heading_sim = -vel_data["z"] 
     
     window = 11
     order = 3
 
+    '''
     vel_fw_fictrac = scipy.signal.savgol_filter(fw_fictrac, window, order, deriv=1, delta=time_step_fictrac, mode='nearest')
     vel_side_fictrac = scipy.signal.savgol_filter(side_fictrac, window, order, deriv=1, delta=time_step_fictrac, mode='nearest')
     vel_heading_fictrac = scipy.signal.savgol_filter(heading_fictrac, window, order, deriv=1, delta=time_step_fictrac, mode='nearest')
@@ -1372,79 +1396,91 @@ def plot_fly_path_comparison(
     vel_fw_sim = scipy.signal.savgol_filter(fw_sim, 111, order, deriv=1, delta=time_step_sim, mode='nearest')
     vel_side_sim = scipy.signal.savgol_filter(side_sim, 111, order, deriv=1, delta=time_step_sim, mode='nearest')
     vel_heading_sim = scipy.signal.savgol_filter(heading_sim, 111, order, deriv=1, delta=time_step_sim, mode='nearest')
+    '''
 
-    
-    x_head_fictrac, y_head_fictrac = get_flat_trajectory(fw_fictrac,side_fictrac,heading_fictrac)
-    x_head_sim, y_head_sim = get_flat_trajectory(-fw_sim, -side_sim, -heading_sim)
-    
-    plt.figure(0)
-    plt.plot(x_head_fictrac, y_head_fictrac, label="fictrac path")
-    plt.plot(x_head_sim, y_head_sim, label="NeuroMechFly path")
-    plt.xlabel('Distance (mm)')
-    plt.ylabel('Distance (mm)')
-    plt.legend()
-
-        
     time_fictrac = np.arange(begin, end, time_step_fictrac)
     time_sim = np.arange(begin, end, time_step_sim)
-
-    plt.figure(2)    
-    plt.plot(fw_fictrac, side_fictrac, label='Fictrac (x-y)')
-    plt.plot(fw_sim, side_sim, label='NeuroMechFly (x-y)')
-    #plt.ylim(-0.5,1)
-    plt.xlabel('Distance (mm)')
-    plt.ylabel('Distance (mm)')
-    plt.legend()
-
-    plt.figure(3)    
-    plt.plot(time_fictrac, side_fictrac, label='Fictrac side')
-    plt.plot(time_sim, side_sim, label='NeuroMechFly side')
-    plt.xlabel('Time (s)')
-    plt.ylabel('Distance (mm)')
-    plt.legend()
+    filter_window_time = 0.2
     
-    plt.figure(4)    
-    plt.plot(time_fictrac, fw_fictrac, label='Fictrac forward')
-    plt.plot(time_sim, fw_sim, label='NeuroMechFly forward')
-    plt.xlabel('Time (s)')
-    plt.ylabel('Distance (mm)')
-    plt.legend()
-    
-    plt.figure(5)    
-    plt.plot(time_fictrac, heading_fictrac, label='Fictrac heading')
-    plt.plot(time_sim, heading_sim, label='NeuroMechFly heading')
-    plt.xlabel('Time (s)')
-    plt.ylabel('Distance (rad)')
-    plt.legend()
-    
-    plt.figure(6)    
-    #plt.plot(time_fictrac, delta_fw_fictrac, label='delta fw fictrac')
-    plt.plot(time_fictrac, vel_fw_fictrac, label='vel fw fictrac')
-    plt.plot(time_sim, vel_fw_sim, label='vel fw sim')
-    #plt.plot(time_sim, delta_fw_sim, label='delta fw sim')    
-    plt.xlabel('Time (s)')
-    plt.ylabel('Velocity (mm/s)')
-    plt.legend()
+    if plot_traj:
+        x_head_fictrac, y_head_fictrac = get_flat_trajectory(fw_fictrac,side_fictrac,heading_fictrac)
+        x_head_sim, y_head_sim = get_flat_trajectory(-fw_sim, -side_sim, -heading_sim)
 
-    plt.figure(7)
-    #plt.plot(time_fictrac, delta_side_fictrac, label='delta side fictrac')
-    plt.plot(time_fictrac, vel_side_fictrac, label='vel side fictrac')
-    plt.plot(time_sim, vel_side_sim, label='vel side sim')
-    #plt.plot(time_sim, delta_side_sim, label='delta side sim')    
-    plt.xlabel('Time (s)')
-    plt.ylabel('Velocity (mm/s)')
-    plt.legend()
+        plt.figure()
+        plt.plot(x_head_fictrac, y_head_fictrac, label="fictrac path")
+        plt.plot(x_head_sim, y_head_sim, label="NeuroMechFly path")
+        plt.xlabel('Distance (mm)')
+        plt.ylabel('Distance (mm)')
+        plt.legend()
 
-    plt.figure(8)
-    #plt.plot(time_fictrac, delta_heading_fictrac, label='delta heading fictrac')
-    plt.plot(time_fictrac, vel_heading_fictrac, label='vel heading fictrac')
-    plt.plot(time_sim, vel_heading_sim, label='vel heading sim')
-    #plt.plot(time_sim, delta_heading_sim, label='delta heading sim')    
-    plt.xlabel('Time (s)')
-    plt.ylabel('Velocity (rad/s)')
-    plt.legend()
-    
+        plt.figure(2)    
+        plt.plot(fw_fictrac, side_fictrac, label='Fictrac (x-y)')
+        plt.plot(fw_sim, side_sim, label='NeuroMechFly (x-y)')
+        plt.xlabel('Distance (mm)')
+        plt.ylabel('Distance (mm)')
+        plt.legend()
+
+        plt.figure()    
+        plt.plot(time_fictrac, side_fictrac, label='Fictrac side')
+        plt.plot(time_sim, side_sim, label='NeuroMechFly side')
+        plt.xlabel('Time (s)')
+        plt.ylabel('Distance (mm)')
+        plt.legend()
+
+        plt.figure()    
+        plt.plot(time_fictrac, fw_fictrac, label='Fictrac forward')
+        plt.plot(time_sim, fw_sim, label='NeuroMechFly forward')
+        plt.xlabel('Time (s)')
+        plt.ylabel('Distance (mm)')
+        plt.legend()
+
+        plt.figure()    
+        plt.plot(time_fictrac, heading_fictrac, label='Fictrac heading')
+        plt.plot(time_sim, heading_sim, label='NeuroMechFly heading')
+        plt.xlabel('Time (s)')
+        plt.ylabel('Distance (rad)')
+        plt.legend()
+
+    if plot_vel:
+        plt.figure()
+        interp_fictrac, corr_coef = calculate_correlation_between(vel_fw_fictrac,vel_fw_sim,time_fictrac,time_sim)
+        plt.plot(time_sim, interp_fictrac, label='vel fw interpolated fictrac')
+        #plt.plot(time_fictrac, smooth_vel_fw_fictrac, label='vel fw smooth fictrac')
+        plt.plot(time_sim, vel_fw_sim, label='vel fw sim')
+        plt.xlabel('Time (s)')
+        plt.ylabel('Velocity (rad/s)')
+        plt.legend()
+        print(f"Correlation coeficient (Fw vel): {corr_coef}")
+
+        plt.figure()
+        interp_fictrac, corr_coef = calculate_correlation_between(vel_side_fictrac,vel_side_sim,time_fictrac,time_sim)
+        plt.plot(time_sim, interp_fictrac, label='vel side interpolated fictrac')
+        #plt.plot(time_fictrac, scipy.ndimage.median_filter(vel_side_fictrac,size=20), label='vel fw smooth fictrac')
+        plt.plot(time_sim, vel_side_sim, label='vel side sim')
+        plt.xlabel('Time (s)')
+        plt.ylabel('Velocity (rad/s)')
+        plt.legend()
+        print(f"Correlation coeficient (Side vel): {corr_coef}")
+
+        plt.figure()
+        interp_fictrac, corr_coef = calculate_correlation_between(vel_heading_fictrac,vel_heading_sim,time_fictrac,time_sim)
+        plt.plot(time_sim, interp_fictrac, label='vel heading interpolated fictrac')
+        #plt.plot(time_fictrac, scipy.ndimage.median_filter(vel_heading_fictrac,size=20), label='vel fw smooth fictrac')
+        plt.plot(time_sim, vel_heading_sim, label='vel heading sim')
+        plt.xlabel('Time (s)')
+        plt.ylabel('Velocity (rad/s)')
+        plt.legend()
+        print(f"Correlation coeficient (Heading vel): {corr_coef}")
+        
     plt.show()
+
+def calculate_correlation_between(fictrac, sim, time_fictrac, time_sim): 
+    interpolated_fictrac = pchip_interpolate(time_fictrac, fictrac, time_sim)
+
+    corr_coef, p_value = scipy.stats.spearmanr(interpolated_fictrac, sim) 
+
+    return interpolated_fictrac, corr_coef 
+  
     
 def plot_fly_path_comparison_old(
         fictrac_path,
@@ -1831,10 +1867,16 @@ def compare_collision_diagram(
         stance_plot = get_stance_periods(force[0],start_sim,stop_sim)
         stance_frames[segment] = []
         for ind in range(0, len(stance_plot), 2):
-                axs[i].fill_between(time[stance_plot[ind]:stance_plot[ind + 1]], 0, 1,
-                                    facecolor='deepskyblue', alpha=0.5, transform=axs[i].get_xaxis_transform())
-                num_steps = stance_plot[ind + 1]-stance_plot[ind]
-                stance_frames[segment].extend(np.linspace(stance_plot[ind],stance_plot[ind + 1],num_steps, endpoint=False))
+            start_stance = stance_plot[ind]
+            stop_stance = stance_plot[ind+1]
+            num_steps = int(stop_stance-start_stance)
+            axs[i].fill_between(time[start_stance:stop_stance], 0, 1,
+                                facecolor='deepskyblue', alpha=0.5,
+                                transform=axs[i].get_xaxis_transform())
+            stance_frames[segment].extend(np.linspace(start_stance,
+                                                      stop_stance,
+                                                      num_steps,
+                                                      endpoint=False))
 
         axs[i].fill_between(time[start_sim:stance_plot[0]], 0, 1, facecolor='white', alpha=0.5, transform=axs[i].get_xaxis_transform())
 
@@ -1844,31 +1886,36 @@ def compare_collision_diagram(
         axs[i].set_yticklabels((segment,))
 
     for i, (segment, force) in enumerate(collisions_gt.items()):
-        time = np.arange(0, len(force[0]), 1) / steps_gt
+        scale_factor = time_step_gt/time_step_sim
+        stop_time = np.round(len(force[0])*scale_factor)
+        time = np.arange(0, stop_time, 1) / steps_sim
+        time_gt = np.arange(0, len(force[0]), 1) / steps_gt
         stance_plot = get_stance_periods(force[0],start_gt,stop_gt)
         stance_frames_gt[segment] = []
         for ind in range(0, len(stance_plot), 2):
-                axs[i].fill_between(time[stance_plot[ind]:stance_plot[ind + 1]], 0, 1,
-                                    facecolor='y', alpha=0.5, transform=axs[i].get_xaxis_transform())
-                scale_factor = int(time_step_gt/time_step_sim)
-                
-                num_steps = (stance_plot[ind + 1]-stance_plot[ind])*scale_factor
-                
-                stance_frames_gt[segment].extend(np.linspace(stance_plot[ind]*scale_factor,stance_plot[ind + 1]*scale_factor,num_steps,endpoint=False))
+            
+            start_stance = int(np.floor(stance_plot[ind] * scale_factor))
+            stop_stance = int(np.ceil(stance_plot[ind+1] * scale_factor))
+            num_steps = int(stop_stance-start_stance)
+            
+            axs[i].fill_between(time[start_stance:stop_stance], 0, 1,
+                                facecolor='y', alpha=0.5,
+                                transform=axs[i].get_xaxis_transform())
+            stance_frames_gt[segment].extend(np.linspace(start_stance,
+                                                      stop_stance,
+                                                      num_steps,
+                                                      endpoint=False))
                     
-        axs[i].fill_between(time[start_gt:stance_plot[0]], 0, 1, facecolor='white', alpha=0.5, transform=axs[i].get_xaxis_transform())
+        axs[i].fill_between(time_gt[start_gt:stance_plot[0]], 0, 1, facecolor='white', alpha=0.5, transform=axs[i].get_xaxis_transform())
 
-        axs[i].fill_between(time[stance_plot[-1]:stop_gt], 0, 1, facecolor='white', alpha=0.5, transform=axs[i].get_xaxis_transform())
+        axs[i].fill_between(time_gt[stance_plot[-1]:stop_gt], 0, 1, facecolor='white', alpha=0.5, transform=axs[i].get_xaxis_transform())
         
         axs[i].set_yticks((0.5,))
         axs[i].set_yticklabels((segment,))
 
-    #results = {}
     results = pd.DataFrame()
     tot_frames = stop_sim-start_sim
     for leg, frames in stance_frames.items():
-        #if leg not in results.keys():
-        #    results[leg]={}
         tp = np.count_nonzero(np.isin(np.array(frames),np.array(stance_frames_gt[leg])))
         fp = len(frames)-tp
         tp_count_gt = np.count_nonzero(np.isin(np.array(stance_frames_gt[leg]),np.array(frames)))

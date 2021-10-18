@@ -15,6 +15,7 @@ from NeuroMechFly.sdf.bullet_load_sdf import load_sdf
 from NeuroMechFly.simulation.bullet_sensors import (COMSensor, ContactSensors,
                                                     JointSensors)
 from tqdm import tqdm
+import cv2 as cv
 
 neuromechfly_path = Path(pkgutil.get_loader(
     'NeuroMechFly').get_filename()).parents[1]
@@ -49,11 +50,11 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         self.slow_down = kwargs.get('slow_down', False)
         self.sleep_time = kwargs.get('sleep_time', 0.001)
         self.vis_options_background_color_red = kwargs.get(
-            'background_color_red', 0)
+            'background_color_red', 1)
         self.vis_options_background_color_green = kwargs.get(
-            'background_color_GREEN', 0)
+            'background_color_GREEN', 1)
         self.vis_options_background_color_blue = kwargs.get(
-            'background_color_BLUE', 0)
+            'background_color_BLUE', 1)
         self.record_movie = kwargs.get('record', False)
         self.movie_name = kwargs.get('moviename', 'default_movie.mp4')
         self.movie_speed = kwargs.get('moviespeed', 1)
@@ -72,6 +73,8 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         self.self_collisions = kwargs.get('self_collisions', [])
         self.draw_collisions = kwargs.get('draw_collisions', False)
         self.ball_info = kwargs.get('ball_info', False)
+        self.contactERP = kwargs.get('contactERP', 0.1)
+        self.globalCFM = kwargs.get('globalCFM', 5.0)
 
         # Init
         self.time = 0.0
@@ -181,13 +184,14 @@ class BulletSimulation(metaclass=abc.ABCMeta):
 
         p.setPhysicsEngineParameter(
             fixedTimeStep=self.time_step,
-            numSolverIterations=100,
+            numSolverIterations=1000,
             numSubSteps=self.num_substep,
             solverResidualThreshold=1e-10,
             erp = 0.0,
-            globalCFM = 0.0,
-            contactERP=0.1,
+            contactERP=self.contactERP,
             frictionERP=0.0,
+            globalCFM = self.globalCFM,
+            reportSolverAnalytics=1
         )
 
         # Turn off rendering while loading the models
@@ -432,6 +436,12 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             p.changeDynamics(self.animal, njoint, angularDamping=0.0)
             p.changeDynamics(self.animal, njoint, jointDamping=0.0)
 
+        #for contact in self.ground_contacts:
+        #    if 'Tarsus5' not in contact and 'Tarsus4' not in contact:
+        #        print(contact)
+        #        p.changeDynamics(self.animal, self.link_id[contact], lateralFriction=0.0)
+                
+
         self.total_mass = 0.0
 
         for j in np.arange(-1, p.getNumJoints(self.animal)):
@@ -596,7 +606,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
 
         # Physical properties of the ball can be changed here individually
         inertia_sim = p.getDynamicsInfo(sphere_id, 2)[2]
-        inertia_th = [2 / 5 * link_masses[-1] * (radius**2)] * 3
+        inertia_th = [2 / 5 * link_masses[-1] * (ball_radius**2)] * 3
 
         p.changeDynamics(sphere_id, 2, restitution=0.0)
         p.changeDynamics(sphere_id, 2, lateralFriction=ball_friction_coef)
@@ -607,10 +617,10 @@ class BulletSimulation(metaclass=abc.ABCMeta):
 
         # Assert if theoretical and computed inertia values are not the same
         assert any([np.isclose(s, t) for s, t in zip(inertia_sim, inertia_th)]), \
-            'Theoretical inertia ({}}) does not match with the simulation result ({})!'.format(
+            'Theoretical inertia ({}) does not match with the simulation result ({})!'.format(
             inertia_th, inertia_sim
         )
-
+        
         # Disable default bullet controllers
         p.setJointMotorControlArray(
             sphere_id,
@@ -667,12 +677,16 @@ class BulletSimulation(metaclass=abc.ABCMeta):
     @property
     def ball_velocities(self):
         """ Return the ball angular velocity. """
-        return tuple(
-            state[1] for state in p.getJointStates(
+        return tuple(p.getLinkState(
                 self.plane,
-                np.arange(0, p.getNumJoints(self.plane))
-            )
-        )
+                2,
+                computeLinkVelocity=1)[7])
+        #return tuple(
+        #    state[1] / self.units.velocity for state in p.getJointStates(
+        #        self.plane,
+        #        np.arange(0, p.getNumJoints(self.plane))
+        #    )
+        #)
 
     @property
     def base_position(self):
@@ -891,6 +905,24 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                 yaw,
                 pitch,
                 base)
+
+        '''
+        if self.gui == p.DIRECT:
+            base = np.array(self.base_position) * self.units.meters
+            matrix = p.computeViewMatrixFromYawPitchRoll(base,
+                                                         self.camera_distance,
+                                                         5, -10, 0, 2)
+            projectionMatrix = [
+        1.0825318098068237, 0.0, 0.0, 0.0, 0.0, 1.732050895690918, 0.0, 0.0, 0.0, 0.0,
+        -1.0002000331878662, -1.0, 0.0, 0.0, -0.020002000033855438, 0.0]
+            cam_data = p.getCameraImage(1024,
+                                        768,
+                                        viewMatrix=matrix,
+                                        projectionMatrix=projectionMatrix)
+            cv.imshow('img',img)
+            cv.waitKey(1)
+        '''
+        
         # Update logs
         self.update_logs()
         # Update container log
@@ -908,7 +940,8 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         # Step time
         self.time += self.time_step
         # Step physics
-        p.stepSimulation()
+        solver = p.stepSimulation()
+        #print(f"numIterationsUsed: {solver[0]['numIterationsUsed']}\tremainingResidual: {solver[0]['remainingResidual']}")
         # Rendering
         # p.configureDebugVisualizer(p.COV_ENABLE_SINGLE_STEP_RENDERING,1)
         # Slow down the simulation
