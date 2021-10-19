@@ -33,7 +33,7 @@ def main(args):
     """ Main function """
     run_time = 6.0
     time_step = 5e-4
-    starting_time = 14.5
+    starting_time = 0.5
     behavior = args.behavior.lower()
 
     # Setting up the collision and ground sensors
@@ -111,6 +111,8 @@ def main(args):
         "self_collisions": self_collision,
         "draw_collisions": False,  # Set True to change the color of colliding segments
         "record": False,  # Set True to record the simulation
+        "save_frames": False,
+        "results_path": results_path,
         'camera_distance': 5.5,
         'track': False,
         'moviename': f"{results_path}.mp4",
@@ -127,17 +129,13 @@ def main(args):
         'globalCFM': float(args.globalCFM)
     }
 
-
-    #: Paths of the position and velocity data
-    data_path = os.path.join('/home/lobato/Desktop/DF3D_data/210902_PR_Fly4_004_beh_behData/images/df3d')
-
     # Paths of the position and velocity data
-    #data_path = os.path.join(
-    #    neuromechfly_path,
-    #    f'data/joint_tracking/{behavior}/df3d')
+    data_path = os.path.join(
+        neuromechfly_path,
+        f'data/joint_tracking/{behavior}/df3d')
     
-    angles_path = glob.glob(data_path + '/joint_angles5e-4*.pkl')[0]
-    velocity_path = glob.glob(data_path + '/joint_velocities5e-4*.pkl')[0]
+    angles_path = glob.glob(data_path + '/joint_angles*.pkl')[0]
+    velocity_path = glob.glob(data_path + '/joint_velocities*.pkl')[0]
 
     # Initialize the container
     container = Container(run_time / time_step)

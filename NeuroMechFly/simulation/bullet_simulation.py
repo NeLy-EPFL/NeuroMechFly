@@ -5,7 +5,7 @@ import os
 import pkgutil
 import time
 from pathlib import Path
-
+from PIL import Image
 import numpy as np
 import pybullet as p
 import pybullet_data
@@ -75,6 +75,10 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         self.ball_info = kwargs.get('ball_info', False)
         self.contactERP = kwargs.get('contactERP', 0.1)
         self.globalCFM = kwargs.get('globalCFM', 5.0)
+        self.save_frames = kwargs.get('save_frames', False)
+        self.results_path = kwargs.get('results_path', 'last_simulation')
+
+        self.path_imgs = os.path.join(self.results_path, 'images')
 
         # Init
         self.time = 0.0
@@ -538,7 +542,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
 
     def add_ball(self, radius, density, mass, ball_friction_coef, position):
         """ Create a ball with specified radius """
-        ball_radius = radius * self.units.meters - 0.011e-3 * self.units.meters
+        ball_radius = radius * self.units.meters
         volume = 4/3 * np.pi * ball_radius**3
         calculated_mass = density * volume
         # Assert if calculated and measured ball mass are not the same
@@ -570,7 +574,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                     [-0.09e-3, -0.0e-3,-5.11e-3]
                 ) * self.units.meters + self.model_offset
         else:
-            base_position = np.array(position) * self.units.meters + self.model_offset + np.array([0.0e-3, 0.0e-3, 0.90e-3]) * self.units.meters
+            base_position = np.array(position) * self.units.meters + self.model_offset
             print("Adding ball position from file:", base_position, self.model_offset)
             print("Adding ball radius from file:", ball_radius)
         
@@ -906,22 +910,32 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                 pitch,
                 base)
 
-        '''
-        if self.gui == p.DIRECT:
-            base = np.array(self.base_position) * self.units.meters
-            matrix = p.computeViewMatrixFromYawPitchRoll(base,
+        if self.save_frames:
+            if self.gui == p.DIRECT:
+                base = np.array(self.base_position) * self.units.meters
+                matrix = p.computeViewMatrixFromYawPitchRoll(base,
                                                          self.camera_distance,
                                                          5, -10, 0, 2)
-            projectionMatrix = [
-        1.0825318098068237, 0.0, 0.0, 0.0, 0.0, 1.732050895690918, 0.0, 0.0, 0.0, 0.0,
-        -1.0002000331878662, -1.0, 0.0, 0.0, -0.020002000033855438, 0.0]
-            cam_data = p.getCameraImage(1024,
+                projectionMatrix = [1.0825318098068237, 0.0, 0.0, 0.0, 0.0, 1.732050895690918, 0.0, 0.0, 0.0, 0.0,-1.0002000331878662, -1.0, 0.0, 0.0, -0.020002000033855438, 0.0]
+                img = p.getCameraImage(1024,
                                         768,
                                         viewMatrix=matrix,
                                         projectionMatrix=projectionMatrix)
-            cv.imshow('img',img)
-            cv.waitKey(1)
-        '''
+            if self.gui == p.GUI:
+                img = p.getCameraImage(1024, 768, renderer=p.ER_BULLET_HARDWARE_OPENGL)
+            rgb_array = img[2]
+            im = Image.fromarray(rgb_array)
+            
+            im_name = f"{self.path_imgs}/Frame_{t:06d}.png"
+            if not os.path.exists(self.path_imgs):
+                os.mkdir(self.path_imgs)
+        
+            im.save(im_name)
+
+            #disable rendering temporary makes adding objects faster
+            p.configureDebugVisualizer(p.COV_ENABLE_RENDERING, 0)
+            p.configureDebugVisualizer(p.COV_ENABLE_GUI, 0)
+            p.configureDebugVisualizer(p.COV_ENABLE_TINY_RENDERER, 0)
         
         # Update logs
         self.update_logs()
