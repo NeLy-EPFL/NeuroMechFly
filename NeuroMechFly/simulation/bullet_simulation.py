@@ -78,7 +78,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         self.save_frames = kwargs.get('save_frames', False)
         self.results_path = kwargs.get('results_path', 'last_simulation')
 
-        self.path_imgs = os.path.join(self.results_path, 'images')
+        self.path_imgs = self.results_path.replace('kinematic_replay_', 'images_')
 
         # Init
         self.time = 0.0
