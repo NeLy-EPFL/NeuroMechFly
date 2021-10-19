@@ -72,5 +72,33 @@ for joint, _ in objs_of_farms_types(joint=True):
         joint["farms_axis_xyz"][1] *= -1
         joint["farms_axis_xyz"][2] *= -1
 
+# Update joint limits
+# 'joint_LFFemur': {'min': -2.6662613939920927, 'max': -1.2265979890155232},
+# 'joint_LFTibia': {'min': 0.755579943967942, 'max': 2.537248153705797},
+# 'joint_LMCoxa_roll': {'min': 1.7633980792760797, 'max': 2.3280868205896708},
+# 'joint_LMFemur': {'min': -2.363638739290062, 'max': -1.6424144373215874},
+# 'joint_LMTibia': {'min': 1.5013089603392067, 'max': 2.612560417725856},
+# 'joint_LHCoxa_roll': {'min': 2.342643179253425, 'max': 2.7964939180771236},
+# 'joint_LHFemur': {'min': -2.4611009381052775, 'max': -1.2565385270550669},
+# 'joint_LHTibia': {'min': 0.9004679093523356, 'max': 2.610439744875883},
+# 'joint_LFCoxa': {'min': -0.4122592952311641, 'max': 0.5658698497740794}
+angle_limits = {
+    'FFemur': {'min': -2.7070260597076814, 'max': -1.1927677266616241},
+    'FTibia': {'min': 0.7795120577106078, 'max': 2.5142727572427592},
+    'MCoxa_roll': {'min': 1.7633980792760797, 'max': 2.3280868205896708},
+    'MFemur': {'min': -2.4202848346149346, 'max': -1.7940671597190856},
+    'MTibia': {'min': 1.5742404712255267, 'max': 2.4686521684717793},
+    'HCoxa_roll': {'min': 2.342643179253425, 'max': 2.7964939180771236},
+    'HFemur': {'min': -2.4822204407825286, 'max': -1.1429577335102055},
+    'HTibia': {'min': 0.6137228182602668, 'max': 2.6959491072995783},
+    'FCoxa': {'min': -0.3230026538529655, 'max': 0.5548562980669347},
+}
+
+for joint_name, limit in angle_limits.items():
+    for side in ('L', 'R'):
+        joint_obj = bpy.data.objects[f"joint_{side}{joint_name}"]
+        joint_obj["farms_joint_limits"][0] = limit["min"]
+        joint_obj["farms_joint_limits"][1] = limit["max"]
+
 # Export the model
 export_sdf("neuromechfly_noLimits", SDF_MODEL_PATH.joinpath("neuromechfly_locomotion_optimization.sdf"))
