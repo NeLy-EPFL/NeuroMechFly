@@ -354,22 +354,28 @@ class DrosophilaEvolution(FloatProblem):
         objectives = {}
 
         #: Forward distance (backward rotation of the ball)
-        objectives['distance'] = -np.array(fly.ball_rotations)[0] * fly.ball_radius
+        objectives['distance'] = np.array(fly.ball_rotations)[0] * fly.ball_radius
         objectives['stability'] = fly.opti_stability
         # objectives['mechanical_work'] = np.sum(fly.mechanical_work)
 
         #: PENALTIES
         penalties = {}
+
+        duty_factor = fly.duty_factor
+        # Keep the duty factor between 45% and 90%
+        # Taken from Mendes et al. 2012
+        penalties['duty_factor'] = np.count_nonzero(duty_factor < 0.45) + np.count_nonzero(duty_factor > 0.90)
+
         #: Penalty long stance periods
-        constraints = {}
-        constraints['max_legs'] = 5
-        constraints['min_legs'] = 2
-        mean_stance_legs = fly.stance_count * fly.time_step / fly.time
-        penalties['stance'] = (
-            0.0
-            if constraints['min_legs'] <= mean_stance_legs <= constraints['expected_stance_legs']
-            else 1.0
-        )
+        # constraints = {}
+        # constraints['max_legs'] = 5
+        # constraints['min_legs'] = 2
+        # mean_stance_legs = fly.stance_count * fly.time_step / fly.time
+        # penalties['stance'] = (
+        #     0.0
+        #     if constraints['min_legs'] <= mean_stance_legs <= constraints['max_legs']
+        #     else 1.0
+        # )
 
         penalties['lava'] = fly.opti_lava
         penalties['velocity'] = fly.opti_velocity
@@ -382,7 +388,8 @@ class DrosophilaEvolution(FloatProblem):
             'stance': 1e0,
             'lava': 1e-1,
             'velocity': 1e-1,
-            'joint_limits': 1e-1
+            'joint_limits': 1e-1,
+            'duty_factor': 1e2
         }
 
         objectives_weighted = {

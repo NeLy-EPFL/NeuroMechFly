@@ -163,10 +163,11 @@ class DrosophilaSimulation(BulletSimulation):
         """ Implementation of abstract method. """
         # Update muscles
         self.muscle_controller()
-        if t == 2.999 * 1e4:
-            average_speed = abs((self.ball_radius * self.ball_rotations[0]) / 3.0)
-            print(f'Fly average speed is: {average_speed} mm/s')
 
+        # if t == 2.999 * 1e4:
+        #     average_speed = abs((self.ball_radius * self.units.meters * self.ball_rotations[0]) / 3.0)
+        #     print(f'Fly average speed is: {average_speed} mm/s')
+        #     print(f'Duty factor is: {self.duty_factor}')
         # Change the color of the colliding body segments
         if self.draw_collisions:
             draw = []
@@ -387,6 +388,18 @@ class DrosophilaSimulation(BulletSimulation):
         )
         return self.compute_thermal_loss(muscle_torques)
 
+    @property
+    def duty_factor(self):
+        contact = self.container.physics.contact_flag.log
+
+        return np.array(
+            [
+                np.count_nonzero(contact[:, leg_id]) / contact.shape[0]
+                for leg_id in range(4,30,5)
+            ]
+        )
+
+
     def check_movement(self):
         """ State of lava approaching the model. """
         # Slow 2 rad (10 mm/sec), fast 6.8 rad (34 mm/sec)
@@ -397,14 +410,14 @@ class DrosophilaSimulation(BulletSimulation):
                         * total_angular_dist) - 0.20
         moving_limit_upper = ((self.time / self.run_time)
                         * 6 * total_angular_dist) - 0.20
-        # print(moving_limit_lower, -ball_angular_position, moving_limit_upper)
+        # print(moving_limit_lower, ball_angular_position, moving_limit_upper)
         self.opti_lava += 1.0 if np.any(
             np.abs(ball_angular_position) < moving_limit_lower
-        ) or ball_angular_position > 0 else 0.0
+        ) or ball_angular_position < 0 else 0.0
 
         self.opti_lava += 1.0 if np.any(
             np.abs(ball_angular_position) > moving_limit_upper
-        ) or ball_angular_position > 0 else 0.0
+        ) or ball_angular_position < 0 else 0.0
 
     def check_joint_limits(self):
         """ Check if the active exceed joint limits """
