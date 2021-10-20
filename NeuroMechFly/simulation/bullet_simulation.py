@@ -71,7 +71,9 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             True if self.behavior == 'grooming' else False
         )
         self.self_collisions = kwargs.get('self_collisions', [])
-        self.ball_info = kwargs.get('ball_info', False)
+        self.draw_collisions = kwargs.get('draw_collisions', False)
+
+        self.numSolverIterations = kwargs.get('numSolverIterations', 100)
         self.contactERP = kwargs.get('contactERP', 0.1)
         self.globalCFM = kwargs.get('globalCFM', 5.0)
         self.save_frames = kwargs.get('save_frames', False)
@@ -185,7 +187,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
 
         p.setPhysicsEngineParameter(
             fixedTimeStep=self.time_step,
-            numSolverIterations=1000,
+            numSolverIterations=self.numSolverIterations,
             numSubSteps=self.num_substep,
             solverResidualThreshold=1e-10,
             erp = 0.0,
@@ -213,11 +215,13 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                 globalScaling=0.01 * self.units.meters
             )
 
-            if self.ball_info:
+            try:
+                # Load ball info from fictrac data
                 self.ball_radius, ball_pos = self.load_ball_info()
-            else:
+            except:
+                # If not provided, then set the ball pos to None
                 ball_pos = None
-                
+
             self.plane = self.add_ball(
                 self.ball_radius,
                 self.ball_density,
@@ -225,6 +229,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                 self.ball_friction_coef,
                 ball_pos
                 )
+
             # When ball is used the plane id is 2 as the ball has 3 links
             self.link_plane = 2
             self.sim_data.add_table('ball_rotations')
@@ -441,7 +446,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         #    if 'Tarsus5' not in contact and 'Tarsus4' not in contact:
         #        print(contact)
         #        p.changeDynamics(self.animal, self.link_id[contact], lateralFriction=0.0)
-                
+
 
         self.total_mass = 0.0
 
@@ -567,7 +572,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             if self.behavior == 'walking':
                 base_position = np.array(
                     [0.28e-3, -0.2e-3, -4.965e-3]
-                ) * self.units.meters+self.model_offset
+                ) * self.units.meters + self.model_offset
             elif self.behavior == 'grooming':
                 base_position = np.array(
                     [0.28e-3, 0.0e-3, -4.9e-3]
@@ -580,7 +585,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             base_position = np.array(position) * self.units.meters + self.model_offset
             print("Adding ball position from file:", base_position, self.model_offset)
             print("Adding ball radius from file:", ball_radius)
-        
+
         # Create the sphere
         base_orientation = [0, 0, 0, 1]
         link_masses = np.array([0, 0, mass])
@@ -627,7 +632,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             'Theoretical inertia ({}) does not match with the simulation result ({})!'.format(
             inertia_th, inertia_sim
         )
-        
+
         # Disable default bullet controllers
         p.setJointMotorControlArray(
             sphere_id,
@@ -788,7 +793,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                 self.ball_rotations).flatten()
             self.sim_data.ball_velocities.values = np.asarray(
                 self.ball_velocities).flatten()
-        
+
 
     @abc.abstractmethod
     def controller_to_actuator(self):
@@ -931,18 +936,18 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                 img = p.getCameraImage(1024, 768, renderer=p.ER_BULLET_HARDWARE_OPENGL)
             rgb_array = img[2]
             im = Image.fromarray(rgb_array)
-            
+
             im_name = f"{self.path_imgs}/Frame_{t:06d}.png"
             if not os.path.exists(self.path_imgs):
                 os.mkdir(self.path_imgs)
-        
+
             im.save(im_name)
 
-            #disable rendering temporary makes adding objects faster
+            # Disable rendering temporary makes adding objects faster
             p.configureDebugVisualizer(p.COV_ENABLE_RENDERING, 0)
             p.configureDebugVisualizer(p.COV_ENABLE_GUI, 0)
             p.configureDebugVisualizer(p.COV_ENABLE_TINY_RENDERER, 0)
-        
+
         # Update logs
         self.update_logs()
         # Update container log
@@ -962,8 +967,6 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         # Step physics
         solver = p.stepSimulation()
         #print(f"numIterationsUsed: {solver[0]['numIterationsUsed']}\tremainingResidual: {solver[0]['remainingResidual']}")
-        # Rendering
-        # p.configureDebugVisualizer(p.COV_ENABLE_SINGLE_STEP_RENDERING,1)
         # Slow down the simulation
         if self.slow_down:
             time.sleep(self.sleep_time)
