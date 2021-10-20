@@ -5,7 +5,7 @@ import os
 import pkgutil
 import time
 from pathlib import Path
-
+from PIL import Image
 import numpy as np
 import pybullet as p
 import pybullet_data
@@ -15,6 +15,7 @@ from NeuroMechFly.sdf.bullet_load_sdf import load_sdf
 from NeuroMechFly.simulation.bullet_sensors import (COMSensor, ContactSensors,
                                                     JointSensors)
 from tqdm import tqdm
+import cv2 as cv
 
 neuromechfly_path = Path(pkgutil.get_loader(
     'NeuroMechFly').get_filename()).parents[1]
@@ -49,11 +50,11 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         self.slow_down = kwargs.get('slow_down', False)
         self.sleep_time = kwargs.get('sleep_time', 0.001)
         self.vis_options_background_color_red = kwargs.get(
-            'background_color_red', 0)
+            'background_color_red', 1)
         self.vis_options_background_color_green = kwargs.get(
-            'background_color_GREEN', 0)
+            'background_color_GREEN', 1)
         self.vis_options_background_color_blue = kwargs.get(
-            'background_color_BLUE', 0)
+            'background_color_BLUE', 1)
         self.record_movie = kwargs.get('record', False)
         self.movie_name = kwargs.get('moviename', 'default_movie.mp4')
         self.movie_speed = kwargs.get('moviespeed', 1)
@@ -62,7 +63,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         self.ground = kwargs.get('ground', 'ball')
         # Ball properties
         self.ball_density = kwargs.get('ball_density', 96) * (self.units.kilograms / self.units.volume) # kg/m^3
-        self.ball_radius = kwargs.get('ball_radius', 5.0e-3) * self.units.meters  # 1x (real size 10mm)
+        self.ball_radius = kwargs.get('ball_radius', 5.0e-3) # 1x (real size 10mm)
         self.ball_mass = kwargs.get('ball_mass', 0) * self.units.kilograms
         self.ball_friction_coef = kwargs.get('ball_friction_coef', 10)
         self.enable_concave_mesh = kwargs.get(
@@ -70,7 +71,11 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             True if self.behavior == 'grooming' else False
         )
         self.self_collisions = kwargs.get('self_collisions', [])
-        self.draw_collisions = kwargs.get('draw_collisions', False)
+        self.ball_info = kwargs.get('ball_info', False)
+        self.contactERP = kwargs.get('contactERP', 0.1)
+        self.globalCFM = kwargs.get('globalCFM', 5.0)
+        self.save_frames = kwargs.get('save_frames', False)
+        self.path_imgs = kwargs.get('results_path', 'last_simulation').replace('kinematic_replay_', 'images_')
 
         # Init
         self.time = 0.0
@@ -161,7 +166,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             p.connect(
                 self.gui,
                 options=(
-                    '--background_color_red={}'
+                    ' --background_color_red={}'
                     ' --background_color_green={}'
                     ' --background_color_blue={}'
                 ).format(
@@ -180,13 +185,14 @@ class BulletSimulation(metaclass=abc.ABCMeta):
 
         p.setPhysicsEngineParameter(
             fixedTimeStep=self.time_step,
-            numSolverIterations=100,
+            numSolverIterations=1000,
             numSubSteps=self.num_substep,
             solverResidualThreshold=1e-10,
-            # erp=0.0,
-            # TODO: CHECK
-            contactERP=0.1,
+            erp = 0.0,
+            contactERP=self.contactERP,
             frictionERP=0.0,
+            globalCFM = self.globalCFM,
+            reportSolverAnalytics=1
         )
 
         # Turn off rendering while loading the models
@@ -206,15 +212,23 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                 'plane.urdf', [0, 0, -0.],
                 globalScaling=0.01 * self.units.meters
             )
+
+            if self.ball_info:
+                self.ball_radius, ball_pos = self.load_ball_info()
+            else:
+                ball_pos = None
+                
             self.plane = self.add_ball(
                 self.ball_radius,
                 self.ball_density,
                 self.ball_mass,
-                self.ball_friction_coef
+                self.ball_friction_coef,
+                ball_pos
                 )
             # When ball is used the plane id is 2 as the ball has 3 links
             self.link_plane = 2
             self.sim_data.add_table('ball_rotations')
+            self.sim_data.add_table('ball_velocities')
 
         # Add the animal model
         if '.sdf' in self.model and self.behavior is not None:
@@ -372,6 +386,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             # self.sim_data.thorax_force.add_parameter(f'{axis}')
             if self.ground == 'ball':
                 self.sim_data.ball_rotations.add_parameter(f'{axis}')
+                self.sim_data.ball_velocities.add_parameter(f'{axis}')
 
         # ADD joint parameters
         for name, _ in self.joint_id.items():
@@ -421,6 +436,12 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             p.changeDynamics(self.animal, njoint, linearDamping=0.0)
             p.changeDynamics(self.animal, njoint, angularDamping=0.0)
             p.changeDynamics(self.animal, njoint, jointDamping=0.0)
+
+        #for contact in self.ground_contacts:
+        #    if 'Tarsus5' not in contact and 'Tarsus4' not in contact:
+        #        print(contact)
+        #        p.changeDynamics(self.animal, self.link_id[contact], lateralFriction=0.0)
+                
 
         self.total_mass = 0.0
 
@@ -516,11 +537,13 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             self.animal,
             self.link_id[link_name]))[0]) / self.units.meters
 
-    def add_ball(self, radius, density, mass, ball_friction_coef):
+    def add_ball(self, radius, density, mass, ball_friction_coef, position):
         """ Create a ball with specified radius """
-        volume = 4/3 * np.pi * radius**3
+        ball_radius = radius * self.units.meters
+        volume = 4/3 * np.pi * ball_radius**3
         calculated_mass = density * volume
         # Assert if calculated and measured ball mass are not the same
+
         if mass != 0:
             # TODO: Decide the threshold here, it is 8 mg now
             assert abs(mass - calculated_mass) < 8.0e-6 * self.units.kilograms, "Calculated ({} kg) and measured ({} kg) ball masses do not match!".format(
@@ -531,26 +554,33 @@ class BulletSimulation(metaclass=abc.ABCMeta):
 
         col_sphere_parent = p.createCollisionShape(
             p.GEOM_SPHERE,
-            radius=radius / 100,
+            radius=ball_radius / 100,
         )
-        col_sphere_id = p.createCollisionShape(p.GEOM_SPHERE, radius=radius)
+        col_sphere_id = p.createCollisionShape(p.GEOM_SPHERE, radius=ball_radius)
 
         mass_parent = 0
         visual_shape_id = -1
-        # Different ball positions used for different experiments
-        # Else corresponds to the ball position during optimization
-        if self.behavior == 'walking':
-            base_position = np.array(
-                [0.15e-3, -0.2e-3, -5.05e-3]
-            ) * self.units.meters + self.model_offset
-        elif self.behavior == 'grooming':
-            base_position = np.array(
-                [0.28e-3, 0.0e-3, -4.9e-3]
-            ) * self.units.meters + self.model_offset
+
+        #: Different ball positions used for different experiments
+        #: Else corresponds to the ball position during optimization
+        if position is None:
+            if self.behavior == 'walking':
+                base_position = np.array(
+                    [0.28e-3, -0.2e-3, -4.965e-3]
+                ) * self.units.meters+self.model_offset
+            elif self.behavior == 'grooming':
+                base_position = np.array(
+                    [0.28e-3, 0.0e-3, -4.9e-3]
+                ) * self.units.meters + self.model_offset
+            else:
+                base_position = np.array(
+                    [-0.09e-3, -0.0e-3,-5.11e-3]
+                ) * self.units.meters + self.model_offset
         else:
-            base_position = np.array(
-                [-0.09e-3, -0.0e-3, -5.11e-3]
-            ) * self.units.meters + self.model_offset
+            base_position = np.array(position) * self.units.meters + self.model_offset
+            print("Adding ball position from file:", base_position, self.model_offset)
+            print("Adding ball radius from file:", ball_radius)
+        
         # Create the sphere
         base_orientation = [0, 0, 0, 1]
         link_masses = np.array([0, 0, mass])
@@ -559,11 +589,10 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         link_positions = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
         link_orientations = [[0, 0, 0, 1], [0, 0, 0, 1], [0, 0, 0, 1]]
         link_inertial_frame_positions = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
-        link_inertial_frame_orientations = [
-            [0, 0, 0, 1], [0, 0, 0, 1], [0, 0, 0, 1]]
+        link_inertial_frame_orientations = [[0, 0, 0, 1], [0, 0, 0, 1], [0, 0, 0, 1]]
         indices = [0, 1, 2]
         joint_types = [p.JOINT_REVOLUTE, p.JOINT_REVOLUTE, p.JOINT_REVOLUTE]
-        axis = [[0, 1, 0], [1, 0, 0], [0, 0, 1]]
+        axis = [[0, -1, 0], [1, 0, 0], [0, 0, -1]]
 
         sphere_id = p.createMultiBody(
             mass_parent,
@@ -584,7 +613,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
 
         # Physical properties of the ball can be changed here individually
         inertia_sim = p.getDynamicsInfo(sphere_id, 2)[2]
-        inertia_th = [2 / 5 * link_masses[-1] * (radius**2)] * 3
+        inertia_th = [2 / 5 * link_masses[-1] * (ball_radius**2)] * 3
 
         p.changeDynamics(sphere_id, 2, restitution=0.0)
         p.changeDynamics(sphere_id, 2, lateralFriction=ball_friction_coef)
@@ -595,10 +624,10 @@ class BulletSimulation(metaclass=abc.ABCMeta):
 
         # Assert if theoretical and computed inertia values are not the same
         assert any([np.isclose(s, t) for s, t in zip(inertia_sim, inertia_th)]), \
-            'Theoretical inertia ({}}) does not match with the simulation result ({})!'.format(
+            'Theoretical inertia ({}) does not match with the simulation result ({})!'.format(
             inertia_th, inertia_sim
         )
-
+        
         # Disable default bullet controllers
         p.setJointMotorControlArray(
             sphere_id,
@@ -644,13 +673,30 @@ class BulletSimulation(metaclass=abc.ABCMeta):
 
     @property
     def ball_rotations(self):
-        """ Return the ball position. """
+        """ Return the ball angular position. """
         return tuple(
             state[0] for state in p.getJointStates(
                 self.plane,
                 np.arange(0, p.getNumJoints(self.plane))
             )
         )
+
+    @property
+    def ball_velocities(self):
+        """ Return the ball angular velocity. """
+        return tuple(
+          p.getLinkState(
+                self.plane,
+                2,
+                computeLinkVelocity=1
+          )[7]
+        )
+        #return tuple(
+        #    state[1] / self.units.velocity for state in p.getJointStates(
+        #        self.plane,
+        #        np.arange(0, p.getNumJoints(self.plane))
+        #    )
+        #)
 
     @property
     def base_position(self):
@@ -737,6 +783,12 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         self.joint_sensors.update()
         self.contact_sensors.update()
         self.com_sensor.update()
+        if self.ground == 'ball':
+            self.sim_data.ball_rotations.values = np.asarray(
+                self.ball_rotations).flatten()
+            self.sim_data.ball_velocities.values = np.asarray(
+                self.ball_velocities).flatten()
+        
 
     @abc.abstractmethod
     def controller_to_actuator(self):
@@ -863,6 +915,34 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                 yaw,
                 pitch,
                 base)
+
+        if self.save_frames:
+            if self.gui == p.DIRECT:
+                base = np.array(self.base_position) * self.units.meters
+                matrix = p.computeViewMatrixFromYawPitchRoll(
+                  base, self.camera_distance, 5, -10, 0, 2
+                )
+                projectionMatrix = [1.0825318098068237, 0.0, 0.0, 0.0, 0.0, 1.732050895690918, 0.0, 0.0, 0.0, 0.0,-1.0002000331878662, -1.0, 0.0, 0.0, -0.020002000033855438, 0.0]
+                img = p.getCameraImage(1024,
+                                        768,
+                                        viewMatrix=matrix,
+                                        projectionMatrix=projectionMatrix)
+            if self.gui == p.GUI:
+                img = p.getCameraImage(1024, 768, renderer=p.ER_BULLET_HARDWARE_OPENGL)
+            rgb_array = img[2]
+            im = Image.fromarray(rgb_array)
+            
+            im_name = f"{self.path_imgs}/Frame_{t:06d}.png"
+            if not os.path.exists(self.path_imgs):
+                os.mkdir(self.path_imgs)
+        
+            im.save(im_name)
+
+            #disable rendering temporary makes adding objects faster
+            p.configureDebugVisualizer(p.COV_ENABLE_RENDERING, 0)
+            p.configureDebugVisualizer(p.COV_ENABLE_GUI, 0)
+            p.configureDebugVisualizer(p.COV_ENABLE_TINY_RENDERER, 0)
+        
         # Update logs
         self.update_logs()
         # Update container log
@@ -880,7 +960,8 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         # Step time
         self.time += self.time_step
         # Step physics
-        p.stepSimulation()
+        solver = p.stepSimulation()
+        #print(f"numIterationsUsed: {solver[0]['numIterationsUsed']}\tremainingResidual: {solver[0]['remainingResidual']}")
         # Rendering
         # p.configureDebugVisualizer(p.COV_ENABLE_SINGLE_STEP_RENDERING,1)
         # Slow down the simulation

@@ -24,14 +24,16 @@ def parse_args():
         '-pf', '--profile', default=False, type=str, required=False,
         dest="profile"
     )
+    parser.add_argument('-erp', '--contactERP', default='0.1')
+    parser.add_argument('-cfm', '--globalCFM', default='5.0')
     args = parser.parse_args()
     return args
 
-
 def main(args):
     """ Main function """
-    run_time = 8.0
-    time_step = 0.001
+    run_time = 6.0
+    time_step = 5e-4
+    starting_time = 0.5
     behavior = args.behavior.lower()
 
     # Setting up the collision and ground sensors
@@ -57,10 +59,31 @@ def main(args):
         p +
         name for s in side for p in pos for name in leg_segments if name != 'Tibia']
 
+    #: Setting the fixed joint angles to default values, can be altered to change the appearance of the fly
+    
+    fixed_positions = {
+            'revolute_support_1': 3.6,
+            'joint_A3': -15,
+            'joint_A4': -15,
+            'joint_A5': -15,
+            'joint_A6': -15,
+            'joint_LAntenna': 35,
+            'joint_RAntenna': -35,
+            'joint_Rostrum': 90,
+            'joint_Haustellum': -60,
+            'joint_LWing_roll': 90,
+            'joint_LWing_yaw': -17,
+            'joint_RWing_roll': -90,
+            'joint_RWing_yaw': 17,
+            'joint_Head': 10
+        }
+    
+    
     # Setting up the paths for the SDF and POSE files
     model_path = os.path.join(
         neuromechfly_path,
-        'data/design/sdf/neuromechfly_kinematic_replay.sdf')
+        'data/design/sdf/neuromechfly_noLimits.sdf')
+        #'data/design/sdf/neuromechfly_kinematic_replay.sdf')
     pose_path = os.path.join(
         neuromechfly_path,
         'data/config/pose/pose_default.yaml')
@@ -77,16 +100,19 @@ def main(args):
         
     # Simulation options
     sim_options = {
-        "headless": False,
+        "headless": True,
         "model": model_path,
         "pose": pose_path,
         "model_offset": [0., 0, 11.2e-3],
         "run_time": run_time,
+        "time_step": time_step,
         "base_link": 'Thorax',
         "ground_contacts": ground_contact,
         "self_collisions": self_collision,
         "draw_collisions": False,  # Set True to change the color of colliding segments
         "record": False,  # Set True to record the simulation
+        "save_frames": False,
+        "results_path": results_path,
         'camera_distance': 5.5,
         'track': False,
         'moviename': f"{results_path}.mp4",
@@ -95,13 +121,19 @@ def main(args):
         'sleep_time': 0.001,
         'rot_cam': False,  # Set true to rotate the camera automatically
         'behavior': behavior,
-        'ground': 'ball'
+        'ground': 'ball',
+        'ball_info': True,
+        'ball_mass': 54.6e-6,
+        'ball_friction_coef': 1.3,
+        'contactERP': float(args.contactERP),
+        'globalCFM': float(args.globalCFM)
     }
 
     # Paths of the position and velocity data
     data_path = os.path.join(
         neuromechfly_path,
         f'data/joint_tracking/{behavior}/df3d')
+    
     angles_path = glob.glob(data_path + '/joint_angles*.pkl')[0]
     velocity_path = glob.glob(data_path + '/joint_velocities*.pkl')[0]
 
@@ -113,7 +145,9 @@ def main(args):
         sim_options,
         kp=0.4, kv=0.9,
         angles_path=angles_path,
-        velocity_path=velocity_path
+        velocity_path=velocity_path,
+        starting_time=starting_time,
+        fixed_positions=fixed_positions
     )
     # Run the simulation
     animal.run(optimization=False)
@@ -122,7 +156,6 @@ def main(args):
         dump_path=results_path,
         overwrite=True
     )
-
 
 if __name__ == "__main__":
     """ Main """

@@ -27,6 +27,8 @@ class DrosophilaSimulation(BulletSimulation):
         Path of the joint position .pkl file.
     velocity_path: <str>
         Path of the joint velocity .pkl file.
+    fixed_positions: <dict>
+        Dictionary containing the positions for the fixed joints that should be different from the zero pose.
     units: <obj>
         Instance of SimulationUnitScaling object to scale up the units during calculations.
     """
@@ -39,6 +41,8 @@ class DrosophilaSimulation(BulletSimulation):
         kv,
         angles_path,
         velocity_path,
+        starting_time = 0.0,
+        fixed_positions=None,
         units=SimulationUnitScaling(
             meters=1000,
             kilograms=1000)):
@@ -52,15 +56,20 @@ class DrosophilaSimulation(BulletSimulation):
         self.analysis_data.thermal_loss.add_parameter('thermal_loss')
         self.analysis_data.static_stability.add_parameter('static_stability')
 
-        super().__init__(container, units, **sim_options)
         self.last_draw = []
         self.grf = []
         self.kp = kp
         self.kv = kv
+        self.angles_path = angles_path
+        self.fixed_positions = fixed_positions
+        
+        super().__init__(container, units, **sim_options)
+        
         self.pose = [0] * self.num_joints
         self.vel = [0] * self.num_joints
-        self.angles = self.load_data(angles_path)
-        self.velocities = self.load_data(velocity_path)
+        self.angles = self.load_data(angles_path,starting_time)
+        self.velocities = self.load_data(velocity_path,starting_time)
+                    
 
         # Debug parameter
         self.draw_ss_line_ids = [
@@ -76,8 +85,7 @@ class DrosophilaSimulation(BulletSimulation):
             (0., 0., 0.), (0., 0., 0.), lineColorRGB=[1, 0, 0]
         )
 
-    @staticmethod
-    def load_data(data_path):
+    def load_data(self, data_path,starting_time):
         """ Function that loads the pickle format joint angle or velocity gile.
 
         Parameters
@@ -102,14 +110,31 @@ class DrosophilaSimulation(BulletSimulation):
         converted_dict = {}
         try:
             data = pd.read_pickle(data_path)
+            start = int(np.round(starting_time/self.time_step))
             for leg, joints in data.items():
                 for joint_name, val in joints.items():
                     new_name = 'joint_' + leg[:2] + \
                         names_equivalence[joint_name]
-                    converted_dict[new_name] = val
+                    converted_dict[new_name] = val[start:]
             return converted_dict
         except BaseException:
             FileNotFoundError(f"File {data_path} not found!")
+
+    
+    def load_ball_info(self):
+        to_replace = self.angles_path[self.angles_path.find('joint_angles'):self.angles_path.find('__')]
+        data_path = self.angles_path.replace(to_replace,'treadmill_info')
+        
+        try:
+            data = pd.read_pickle(data_path)
+            ball_rad = data['radius']
+            ball_pos = data['position']
+            
+            return ball_rad, ball_pos
+
+        except BaseException:
+            FileNotFoundError(f"File {data_path} not found!")
+    
 
     def controller_to_actuator(self, t):
         """
@@ -122,25 +147,17 @@ class DrosophilaSimulation(BulletSimulation):
         t : <int>
             Time running in the physics engine.
         """
+        
         # Update logs for physical quantities
         self.update_data_logs()
-        #: Setting the fixed joint angles to default values, can be altered to change the appearance of the fly
-        fixed_positions = {
-            'joint_A3': -15,
-            'joint_A4': -15,
-            'joint_A5': -15,
-            'joint_A6': -15,
-            'joint_LAntenna': 35,
-            'joint_RAntenna': -35,
-            'joint_Rostrum': 90,
-            'joint_Haustellum': -60,
-            'joint_LWing_roll': 90,
-            'joint_LWing_yaw': -17,
-            'joint_RWing_roll': -90,
-            'joint_RWing_yaw': 17,
-            'joint_Head': 10
-        }
-        for joint_name, joint_pos in fixed_positions.items():
+        
+        # Setting the joint angular positions of the fixed joints
+        if not self.fixed_positions:
+            self.fixed_positions = {
+                'joint_LAntenna': 35,
+                'joint_RAntenna': -35,
+            }
+        for joint_name, joint_pos in self.fixed_positions.items():
             self.pose[self.joint_id[joint_name]] = np.deg2rad(joint_pos)
 
         # Setting the joint angular positions of leg DOFs based on pose
@@ -172,14 +189,17 @@ class DrosophilaSimulation(BulletSimulation):
             draw = []
             if self.behavior == 'walking':
                 # Only take into account the ground sensors
-                ground_reaction_force = self.contact_normal_force[:len(
-                    self.ground_contacts), :]
-                links_contact = np.where(
-                    np.linalg.norm(
-                        ground_reaction_force,
-                        axis=1) > 0)[0]
+                #ground_reaction_force = self.contact_normal_force[:len(
+                #    self.ground_contacts), :]
+                #links_contact = np.where(
+                #    np.linalg.norm(
+                #        ground_reaction_force,
+                #        axis=1) > 0)[0]
+                links_contact = self.get_current_contacts()
+                link_names = list(self.link_id.keys())
+                link_ids = list(self.link_id.values())
                 for i in links_contact:
-                    link1 = self.ground_contacts[i][:-1]
+                    link1 = link_names[link_ids.index(i)][:-1]
                     if link1 not in draw:
                         draw.append(link1)
                         self.change_color(link1 + '5', self.color_collision)
