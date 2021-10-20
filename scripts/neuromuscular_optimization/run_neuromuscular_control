@@ -6,6 +6,7 @@ import os
 import pkgutil
 from datetime import datetime
 from pathlib import Path
+import matplotlib.pyplot as plt
 
 import numpy as np
 from farms_container import Container
@@ -24,6 +25,7 @@ def parse_args():
     parser.add_argument('-s', '--sol', default='fastest')
     parser.add_argument('--gui', dest='gui', action='store_true')
     parser.add_argument('--record', dest='record', action='store_true')
+    parser.add_argument('--plot', dest='plot', action='store_true')
     parser.add_argument('--slow', dest='slow', action='store_true')
     parser.add_argument('--profile', dest='profile', action='store_true')
     parser.set_defaults(gui=False, profile=False)
@@ -69,11 +71,10 @@ def main(args):
 
     # Set the ball specs based on your experimental setup
     ball_specs = {
-        'ball_density': 96,
-        'ball_radius': 5.0e-3,
-        'ball_friction_coef': 10.0
+        'ball_mass': 54.6e-6,
+        'ball_friction_coef': 1.3
     }
-    #: Simulation options
+    # Simulation options
     sim_options = {
         "headless": not args.gui,
         "model": str(model_path),
@@ -93,7 +94,7 @@ def main(args):
         'moviespeed': 0.1, #: Speed of the recorded movie
         'slow_down': args.slow,
         'sleep_time': 1e-3,
-        'rot_cam': False, #: Set true to rotate the camera automatically
+        'rot_cam': True, #: Set true to rotate the camera automatically
         'ground': 'ball',
         **ball_specs
     }
@@ -135,6 +136,21 @@ def main(args):
     if not os.path.exists(results_path):
         os.makedirs(results_path)
     animal.container.dump(dump_path=results_path, overwrite=True)
+
+    if args.plot:
+        from NeuroMechFly.utils.plot_contacts import plot_gait_diagram
+
+        fig, ax = plt.subplots(figsize = (8,6))
+        ax.scatter(fun[:,0], fun[:,1])
+        ax.scatter(fun[ind,0], fun[ind,1], label=f'Ind: {ind}')
+        ax.set_xlabel('Distance')
+        ax.set_ylabel('Stability')
+        ax.legend()
+        plt.savefig(os.path.join(results_path, f'selected_sol_{ind}.png'))
+        plt.show()
+
+        plot_gait_diagram(results_path, export_path=results_path)
+
 
 if __name__ == "__main__":
     """ Main """
