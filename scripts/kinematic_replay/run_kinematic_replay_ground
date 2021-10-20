@@ -18,6 +18,7 @@ if __name__ == "__main__":
     """ Main. """
     parser = argparse.ArgumentParser()
     parser.add_argument('-b', '--behavior', default='walking')
+    parser.add_argument('--record', dest='record', action='store_true')
     parser.add_argument(
         '-p',
         '--perturbation',
@@ -25,7 +26,7 @@ if __name__ == "__main__":
         action='store_true')
     args = parser.parse_args()
 
-    run_time = 8.0
+    run_time = 6.0
     time_step = 0.001
     behavior = args.behavior.lower()
 
@@ -70,15 +71,15 @@ if __name__ == "__main__":
         "base_link": 'Thorax',
         "ground_contacts": ground_contact,
         "self_collisions": self_collision,
-        "record": False, # Set True to record the simulation
+        "record": False,  # Set True to record the simulation
         'camera_distance': 7.0,
-        'track': False, # Set True to track the animal automatically
+        'track': False,  # Set True to track the animal automatically
         'moviename': './kinematic_replay_ground.mp4',
-        'moviespeed': 0.2, # Speed of the recorded movie
+        'moviespeed': 0.2,  # Speed of the recorded movie
         'slow_down': False,
         'sleep_time': 0.1,
         'rot_cam': False,
-        'behavior': behavior, # Set true to rotate the camera automatically
+        'behavior': behavior,  # Set true to rotate the camera automatically
         'ground': 'floor',
         'num_substep': 5
     }

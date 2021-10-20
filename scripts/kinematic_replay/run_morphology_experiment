@@ -31,8 +31,8 @@ def parse_args():
 
 def main(args):
     """ Main function """
-    run_time = 3.0
-    time_step = 0.001
+    run_time = 9.0
+    time_step = 5e-4
     behavior = args.behavior.lower()
 
     # Setting up the collision and ground sensors
@@ -58,9 +58,28 @@ def main(args):
         p +
         name for s in side for p in pos for name in leg_segments if name != 'Tibia']
 
+    # Setting the fixed joint angles to default values, can be altered to
+    # change the appearance of the fly
+    fixed_positions = {
+        'revolute_support_1': 3.6,
+        'joint_A3': -15,
+        'joint_A4': -15,
+        'joint_A5': -15,
+        'joint_A6': -15,
+        'joint_LAntenna': 35,
+        'joint_RAntenna': -35,
+        'joint_Rostrum': 90,
+        'joint_Haustellum': -60,
+        'joint_LWing_roll': 90,
+        'joint_LWing_yaw': -17,
+        'joint_RWing_roll': -90,
+        'joint_RWing_yaw': 17,
+        'joint_Head': 10
+    }
+
     model_path = os.path.join(
         neuromechfly_path,
-        'data/design/sdf/neuromechfly_frontleg_cylinder.sdf')
+        'data/design/sdf/neuromechfly_frontleg_antenna_cylinder.sdf')
     pose_path = os.path.join(
         neuromechfly_path,
         'data/config/pose/pose_default.yaml')
@@ -74,7 +93,7 @@ def main(args):
         ))
     if not os.path.exists(results_path):
         os.makedirs(results_path)
-    
+
     # Set the ball specs
     ball_specs = {
         'ball_friction_coef': 1.5,
@@ -91,7 +110,7 @@ def main(args):
         "base_link": 'Thorax',
         "ground_contacts": ground_contact,
         "self_collisions": self_collision,
-        "draw_collisions": False,  # Set True to change the color of colliding segments
+        "draw_collisions": True,  # Set True to change the color of colliding segments
         "record": args.record,  # Set True to record the simulation
         'camera_distance': 5.5,
         'track': False,
@@ -120,7 +139,8 @@ def main(args):
         sim_options,
         kp=0.4, kv=0.9,
         angles_path=angles_path,
-        velocity_path=velocity_path
+        velocity_path=velocity_path,
+        fixed_positions=fixed_positions
     )
     # Run the simulation
     animal.run(optimization=False)
