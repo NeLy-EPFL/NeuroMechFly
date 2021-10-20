@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """ Function to plot contact information """
-
+import os
 from argparse import ArgumentParser
 
 import matplotlib.pyplot as plt
@@ -36,8 +36,9 @@ def parse_args():
     return parser.parse_args()
 
 
-def plot(data, export_path):
+def plot_gait_diagram(data_path, export_path):
     """ Plot the contacts from the given data """
+    data = pd.read_hdf(os.path.join(data_path,'physics/contact_flag.h5'))
     # Time step
     ts = 1e-4
     # Total time
@@ -58,8 +59,8 @@ def plot(data, export_path):
         intervals[:, 1] = intervals[:, 1] - intervals[:, 0]
         contact_intervals[leg] = intervals
     # Define the figure
-    fig, ax = plt.subplots(figsize=(6.4, 4.8))
-    width = 0.5
+    fig, ax = plt.subplots(figsize=(7, 4))
+    width = 0.8
     for index, (key, value) in enumerate(contact_intervals.items()):
         ax.broken_barh(
             value, (index-width*0.5, width), facecolor='k'
@@ -67,6 +68,7 @@ def plot(data, export_path):
     ax.set_xlabel("Time [s]")
     ax.set_yticks((0, 1, 2, 3, 4, 5))
     ax.set_yticklabels(legs)
+    ax.set_xlim(1,2)
     # Export figure
     fig.savefig(export_path, bbox_inches='tight')
     # Show figure

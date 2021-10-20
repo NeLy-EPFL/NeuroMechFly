@@ -200,17 +200,17 @@ class DrosophilaEvolution(FloatProblem):
         lower_bound_active_muscles = (
                 np.asarray(
                     [# Front
-                    [1e-11, 1e-11, 5.0, 5e-15, 0.0], # Coxa
-                    [1e-11, 1e-11, 5.0, 5e-15, -2.0], # Femur
-                    [1e-11, 1e-11, 5.0, 5e-15, 1.31], # Tibia
+                    [1e-11, 1e-11, 0.1, 5e-15, 0.0], # Coxa
+                    [1e-11, 1e-11, 0.1, 5e-15, -2.0], # Femur
+                    [1e-11, 1e-11, 0.1, 5e-15, 1.31], # Tibia
                     # Mid
-                    [1e-11, 1e-11, 5.0, 5e-15, 2.18], # Coxa_roll
-                    [1e-11, 1e-11, 5.0, 5e-15, -2.14], # Femur
-                    [1e-11, 1e-11, 5.0, 5e-15, 1.96], # Tibia
+                    [1e-11, 1e-11, 0.1, 5e-15, 2.18], # Coxa_roll
+                    [1e-11, 1e-11, 0.1, 5e-15, -2.14], # Femur
+                    [1e-11, 1e-11, 0.1, 5e-15, 1.96], # Tibia
                     # Hind
-                    [1e-11, 1e-11, 5.0, 5e-15, 2.69], # Coxa_roll
-                    [1e-11, 1e-11, 5.0, 5e-15, -2.14], # Femur
-                    [1e-11, 1e-11, 5.0, 5e-15, 1.43], # Tibia
+                    [1e-11, 1e-11, 0.1, 5e-15, 2.69], # Coxa_roll
+                    [1e-11, 1e-11, 0.1, 5e-15, -2.14], # Femur
+                    [1e-11, 1e-11, 0.1, 5e-15, 1.43], # Tibia
                     ]
                 )
         ).flatten()
@@ -262,7 +262,13 @@ class DrosophilaEvolution(FloatProblem):
         # )
 
         # self.initial_solutions =  list(var) # [var[np.argmin(fun[:, 0])]]
-        self.initial_solutions = [self.upper_bound.tolist()]
+
+        # Initial solutions: upper, mid, and lower bounds
+        self.initial_solutions = [
+            self.upper_bound.tolist(),
+            ((self.upper_bound + self.lower_bound) * 0.5).tolist(),
+            self.lower_bound.tolist()
+        ]
         self._initial_solutions = self.initial_solutions.copy()
 
     def create_solution(self):
@@ -317,9 +323,8 @@ class DrosophilaEvolution(FloatProblem):
 
         # Set the ball specs based on your experimental setup
         ball_specs = {
-            'ball_density': 96,
-            'ball_radius': 5.0e-3,
-            'ball_friction_coef': 10.0
+            'ball_mass': 54.6e-6,
+            'ball_friction_coef': 1.3
         }
         # Simulation options
         sim_options = {
@@ -356,15 +361,15 @@ class DrosophilaEvolution(FloatProblem):
         #: PENALTIES
         penalties = {}
         #: Penalty long stance periods
-        # constraints = {}
-        # constraints['expected_stance_legs'] = 4
-        # constraints['min_legs'] = 2
-        # mean_stance_legs = fly.stance_count * fly.time_step / fly.time
-        # penalties['stance'] = (
-        #     0.0
-        #     if constraints['min_legs'] <= mean_stance_legs < constraints['expected_stance_legs']
-        #     else abs(mean_stance_legs - constraints['min_legs'])
-        # )
+        constraints = {}
+        constraints['max_legs'] = 5
+        constraints['min_legs'] = 2
+        mean_stance_legs = fly.stance_count * fly.time_step / fly.time
+        penalties['stance'] = (
+            0.0
+            if constraints['min_legs'] <= mean_stance_legs <= constraints['expected_stance_legs']
+            else 1.0
+        )
 
         penalties['lava'] = fly.opti_lava
         penalties['velocity'] = fly.opti_velocity
@@ -374,7 +379,7 @@ class DrosophilaEvolution(FloatProblem):
             'distance': -1e1,
             'stability': -1e-2,
             'mechanical_work': 1e-2,
-            'stance': 1e2,
+            'stance': 1e0,
             'lava': 1e-1,
             'velocity': 1e-1,
             'joint_limits': 1e-1
