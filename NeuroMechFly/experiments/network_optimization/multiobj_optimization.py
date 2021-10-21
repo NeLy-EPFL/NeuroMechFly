@@ -267,7 +267,6 @@ class DrosophilaEvolution(FloatProblem):
         self.initial_solutions = [
             self.upper_bound.tolist(),
             ((self.upper_bound + self.lower_bound) * 0.5).tolist(),
-            self.lower_bound.tolist()
         ]
         self._initial_solutions = self.initial_solutions.copy()
 
@@ -354,7 +353,7 @@ class DrosophilaEvolution(FloatProblem):
         objectives = {}
 
         #: Forward distance (backward rotation of the ball)
-        objectives['distance'] = np.array(fly.ball_rotations)[0] * fly.ball_radius
+        objectives['distance'] = np.array(fly.ball_rotations)[0] * fly.ball_radius * fly.units.meters
         objectives['stability'] = fly.opti_stability
         # objectives['mechanical_work'] = np.sum(fly.mechanical_work)
 
@@ -388,7 +387,7 @@ class DrosophilaEvolution(FloatProblem):
             'stance': 1e0,
             'lava': 1e-1,
             'velocity': 1e-1,
-            'joint_limits': 1e-1,
+            'joint_limits': 1e-2,
             'duty_factor': 1e2
         }
 
