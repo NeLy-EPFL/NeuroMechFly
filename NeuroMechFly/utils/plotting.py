@@ -296,6 +296,41 @@ def plot_pareto_front(path_data,
     plt.show()
 
 
+def plot_population_statistics(
+    result_directory,
+    pop_no,
+    generations,
+    penalty_number,
+    ax
+):
+    """ Plots the population statistics (i.e. penalties across generations)
+    Parameters
+    ----------
+    result_directory : str
+        Directory where the PENALTIES.<gen> are.
+    pop_no : int
+        Number of individual in a population.
+    generations : list
+        Generations to be analyzed.
+        e.g.: [1,2,3,4,5,6]
+    penalty_number : int
+        Column number of the penalty based on the log file.
+    ax : matplotlib.axes.Axes
+        Ax object to plot the violins and data points.
+    """
+    penalty = np.zeros((pop_no, len(generations)))
+    for i, generation in enumerate(generations):
+        penalty[:, i] = np.loadtxt(
+            os.path.join(
+                result_directory, f’PENALTIES.{generation}'
+            )
+        )[:, penalty_number]
+    cols = [f’Gen {gen}' for gen in generations]
+    rows = [f’Ind {ind}' for ind in range(pop_no)]
+    penalty_df = pd.DataFrame(penalty, columns=cols, index=rows)
+    sns.violinplot(data=penalty_df, scale=‘count’, color=‘white’, edgecolor=‘black’, bw=0.5, ax=ax)
+    sns.swarmplot(data=penalty_df, size=12, color=‘red’, edgecolor=‘black’, alpha=0.3, ax=ax)
+
 
 def plot_penalties(
     result_directory: str,
@@ -810,7 +845,7 @@ def plot_data(
             else:
                 axs[i].set_ylabel('Joint torques\nfrom muscle ' + r'$(\mu Nmm)$')
                 #axs[i].set_ylim(-0.5, 0.5)
-                
+
         if plot == 'angles_sim':
             for joint, ang in data.items():
                 time = np.arange(0, len(ang), 1) / steps
@@ -1294,7 +1329,7 @@ def get_data(data_path, begin, end, time_step, data_from=[], offset=0, window_ti
 
     if ".h5" in data_path:
         data = pd.read_hdf(data_path)
-        
+
     if end == 0:
         end = len(data) * time_step
 
@@ -1342,7 +1377,7 @@ def plot_fly_path_comparison(
         filter_window_time=0.2
         ):
     """ Comparing fly path/ball rotations between ground truth (obtained from FicTrac) and simulation
-    
+
     Parameters
     ----------
     path_data: <str>
@@ -1362,7 +1397,7 @@ def plot_fly_path_comparison(
                          "delta_rot_lab_x",
                          "delta_rot_lab_y",
                          "delta_rot_lab_z"]
-    
+
     fictrac_data = get_data(fictrac_path,begin,end,time_step_fictrac,data_from_fictrac,offset_fictrac,filter_window_time)
     fw_fictrac = fictrac_data["integrated_forward_movement"] * ball_radius
     side_fictrac = fictrac_data["integrated_side_movement"] * ball_radius
@@ -1381,10 +1416,10 @@ def plot_fly_path_comparison(
 
     sim_vel_data_path = os.path.join(sim_path, 'physics','ball_velocities.h5')
     vel_data = get_data(sim_vel_data_path,begin,end,time_step_sim,data_from_sim, offset_sim, filter_window_time)
-    vel_fw_sim = -vel_data["y"] 
-    vel_side_sim = vel_data["x"] 
-    vel_heading_sim = -vel_data["z"] 
-    
+    vel_fw_sim = -vel_data["y"]
+    vel_side_sim = vel_data["x"]
+    vel_heading_sim = -vel_data["z"]
+
     window = 11
     order = 3
 
@@ -1392,7 +1427,7 @@ def plot_fly_path_comparison(
     vel_fw_fictrac = scipy.signal.savgol_filter(fw_fictrac, window, order, deriv=1, delta=time_step_fictrac, mode='nearest')
     vel_side_fictrac = scipy.signal.savgol_filter(side_fictrac, window, order, deriv=1, delta=time_step_fictrac, mode='nearest')
     vel_heading_fictrac = scipy.signal.savgol_filter(heading_fictrac, window, order, deriv=1, delta=time_step_fictrac, mode='nearest')
-    
+
     vel_fw_sim = scipy.signal.savgol_filter(fw_sim, 111, order, deriv=1, delta=time_step_sim, mode='nearest')
     vel_side_sim = scipy.signal.savgol_filter(side_sim, 111, order, deriv=1, delta=time_step_sim, mode='nearest')
     vel_heading_sim = scipy.signal.savgol_filter(heading_sim, 111, order, deriv=1, delta=time_step_sim, mode='nearest')
@@ -1401,7 +1436,7 @@ def plot_fly_path_comparison(
     time_fictrac = np.arange(begin, end, time_step_fictrac)
     time_sim = np.arange(begin, end, time_step_sim)
     filter_window_time = 0.2
-    
+
     if plot_traj:
         x_head_fictrac, y_head_fictrac = get_flat_trajectory(fw_fictrac,side_fictrac,heading_fictrac)
         x_head_sim, y_head_sim = get_flat_trajectory(-fw_sim, -side_sim, -heading_sim)
@@ -1415,14 +1450,14 @@ def plot_fly_path_comparison(
         plt.xticks(fontsize=13)
         plt.yticks(fontsize=13)
 
-        #plt.figure(2)    
+        #plt.figure(2)
         #plt.plot(fw_fictrac, side_fictrac, label='Fictrac (x-y)')
         #plt.plot(fw_sim, side_sim, label='NeuroMechFly (x-y)')
         #plt.xlabel('Distance (mm)', fontsize=14)
         #plt.ylabel('Distance (mm)', fontsize=14)
         #plt.legend()
 
-        plt.figure()    
+        plt.figure()
         plt.plot(time_fictrac, side_fictrac, label='Fictrac')
         plt.plot(time_sim, side_sim, label='NeuroMechFly')
         plt.xlabel('Time (s)', fontsize=14)
@@ -1431,7 +1466,7 @@ def plot_fly_path_comparison(
         plt.xticks(fontsize=13)
         plt.yticks(fontsize=13)
 
-        plt.figure()    
+        plt.figure()
         plt.plot(time_fictrac, fw_fictrac, label='Fictrac')
         plt.plot(time_sim, fw_sim, label='NeuroMechFly')
         plt.xlabel('Time (s)', fontsize=14)
@@ -1440,7 +1475,7 @@ def plot_fly_path_comparison(
         plt.xticks(fontsize=13)
         plt.yticks(fontsize=13)
 
-        plt.figure()    
+        plt.figure()
         plt.plot(time_fictrac, heading_fictrac, label='Fictrac')
         plt.plot(time_sim, heading_sim, label='NeuroMechFly')
         plt.xlabel('Time (s)', fontsize=14)
@@ -1485,17 +1520,17 @@ def plot_fly_path_comparison(
         plt.xticks(fontsize=13)
         plt.yticks(fontsize=13)
         print(f"Correlation coeficient (Heading vel): {corr_coef}")
-        
+
     plt.show()
 
-def calculate_correlation_between(fictrac, sim, time_fictrac, time_sim): 
+def calculate_correlation_between(fictrac, sim, time_fictrac, time_sim):
     interpolated_fictrac = pchip_interpolate(time_fictrac, fictrac, time_sim)
 
-    corr_coef, p_value = scipy.stats.spearmanr(interpolated_fictrac, sim) 
+    corr_coef, p_value = scipy.stats.spearmanr(interpolated_fictrac, sim)
 
-    return interpolated_fictrac, corr_coef 
-  
-    
+    return interpolated_fictrac, corr_coef
+
+
 def plot_fly_path_comparison_old(
         fictrac_path,
         ball_path,
@@ -1507,7 +1542,7 @@ def plot_fly_path_comparison_old(
         time_step_sim=0.001
         ):
     """ Comparing fly path/ball rotations between ground truth (obtained from FicTrac) and simulation
-    
+
     Parameters
     ----------
     path_data: <str>
@@ -1521,7 +1556,7 @@ def plot_fly_path_comparison_old(
     time_step: <float>
         Data time step.
     """
-    
+
     fictrac_columns = ["Frame_counter",
                        "delta_rot_cam_x",
                        "delta_rot_cam_y",
@@ -1600,7 +1635,7 @@ def plot_fly_path_comparison_old(
     delta_fw_sim = np.insert(delta_fw_sim,0,0) / time_step_sim
     delta_side_sim = np.insert(delta_side_sim,0,0) / time_step_sim
     delta_heading_sim = np.insert(delta_heading_sim,0,0) / time_step_sim
-    
+
     #vel_x = (vel_data[0][start_sim:stop_sim]-vel_data[0][start_sim+5])
     #vel_y = (vel_data[1][start_sim:stop_sim]-vel_data[1][start_sim+5])
     #vel_z = (vel_data[2][start_sim:stop_sim]-vel_data[2][start_sim+5])
@@ -1611,15 +1646,15 @@ def plot_fly_path_comparison_old(
     vel_fw_fictrac = scipy.signal.savgol_filter(fw_fictrac, window, order, deriv=1, delta=time_step_fictrac, mode='nearest')
     vel_side_fictrac = scipy.signal.savgol_filter(side_fictrac, window, order, deriv=1, delta=time_step_fictrac, mode='nearest')
     vel_heading_fictrac = scipy.signal.savgol_filter(heading_fictrac, window, order, deriv=1, delta=time_step_fictrac, mode='nearest')
-    
+
     vel_fw_sim = scipy.signal.savgol_filter(fw_sim, 111, order, deriv=1, delta=time_step_sim, mode='nearest')
     vel_side_sim = scipy.signal.savgol_filter(side_sim, 111, order, deriv=1, delta=time_step_sim, mode='nearest')
     vel_heading_sim = scipy.signal.savgol_filter(heading_sim, 111, order, deriv=1, delta=time_step_sim, mode='nearest')
 
-    
+
     x_head_fictrac, y_head_fictrac = get_flat_trajectory(fw_fictrac.values, side_fictrac.values, heading_fictrac.values)
     x_head_sim, y_head_sim = get_flat_trajectory(-fw_sim, -side_sim, -heading_sim)
-    
+
     plt.figure(0)
     plt.plot(x_head_fictrac, y_head_fictrac, label="fictrac path")
     plt.plot(x_head_sim, y_head_sim, label="NeuroMechFly path")
@@ -1667,33 +1702,33 @@ def plot_fly_path_comparison_old(
         plt.draw()
         plt.pause(0.001)
     '''
-    
+
     time_fictrac = np.arange(begin, end, time_step_fictrac)
     time_sim = np.arange(begin, end, time_step_sim)
 
     '''
-    plt.figure(10)    
-    plt.plot(time_fictrac, fw_fictrac, label='Fictrac forward')    
-    plt.plot(time_fictrac, side_fictrac, label='Fictrac side')    
+    plt.figure(10)
+    plt.plot(time_fictrac, fw_fictrac, label='Fictrac forward')
+    plt.plot(time_fictrac, side_fictrac, label='Fictrac side')
     plt.plot(time_fictrac, heading_fictrac, label='Fictrac heading')
     plt.xlabel('Time (s)')
     plt.ylabel('Distance (mm)')
     plt.legend()
 
-    plt.figure(11)    
-    plt.plot(time_fictrac, delta_fw_fictrac, label='Fictrac forward')    
-    plt.plot(time_fictrac, delta_side_fictrac, label='Fictrac side')    
+    plt.figure(11)
+    plt.plot(time_fictrac, delta_fw_fictrac, label='Fictrac forward')
+    plt.plot(time_fictrac, delta_side_fictrac, label='Fictrac side')
     plt.plot(time_fictrac, delta_heading_fictrac, label='Fictrac heading')
     plt.xlabel('Time (s)')
     plt.ylabel('Distance (mm)')
     plt.legend()
-    
+
     plt.show()
     quit()
     '''
-    
-    
-    plt.figure(2)    
+
+
+    plt.figure(2)
     plt.plot(fw_fictrac, side_fictrac, label='Fictrac (x-y)')
     plt.plot(fw_sim, side_sim, label='NeuroMechFly (x-y)')
     #plt.ylim(-0.5,1)
@@ -1701,32 +1736,32 @@ def plot_fly_path_comparison_old(
     plt.ylabel('Distance (mm)')
     plt.legend()
 
-    plt.figure(3)    
+    plt.figure(3)
     plt.plot(time_fictrac, side_fictrac, label='Fictrac side')
     plt.plot(time_sim, side_sim, label='NeuroMechFly side')
     plt.xlabel('Time (s)')
     plt.ylabel('Distance (mm)')
     plt.legend()
-    
-    plt.figure(4)    
+
+    plt.figure(4)
     plt.plot(time_fictrac, fw_fictrac, label='Fictrac forward')
     plt.plot(time_sim, fw_sim, label='NeuroMechFly forward')
     plt.xlabel('Time (s)')
     plt.ylabel('Distance (mm)')
     plt.legend()
-    
-    plt.figure(5)    
+
+    plt.figure(5)
     plt.plot(time_fictrac, heading_fictrac, label='Fictrac heading')
     plt.plot(time_sim, heading_sim, label='NeuroMechFly heading')
     plt.xlabel('Time (s)')
     plt.ylabel('Distance (rad)')
     plt.legend()
-    
-    plt.figure(6)    
+
+    plt.figure(6)
     #plt.plot(time_fictrac, delta_fw_fictrac, label='delta fw fictrac')
     plt.plot(time_fictrac, vel_fw_fictrac, label='vel fw fictrac')
     plt.plot(time_sim, vel_fw_sim, label='vel fw sim')
-    #plt.plot(time_sim, delta_fw_sim, label='delta fw sim')    
+    #plt.plot(time_sim, delta_fw_sim, label='delta fw sim')
     plt.xlabel('Time (s)')
     plt.ylabel('Velocity (mm/s)')
     plt.legend()
@@ -1735,7 +1770,7 @@ def plot_fly_path_comparison_old(
     #plt.plot(time_fictrac, delta_side_fictrac, label='delta side fictrac')
     plt.plot(time_fictrac, vel_side_fictrac, label='vel side fictrac')
     plt.plot(time_sim, vel_side_sim, label='vel side sim')
-    #plt.plot(time_sim, delta_side_sim, label='delta side sim')    
+    #plt.plot(time_sim, delta_side_sim, label='delta side sim')
     plt.xlabel('Time (s)')
     plt.ylabel('Velocity (mm/s)')
     plt.legend()
@@ -1744,15 +1779,15 @@ def plot_fly_path_comparison_old(
     #plt.plot(time_fictrac, delta_heading_fictrac, label='delta heading fictrac')
     plt.plot(time_fictrac, vel_heading_fictrac, label='vel heading fictrac')
     plt.plot(time_sim, vel_heading_sim, label='vel heading sim')
-    #plt.plot(time_sim, delta_heading_sim, label='delta heading sim')    
+    #plt.plot(time_sim, delta_heading_sim, label='delta heading sim')
     plt.xlabel('Time (s)')
     plt.ylabel('Velocity (rad/s)')
     plt.legend()
-    
+
     plt.show()
 
 def get_flat_trajectory(fw, side, heading):
-    
+
     x_trajectory = [0]
     y_trajectory = [0]
     diff_x = np.diff(fw)
@@ -1776,23 +1811,23 @@ def compare_collision_diagram(
         time_step_gt=0.01):
 
     """ Plots collision/gait diagrams.
-    
+
     Parameters
     ----------
     path_data: <str>
         Path to simulation results.
     sim_data: <str>
-        Behavior from data. Options: 'walking' or 'grooming'.    
+        Behavior from data. Options: 'walking' or 'grooming'.
     begin: <float>
         Starting time for initiating the plots.
     end: <float>
         Stoping time for finishing the plots. If 0.0, all data is plotted.
     time_step: <float>
         Data time step.
-    """ 
+    """
     data = {}
     length_data = 0
-    
+
     if sim_data == 'walking':
         title_plot = 'Gait diagram'
         collisions = {
@@ -1810,13 +1845,13 @@ def compare_collision_diagram(
                 'RF': [],
                 'RM': [],
                 'RH': []}
-        
+
         data_sim = read_ground_contacts(path_data)
 
         gt_file_path = os.path.join(gt_data,"ground_truth_contact.pkl")
         data_gt = np.load(gt_file_path,allow_pickle=True)
 
-        
+
         for leg in collisions.keys():
             sum_force = np.sum(np.array(data_sim[leg]), axis=0)
             segment_force = np.delete(sum_force, 0)
@@ -1830,7 +1865,7 @@ def compare_collision_diagram(
             collisions_gt[leg].append(segment_force)
             if length_data == 0:
                 length_data = len(segment_force)
-                
+
     elif sim_data == 'grooming':
         data = read_collision_forces(path_data)
         title_plot = 'Collisions diagram'
@@ -1848,12 +1883,12 @@ def compare_collision_diagram(
             'RFTarsus2': [],
             'RFTarsus1': [],
             'RFTibia': [],
-            'RAntenna': []}  
+            'RAntenna': []}
 
         for segment1 in collisions.keys():
             seg_forces=[]
             for segment2, force in data[segment1].items():
-                seg_forces.append(force)    
+                seg_forces.append(force)
             sum_force = np.sum(np.array(seg_forces), axis=0)
             segment_force = np.delete(sum_force, 0)
             collisions[segment1].append(segment_force)
@@ -1895,7 +1930,7 @@ def compare_collision_diagram(
         axs[i].fill_between(time[start_sim:stance_plot[0]], 0, 1, facecolor='white', alpha=0.5, transform=axs[i].get_xaxis_transform())
 
         axs[i].fill_between(time[stance_plot[-1]:stop_sim], 0, 1, facecolor='white', alpha=0.5, transform=axs[i].get_xaxis_transform())
-        
+
         axs[i].set_yticks((0.5,))
         axs[i].set_yticklabels((segment,))
 
@@ -1907,11 +1942,11 @@ def compare_collision_diagram(
         stance_plot = get_stance_periods(force[0],start_gt,stop_gt)
         stance_frames_gt[segment] = []
         for ind in range(0, len(stance_plot), 2):
-            
+
             start_stance = int(np.floor(stance_plot[ind] * scale_factor))
             stop_stance = int(np.ceil(stance_plot[ind+1] * scale_factor))
             num_steps = int(stop_stance-start_stance)
-            
+
             axs[i].fill_between(time[start_stance:stop_stance], 0, 1,
                                 facecolor='y', alpha=0.5,
                                 transform=axs[i].get_xaxis_transform())
@@ -1919,11 +1954,11 @@ def compare_collision_diagram(
                                                       stop_stance,
                                                       num_steps,
                                                       endpoint=False))
-                    
+
         axs[i].fill_between(time_gt[start_gt:stance_plot[0]], 0, 1, facecolor='white', alpha=0.5, transform=axs[i].get_xaxis_transform())
 
         axs[i].fill_between(time_gt[stance_plot[-1]:stop_gt], 0, 1, facecolor='white', alpha=0.5, transform=axs[i].get_xaxis_transform())
-        
+
         axs[i].set_yticks((0.5,))
         axs[i].set_yticklabels((segment,))
 
@@ -1940,7 +1975,7 @@ def compare_collision_diagram(
         df_vals['Leg'] = leg
         results = results.append(df_vals, ignore_index=True)
         #print(leg, [[key, v/tot_frames] for key, v in results[leg].items()])
-        
+
     axs[len(axs) - 1].set_xlabel('Time (s)')
     if sim_data == 'walking':
         gt_patch = mpatches.Patch(color='y', alpha=0.5, label='GT-Stance')
