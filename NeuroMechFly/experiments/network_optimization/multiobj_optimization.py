@@ -363,7 +363,7 @@ class DrosophilaEvolution(FloatProblem):
         duty_factor = fly.duty_factor
         # Keep the duty factor between 45% and 90%
         # Taken from Mendes et al. 2012
-        penalties['duty_factor'] = np.count_nonzero(duty_factor < 0.45) + np.count_nonzero(duty_factor > 0.90)
+        penalties['duty_factor'] = np.count_nonzero(duty_factor < 0.4) + np.count_nonzero(duty_factor > 0.90)
 
         #: Penalty long stance periods
         # constraints = {}
@@ -387,7 +387,7 @@ class DrosophilaEvolution(FloatProblem):
             'stance': 1e0,
             'lava': 1e-1,
             'velocity': 1e-1,
-            'joint_limits': 1e-2,
+            'joint_limits': 5e-2,
             'duty_factor': 1e2
         }
 
