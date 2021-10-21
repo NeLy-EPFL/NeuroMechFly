@@ -55,7 +55,7 @@ def plot_mu_sem(
     if x is None:
         x = np.arange(0, mu.shape[0], 1) * time_step
     p = ax.plot(x[beg:end], mu[beg:end], lw=1, color=color, label=plot_label)
-    if len(mu.shape) is 1:
+    if len(mu.shape) == 1:
         if conf is not None:
             ax.plot(x[beg:end],
                     mu[beg:end] - conf * error[beg:end],
@@ -322,14 +322,14 @@ def plot_population_statistics(
     for i, generation in enumerate(generations):
         penalty[:, i] = np.loadtxt(
             os.path.join(
-                result_directory, f’PENALTIES.{generation}'
+                result_directory, f'PENALTIES.{generation}'
             )
         )[:, penalty_number]
-    cols = [f’Gen {gen}' for gen in generations]
-    rows = [f’Ind {ind}' for ind in range(pop_no)]
+    cols = [f'Gen {gen}' for gen in generations]
+    rows = [f'Ind {ind}' for ind in range(pop_no)]
     penalty_df = pd.DataFrame(penalty, columns=cols, index=rows)
-    sns.violinplot(data=penalty_df, scale=‘count’, color=‘white’, edgecolor=‘black’, bw=0.5, ax=ax)
-    sns.swarmplot(data=penalty_df, size=12, color=‘red’, edgecolor=‘black’, alpha=0.3, ax=ax)
+    sns.violinplot(data=penalty_df, scale='count', color='white', edgecolor='black', bw=0.5, ax=ax)
+    sns.swarmplot(data=penalty_df, size=12, color='red', edgecolor='black', alpha=0.3, ax=ax)
 
 
 def plot_penalties(
