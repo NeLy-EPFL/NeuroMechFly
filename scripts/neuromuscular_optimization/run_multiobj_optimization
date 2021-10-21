@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 """ Script to run NSGA-II multip objective optimization. """
 
-from datetime import datetime
 import os
-from pathlib import Path
+import argparse
 import pkgutil
+from datetime import datetime
+from pathlib import Path
+
 import farms_pylog as pylog
 from jmetal.algorithm.multiobjective.nsgaii import NSGAII
 from jmetal.lab.visualization import Plot
@@ -23,10 +25,19 @@ from NeuroMechFly.experiments.network_optimization.multiobj_optimization import 
 neuromechfly_path = Path(pkgutil.get_loader("NeuroMechFly").get_filename()).parents[1]
 
 
+def parse_args():
+    """ Parse arguments from command line """
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-g', '--gen', type=int, default=60)
+    parser.add_argument('-p', '--pop', type=int, default=30)
+    parser.set_defaults(gui=False, profile=False)
+    return parser.parse_args()
+
 if __name__ == "__main__":
     """ Main """
-    n_pop = 60
-    n_gen = 200
+    args = parse_args()
+    n_pop = args.pop
+    n_gen = args.gen
 
     # Problem
     max_evaluations = n_pop*n_gen
