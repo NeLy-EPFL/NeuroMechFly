@@ -200,17 +200,17 @@ class DrosophilaEvolution(FloatProblem):
         lower_bound_active_muscles = (
                 np.asarray(
                     [# Front
-                    [1e-11, 1e-11, 0.1, 5e-15, 0.0], # Coxa
-                    [1e-11, 1e-11, 0.1, 5e-15, -2.0], # Femur
-                    [1e-11, 1e-11, 0.1, 5e-15, 1.31], # Tibia
+                    [1e-10, 1e-10, 1.0, 5e-13, 0.0], # Coxa
+                    [1e-10, 1e-10, 1.0, 5e-13, -2.0], # Femur
+                    [1e-10, 1e-10, 1.0, 5e-13, 1.31], # Tibia
                     # Mid
-                    [1e-11, 1e-11, 0.1, 5e-15, 2.18], # Coxa_roll
-                    [1e-11, 1e-11, 0.1, 5e-15, -2.14], # Femur
-                    [1e-11, 1e-11, 0.1, 5e-15, 1.96], # Tibia
+                    [1e-10, 1e-10, 1.0, 5e-13, 2.18], # Coxa_roll
+                    [1e-10, 1e-10, 1.0, 5e-13, -2.14], # Femur
+                    [1e-10, 1e-10, 1.0, 5e-13, 1.96], # Tibia
                     # Hind
-                    [1e-11, 1e-11, 0.1, 5e-15, 2.69], # Coxa_roll
-                    [1e-11, 1e-11, 0.1, 5e-15, -2.14], # Femur
-                    [1e-11, 1e-11, 0.1, 5e-15, 1.43], # Tibia
+                    [1e-10, 1e-10, 1.0, 5e-13, 2.69], # Coxa_roll
+                    [1e-10, 1e-10, 1.0, 5e-13, -2.14], # Femur
+                    [1e-10, 1e-10, 1.0, 5e-13, 1.43], # Tibia
                     ]
                 )
         ).flatten()
@@ -220,16 +220,16 @@ class DrosophilaEvolution(FloatProblem):
                     [
                     # Front
                     [5e-9, 1e-9, 10.0, 1e-11, 0.47], # Coxa
-                    [5e-10, 1e-9, 10.0, 1e-11, -1.68], # Femur
-                    [5e-10, 1e-9, 10.0, 1e-11, 2.05], # Tibia
+                    [1e-9, 1e-9, 10.0, 1e-11, -1.68], # Femur
+                    [1e-9, 1e-9, 10.0, 1e-11, 2.05], # Tibia
                     # Mid
                     [5e-9, 1e-9, 10.0, 1e-11, 2.01], # Coxa_roll
-                    [5e-10, 1e-9, 10.0, 1e-11, -2.0], # Femur
-                    [5e-10, 1e-9, 10.0, 1e-11, 2.22], # Tibia
+                    [1e-9, 1e-9, 10.0, 1e-11, -2.0], # Femur
+                    [1e-9, 1e-9, 10.0, 1e-11, 2.22], # Tibia
                     # Hind
                     [5e-9, 1e-9, 10.0, 1e-11, 2.53], # Coxa_roll
-                    [5e-10, 1e-9, 10.0, 1e-11, -1.55], # Femur
-                    [5e-10, 1e-9, 10.0, 1e-11, 2.26], # Tibia
+                    [1e-9, 1e-9, 10.0, 1e-11, -1.55], # Femur
+                    [1e-9, 1e-9, 10.0, 1e-11, 2.26], # Tibia
                     ]
                 )
         ).flatten()
@@ -363,7 +363,7 @@ class DrosophilaEvolution(FloatProblem):
         duty_factor = fly.duty_factor
         # Keep the duty factor between 45% and 90%
         # Taken from Mendes et al. 2012
-        penalties['duty_factor'] = np.count_nonzero(duty_factor < 0.45) + np.count_nonzero(duty_factor > 0.90)
+        penalties['duty_factor'] = np.count_nonzero(duty_factor < 0.4) + np.count_nonzero(duty_factor > 0.90)
 
         #: Penalty long stance periods
         # constraints = {}
@@ -387,7 +387,7 @@ class DrosophilaEvolution(FloatProblem):
             'stance': 1e0,
             'lava': 1e-1,
             'velocity': 1e-1,
-            'joint_limits': 1e-2,
+            'joint_limits': 5e-2,
             'duty_factor': 1e2
         }
 

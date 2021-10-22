@@ -55,7 +55,7 @@ def plot_mu_sem(
     if x is None:
         x = np.arange(0, mu.shape[0], 1) * time_step
     p = ax.plot(x[beg:end], mu[beg:end], lw=1, color=color, label=plot_label)
-    if len(mu.shape) is 1:
+    if len(mu.shape) == 1:
         if conf is not None:
             ax.plot(x[beg:end],
                     mu[beg:end] - conf * error[beg:end],
