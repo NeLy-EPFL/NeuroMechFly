@@ -62,14 +62,14 @@ class DrosophilaSimulation(BulletSimulation):
         self.kv = kv
         self.angles_path = angles_path
         self.fixed_positions = fixed_positions
-        
+
         super().__init__(container, units, **sim_options)
-        
+
         self.pose = [0] * self.num_joints
         self.vel = [0] * self.num_joints
         self.angles = self.load_data(angles_path,starting_time)
         self.velocities = self.load_data(velocity_path,starting_time)
-                    
+
 
         # Debug parameter
         self.draw_ss_line_ids = [
@@ -85,7 +85,7 @@ class DrosophilaSimulation(BulletSimulation):
             (0., 0., 0.), (0., 0., 0.), lineColorRGB=[1, 0, 0]
         )
 
-    def load_data(self, data_path,starting_time):
+    def load_data(self, data_path, starting_time=0):
         """ Function that loads the pickle format joint angle or velocity gile.
 
         Parameters
@@ -120,21 +120,21 @@ class DrosophilaSimulation(BulletSimulation):
         except BaseException:
             FileNotFoundError(f"File {data_path} not found!")
 
-    
+
     def load_ball_info(self):
         to_replace = self.angles_path[self.angles_path.find('joint_angles'):self.angles_path.find('__')]
         data_path = self.angles_path.replace(to_replace,'treadmill_info')
-        
+
         try:
             data = pd.read_pickle(data_path)
             ball_rad = data['radius']
             ball_pos = data['position']
-            
+
             return ball_rad, ball_pos
 
         except BaseException:
             FileNotFoundError(f"File {data_path} not found!")
-    
+
 
     def controller_to_actuator(self, t):
         """
@@ -147,10 +147,10 @@ class DrosophilaSimulation(BulletSimulation):
         t : <int>
             Time running in the physics engine.
         """
-        
+
         # Update logs for physical quantities
         self.update_data_logs()
-        
+
         # Setting the joint angular positions of the fixed joints
         if not self.fixed_positions:
             self.fixed_positions = {
@@ -169,6 +169,14 @@ class DrosophilaSimulation(BulletSimulation):
         # estimation
         for joint_name, joint_vel in self.velocities.items():
             self.vel[self.joint_id[joint_name]] = joint_vel[t]
+
+        # Reset joint states to prevent explosion at high gains
+        if t==0:
+            for joint in range(self.num_joints):
+                p.resetJointState(
+                    self.animal, joint,
+                    targetValue=self.pose[joint],
+                )
 
         # Control the joints through position controller
         # Velocity can be discarded if not available and gains can be changed
@@ -357,4 +365,4 @@ class DrosophilaSimulation(BulletSimulation):
         self.analysis_data.mechanical_work.values = np.asarray(self.mechanical_work, dtype='double').reshape((1,))
         self.analysis_data.thermal_loss.values = np.asarray(self.thermal_loss, dtype='double').reshape((1,))
         self.analysis_data.static_stability.values = np.asarray(self.compute_static_stability(), dtype='double').reshape((1,))
-        
+
