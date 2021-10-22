@@ -126,7 +126,8 @@ def main(args):
         'ball_mass': 54.6e-6,
         'ball_friction_coef': 1.3,
         'contactERP': float(args.contactERP),
-        'globalCFM': float(args.globalCFM)
+        'globalCFM': float(args.globalCFM),
+        'numSolverIterations': 1000
     }
 
     # Paths of the position and velocity data
