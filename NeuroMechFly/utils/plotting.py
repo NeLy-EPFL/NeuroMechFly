@@ -1,6 +1,5 @@
 """ Script to plot the simulation results. """
 import os
-import cv2 as cv
 
 from typing import List
 import numpy as np

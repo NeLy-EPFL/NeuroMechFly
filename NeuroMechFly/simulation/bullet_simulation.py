@@ -12,10 +12,10 @@ import pybullet_data
 import yaml
 from farms_network.neural_system import NeuralSystem
 from NeuroMechFly.sdf.bullet_load_sdf import load_sdf
-from NeuroMechFly.simulation.bullet_sensors import (COMSensor, ContactSensors,
-                                                    JointSensors)
+from NeuroMechFly.simulation.bullet_sensors import (
+    COMSensor, ContactSensors, JointSensors
+)
 from tqdm import tqdm
-import cv2 as cv
 
 neuromechfly_path = Path(pkgutil.get_loader(
     'NeuroMechFly').get_filename()).parents[1]
