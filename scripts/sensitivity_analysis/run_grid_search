@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 """ Perform sensitivity analysis """
 
-from NeuroMechFly.experiments.kinematic_replay import kinematic_replay
-from farms_container import Container
 import os
 from pathlib import Path
 import pkgutil
@@ -11,6 +9,10 @@ from datetime import datetime
 import numpy as np
 import pandas as pd
 import pickle
+from multiprocessing import Pool
+
+from NeuroMechFly.experiments.kinematic_replay import kinematic_replay
+from farms_container import Container
 
 neuromechfly_path = Path(pkgutil.get_loader(
     "NeuroMechFly").get_filename()).parents[1]
@@ -34,7 +36,9 @@ def load_data(path):
         'joint_positions',
         'joint_velocities',
         'joint_torques',
-        'ground_contacts'
+        'contact_normal_force',
+        'contact_lateral_force',
+        'ball_rotations'
     ]
 
     pybullet_data = {key: dict() for key in file_names}
@@ -59,10 +63,11 @@ def load_data(path):
     return pybullet_data
 
 
-if __name__ == "__main__":
-    """ Main. """
-    run_time = 8.972
-    time_step = 0.001
+def run_simulation(kp, kv):
+    """ Run simulation with given kp and kv values. """
+    run_time = 6.0
+    time_step = 5e-4
+    starting_time = 0.5
     behavior = 'walking'
 
     #: Setting up the collision and ground sensors
@@ -90,6 +95,7 @@ if __name__ == "__main__":
 
     #: Setting the fixed joint angles to default values, can be altered to change the appearance of the fly
     fixed_positions = {
+        'revolute_support_1': 3.6,
         'joint_A3': -15,
         'joint_A4': -15,
         'joint_A5': -15,
@@ -117,9 +123,7 @@ if __name__ == "__main__":
         neuromechfly_path,
         f'data/joint_tracking/{behavior}/df3d')
     angles_path = glob.glob(joint_tracking_path + '/joint_angles*.pkl')[0]
-    velocity_path = glob.glob(
-        joint_tracking_path +
-        '/joint_velocities*.pkl')[0]
+    velocity_path = glob.glob(joint_tracking_path + '/joint_velocities*.pkl')[0]
 
     try:
         data_path = os.path.join(
@@ -128,68 +132,83 @@ if __name__ == "__main__":
         os.makedirs(data_path)
         print('Directory does not exist, creating...')
     except FileExistsError:
-        print('Directory already exists!')
         pass
 
+
+    #: Simulation options
+    sim_options = {
+        "headless": True,
+        "model": model_path,
+        "pose": pose_path,
+        "model_offset": [0., 0, 11.2e-3],
+        "run_time": run_time,
+        "base_link": 'Thorax',
+        "ground_contacts": ground_contact,
+        "self_collisions": self_collision,
+        "draw_collisions": False,  # : Set True to change the color of colliding segments
+        "record": False,  # : Set True to record the simulation
+        'camera_distance': 5.5,
+        'track': False,
+        'moviename': './videos/kinematic_replay_video.mp4',
+        'moviespeed': 0.2,  # : Speed of the recorded movie
+        'slow_down': False,
+        'sleep_time': 0.001,
+        'rot_cam': False,  # : Set true to rotate the camera automatically
+        'behavior': behavior,
+        'ground': 'ball',
+        'ball_mass': 54.6e-6,
+        'ball_friction_coef': 1.3,
+        'contactERP': 0.1,
+        'globalCFM': 5.0,
+        'numSolverIterations': 1000
+    }
+
+    #: Initialize the container
+    container = Container(run_time / time_step)
+    #: Initialize the simulation
+    animal = kinematic_replay.DrosophilaSimulation(
+        container,
+        sim_options,
+        fixed_positions=fixed_positions,
+        kp=kp,
+        kv=kv,
+        angles_path=angles_path,
+        velocity_path=velocity_path,
+        starting_time=starting_time,
+    )
+    #: Run the simulation
+    animal.run(optimization=False)
+    #: Dump the results based on the date
+    animal.container.dump(
+        dump_path=os.path.join(
+            data_path,
+            'kp{}_kv{}'.format(
+                round(kp, 1),
+                round(kv, 1),
+            )
+        ),
+        overwrite=False
+    )
+
+
+if __name__ == "__main__":
+
     #: Sweep across varying proportional and derivative gain values
-    for proportional_gain in np.arange(0.1, 1.1, 0.1):
-        for derivative_gain in np.arange(0.1, 1.1, 0.1):
-            #: Simulation options
-            sim_options = {
-                "headless": True,
-                "model": model_path,
-                "pose": pose_path,
-                "model_offset": [0., 0, 11.2e-3],
-                "run_time": run_time,
-                "base_link": 'Thorax',
-                "ground_contacts": ground_contact,
-                "self_collisions": self_collision,
-                "draw_collisions": True,  # : Set True to change the color of colliding segments
-                "record": False,  # : Set True to record the simulation
-                'camera_distance': 5.5,
-                'track': False,
-                'moviename': './videos/kinematic_replay_video.mp4',
-                'moviespeed': 0.2,  # : Speed of the recorded movie
-                'slow_down': False,
-                'sleep_time': 0.001,
-                'rot_cam': False,  # : Set true to rotate the camera automatically
-                'behavior': behavior,
-                'ground': 'ball'
-            }
+    with Pool(processes=10) as pool:
+        pool.starmap(
+            run_simulation,
+            [
+                (proportional_gain, derivative_gain)
+                for proportional_gain in np.arange(0.1, 1.1, 0.1)
+                for derivative_gain in np.arange(0.1, 1.1, 0.1)
+            ]
+        )
 
-            #: Initialize the container
-            container = Container(run_time / time_step)
-            #: Initialize the simulation
-            animal = kinematic_replay.DrosophilaSimulation(
-                container,
-                sim_options,
-                fixed_positions=fixed_positions,
-                kp=proportional_gain,
-                kv=derivative_gain,
-                angles_path=angles_path,
-                velocity_path=velocity_path
-            )
-            #: Run the simulation
-            animal.run(optimization=False)
-            #: Dump the results based on the date
-            animal.container.dump(
-                dump_path=os.path.join(
-                    data_path,
-                    'kp{}_kv{}'.format(
-                        round(proportional_gain, 1),
-                        round(derivative_gain, 1),
-                    )
-                ),
-                overwrite=False
-            )
-
+    data_path = os.path.join(neuromechfly_path,'data/sensitivity_analysis/')
     #: Load data
     pybullet_data = load_data(data_path)
     #: Save data
     pickle.dump(
         pybullet_data,
-        open(
-            os.path.join(
-                data_path,
-                "sensitivity_analysis_data.pkl"),
-            "wb"))
+        open(os.path.join(data_path,"sensitivity_analysis_data.pkl"),"wb")
+    )
