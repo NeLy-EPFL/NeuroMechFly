@@ -394,8 +394,8 @@ class DrosophilaSimulation(BulletSimulation):
 
         return np.array(
             [
-                np.count_nonzero(contact[:, leg_id]) / contact.shape[0]
-                for leg_id in range(4,30,5)
+                np.count_nonzero(np.sum(contact[:,leg_id:leg_id+5], axis=1)) / contact.shape[0]
+                for leg_id in range(0,30,5)
             ]
         )
 
