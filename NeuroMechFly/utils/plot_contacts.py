@@ -17,7 +17,7 @@ rc_params = {
     'axes.spines.right': False,
     'axes.spines.top': False,
     'savefig.dpi': 300,
-    'savefig.format': 'pdf'
+    'savefig.format': 'png'
 }
 plt.rcParams.update(rc_params)
 
@@ -36,15 +36,12 @@ def parse_args():
     return parser.parse_args()
 
 
-def plot_gait_diagram(data_path, export_path):
+def plot_gait_diagram(data, ts=1e-4, ax=None):
     """ Plot the contacts from the given data """
-    data = pd.read_hdf(os.path.join(data_path,'physics/contact_flag.h5'))
-    # Time step
-    ts = 1e-4
     # Total time
     total_time = len(data)*ts
     # Define the legs and its order for the plot
-    legs = ("LF", "LM", "LH", "RF", "RM", "RH")
+    legs = ("RH", "RM", "RF", "LH", "LM", "LF")
     # Setup the contact data
     contact_intervals = {}
     for leg in legs:
@@ -59,8 +56,9 @@ def plot_gait_diagram(data_path, export_path):
         intervals[:, 1] = intervals[:, 1] - intervals[:, 0]
         contact_intervals[leg] = intervals
     # Define the figure
-    fig, ax = plt.subplots(figsize=(7, 4))
-    width = 0.8
+    if ax is None:
+        fig, ax = plt.subplots(figsize=(7, 3))
+    width = 0.85
     for index, (key, value) in enumerate(contact_intervals.items()):
         ax.broken_barh(
             value, (index-width*0.5, width), facecolor='k'
@@ -68,11 +66,6 @@ def plot_gait_diagram(data_path, export_path):
     ax.set_xlabel("Time [s]")
     ax.set_yticks((0, 1, 2, 3, 4, 5))
     ax.set_yticklabels(legs)
-    ax.set_xlim(1,2)
-    # Export figure
-    fig.savefig(export_path, bbox_inches='tight')
-    # Show figure
-    plt.show()
 
 
 def main():
