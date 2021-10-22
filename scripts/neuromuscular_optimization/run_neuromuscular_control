@@ -35,7 +35,7 @@ def parse_args():
 def main(args):
     """ Main function """
 
-    run_time = 3.0
+    run_time = 1.0
     time_step = 1e-4
 
     #: Set collision segments
@@ -138,19 +138,27 @@ def main(args):
     animal.container.dump(dump_path=results_path, overwrite=True)
 
     if args.plot:
+        # from IPython import embed; embed()
         from NeuroMechFly.utils.plot_contacts import plot_gait_diagram
+        contact_flag_data = animal.container.physics.contact_flag.log
+        contact_flag_names = animal.container.physics.contact_flag.names
+        contact_flag = {
+            name: contact_flag_data[:,i] for i, name in enumerate(contact_flag_names)
+        }
 
-        fig, ax = plt.subplots(figsize = (8,6))
-        ax.scatter(fun[:,0], fun[:,1])
-        ax.scatter(fun[ind,0], fun[ind,1], label=f'Ind: {ind}')
-        ax.set_xlabel('Distance')
-        ax.set_ylabel('Stability')
-        ax.legend()
-        plt.savefig(os.path.join(results_path, f'selected_sol_{ind}.png'))
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize = (16,4))
+        ax1.scatter(fun[:,0], fun[:,1])
+        ax1.scatter(fun[ind,0], fun[ind,1], label=f'Ind: {ind}')
+        ax1.set_xlabel('Distance')
+        ax1.set_ylabel('Stability')
+        ax1.legend()
+        # plt.savefig(os.path.join(results_path, f'selected_sol_{ind}.png'))
+        duty_factor = [round(dut,3) for dut in animal.duty_factor]
+        plot_gait_diagram(data=contact_flag, ax=ax2)
+        ax2.set_title(f'Duty factor: {duty_factor}')
+        ax1.set_title(f'Speed: {round(animal.ball_rotations[0]*5/3, 2)} mm/s')
+        fig.savefig(os.path.join(results_path, f'../selected_sol_{ind}.png'))
         plt.show()
-
-        plot_gait_diagram(results_path, export_path=results_path)
-
 
 if __name__ == "__main__":
     """ Main """

@@ -18,7 +18,7 @@ from NeuroMechFly.utils.profiler import profile
 neuromechfly_path = Path(pkgutil.get_loader("NeuroMechFly").get_filename()).parents[1]
 
 
-def run_simulation(ind, args):
+def run_simulation(ind, gen, args):
     """ Main function """
 
     run_time = 3.0
@@ -50,7 +50,7 @@ def run_simulation(ind, args):
     exp_info = exp_name.split('_')
 
     exp = f"{exp_name}"
-    gen = args.gen
+    gen = gen
 
 
     # Set the ball specs based on your experimental setup
@@ -90,13 +90,13 @@ def run_simulation(ind, args):
         neuromechfly_path,
         'scripts/neuromuscular_optimization',
         args.path,
-        'FUN.' + args.gen
+        'FUN.' + gen
         )
     var_path = os.path.join(
         neuromechfly_path,
         'scripts/neuromuscular_optimization',
         args.path,
-        'VAR.' + args.gen
+        'VAR.' + gen
         )
     fun, var = np.loadtxt(fun_path), np.loadtxt(var_path)
 
@@ -114,31 +114,38 @@ def run_simulation(ind, args):
         'scripts/neuromuscular_optimization',
         f"simulation_{exp}",
         f"gen_{gen}",
-        f"sol_{ind}"
     )
 
     if not os.path.exists(results_path):
         os.makedirs(results_path)
-    animal.container.dump(dump_path=results_path, overwrite=True)
 
     if args.plot:
         from NeuroMechFly.utils.plot_contacts import plot_gait_diagram
+        contact_flag_data = animal.container.physics.contact_flag.log
+        contact_flag_names = animal.container.physics.contact_flag.names
+        contact_flag = {
+            name: contact_flag_data[:,i] for i, name in enumerate(contact_flag_names)
+        }
 
-        fig, ax = plt.subplots(figsize = (6,4))
-        ax.scatter(fun[:,0], fun[:,1])
-        ax.scatter(fun[ind,0], fun[ind,1], label=f'Ind: {ind}')
-        ax.set_xlabel('Distance')
-        ax.set_ylabel('Stability')
-        ax.legend()
-        plt.savefig(os.path.join(results_path, f'../selected_sol_{ind}.png'))
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize = (16,4))
+        ax1.scatter(fun[:,0], fun[:,1])
+        ax1.scatter(fun[ind,0], fun[ind,1], label=f'Ind: {ind}')
+        ax1.set_xlabel('Distance')
+        ax1.set_ylabel('Stability')
+        ax1.legend()
 
-        plot_gait_diagram(results_path, export_path=os.path.join(results_path, f'../gaitdiagram_sol_{ind}'))
+        # plt.savefig(os.path.join(results_path, f'selected_sol_{ind}.png'))
+        duty_factor = [round(dut,2) for dut in animal.duty_factor]
+        plot_gait_diagram(data=contact_flag, export_path=results_path, ax=ax2)
+        ax2.set_title(f'Duty factor: {duty_factor}')
+        ax1.set_title(f'Speed: {round(animal.ball_rotations[0]*5/3, 2)} mm/s')
+        fig.savefig(os.path.join(results_path, f'../selected_sol_{ind}.png'))
+        # plt.show()
 
 
 def parse_args():
     """ Parse arguments from command line """
     parser = argparse.ArgumentParser()
-    parser.add_argument('-g', '--gen', default='txt')
     parser.add_argument('-p', '--path', default='')
     parser.add_argument('--gui', dest='gui', action='store_true')
     parser.add_argument('--record', dest='record', action='store_true')
@@ -151,15 +158,18 @@ if __name__ == "__main__":
     """ Main """
     # parse cli arguments
     cli_args = parse_args()
-    population = 60
-    frequency = 1
-    ncores = 4
-    #: Parallelize
-    with Pool(processes=ncores) as pool:
-        pool.starmap(
-            run_simulation,
-            [
-                (sol, cli_args)
-                for sol in np.arange(0, population, frequency)
-            ]
-        )
+    population = 200
+    frequency = 5
+    ncores = 10
+    generations = np.arange(0,80,10)
+
+    for gen in generations:
+        #: Parallelize
+        with Pool(processes=ncores) as pool:
+            pool.starmap(
+                run_simulation,
+                [
+                    (sol, str(gen), cli_args)
+                    for sol in np.arange(0, population, frequency)
+                ]
+            )
