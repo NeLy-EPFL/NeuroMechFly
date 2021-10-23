@@ -721,6 +721,8 @@ def plot_data(
         for k in equivalence.keys():
             data2plot['angles'][k] = []
         for label, values in angles_raw.items():
+            if label not in ('ThC_pitch', 'CTr_pitch', 'FTi_pitch'):
+                continue
             if length_data == 0:
                 length_data = len(values)
             data2plot['angles'][label] = values
