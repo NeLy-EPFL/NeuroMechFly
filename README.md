@@ -88,7 +88,7 @@ Run the following commands on the terminal to reproduce the locomotor gait optim
 
 **3. Sensitivity Analysis**
 
-- First, download the simulation data pertaining to the sensitivity analyses from [here](https://drive.google.com/drive/folders/1H0G3mdeKLyGkS1DYxbOeOCXgywJmwfs9?usp=sharing) and place these files in the folder, *data/sensitivity_analysis*
+- First, download the simulation data pertaining to the sensitivity analyses from [here](https://drive.google.com/file/d/1drWEwl-gcv4oGbpIwz6--iVvo93yDtLz/view?usp=sharing) and place these files in the folder, *data/sensitivity_analysis*
 - To reproduce the sensitivity analysis figures, ```$ run_sensitivity_analysis```. Make sure that the downloaded files are in the correct location.
 
 ## Miscellaneous
@@ -112,7 +112,7 @@ Run the following commands on the terminal to reproduce the locomotor gait optim
 from NeuroMechFly.utils import plotting
 import pickle
 import glob
-	
+
 path_data = '~/NeuroMechFly/scripts/kinematic_replay/simulation_results/<name-of-the-results-folder>'
 
 # Selecting behavior (walking or grooming)
@@ -166,9 +166,9 @@ plotting.plot_collision_diagram(path_data,
 - For reproducing plots from Fig. 7 panel E, first, run the script *run_neuromuscular_control*, and then use:
 ```python
 from NeuroMechFly.utils import plotting
-	
+
 # e.g. type: fastest, slowest, medium, tradeoff and number: generation number of final
-path_data = '~/NeuroMechFly/scripts/neuromuscular_optimization/simulation_last_run/gen_<number>/sol_<type>' 
+path_data = '~/NeuroMechFly/scripts/neuromuscular_optimization/simulation_last_run/gen_<number>/sol_<type>'
 
 # Selecting right front leg for plotting intraleg angles(other options are LF, RM, LM, LH, or RH)
 leg = 'RF'
