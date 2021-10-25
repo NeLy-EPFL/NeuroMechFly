@@ -1,5 +1,9 @@
 #!/usr/bin/env python
-""" Run sensitivity analysis """
+"""
+Script to generate figures for the sensitivity analysis.
+In the command line, run $ run_sensitivity_analysis
+to save the displayed figures simply add '--save to the command you run.
+"""
 
 import pkgutil
 import os
@@ -10,6 +14,8 @@ import numpy as np
 import pandas as pd
 import glob
 import argparse
+import sys
+sys.tracebacklimit = 0
 
 from NeuroMechFly.utils.plotting import (heatmap_plot, plot_kp_joint,
                                          plot_mu_sem)
@@ -29,9 +35,10 @@ joints = [
     'Tarsus1']
 
 legs = ['LF', 'LM', 'LH', 'RF', 'RM', 'RH']
-beg = 3100
-end = 3900
-time_step = 0.001
+time_step = 5e-4
+beg = int(np.round(3.0 / time_step))
+dur = int(np.round(4.0 / time_step))
+end = int(np.round(3.9 / time_step))
 gain = np.arange(0.1, 1.1, 0.1)
 
 joints_torque = ['joint_RFCoxa', 'joint_RMCoxa', 'joint_RHCoxa']
@@ -40,7 +47,7 @@ legs_grf = ['RF', 'RM', 'RH']
 unit_force = '$\\mu$N'
 
 
-def convert_dict(data):
+def convert_dict(data, starting_time, time_step, duration):
     names_equivalence = {
         'ThC_pitch': 'Coxa',
         'ThC_yaw': 'Coxa_yaw',
@@ -51,11 +58,14 @@ def convert_dict(data):
         'TiTa_pitch': 'Tarsus1'
     }
 
+    beg = int(np.round(starting_time / time_step))
+    dur = int(np.round(duration / time_step))
+
     converted_dict = {}
     for leg, joints in data.items():
         for joint_name, val in joints.items():
             new_name = 'joint_' + leg[:2] + names_equivalence[joint_name]
-            converted_dict[new_name] = val
+            converted_dict[new_name] = val[beg:beg + dur]
     return converted_dict
 
 
@@ -65,12 +75,15 @@ def plot_figure_s1(save_fig: bool):
     joint_angles_mse_df, _ = calculate_mse_joints(
         joint_data=joint_angles,
         ground_truth=baseline_position,
-        beg=100
+        starting_time=2.0,
+        time_step=time_step
     )
     joint_vel_mse_df, _ = calculate_mse_joints(
         joint_data=joint_velocities,
         ground_truth=baseline_velocity,
-        beg=100
+        starting_time=2.0,
+        time_step=time_step
+
     )
 
     pivot_pos, pivot_vel = 0, 0
@@ -79,6 +92,10 @@ def plot_figure_s1(save_fig: bool):
         pivot_pos += temp_pos.pivot(index='Kp', columns='Kv', values='MSE')
         temp_vel = joint_vel_mse_df.loc[joint_vel_mse_df['Leg'] == leg, :]
         pivot_vel += temp_vel.pivot(index='Kp', columns='Kv', values='MSE')
+
+    # Convert explosion points into NaN
+    pivot_pos[pivot_pos > 1e5] = np.nan
+    pivot_vel[pivot_vel > 1e5] = np.nan
 
     fig, ax = plt.subplots(figsize=(8, 8))
     heatmap_plot(
@@ -89,24 +106,25 @@ def plot_figure_s1(save_fig: bool):
         ax=ax,
         cmap="rocket")
     if save_fig:
-        plt.savefig('./figureS1_A.png')
+        plt.savefig('./figureS1_A.pdf', dpi=300)
     plt.show()
 
     fig, ax = plt.subplots(figsize=(8, 8))
     heatmap_plot(
-        title="Joint Velocities with Varying Kp and Kv",
+        title="Joint Velocities with Varying Kp and Kd",
         joint_data=pivot_vel,
         precision=".1f",
         colorbar_title="MSE((rad/s)$^2$)",
         ax=ax,
         cmap="rocket")
     if save_fig:
-        plt.savefig('./figureS1_B.png')
+        plt.savefig('./figureS1_B.pdf', dpi=300)
     plt.show()
 
 
-def plot_figure_s2_a(save_fig: bool):
+def plot_figure_s2a(save_fig: bool):
     """ Regenerates the Supplementary Figure 2 A. """
+
     fig, ax = plt.subplots(3, 1, figsize=(14, 10), sharex=True)
     for i, joint in enumerate(joints_torque):
         plot_kp_joint(
@@ -132,7 +150,7 @@ def plot_figure_s2_a(save_fig: bool):
 
     plt.tight_layout()
     if save_fig:
-        plt.savefig('./figure_s2_a.png')
+        plt.savefig('./figure_s2a.pdf')
     plt.show()
 
 
@@ -159,8 +177,8 @@ def plot_figure_s2a_extra(save_fig: bool):
             mu=torques_stat[joint]['mu'],
             error=torques_stat[joint]['stderr'],
             ax=ax[i],
-            beg=3600,
-            end=4600,
+            beg=beg,
+            end=beg + dur,
         )
 
         ax[i].set(
@@ -169,7 +187,7 @@ def plot_figure_s2a_extra(save_fig: bool):
             title='{} {} Pitch Joint Torque Mean and Std Error'.format(joint[6:8], joint[-4:])
         )
     if save_fig:
-        plt.savefig('./figure_s2a_extra.png')
+        plt.savefig('./figure_s2a_extra.pdf')
     plt.show()
 
 
@@ -188,6 +206,7 @@ def plot_figure_s2b(save_fig: bool):
             ax=ax[i],
             constant='kv0.9',
             condition='kp0.4_kv0.9',
+            time_step=time_step,
             beg=beg,
             intv=end - beg
         )
@@ -198,7 +217,7 @@ def plot_figure_s2b(save_fig: bool):
             title='{} Leg Ground Reaction Forces wrt Changing Kp'.format(leg)
         )
     if save_fig:
-        plt.savefig('./figure_s2b.png')
+        plt.savefig('./figure_s2b.pdf')
     plt.show()
 
 
@@ -219,7 +238,7 @@ def plot_figure_s2b_extra(save_fig: bool):
             error=grf_stat[leg]['stderr'],
             ax=ax[i],
             beg=beg,
-            end=end,
+            end=beg + dur,
         )
 
         ax[i].set(
@@ -228,11 +247,141 @@ def plot_figure_s2b_extra(save_fig: bool):
             title='{} Leg Ground Reaction Forces wrt Changing Kp'.format(leg)
         )
     if save_fig:
-        plt.savefig('./figure_s2b_extra.png')
+        plt.savefig('./figure_s2b_extra.pdf')
     plt.show()
 
 
-def load_data(pybullet_path, baseline_path_pos, baseline_path_vel):
+def plot_figure_s2c(save_fig: bool):
+    """ Regenerates the Supplementary Figure 2 C. """
+    fig, ax = plt.subplots(3, 1, figsize=(14, 10), sharex=True)
+    for i, joint in enumerate(joints_torque):
+        plot_kp_joint(
+            joint_torques,
+            show_vector=False,
+            calc_force=False,
+            full_name=joint,
+            ax=ax[i],
+            gain_range=np.arange(0.1, 1.1, 0.1),
+            scaling_factor=1e9,
+            constant='kp0.4',
+            condition='kp0.4_kv0.9',
+            beg=beg,
+            intv=end - beg,
+            time_step=time_step
+        )
+
+        ax[i].set(
+            xlabel='Time (s)',
+            ylabel='Joint Torques ({})'.format(unit_torque),
+            title='{} {} Pitch Joint Torque wrt Changing Kd'.format(joint[6:8], joint[-4:])
+        )
+
+    plt.tight_layout()
+    if save_fig:
+        plt.savefig('./figure_s2c.pdf')
+    plt.show()
+
+
+def plot_figure_s2c_extra(save_fig: bool):
+    """ Plots the Supplementary Figure 2 C's Variation. """
+    torques_stat = calculate_statistics_joints(
+        joint_torques,
+        scaling_factor=1e9,
+        constant='kp0.4',
+        force_calculation=False,
+        joints=[
+            'Coxa',
+            'Coxa_yaw',
+            'Coxa_roll',
+            'Femur',
+            'Femur_roll',
+            'Tibia',
+            'Tarsus1'])
+
+    fig, ax = plt.subplots(3, 1, figsize=(14, 10), sharex=True)
+    for i, joint in enumerate(joints_torque):
+        # Plot standard error and mean of one single joint torque
+        plot_mu_sem(
+            mu=torques_stat[joint]['mu'],
+            error=torques_stat[joint]['stderr'],
+            ax=ax[i],
+            beg=beg,
+            end=end,
+            time_step=time_step
+        )
+
+        ax[i].set(
+            xlabel='Time (s)',
+            ylabel='Joint Torques ({})'.format(unit_torque),
+            title='{} {} Pitch Joint Torque Mean and Std Error'.format(joint[6:8], joint[-4:])
+        )
+    if save_fig:
+        plt.savefig('./figure_s2c_extra.pdf')
+    plt.show()
+
+
+def plot_figure_s2d(save_fig: bool):
+    """ Regenerates the Supplementary Figure 2 D. """
+
+    fig, ax = plt.subplots(3, 1, figsize=(14, 10), sharex=True)
+    for i, leg in enumerate(legs_grf):
+        plot_kp_joint(
+            ground_contact_forces,
+            show_vector=False,
+            calc_force=True,
+            full_name=leg,
+            gain_range=np.arange(0.1, 1.1, 0.1),
+            scaling_factor=1e6,
+            ax=ax[i],
+            constant='kp0.4',
+            condition='kp0.4_kv0.9',
+            beg=beg,
+            intv=end - beg,
+            time_step=time_step
+        )
+
+        ax[i].set(
+            xlabel='Time (s)',
+            ylabel='Ground Reaction Forces ({})'.format(unit_force),
+            title='{} Leg Ground Reaction Forces wrt Changing Kd'.format(leg)
+        )
+    if save_fig:
+        plt.savefig('./figure_s2d.pdf')
+    plt.show()
+
+
+def plot_figure_s2d_extra(save_fig: bool):
+    """ Plots the Supplementary Figure 2 D's Variation. """
+    grf_stat = calculate_statistics_joints(
+        ground_contact_forces,
+        scaling_factor=1e6,
+        constant='kp0.4',
+        force_calculation=True,
+    )
+
+    fig, ax = plt.subplots(3, 1, figsize=(14, 10), sharex=True)
+    for i, leg in enumerate(legs_grf):
+        # Plot standard error and mean of one single leg GRF
+        plot_mu_sem(
+            mu=grf_stat[leg]['mu'],
+            error=grf_stat[leg]['stderr'],
+            ax=ax[i],
+            beg=beg,
+            end=end,
+            time_step=time_step
+        )
+
+        ax[i].set(
+            xlabel='Time (s)',
+            ylabel='Ground Reaction Forces ({})'.format(unit_force),
+            title='{} Leg Ground Reaction Forces wrt Changing Kd'.format(leg)
+        )
+    if save_fig:
+        plt.savefig('./figure_s2d_extra.pdf')
+    plt.show()
+
+
+def load_data(pybullet_path, baseline_path_pos, baseline_path_vel, **kwargs):
     """ Loads the sensitivity analysis data. """
     global ground_contact_forces
     global joint_torques
@@ -241,26 +390,42 @@ def load_data(pybullet_path, baseline_path_pos, baseline_path_vel):
     global baseline_position
     global baseline_velocity
 
+    starting_time = kwargs.get('starting_time', 2.0)
+    time_step = kwargs.get('time_step', 5e-4)
+    duration = kwargs.get('duration', 4.0)
+
     #: Load sensitivity analysis results
     try:
         pybullet_data = pd.read_pickle(pybullet_path)
     except FileNotFoundError:
-        print(f'{pybullet_path} is not found!')
+        print(f'''\n{pybullet_path} is not found!
+        \n Please check the data path or download the data from:
+        \n https://drive.google.com/file/d/1drWEwl-gcv4oGbpIwz6--iVvo93yDtLz/view?usp=sharing \n''')
         raise
+
     #: Load baseline files
     try:
-        baseline_position = convert_dict(pd.read_pickle(baseline_path_pos))
+        baseline_position = convert_dict(
+            pd.read_pickle(baseline_path_pos),
+            starting_time=starting_time,
+            time_step=time_step,
+            duration=duration)
     except FileNotFoundError:
         print(f'{baseline_path_pos} is not found!')
         raise
 
     try:
-        baseline_velocity = convert_dict(pd.read_pickle(baseline_path_vel))
+        baseline_velocity = convert_dict(
+            pd.read_pickle(baseline_path_vel),
+            starting_time=starting_time,
+            time_step=time_step,
+            duration=duration)
     except FileNotFoundError:
         print(f'{baseline_path_vel} is not found!')
         raise
+
     #: Get the data from the physics dictionary
-    ground_contact_forces = pybullet_data['ground_contacts']
+    ground_contact_forces = pybullet_data['contact_normal_force']
     joint_torques = pybullet_data['joint_torques']
     joint_angles = pybullet_data['joint_positions']
     joint_velocities = pybullet_data['joint_velocities']
@@ -285,13 +450,17 @@ if __name__ == '__main__':
     baseline_path_vel = glob.glob(
         joint_tracking_path +
         '/joint_velocities*.pkl')[0]
-    #: True if figures to be saved
+    # True if figures to be saved
     save_figures = args.save
-    #: Read data
+    # Read data
     load_data(path_pybullet, baseline_path_pos, baseline_path_vel)
-    #: Plot figures
+    # Plot figures
     plot_figure_s1(save_figures)
-    plot_figure_s2_a(save_figures)
+    plot_figure_s2a(save_figures)
     plot_figure_s2a_extra(save_figures)
     plot_figure_s2b(save_figures)
     plot_figure_s2b_extra(save_figures)
+    plot_figure_s2c(save_figures)
+    plot_figure_s2c_extra(save_figures)
+    plot_figure_s2d(save_figures)
+    plot_figure_s2d_extra(save_figures)
