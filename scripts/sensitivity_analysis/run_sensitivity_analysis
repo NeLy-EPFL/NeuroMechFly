@@ -2,23 +2,23 @@
 """
 Script to generate figures for the sensitivity analysis.
 In the command line, run $ run_sensitivity_analysis
-to save the displayed figures simply add '--save to the command you run.
+to save the displayed figures simply add '--save' to the command you run.
 """
 
-import pkgutil
 import os
+import sys
+import argparse
+import glob
 from pathlib import Path
+import pkgutil
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import glob
-import argparse
-import sys
 sys.tracebacklimit = 0
 
-from NeuroMechFly.utils.plotting import (heatmap_plot, plot_kp_joint,
-                                         plot_mu_sem)
+from NeuroMechFly.utils.plotting import (
+    heatmap_plot, plot_kp_joint, plot_mu_sem)
 from NeuroMechFly.utils.sensitivity_analysis import (
     calculate_mse_joints, calculate_statistics_joints)
 
@@ -36,11 +36,16 @@ joints = [
 
 legs = ['LF', 'LM', 'LH', 'RF', 'RM', 'RH']
 time_step = 5e-4
+
+# Beginning and end times for the force plots
 beg = int(np.round(3.0 / time_step))
-dur = int(np.round(4.0 / time_step))
 end = int(np.round(3.9 / time_step))
+
+# Duration of the simulation run in the grid search
+dur = int(np.round(4.0 / time_step))
 gain = np.arange(0.1, 1.1, 0.1)
 
+# Joints to show in the plots
 joints_torque = ['joint_RFCoxa', 'joint_RMCoxa', 'joint_RHCoxa']
 unit_torque = '$\\mu$Nmm'
 legs_grf = ['RF', 'RM', 'RH']
@@ -99,7 +104,7 @@ def plot_figure_s1(save_fig: bool):
 
     fig, ax = plt.subplots(figsize=(8, 8))
     heatmap_plot(
-        title="Joint Angles with Varying Kp and Kv",
+        title="Joint Angles with Varying Kp and Kd",
         joint_data=pivot_pos,
         precision=".3f",
         colorbar_title="MSE(rad$^2$)",
@@ -134,9 +139,9 @@ def plot_figure_s2a(save_fig: bool):
             full_name=joint,
             ax=ax[i],
             gain_range=np.arange(0.1, 1.1, 0.1),
-            scaling_factor=1e9,
+            scaling_factor=1e9,  # Conversion from SI units
             constant='kv0.9',
-            condition='kp0.4_kv0.9',
+            condition='kp0.4_kv0.9',  # Selected gain pair
             beg=beg,
             intv=end - beg,
             time_step=time_step
@@ -158,8 +163,8 @@ def plot_figure_s2a_extra(save_fig: bool):
     """ Plots the Supplementary Figure 2 A's Variation. """
     torques_stat = calculate_statistics_joints(
         joint_torques,
-        scaling_factor=1e9,
-        constant='kv0.9',
+        scaling_factor=1e9,  # Conversion from SI units
+        constant='kv0.9',  # Sweep across Kp values
         force_calculation=False,
         joints=[
             'Coxa',
@@ -202,10 +207,10 @@ def plot_figure_s2b(save_fig: bool):
             calc_force=True,
             full_name=leg,
             gain_range=np.arange(0.1, 1.1, 0.1),
-            scaling_factor=1e6,
+            scaling_factor=1e6,  # Conversion from SI units
             ax=ax[i],
             constant='kv0.9',
-            condition='kp0.4_kv0.9',
+            condition='kp0.4_kv0.9',  # Selected gain pair
             time_step=time_step,
             beg=beg,
             intv=end - beg
@@ -262,9 +267,9 @@ def plot_figure_s2c(save_fig: bool):
             full_name=joint,
             ax=ax[i],
             gain_range=np.arange(0.1, 1.1, 0.1),
-            scaling_factor=1e9,
+            scaling_factor=1e9,  # Conversion from SI units
             constant='kp0.4',
-            condition='kp0.4_kv0.9',
+            condition='kp0.4_kv0.9',  # Selected gain pair
             beg=beg,
             intv=end - beg,
             time_step=time_step
@@ -313,7 +318,7 @@ def plot_figure_s2c_extra(save_fig: bool):
         ax[i].set(
             xlabel='Time (s)',
             ylabel='Joint Torques ({})'.format(unit_torque),
-            title='{} {} Pitch Joint Torque Mean and Std Error'.format(joint[6:8], joint[-4:])
+            title='{} {} Pitch Joint Torque Mean and Std Error with Changing Kd'.format(joint[6:8], joint[-4:])
         )
     if save_fig:
         plt.savefig('./figure_s2c_extra.pdf')
@@ -331,10 +336,10 @@ def plot_figure_s2d(save_fig: bool):
             calc_force=True,
             full_name=leg,
             gain_range=np.arange(0.1, 1.1, 0.1),
-            scaling_factor=1e6,
+            scaling_factor=1e6,  # Conversion from SI units
             ax=ax[i],
             constant='kp0.4',
-            condition='kp0.4_kv0.9',
+            condition='kp0.4_kv0.9',  # Selected gain pair
             beg=beg,
             intv=end - beg,
             time_step=time_step
@@ -354,7 +359,7 @@ def plot_figure_s2d_extra(save_fig: bool):
     """ Plots the Supplementary Figure 2 D's Variation. """
     grf_stat = calculate_statistics_joints(
         ground_contact_forces,
-        scaling_factor=1e6,
+        scaling_factor=1e6,  # Conversion from SI units
         constant='kp0.4',
         force_calculation=True,
     )
@@ -394,16 +399,16 @@ def load_data(pybullet_path, baseline_path_pos, baseline_path_vel, **kwargs):
     time_step = kwargs.get('time_step', 5e-4)
     duration = kwargs.get('duration', 4.0)
 
-    #: Load sensitivity analysis results
+    # Load sensitivity analysis results
     try:
         pybullet_data = pd.read_pickle(pybullet_path)
     except FileNotFoundError:
         print(f'''\n{pybullet_path} is not found!
         \n Please check the data path or download the data from:
-        \n https://drive.google.com/file/d/1drWEwl-gcv4oGbpIwz6--iVvo93yDtLz/view?usp=sharing \n''')
+        \n https://drive.google.com/file/d/1qwm4HEMuuxXqt8TvsmngShzo3aS5QIIP/view?usp=sharing \n''')
         raise
 
-    #: Load baseline files
+    # Load baseline files
     try:
         baseline_position = convert_dict(
             pd.read_pickle(baseline_path_pos),

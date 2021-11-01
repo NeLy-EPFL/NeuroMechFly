@@ -2,14 +2,14 @@
 """ Perform sensitivity analysis """
 
 import os
-from pathlib import Path
 import pkgutil
 import glob
-from datetime import datetime
+from pathlib import Path
+from multiprocessing import Pool
+import pickle
+
 import numpy as np
 import pandas as pd
-import pickle
-from multiprocessing import Pool
 
 from NeuroMechFly.experiments.kinematic_replay import kinematic_replay
 from farms_container import Container
@@ -63,14 +63,14 @@ def load_data(path):
     return pybullet_data
 
 
-def run_simulation(kp, kv):
-    """ Run simulation with given kp and kv values. """
+def run_simulation(proportional_gain, derivative_gain):
+    """ Main function """
     run_time = 6.0
     time_step = 5e-4
-    starting_time = 0.5
+    starting_time = 0.
     behavior = 'walking'
 
-    #: Setting up the collision and ground sensors
+    # Setting up the collision and ground sensors
     side = ['L', 'R']
     pos = ['F', 'M', 'H']
     leg_segments = ['Tibia'] + ['Tarsus' + str(i) for i in range(1, 6)]
@@ -93,7 +93,8 @@ def run_simulation(kp, kv):
         p +
         name for s in side for p in pos for name in leg_segments if name != 'Tibia']
 
-    #: Setting the fixed joint angles to default values, can be altered to change the appearance of the fly
+    # Setting the fixed joint angles to default values, can be altered to
+    # change the appearance of the fly
     fixed_positions = {
         'revolute_support_1': 3.6,
         'joint_A3': -15,
@@ -111,80 +112,89 @@ def run_simulation(kp, kv):
         'joint_Head': 10
     }
 
-    #: Setting up the paths for the SDF and POSE files
-    model_path = os.path.join(neuromechfly_path,
-                              'data/design/sdf/neuromechfly_noLimits.sdf')
+    # Setting up the paths for the SDF and POSE files
+    model_path = os.path.join(
+        neuromechfly_path,
+        'data/design/sdf/neuromechfly_noLimits.sdf'
+    )
     pose_path = os.path.join(
         neuromechfly_path,
         'data/config/pose/pose_default.yaml')
 
-    #: Paths of the position and velocity data
-    joint_tracking_path = os.path.join(
-        neuromechfly_path,
-        f'data/joint_tracking/{behavior}/df3d')
-    angles_path = glob.glob(joint_tracking_path + '/joint_angles*.pkl')[0]
-    velocity_path = glob.glob(joint_tracking_path + '/joint_velocities*.pkl')[0]
-
     try:
-        data_path = os.path.join(
+        results_path = os.path.join(
             neuromechfly_path,
             'data/sensitivity_analysis/')
-        os.makedirs(data_path)
+        os.makedirs(results_path)
         print('Directory does not exist, creating...')
     except FileExistsError:
         pass
 
-
-    #: Simulation options
+    # Simulation options
     sim_options = {
         "headless": True,
         "model": model_path,
         "pose": pose_path,
         "model_offset": [0., 0, 11.2e-3],
         "run_time": run_time,
+        "time_step": time_step,
         "base_link": 'Thorax',
         "ground_contacts": ground_contact,
         "self_collisions": self_collision,
-        "draw_collisions": False,  # : Set True to change the color of colliding segments
-        "record": False,  # : Set True to record the simulation
+        "draw_collisions": False,  # Set True to change the color of colliding segments
+        "record": False,  # Set True to record the simulation
+        "save_frames": False,
+        "results_path": results_path,
         'camera_distance': 5.5,
         'track': False,
-        'moviename': './videos/kinematic_replay_video.mp4',
-        'moviespeed': 0.2,  # : Speed of the recorded movie
+        'moviename': f"{results_path}.mp4",
+        'moviespeed': 0.2,  # Speed of the recorded movie
         'slow_down': False,
         'sleep_time': 0.001,
-        'rot_cam': False,  # : Set true to rotate the camera automatically
+        'rot_cam': False,
         'behavior': behavior,
         'ground': 'ball',
         'ball_mass': 54.6e-6,
         'ball_friction_coef': 1.3,
         'contactERP': 0.1,
-        'globalCFM': 5.0,
+        'globalCFM': 3.0,
         'numSolverIterations': 1000
     }
 
-    #: Initialize the container
+    # Paths of the position and velocity data
+    data_path = os.path.join(
+        neuromechfly_path,
+        f'data/joint_tracking/{behavior}/df3d')
+
+    angles_path = glob.glob(data_path + '/joint_angles*.pkl')[0]
+    velocity_path = glob.glob(data_path + '/joint_velocities*.pkl')[0]
+
+    # Initialize the container
     container = Container(run_time / time_step)
-    #: Initialize the simulation
+    # Initialize the simulation
+    kp = round(float(proportional_gain), 1)
+    kv = round(float(derivative_gain), 1)
+
+
     animal = kinematic_replay.DrosophilaSimulation(
         container,
         sim_options,
-        fixed_positions=fixed_positions,
-        kp=kp,
-        kv=kv,
+        kp=kp, kv=kv,
         angles_path=angles_path,
         velocity_path=velocity_path,
         starting_time=starting_time,
+        fixed_positions=fixed_positions
     )
+
     #: Run the simulation
+    print(f'Running Kp: {kp}, Kd: {kv}...')
     animal.run(optimization=False)
     #: Dump the results based on the date
     animal.container.dump(
         dump_path=os.path.join(
-            data_path,
+            results_path,
             'kp{}_kv{}'.format(
-                round(kp, 1),
-                round(kv, 1),
+                kp, kv
             )
         ),
         overwrite=False
@@ -193,8 +203,11 @@ def run_simulation(kp, kv):
 
 if __name__ == "__main__":
 
-    #: Sweep across varying proportional and derivative gain values
-    with Pool(processes=10) as pool:
+    # Select number of cores
+    n_cores = 16
+
+    # Sweep across varying proportional and derivative gain values
+    with Pool(processes=5) as pool:
         pool.starmap(
             run_simulation,
             [
@@ -204,10 +217,11 @@ if __name__ == "__main__":
             ]
         )
 
+
     data_path = os.path.join(neuromechfly_path,'data/sensitivity_analysis/')
-    #: Load data
+    # Load data
     pybullet_data = load_data(data_path)
-    #: Save data
+    # Save data
     pickle.dump(
         pybullet_data,
         open(os.path.join(data_path,"sensitivity_analysis_data.pkl"),"wb")
