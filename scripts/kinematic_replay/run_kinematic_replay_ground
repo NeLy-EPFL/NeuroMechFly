@@ -1,15 +1,22 @@
 #!/usr/bin/env python
-""" Script to run kinematic replay. """
+"""
+Script to run kinematic replay on the ground.
+In the command line, run $ run_kinematic_replay_ground
+Default behavior is walking, to change it to grooming, add '-b grooming' to the command you run.
+To record the simulation, append '--record' to the command you run.
+To add ball perturbations, append '--perturbation' to the command you run.
+To make further changes to the simulation, see 'sim_options' on line 108.
+"""
 
-from NeuroMechFly.experiments.kinematic_replay import \
-    kinematic_replay_no_support
-from farms_container import Container
 import os
 import argparse
 from pathlib import Path
 import pkgutil
 import glob
 from datetime import datetime
+
+from farms_container import Container
+from NeuroMechFly.experiments.kinematic_replay import kinematic_replay_no_support
 
 neuromechfly_path = Path(pkgutil.get_loader(
     "NeuroMechFly").get_filename()).parents[1]
@@ -26,9 +33,10 @@ if __name__ == "__main__":
         action='store_true')
     args = parser.parse_args()
 
-    run_time = 6.0
-    time_step = 0.001
     behavior = args.behavior.lower()
+    run_time = .5#6.0
+    time_step = 5e-4
+    starting_time = 0.0 if behavior == 'grooming' else 2.0
 
     # Setting up the collision and ground sensors
     side = ['L', 'R']
@@ -53,35 +61,69 @@ if __name__ == "__main__":
         p +
         name for s in side for p in pos for name in leg_segments if name != 'Tibia']
 
+    # Setting the fixed joint angles to default values, can be altered to
+    # change the appearance of the fly
+    fixed_positions = {
+        'joint_A3': -15,
+        'joint_A4': -15,
+        'joint_A5': -15,
+        'joint_A6': -15,
+        'joint_LAntenna': 35,
+        'joint_RAntenna': -35,
+        'joint_Rostrum': 90,
+        'joint_Haustellum': -60,
+        'joint_LWing_roll': 90,
+        'joint_LWing_yaw': -17,
+        'joint_RWing_roll': -90,
+        'joint_RWing_yaw': 17,
+        'joint_Head': 10
+    }
+
     # Setting up the paths for the SDF and POSE files
     model_path = os.path.join(
         neuromechfly_path,
-        'data/design/sdf/neuromechfly_kinematic_replay_no_support.sdf')
+        'data/design/sdf/neuromechfly_noLimits_noSupport.sdf')
     pose_path = os.path.join(
         neuromechfly_path,
         'data/config/pose/pose_tripod.yaml')
+    results_path = os.path.join(
+        neuromechfly_path,
+        'scripts/kinematic_replay',
+        'simulation_results',
+        'kinematic_replay_ground_{}_{}'.format(
+            behavior,
+            datetime.now().strftime('%y%m%d_%H%M%S')
+        ))
+    if not os.path.exists(results_path):
+        os.makedirs(results_path)
+
     # Simulation options
     sim_options = {
         "headless": False,
         "model": model_path,
         "pose": pose_path,
-        "model_offset": [0, 0., 0.5e-3],
+        "model_offset": [0, 0., 1.70e-3],
         "run_time": run_time,
         "time_step": time_step,
         "base_link": 'Thorax',
         "ground_contacts": ground_contact,
         "self_collisions": self_collision,
-        "record": False,  # Set True to record the simulation
+        "draw_collisions": False,  # Set True to change the color of colliding segments
+        "record": args.record,  # Set True to record the simulation
+        "save_frames": False,  # Set True to save frames instead of video
+        "results_path": results_path,
         'camera_distance': 7.0,
         'track': False,  # Set True to track the animal automatically
-        'moviename': './kinematic_replay_ground.mp4',
+        'moviename': f'{results_path}.mp4',
         'moviespeed': 0.2,  # Speed of the recorded movie
         'slow_down': False,
-        'sleep_time': 0.1,
+        'sleep_time': 0.01,
         'rot_cam': False,
         'behavior': behavior,  # Set true to rotate the camera automatically
         'ground': 'floor',
-        'num_substep': 5
+        'num_substep': 5,
+        'contactERP': 0.1,
+        'globalCFM': 3.0,
     }
 
     # Paths of the position and velocity data
@@ -100,17 +142,13 @@ if __name__ == "__main__":
         angles_path=angles_path,
         velocity_path=velocity_path,
         add_perturbation=args.perturbation,
+        starting_time=starting_time,
+        fixed_positions=fixed_positions
     )
     # Run the simulation
     animal.run(optimization=False)
     # Dump the results based on the date
     animal.container.dump(
-        dump_path=os.path.join(
-            neuromechfly_path,
-            'scripts/kinematic_replay/kinematic_replay_ground_{}_{}'.format(
-                behavior,
-                datetime.now().strftime('%y%m%d_%H%M')
-            )
-        ),
-        overwrite=False
+        dump_path=results_path,
+        overwrite=True
     )

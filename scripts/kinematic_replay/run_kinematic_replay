@@ -1,11 +1,17 @@
 #!/usr/bin/env python
-""" Script to run kinematic replay. """
+"""
+Script to run kinematic replay.
+In the command line, run $ run_kinematic_replay
+Default behavior is walking, to change it to grooming, add '-b grooming' to the command you run.
+To record the simulation, append '--record' to the command you run.
+
+To make further changes to the simulation, see 'sim_options' on line 107.
+"""
 import os
 import glob
 from datetime import datetime
 import argparse
 import pkgutil
-from datetime import datetime
 from pathlib import Path
 
 from farms_container import Container
@@ -25,18 +31,16 @@ def parse_args():
         dest="profile"
     )
     parser.add_argument('--record', dest='record', action='store_true')
-    parser.add_argument('-erp', '--contactERP', default='0.1')
-    parser.add_argument('-cfm', '--globalCFM', default='5.0')
     args = parser.parse_args()
     return args
 
 
 def main(args):
     """ Main function """
+    behavior = args.behavior.lower()
     run_time = 6.0
     time_step = 5e-4
-    starting_time = 0.5
-    behavior = args.behavior.lower()
+    starting_time = 0.0 if behavior=='grooming' else 2.0
 
     # Setting up the collision and ground sensors
     side = ['L', 'R']
@@ -112,29 +116,29 @@ def main(args):
         "self_collisions": self_collision,
         "draw_collisions": True,  # Set True to change the color of colliding segments
         "record": args.record,  # Set True to record the simulation
-        "save_frames": False,
+        "save_frames": False, # Set True to save frames instead of video
         "results_path": results_path,
         'camera_distance': 5.5,
         'track': False,
-        'moviename': f"{results_path}.mp4",
+        'moviename': f"{results_path}.mp4", # Name of the recorded video
         'moviespeed': 0.2,  # Speed of the recorded movie
         'slow_down': False,
         'sleep_time': 0.001,
-        'rot_cam': False,
+        'rot_cam': False, # Set True to rate the camera
         'behavior': behavior,
         'ground': 'ball',
         'ball_mass': 54.6e-6,
         'ball_friction_coef': 1.3,
-        'contactERP': float(args.contactERP),
-        'globalCFM': float(args.globalCFM),
-        'numSolverIterations': 1000
+        'contactERP': 0.1,
+        'globalCFM': 3.0,
+        'numSolverIterations': 1000,
     }
 
     # Paths of the position and velocity data
     data_path = os.path.join(
         neuromechfly_path,
-        f'data/joint_tracking/{behavior}/df3d')
-
+        f'data/joint_tracking/{behavior}/df3d'
+    )
     angles_path = glob.glob(data_path + '/joint_angles*.pkl')[0]
     velocity_path = glob.glob(data_path + '/joint_velocities*.pkl')[0]
 
@@ -148,7 +152,8 @@ def main(args):
         angles_path=angles_path,
         velocity_path=velocity_path,
         starting_time=starting_time,
-        fixed_positions=fixed_positions
+        fixed_positions=fixed_positions,
+        analysis_record=False # Set True to record stability, mechanical work etc.
     )
     # Run the simulation
     animal.run(optimization=False)
@@ -162,8 +167,8 @@ def main(args):
 if __name__ == "__main__":
     """ Main """
     # parse cli arguments
-    args = parse_args()
-    if args.profile:
-        profile(main, args=args)
+    cli_args = parse_args()
+    if cli_args.profile:
+        profile(main, args=cli_args)
     else:
-        main(args)
+        main(cli_args)
