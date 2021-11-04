@@ -15,6 +15,7 @@ from matplotlib.markers import MarkerStyle
 from .sensitivity_analysis import calculate_forces
 from scipy.interpolate import pchip_interpolate
 
+
 def plot_mu_sem(
     mu,
     error,
@@ -222,7 +223,7 @@ def plot_pareto_gens(
     generations,
     inds_to_annotate,
     export_path=None
-    ):
+):
     """ Plots multiple generations with selected individuals.
 
     Parameters
@@ -263,41 +264,50 @@ def plot_pareto_gens(
     """
 
     from NeuroMechFly.experiments.network_optimization.neuromuscular_control import DrosophilaSimulation as ds
-    from collections.abc import Iterable   # import directly from collections for Python < 3.3
+    # import directly from collections for Python < 3.3
+    from collections.abc import Iterable
 
     rc_params = {
         'axes.spines.right': False,
         'axes.spines.top': False,
     }
     plt.rcParams.update(rc_params)
-    colors = ('#B4479A', '#3953A4', '#027545', '#808080', '#FE420F', '#650021', '#E6DAA6',  '#008080', '#FFC0CB')
+    colors = (
+        '#B4479A',
+        '#3953A4',
+        '#027545',
+        '#808080',
+        '#FE420F',
+        '#650021',
+        '#E6DAA6',
+        '#008080',
+        '#FFC0CB')
 
-    if not isinstance(generations,Iterable):
+    if not isinstance(generations, Iterable):
         generations = [generations]
 
-
-    fig, ax = plt.subplots(figsize = (7,4))
+    fig, ax = plt.subplots(figsize=(7, 4))
 
     for i, gen in enumerate(generations):
         fun_path = os.path.join(parent_dir, f'FUN.{gen}')
         var_path = os.path.join(parent_dir, f'VAR.{gen}')
         fun, var = np.loadtxt(fun_path), np.loadtxt(var_path)
 
-        ax.scatter(fun[:,0], fun[:,1], c=colors[i%len(colors)], alpha=0.3, s=30, label=f'Gen {gen+1}')
-        if 'gen'+str(gen) in inds_to_annotate:
-            if not isinstance(inds_to_annotate['gen'+str(gen)],Iterable):
-                individuals = [inds_to_annotate['gen'+str(gen)]]
+        ax.scatter(fun[:, 0], fun[:, 1], c=colors[i % len(colors)], alpha=0.3, s=30, label=f'Gen {gen+1}')
+        if 'gen' + str(gen) in inds_to_annotate:
+            if not isinstance(inds_to_annotate['gen' + str(gen)], Iterable):
+                individuals = [inds_to_annotate['gen' + str(gen)]]
             else:
-                individuals = inds_to_annotate['gen'+str(gen)]
+                individuals = inds_to_annotate['gen' + str(gen)]
 
             for j, ind_ in enumerate(individuals):
                 cycle = plt.rcParams['axes.prop_cycle'].by_key()['color']
                 ind_number = ds.select_solution(ind_, fun)
                 if len(generations) > 1:
-                    ax.scatter(fun[ind_number,0], fun[ind_number,1], s=95,c=colors[i%len(colors)], edgecolor='black' )
+                    ax.scatter(fun[ind_number, 0], fun[ind_number, 1],
+                               s=95, c=colors[i % len(colors)], edgecolor='black')
                 else:
-                    ax.scatter(fun[ind_number,0], fun[ind_number,1], label=f'Sol {ind_}', s=60, edgecolor='black', c=cycle[j])
-
+                    ax.scatter(fun[ind_number, 0], fun[ind_number, 1], label=f'Sol {ind_}', s=60, edgecolor='black', c=cycle[j])
 
     ax.set_xlabel('Distance')
     ax.set_ylabel('Stability')
@@ -339,7 +349,7 @@ def plot_population_statistics(
     }
     plt.rcParams.update(rc_params)
 
-    fig, ax = plt.subplots(figsize = (4,6))
+    fig, ax = plt.subplots(figsize=(4, 6))
     penalty = np.zeros((pop_no, len(generations)))
 
     for i, generation in enumerate(generations):
@@ -352,10 +362,25 @@ def plot_population_statistics(
     cols = [f'{gen + 1}' for gen in generations]
     rows = [f'Ind {ind}' for ind in range(pop_no)]
 
-    invert = -1 if penalty_number in (0,1) else 1
-    penalty_df = pd.DataFrame(invert*penalty, columns=cols, index=rows)
-    sns.stripplot(data=penalty_df, size=5, color='red', edgecolor='black', alpha=0.3, ax=ax)
-    sns.violinplot(data=penalty_df, scale='count', color='white', edgecolor='black', bw=0.35, ax=ax, cut=0, showfliers=False, showextrema=False)
+    invert = -1 if penalty_number in (0, 1) else 1
+    penalty_df = pd.DataFrame(invert * penalty, columns=cols, index=rows)
+    sns.stripplot(
+        data=penalty_df,
+        size=5,
+        color='red',
+        edgecolor='black',
+        alpha=0.3,
+        ax=ax)
+    sns.violinplot(
+        data=penalty_df,
+        scale='count',
+        color='white',
+        edgecolor='black',
+        bw=0.35,
+        ax=ax,
+        cut=0,
+        showfliers=False,
+        showextrema=False)
 
     ax.set_xlabel('Generations')
     ax.set_title(penalty_name)
@@ -380,7 +405,7 @@ def plot_gait_diagram(data, ts=1e-4, ax=None, export_path=None):
         Path at which the plot will be saved.
     """
     # Total time
-    total_time = len(data)*ts
+    total_time = len(data) * ts
     # Define the legs and its order for the plot
     legs = ("RH", "RM", "RF", "LH", "LM", "LF")
     # Setup the contact data
@@ -393,7 +418,7 @@ def plot_gait_diagram(data, ts=1e-4, ax=None, export_path=None):
         ).astype(int))
         intervals = np.where(
             np.abs(np.diff(values, prepend=[0], append=[0])) == 1
-        )[0].reshape(-1, 2)*ts
+        )[0].reshape(-1, 2) * ts
         intervals[:, 1] = intervals[:, 1] - intervals[:, 0]
         contact_intervals[leg] = intervals
     # Define the figure
@@ -402,7 +427,7 @@ def plot_gait_diagram(data, ts=1e-4, ax=None, export_path=None):
     width = 0.75
     for index, (key, value) in enumerate(contact_intervals.items()):
         ax.broken_barh(
-            value, (index-width*0.5, width), facecolor='k'
+            value, (index - width * 0.5, width), facecolor='k'
         )
     ax.set_xlabel("Time (s)")
     ax.set_yticks((0, 1, 2, 3, 4, 5))
@@ -432,7 +457,15 @@ def load_opt_log(results_path):
     return muscle, joint_pos
 
 
-def plot_network_activity(results_path, time_step=1e-4, sim_duration=2.0, beg=1, end=1.5, torque_scale=1e9, link='Femur', export_path=None):
+def plot_network_activity(
+        results_path,
+        time_step=1e-4,
+        sim_duration=2.0,
+        beg=1,
+        end=1.5,
+        torque_scale=1e9,
+        link='Femur',
+        export_path=None):
     """ Plots the CPG activity, muscle torques and joint angles.
 
     Parameters
@@ -465,12 +498,12 @@ def plot_network_activity(results_path, time_step=1e-4, sim_duration=2.0, beg=1,
     linestyles = ('solid', 'dashed', 'dotted')
 
     equivalence = {'ThC_yaw': 'Coxa_yaw',
-                    'ThC_pitch': 'Coxa',
-                    'ThC_roll': 'Coxa_roll',
-                    'CTr_pitch': 'Femur',
-                    'CTr_roll': 'Femur_roll',
-                    'FTi_pitch': 'Tibia',
-                    'TiTa_pitch': 'Tarsus1'}
+                   'ThC_pitch': 'Coxa',
+                   'ThC_roll': 'Coxa_roll',
+                   'CTr_pitch': 'Femur',
+                   'CTr_roll': 'Femur_roll',
+                   'FTi_pitch': 'Tibia',
+                   'TiTa_pitch': 'Tarsus1'}
 
     actuated_joints = {
         'F': ['ThC_pitch', 'CTr_pitch', 'FTi_pitch'],
@@ -481,54 +514,59 @@ def plot_network_activity(results_path, time_step=1e-4, sim_duration=2.0, beg=1,
     sides = ['Front', 'Middle', 'Hind']
 
     duration = np.arange(0, sim_duration, time_step)
-    beg = int(beg/time_step)
-    end = int(end/time_step)
+    beg = int(beg / time_step)
+    end = int(end / time_step)
 
-    fig = plt.figure(figsize=(8,8))
-    gs = plt.GridSpec(4,3, figure=fig)
-    ax1 = fig.add_subplot(gs[0,:])
-    ax2 = fig.add_subplot(gs[1,:])
-    ax3 = fig.add_subplot(gs[2,:])
-    (ax4, ax5, ax6) = fig.add_subplot(gs[3,0]), fig.add_subplot(gs[3,1]), fig.add_subplot(gs[3,2])
+    fig = plt.figure(figsize=(8, 8))
+    gs = plt.GridSpec(4, 3, figure=fig)
+    ax1 = fig.add_subplot(gs[0, :])
+    ax2 = fig.add_subplot(gs[1, :])
+    ax3 = fig.add_subplot(gs[2, :])
+    (ax4, ax5, ax6) = fig.add_subplot(gs[3, 0]), fig.add_subplot(
+        gs[3, 1]), fig.add_subplot(gs[3, 2])
 
     for i, side in enumerate(sides):
         part = side[0]
-        if part in ('M','H') and link[0]=='C':
+        if part in ('M', 'H') and link[0] == 'C':
             link = 'Coxa_roll'
 
-        ax1.plot(duration[beg:end], muscle[f'joint_R{part}{link}_flexor_act'][beg:end], label=f'R{part}', color=cycle[i*2])
-        ax1.plot(duration[beg:end], muscle[f'joint_L{part}{link}_flexor_act'][beg:end], label= f'L{part}', color=cycle[i*2+1])
-        ax1.legend(bbox_to_anchor=(1.1,1))
+        ax1.plot(duration[beg:end], muscle[f'joint_R{part}{link}_flexor_act'][beg:end], label=f'R{part}', color=cycle[i * 2])
+        ax1.plot(duration[beg:end], muscle[f'joint_L{part}{link}_flexor_act'][beg:end], label=f'L{part}', color=cycle[i * 2 + 1])
+        ax1.legend(bbox_to_anchor=(1.1, 1))
         ax1.set_ylabel(f'{link} Protractor (AU)')
 
-
-        ax2.plot(duration[beg:end], muscle[f'joint_R{part}{link}_torque'][beg:end] * torque_scale, color=cycle[i*2])
-        ax2.plot(duration[beg:end], muscle[f'joint_L{part}{link}_torque'][beg:end] * torque_scale, color=cycle[i*2+1])
+        ax2.plot(duration[beg:end], muscle[f'joint_R{part}{link}_torque'][beg:end] * torque_scale, color=cycle[i * 2])
+        ax2.plot(duration[beg:end], muscle[f'joint_L{part}{link}_torque'][beg:end] * torque_scale, color=cycle[i * 2 + 1])
         ax2.set_ylabel(f'{link} Torques ($\mu$Nmm)')
 
-        ax3.plot(duration[beg:end], np.rad2deg(joint_pos[f'joint_R{part}{link}'][beg:end]), color=cycle[i*2])
-        ax3.plot(duration[beg:end], np.rad2deg(joint_pos[f'joint_L{part}{link}'][beg:end]), color=cycle[i*2+1])
+        ax3.plot(duration[beg:end], np.rad2deg(joint_pos[f'joint_R{part}{link}'][beg:end]), color=cycle[i * 2])
+        ax3.plot(duration[beg:end], np.rad2deg(joint_pos[f'joint_L{part}{link}'][beg:end]), color=cycle[i * 2 + 1])
         ax3.set_ylabel(f'{link} Joint Angles(deg)')
         ax3.set_xlabel('Time (s)')
 
         for j, joint_angle in enumerate(actuated_joints[part]):
-            ls = linestyles[j] if not joint_angle=='ThC_pitch' else 'dashdot'
+            ls = linestyles[j] if not joint_angle == 'ThC_pitch' else 'dashdot'
             if part == 'F':
                 ax4.plot(duration[beg:end], np.rad2deg(joint_pos[f'joint_L{part}{equivalence[joint_angle]}'][beg:end]), label='LF ' + joint_angle, color=cycle[1], linestyle=ls)
             elif part == 'M':
                 ax5.plot(duration[beg:end], np.rad2deg(joint_pos[f'joint_L{part}{equivalence[joint_angle]}'][beg:end]), label='LM ' + joint_angle, color=cycle[3], linestyle=ls)
             if part == 'H':
                 ax6.plot(duration[beg:end], np.rad2deg(joint_pos[f'joint_L{part}{equivalence[joint_angle]}'][beg:end]), label='LH ' + joint_angle, color=cycle[5], linestyle=ls)
-        ax4.legend(loc='upper center', bbox_to_anchor=(0.5, -0.1), fancybox=True)
-        ax5.legend(loc='upper center', bbox_to_anchor=(0.5, -0.1), fancybox=True)
-        ax6.legend(loc='upper center', bbox_to_anchor=(0.5, -0.1), fancybox=True)
+        ax4.legend(
+            loc='upper center', bbox_to_anchor=(
+                0.5, -0.1), fancybox=True)
+        ax5.legend(
+            loc='upper center', bbox_to_anchor=(
+                0.5, -0.1), fancybox=True)
+        ax6.legend(
+            loc='upper center', bbox_to_anchor=(
+                0.5, -0.1), fancybox=True)
         ax4.set_ylabel('Joint Angles(deg)')
 
     plt.tight_layout()
     if export_path is not None:
         plt.savefig(export_path, bbox_inches='tight')
     plt.show()
-
 
 
 def read_muscles_act(path_data,
@@ -554,10 +592,10 @@ def read_muscles_act(path_data,
 
     muscles_path = os.path.join(path_data, 'muscle', 'outputs.h5')
     data_raw = pd.read_hdf(muscles_path)
-    data={}
+    data = {}
     for leg in leg_order:
         name = f"{leg}_leg"
-        data[name]={}
+        data[name] = {}
     for leg in data.keys():
         for new_name, old_name in equivalence.items():
             key = f"joint_{leg[:2]}{old_name}"
@@ -569,11 +607,11 @@ def read_muscles_act(path_data,
 
     return data
 
+
 def read_joint_positions(path_data,
                          equivalence,
                          leg_order):
     # TODO: Remove??
-
     """ Reads joint position's data obtained after running a simulation (run_neuromuscular_control).
 
     Parameters
@@ -592,10 +630,10 @@ def read_joint_positions(path_data,
     """
     angles_path = os.path.join(path_data, 'physics', 'joint_positions.h5')
     angles_raw = pd.read_hdf(angles_path)
-    angles={}
+    angles = {}
     for leg in leg_order:
         name = f"{leg}_leg"
-        angles[name]={}
+        angles[name] = {}
 
     for leg in angles.keys():
         for new_name, old_name in equivalence.items():
@@ -675,7 +713,8 @@ def read_collision_forces(path_data):
 
     return collisions
 
-def get_stance_periods(leg_force,start,stop):
+
+def get_stance_periods(leg_force, start, stop):
     """ Get stance periods from GRF data.
 
     Parameters
@@ -706,7 +745,9 @@ def get_stance_periods(leg_force,start,stop):
             start_gait = start_gait_list[0]
         else:
             start_gait = start
-        stop_gait_list = np.where((np.array(stance) <= stop)&(np.array(stance) > start))[0]
+        stop_gait_list = np.where(
+            (np.array(stance) <= stop) & (
+                np.array(stance) > start))[0]
         if len(stop_gait_list) > 0:
             stop_gait = stop_gait_list[-1] + 1
         else:
@@ -724,28 +765,28 @@ def get_stance_periods(leg_force,start,stop):
 
     return stance_plot
 
-def plot_data(
-        path_data,
-        leg_key='RF',
-        joint_key='ThC',
-        sim_data='walking',
-        angles={},
-        plot_muscles_act=False,
-        plot_torques_muscles=False,
-        plot_angles_interleg=False,
-        plot_angles_intraleg=False,
-        plot_torques=True,
-        plot_grf=True,
-        plot_collisions=True,
-        collisions_across=True,
-        begin=0.0,
-        end=0.0,
-        time_step=0.001,
-        torqueScalingFactor=1e9,
-        grfScalingFactor=1e6
-    ):
-    # TODO: Remove optimization plots here??
 
+def plot_data(
+    path_data,
+    leg_key='RF',
+    joint_key='ThC',
+    sim_data='walking',
+    angles={},
+    plot_muscles_act=False,
+    plot_torques_muscles=False,
+    plot_angles_interleg=False,
+    plot_angles_intraleg=False,
+    plot_torques=True,
+    plot_grf=True,
+    plot_collisions=True,
+    collisions_across=True,
+    begin=0.0,
+    end=0.0,
+    time_step=0.001,
+    torqueScalingFactor=1e9,
+    grfScalingFactor=1e6
+):
+    # TODO: Remove optimization plots here??
     """ Plots data from the simulation.
 
     Parameters
@@ -799,7 +840,7 @@ def plot_data(
                    'FTi_pitch': 'Tibia',
                    'TiTa_pitch': 'Tarsus1'}
 
-    leg_order = ['LF','LM','LH','RF','RM','RH']
+    leg_order = ['LF', 'LM', 'LH', 'RF', 'RM', 'RH']
 
     length_data = 0
 
@@ -828,7 +869,7 @@ def plot_data(
                 if joint_key in joint:
                     name = f"{leg[:2]} {joint.split('_')[0]} {joint.split('_')[1]}"
                     if 'torque' in joint:
-                        torques_muscles[name] = data*torqueScalingFactor
+                        torques_muscles[name] = data * torqueScalingFactor
                     if length_data == 0:
                         length_data = len(data)
 
@@ -859,7 +900,8 @@ def plot_data(
         if bool(angles):
             angles_raw = angles[leg_key + '_leg']
         else:
-            angles_data = read_joint_positions(path_data, equivalence, leg_order)
+            angles_data = read_joint_positions(
+                path_data, equivalence, leg_order)
             angles_raw = angles_data[leg_key + '_leg']
         data2plot['angles'] = {}
         for k in equivalence.keys():
@@ -976,9 +1018,15 @@ def plot_data(
                 else:
                     axs[i].plot(time[start:stop], act[start:stop], label=joint)
             if len(data2plot.keys()) == 1:
-                axs.set_ylabel('Muscle activation\n' + plot.split('_')[1] + ' (a.u.)')
+                axs.set_ylabel(
+                    'Muscle activation\n' +
+                    plot.split('_')[1] +
+                    ' (a.u.)')
             else:
-                axs[i].set_ylabel('Muscle activation\n' + plot.split('_')[1] + ' (a.u.)')
+                axs[i].set_ylabel(
+                    'Muscle activation\n' +
+                    plot.split('_')[1] +
+                    ' (a.u.)')
 
         if plot == 'torques_muscles':
             for joint, torq in data.items():
@@ -986,12 +1034,15 @@ def plot_data(
                 if len(data2plot.keys()) == 1:
                     axs.plot(time[start:stop], torq[start:stop], label=joint)
                 else:
-                    axs[i].plot(time[start:stop], torq[start:stop], label=joint)
+                    axs[i].plot(time[start:stop],
+                                torq[start:stop], label=joint)
             if len(data2plot.keys()) == 1:
                 axs.set_ylabel('Joint torques\nfrom muscle ' + r'$(\mu Nmm)$')
                 axs.set_ylim(-0.5, 0.5)
             else:
-                axs[i].set_ylabel('Joint torques\nfrom muscle ' + r'$(\mu Nmm)$')
+                axs[i].set_ylabel(
+                    'Joint torques\nfrom muscle ' +
+                    r'$(\mu Nmm)$')
                 #axs[i].set_ylim(-0.5, 0.5)
 
         if plot == 'angles_sim':
@@ -1001,7 +1052,8 @@ def plot_data(
                 if len(data2plot.keys()) == 1:
                     axs.plot(time[start:stop], angle[start:stop], label=joint)
                 else:
-                    axs[i].plot(time[start:stop], angle[start:stop], label=joint)
+                    axs[i].plot(time[start:stop],
+                                angle[start:stop], label=joint)
             if len(data2plot.keys()) == 1:
                 axs.set_ylabel('Joint angles (deg)')
             else:
@@ -1012,10 +1064,11 @@ def plot_data(
                 time = np.arange(0, len(angle_rad), 1) / steps
                 angle = np.array(angle_rad) * 180 / np.pi
                 if len(data2plot.keys()) == 1:
-                    axs.plot(time[start:stop], angle[start:stop], label=name.replace('_',' '))
+                    axs.plot(time[start:stop], angle[start:stop],
+                             label=name.replace('_', ' '))
                 else:
-                    axs[i].plot(time[start:stop],
-                                angle[start:stop], label=name.replace('_',' '))
+                    axs[i].plot(time[start:stop], angle[start:stop],
+                                label=name.replace('_', ' '))
             if len(data2plot.keys()) == 1:
                 axs.set_ylabel('Joint angles (deg)')
             else:
@@ -1026,11 +1079,11 @@ def plot_data(
                 torque_adj = np.delete(torque, 0)
                 time = np.arange(0, len(torque_adj), 1) / steps
                 if len(data2plot.keys()) == 1:
-                    axs.plot(time[start:stop], torque_adj[start:stop]
-                             * torqueScalingFactor, label=joint.replace('_',' '))
+                    axs.plot(time[start:stop], torque_adj[start:stop] *
+                             torqueScalingFactor, label=joint.replace('_', ' '))
                 else:
                     axs[i].plot(time[start:stop], torque_adj[start:stop]
-                                * torqueScalingFactor, label=joint.replace('_',' '))
+                                * torqueScalingFactor, label=joint.replace('_', ' '))
 
                 t_min = np.min(torque_adj[start:stop] * torqueScalingFactor)
                 t_max = np.max(torque_adj[start:stop] * torqueScalingFactor)
@@ -1100,7 +1153,8 @@ def plot_data(
         else:
             axs[i].grid(True)
 
-        if (plot != 'grf' and i == 0) or ('angles_sim' not in plot and 'angles' in plot and plot_angles_interleg):
+        if (plot != 'grf' and i == 0) or (
+                'angles_sim' not in plot and 'angles' in plot and plot_angles_interleg):
             if len(data2plot.keys()) == 1:
                 plot_handles, plot_labels = axs.get_legend_handles_labels()
             else:
@@ -1185,7 +1239,6 @@ def plot_collision_diagram(
         begin=0,
         end=0,
         time_step=0.001):
-
     """ Plots collision/gait diagrams.
 
     Parameters
@@ -1207,17 +1260,17 @@ def plot_collision_diagram(
     if sim_data == 'walking':
         title_plot = 'Gait diagram'
         collisions = {
-                'LF': [],
-                'LM': [],
-                'LH': [],
-                'RF': [],
-                'RM': [],
-                'RH': []}
+            'LF': [],
+            'LM': [],
+            'LH': [],
+            'RF': [],
+            'RM': [],
+            'RH': []}
         if not gt:
             data = read_ground_contacts(path_data)
         else:
-            file_path = os.path.join(path_data,"ground_truth_contact.pkl")
-            data = np.load(file_path,allow_pickle=True)
+            file_path = os.path.join(path_data, "ground_truth_contact.pkl")
+            data = np.load(file_path, allow_pickle=True)
 
         for leg in collisions.keys():
             sum_force = np.sum(np.array(data[leg]), axis=0)
@@ -1246,7 +1299,7 @@ def plot_collision_diagram(
             'RAntenna': []}
 
         for segment1 in collisions.keys():
-            seg_forces=[]
+            seg_forces = []
             for segment2, force in data[segment1].items():
                 seg_forces.append(force)
             sum_force = np.sum(np.array(seg_forces), axis=0)
@@ -1268,14 +1321,24 @@ def plot_collision_diagram(
 
     for i, (segment, force) in enumerate(collisions.items()):
         time = np.arange(0, len(force[0]), 1) / steps
-        stance_plot = get_stance_periods(force[0],start,stop)
+        stance_plot = get_stance_periods(force[0], start, stop)
         for ind in range(0, len(stance_plot), 2):
-                axs[i].fill_between(time[stance_plot[ind]:stance_plot[ind + 1]], 0, 1,
-                                    facecolor='black', alpha=1, transform=axs[i].get_xaxis_transform())
+            axs[i].fill_between(time[stance_plot[ind]:stance_plot[ind + 1]], 0, 1,
+                                facecolor='black', alpha=1, transform=axs[i].get_xaxis_transform())
 
-        axs[i].fill_between(time[start:stance_plot[0]], 0, 1, facecolor='white', alpha=1, transform=axs[i].get_xaxis_transform())
+        axs[i].fill_between(time[start:stance_plot[0]],
+                            0,
+                            1,
+                            facecolor='white',
+                            alpha=1,
+                            transform=axs[i].get_xaxis_transform())
 
-        axs[i].fill_between(time[stance_plot[-1]:stop], 0, 1, facecolor='white', alpha=1, transform=axs[i].get_xaxis_transform())
+        axs[i].fill_between(time[stance_plot[-1]:stop],
+                            0,
+                            1,
+                            facecolor='white',
+                            alpha=1,
+                            transform=axs[i].get_xaxis_transform())
 
         axs[i].set_yticks((0.5,))
         axs[i].set_yticklabels((segment,))
@@ -1300,13 +1363,12 @@ def plot_fly_path(
         solutions=None,
         sequence=False,
         heading=True,
-        ball_radius = 5.0,
+        ball_radius=5.0,
         begin=0,
         end=0,
         time_step=0.001,
         ax=None
-        ):
-
+):
     """ Plots collision/gait diagrams.
 
     Parameters
@@ -1351,10 +1413,11 @@ def plot_fly_path(
                 gen_folder = os.path.join(path_data, f'gen_{gen}')
                 s = [d.split('_')[-1] for d in os.listdir(gen_folder)]
             for sol in s:
-                sim_res_folder = os.path.join(path_data, f'gen_{gen}', f'sol_{sol}','physics','ball_rotations.h5')
+                sim_res_folder = os.path.join(path_data, f'gen_{gen}', f'sol_{sol}', 'physics', 'ball_rotations.h5')
                 ball_data_list.append(sim_res_folder)
     else:
-        sim_res_folder = os.path.join(path_data, 'physics','ball_rotations.h5')
+        sim_res_folder = os.path.join(
+            path_data, 'physics', 'ball_rotations.h5')
         ball_data_list.append(sim_res_folder)
 
     if ax is None:
@@ -1364,7 +1427,7 @@ def plot_fly_path(
     m = MarkerStyle(marker=r'$\rightarrow$')
     ax.set_xlabel('x (mm)')
     ax.set_ylabel('y (mm)')
-    colors = plt.cm.jet(np.linspace(0.3,1,len(ball_data_list)))
+    colors = plt.cm.jet(np.linspace(0.3, 1, len(ball_data_list)))
 
     for ind, ball_data in enumerate(ball_data_list):
 
@@ -1382,23 +1445,23 @@ def plot_fly_path(
         x = []
         y = []
 
-        for count, i in enumerate(range(start, stop-1)):
+        for count, i in enumerate(range(start, stop - 1)):
             th = data_array[i][2]
-            forward = (data_array[i][0]-data_array[0][0]) * ball_radius
-            lateral = (data_array[i][1]-data_array[0][1]) * ball_radius
+            forward = (data_array[i][0] - data_array[0][0]) * ball_radius
+            lateral = (data_array[i][1] - data_array[0][1]) * ball_radius
             x.append(forward)
             y.append(lateral)
 
             if sequence:
                 ax.clear()
-                curr_time = (i+2)/steps
+                curr_time = (i + 2) / steps
                 print(f'\rTime: {curr_time:.3f}', end='')
                 sc = ax.scatter(
                     x,
                     y,
                     c=np.linspace(
                         begin,
-                        begin+len(x)/steps,
+                        begin + len(x) / steps,
                         len(x)),
                     cmap='jet',
                     vmin=begin,
@@ -1434,8 +1497,8 @@ def plot_fly_path(
 
         if not sequence:
             if generations:
-                gen_label = g[int(ind/len(s))] + 1
-                sol_label = s[int(ind%len(s))]
+                gen_label = g[int(ind / len(s))] + 1
+                sol_label = s[int(ind % len(s))]
                 ax.plot(x,
                         y,
                         linewidth=2,
@@ -1445,7 +1508,14 @@ def plot_fly_path(
                 ax.plot(x, y, linewidth=2)
 
 
-def get_data(data_path, begin, end, time_step, data_from=[], offset=0, window_time=0.2):
+def get_data(
+        data_path,
+        begin,
+        end,
+        time_step,
+        data_from=[],
+        offset=0,
+        window_time=0.2):
     fictrac_columns = ["Frame_counter",
                        "delta_rot_cam_x",
                        "delta_rot_cam_y",
@@ -1482,48 +1552,50 @@ def get_data(data_path, begin, end, time_step, data_from=[], offset=0, window_ti
         end = len(data) * time_step
 
     steps = 1 / time_step
-    start = int((begin+offset) * steps)
-    stop = int((end+offset) * steps)
+    start = int((begin + offset) * steps)
+    stop = int((end + offset) * steps)
 
     if not data_from:
         data_from = list(data.columns)
 
-    norm_data={}
+    norm_data = {}
     for key in data_from:
         if window_time > 0:
-            filtered_data = scipy.ndimage.median_filter(data[key],size=int(window_time/time_step))
+            filtered_data = scipy.ndimage.median_filter(
+                data[key], size=int(window_time / time_step))
         else:
             filtered_data = np.array(data[key].values)
-        baseline = np.mean(filtered_data[start:start+int(0.1/time_step)])
+        baseline = np.mean(filtered_data[start:start + int(0.1 / time_step)])
         norm_data[key] = filtered_data[start:stop] - baseline
         if "lab_heading" in key:
             diff_heading = np.abs(np.diff(norm_data[key]))
-            cross_points = np.where(diff_heading>np.pi)[0]
-            if len(cross_points)%2 != 0:
+            cross_points = np.where(diff_heading > np.pi)[0]
+            if len(cross_points) % 2 != 0:
                 cross_points = np.append(cross_points, stop)
             heading_fictrac = norm_data[key].copy()
-            for p in range(1,len(cross_points),2):
-                init = cross_points[p-1]+1
-                fin = cross_points[p]+1
-                heading_fictrac[init:fin]=heading_fictrac[init:fin]-2*np.pi
+            for p in range(1, len(cross_points), 2):
+                init = cross_points[p - 1] + 1
+                fin = cross_points[p] + 1
+                heading_fictrac[init:fin] = heading_fictrac[init:fin] - 2 * np.pi
             norm_data[key] = heading_fictrac
 
     return norm_data
 
+
 def plot_fly_path_comparison(
         fictrac_path,
         sim_path,
-        plot_vel = True,
-        plot_traj = False,
-        ball_radius = 5,
+        plot_vel=True,
+        plot_traj=False,
+        ball_radius=5,
         begin=0,
-        end = 0,
-        offset_fictrac = 0,
-        offset_sim = 0,
+        end=0,
+        offset_fictrac=0,
+        offset_sim=0,
         time_step_fictrac=0.01,
         time_step_sim=0.001,
         filter_window_time=0.2
-        ):
+):
     """ Comparing fly path/ball rotations between ground truth (obtained from FicTrac) and simulation
 
     Parameters
@@ -1546,7 +1618,14 @@ def plot_fly_path_comparison(
                          "delta_rot_lab_y",
                          "delta_rot_lab_z"]
 
-    fictrac_data = get_data(fictrac_path,begin,end,time_step_fictrac,data_from_fictrac,offset_fictrac,filter_window_time)
+    fictrac_data = get_data(
+        fictrac_path,
+        begin,
+        end,
+        time_step_fictrac,
+        data_from_fictrac,
+        offset_fictrac,
+        filter_window_time)
     fw_fictrac = fictrac_data["integrated_forward_movement"] * ball_radius
     side_fictrac = fictrac_data["integrated_side_movement"] * ball_radius
     heading_fictrac = fictrac_data["integrated_lab_heading"]
@@ -1556,14 +1635,28 @@ def plot_fly_path_comparison(
     vel_heading_fictrac = -fictrac_data["delta_rot_lab_z"] / time_step_fictrac
 
     data_from_sim = ["x", "y", "z"]
-    sim_data_path = os.path.join(sim_path, 'physics','ball_rotations.h5')
-    ball_data = get_data(sim_data_path,begin,end,time_step_sim,data_from_sim, offset_sim, filter_window_time)
+    sim_data_path = os.path.join(sim_path, 'physics', 'ball_rotations.h5')
+    ball_data = get_data(
+        sim_data_path,
+        begin,
+        end,
+        time_step_sim,
+        data_from_sim,
+        offset_sim,
+        filter_window_time)
     fw_sim = ball_data["x"] * ball_radius
     side_sim = ball_data["y"] * ball_radius
     heading_sim = ball_data["z"]
 
-    sim_vel_data_path = os.path.join(sim_path, 'physics','ball_velocities.h5')
-    vel_data = get_data(sim_vel_data_path,begin,end,time_step_sim,data_from_sim, offset_sim, filter_window_time)
+    sim_vel_data_path = os.path.join(sim_path, 'physics', 'ball_velocities.h5')
+    vel_data = get_data(
+        sim_vel_data_path,
+        begin,
+        end,
+        time_step_sim,
+        data_from_sim,
+        offset_sim,
+        filter_window_time)
     vel_fw_sim = -vel_data["y"]
     vel_side_sim = vel_data["x"]
     vel_heading_sim = -vel_data["z"]
@@ -1586,8 +1679,10 @@ def plot_fly_path_comparison(
     filter_window_time = 0.2
 
     if plot_traj:
-        x_head_fictrac, y_head_fictrac = get_flat_trajectory(fw_fictrac,side_fictrac,heading_fictrac)
-        x_head_sim, y_head_sim = get_flat_trajectory(-fw_sim, -side_sim, -heading_sim)
+        x_head_fictrac, y_head_fictrac = get_flat_trajectory(
+            fw_fictrac, side_fictrac, heading_fictrac)
+        x_head_sim, y_head_sim = get_flat_trajectory(
+            -fw_sim, -side_sim, -heading_sim)
 
         plt.figure()
         plt.plot(x_head_fictrac, y_head_fictrac, label="Fictrac path")
@@ -1598,12 +1693,12 @@ def plot_fly_path_comparison(
         plt.xticks(fontsize=13)
         plt.yticks(fontsize=13)
 
-        #plt.figure(2)
+        # plt.figure(2)
         #plt.plot(fw_fictrac, side_fictrac, label='Fictrac (x-y)')
         #plt.plot(fw_sim, side_sim, label='NeuroMechFly (x-y)')
         #plt.xlabel('Distance (mm)', fontsize=14)
         #plt.ylabel('Distance (mm)', fontsize=14)
-        #plt.legend()
+        # plt.legend()
 
         plt.figure()
         plt.plot(time_fictrac, side_fictrac, label='Fictrac')
@@ -1634,7 +1729,8 @@ def plot_fly_path_comparison(
 
     if plot_vel:
         plt.figure()
-        interp_fictrac, corr_coef = calculate_correlation_between(vel_fw_fictrac,vel_fw_sim,time_fictrac,time_sim)
+        interp_fictrac, corr_coef = calculate_correlation_between(
+            vel_fw_fictrac, vel_fw_sim, time_fictrac, time_sim)
         plt.plot(time_sim, interp_fictrac, label='Fictrac')
         #plt.plot(time_fictrac, smooth_vel_fw_fictrac, label='vel fw smooth fictrac')
         plt.plot(time_sim, vel_fw_sim, label='NeuroMechFly')
@@ -1646,7 +1742,8 @@ def plot_fly_path_comparison(
         print(f"Correlation coeficient (Fw vel): {corr_coef}")
 
         plt.figure()
-        interp_fictrac, corr_coef = calculate_correlation_between(vel_side_fictrac,vel_side_sim,time_fictrac,time_sim)
+        interp_fictrac, corr_coef = calculate_correlation_between(
+            vel_side_fictrac, vel_side_sim, time_fictrac, time_sim)
         plt.plot(time_sim, interp_fictrac, label='Fictrac')
         #plt.plot(time_fictrac, scipy.ndimage.median_filter(vel_side_fictrac,size=20), label='vel fw smooth fictrac')
         plt.plot(time_sim, vel_side_sim, label='NeuroMechFly')
@@ -1658,11 +1755,12 @@ def plot_fly_path_comparison(
         print(f"Correlation coeficient (Side vel): {corr_coef}")
 
         plt.figure()
-        interp_fictrac, corr_coef = calculate_correlation_between(vel_heading_fictrac,vel_heading_sim,time_fictrac,time_sim)
+        interp_fictrac, corr_coef = calculate_correlation_between(
+            vel_heading_fictrac, vel_heading_sim, time_fictrac, time_sim)
         plt.plot(time_sim, interp_fictrac, label='Fictrac')
         #plt.plot(time_fictrac, scipy.ndimage.median_filter(vel_heading_fictrac,size=20), label='vel fw smooth fictrac')
         plt.plot(time_sim, vel_heading_sim, label='NeuroMechFly')
-        plt.xlabel('Time (s)',fontsize=14)
+        plt.xlabel('Time (s)', fontsize=14)
         plt.ylabel('Heading Velocity (rad/s)', fontsize=14)
         plt.legend(fontsize=11)
         plt.xticks(fontsize=13)
@@ -1670,6 +1768,7 @@ def plot_fly_path_comparison(
         print(f"Correlation coeficient (Heading vel): {corr_coef}")
 
     plt.show()
+
 
 def calculate_correlation_between(fictrac, sim, time_fictrac, time_sim):
     interpolated_fictrac = pchip_interpolate(time_fictrac, fictrac, time_sim)
@@ -1682,13 +1781,13 @@ def calculate_correlation_between(fictrac, sim, time_fictrac, time_sim):
 def plot_fly_path_comparison_old(
         fictrac_path,
         ball_path,
-        ball_radius = 5,
+        ball_radius=5,
         begin=0,
-        end = 0,
-        offset_fictrac = 0,
+        end=0,
+        offset_fictrac=0,
         time_step_fictrac=0.01,
         time_step_sim=0.001
-        ):
+):
     """ Comparing fly path/ball rotations between ground truth (obtained from FicTrac) and simulation
 
     Parameters
@@ -1732,57 +1831,71 @@ def plot_fly_path_comparison_old(
                        "alt_time"]
 
     fictrac_data_path = fictrac_path
-    fictrac_data = pd.read_csv(fictrac_data_path, header=None, names=fictrac_columns)
+    fictrac_data = pd.read_csv(
+        fictrac_data_path,
+        header=None,
+        names=fictrac_columns)
 
-    ball_data_path = os.path.join(ball_path, 'physics','ball_rotations.h5')
+    ball_data_path = os.path.join(ball_path, 'physics', 'ball_rotations.h5')
     ball_data = np.array(pd.read_hdf(ball_data_path).values).transpose()
 
-    vel_data_path = os.path.join(ball_path, 'physics','ball_velocities.h5')
+    vel_data_path = os.path.join(ball_path, 'physics', 'ball_velocities.h5')
     vel_data = np.array(pd.read_hdf(vel_data_path).values).transpose()
 
     if end == 0:
         end = len(fictrac_data) * time_step_fictrac
 
     steps_fictrac = 1 / time_step_fictrac
-    start_fictrac = int((begin+offset_fictrac) * steps_fictrac)
-    stop_fictrac = int((end+offset_fictrac) * steps_fictrac)
+    start_fictrac = int((begin + offset_fictrac) * steps_fictrac)
+    stop_fictrac = int((end + offset_fictrac) * steps_fictrac)
 
-    #y_fictrac = -(fictrac_data["integrated_lab_x"][start_fictrac:stop_fictrac]-fictrac_data["integrated_lab_x"][start_fictrac]) #* ball_radius
-    #x_fictrac = (fictrac_data["integrated_lab_y"][start_fictrac:stop_fictrac] - fictrac_data["integrated_lab_y"][start_fictrac]) #* ball_radius
+    # y_fictrac = -(fictrac_data["integrated_lab_x"][start_fictrac:stop_fictrac]-fictrac_data["integrated_lab_x"][start_fictrac]) #* ball_radius
+    # x_fictrac =
+    # (fictrac_data["integrated_lab_y"][start_fictrac:stop_fictrac] -
+    # fictrac_data["integrated_lab_y"][start_fictrac]) #* ball_radius
 
-    side_fictrac = (fictrac_data["integrated_side_movement"][start_fictrac:stop_fictrac] - fictrac_data["integrated_side_movement"][start_fictrac+5]) * ball_radius
-    fw_fictrac = (fictrac_data["integrated_forward_movement"][start_fictrac:stop_fictrac]-fictrac_data["integrated_forward_movement"][start_fictrac+5]) * ball_radius
-    heading_raw = (fictrac_data["integrated_lab_heading"][start_fictrac:stop_fictrac]-fictrac_data["integrated_lab_heading"][start_fictrac+5])
+    side_fictrac = (fictrac_data["integrated_side_movement"][start_fictrac:stop_fictrac] -
+                    fictrac_data["integrated_side_movement"][start_fictrac + 5]) * ball_radius
+    fw_fictrac = (fictrac_data["integrated_forward_movement"][start_fictrac:stop_fictrac] -
+                  fictrac_data["integrated_forward_movement"][start_fictrac + 5]) * ball_radius
+    heading_raw = (fictrac_data["integrated_lab_heading"][start_fictrac:stop_fictrac] -
+                   fictrac_data["integrated_lab_heading"][start_fictrac + 5])
 
-    delta_fw_fictrac = -(fictrac_data["delta_rot_lab_x"][start_fictrac:stop_fictrac] - fictrac_data["delta_rot_lab_x"][start_fictrac+5]) / time_step_fictrac
-    delta_side_fictrac = -(fictrac_data["delta_rot_lab_y"][start_fictrac:stop_fictrac] - fictrac_data["delta_rot_lab_y"][start_fictrac+5]) / time_step_fictrac
-    delta_heading_fictrac = -(fictrac_data["delta_rot_lab_z"][start_fictrac:stop_fictrac] - fictrac_data["delta_rot_lab_z"][start_fictrac+5]) / time_step_fictrac
+    delta_fw_fictrac = -(fictrac_data["delta_rot_lab_x"][start_fictrac:stop_fictrac] -
+                         fictrac_data["delta_rot_lab_x"][start_fictrac + 5]) / time_step_fictrac
+    delta_side_fictrac = -(fictrac_data["delta_rot_lab_y"][start_fictrac:stop_fictrac] -
+                           fictrac_data["delta_rot_lab_y"][start_fictrac + 5]) / time_step_fictrac
+    delta_heading_fictrac = -(fictrac_data["delta_rot_lab_z"][start_fictrac:stop_fictrac] -
+                              fictrac_data["delta_rot_lab_z"][start_fictrac + 5]) / time_step_fictrac
 
     diff_heading = np.abs(np.diff(heading_raw))
-    cross_points = np.where(diff_heading>np.pi)[0]
-    if len(cross_points)%2 != 0:
+    cross_points = np.where(diff_heading > np.pi)[0]
+    if len(cross_points) % 2 != 0:
         cross_points = np.append(cross_points, stop_fictrac)
     heading_fictrac = heading_raw.copy()
-    for p in range(1,len(cross_points),2):
-        init = cross_points[p-1]+1
-        fin = cross_points[p]+1
-        heading_fictrac[init:fin]=heading_fictrac[init:fin]-2*np.pi
+    for p in range(1, len(cross_points), 2):
+        init = cross_points[p - 1] + 1
+        fin = cross_points[p] + 1
+        heading_fictrac[init:fin] = heading_fictrac[init:fin] - 2 * np.pi
 
     steps_sim = 1 / time_step_sim
     start_sim = int(begin * steps_sim)
     stop_sim = int(end * steps_sim)
 
-    fw_sim = (ball_data[0][start_sim:stop_sim]-ball_data[0][start_sim+5]) * ball_radius
-    side_sim = (ball_data[1][start_sim:stop_sim]-ball_data[1][start_sim+5]) * ball_radius
-    heading_sim = (ball_data[2][start_sim:stop_sim]-ball_data[2][start_sim+5])
+    fw_sim = (ball_data[0][start_sim:stop_sim] -
+              ball_data[0][start_sim + 5]) * ball_radius
+    side_sim = (ball_data[1][start_sim:stop_sim] -
+                ball_data[1][start_sim + 5]) * ball_radius
+    heading_sim = (ball_data[2][start_sim:stop_sim] -
+                   ball_data[2][start_sim + 5])
 
     delta_fw_sim = np.diff(fw_sim)
     delta_side_sim = np.diff(side_sim)
     delta_heading_sim = np.diff(heading_sim)
 
-    delta_fw_sim = np.insert(delta_fw_sim,0,0) / time_step_sim
-    delta_side_sim = np.insert(delta_side_sim,0,0) / time_step_sim
-    delta_heading_sim = np.insert(delta_heading_sim,0,0) / time_step_sim
+    delta_fw_sim = np.insert(delta_fw_sim, 0, 0) / time_step_sim
+    delta_side_sim = np.insert(delta_side_sim, 0, 0) / time_step_sim
+    delta_heading_sim = np.insert(delta_heading_sim, 0, 0) / time_step_sim
 
     #vel_x = (vel_data[0][start_sim:stop_sim]-vel_data[0][start_sim+5])
     #vel_y = (vel_data[1][start_sim:stop_sim]-vel_data[1][start_sim+5])
@@ -1791,17 +1904,39 @@ def plot_fly_path_comparison_old(
     window = 11
     order = 3
 
-    vel_fw_fictrac = scipy.signal.savgol_filter(fw_fictrac, window, order, deriv=1, delta=time_step_fictrac, mode='nearest')
-    vel_side_fictrac = scipy.signal.savgol_filter(side_fictrac, window, order, deriv=1, delta=time_step_fictrac, mode='nearest')
-    vel_heading_fictrac = scipy.signal.savgol_filter(heading_fictrac, window, order, deriv=1, delta=time_step_fictrac, mode='nearest')
+    vel_fw_fictrac = scipy.signal.savgol_filter(
+        fw_fictrac,
+        window,
+        order,
+        deriv=1,
+        delta=time_step_fictrac,
+        mode='nearest')
+    vel_side_fictrac = scipy.signal.savgol_filter(
+        side_fictrac,
+        window,
+        order,
+        deriv=1,
+        delta=time_step_fictrac,
+        mode='nearest')
+    vel_heading_fictrac = scipy.signal.savgol_filter(
+        heading_fictrac,
+        window,
+        order,
+        deriv=1,
+        delta=time_step_fictrac,
+        mode='nearest')
 
-    vel_fw_sim = scipy.signal.savgol_filter(fw_sim, 111, order, deriv=1, delta=time_step_sim, mode='nearest')
-    vel_side_sim = scipy.signal.savgol_filter(side_sim, 111, order, deriv=1, delta=time_step_sim, mode='nearest')
-    vel_heading_sim = scipy.signal.savgol_filter(heading_sim, 111, order, deriv=1, delta=time_step_sim, mode='nearest')
+    vel_fw_sim = scipy.signal.savgol_filter(
+        fw_sim, 111, order, deriv=1, delta=time_step_sim, mode='nearest')
+    vel_side_sim = scipy.signal.savgol_filter(
+        side_sim, 111, order, deriv=1, delta=time_step_sim, mode='nearest')
+    vel_heading_sim = scipy.signal.savgol_filter(
+        heading_sim, 111, order, deriv=1, delta=time_step_sim, mode='nearest')
 
-
-    x_head_fictrac, y_head_fictrac = get_flat_trajectory(fw_fictrac.values, side_fictrac.values, heading_fictrac.values)
-    x_head_sim, y_head_sim = get_flat_trajectory(-fw_sim, -side_sim, -heading_sim)
+    x_head_fictrac, y_head_fictrac = get_flat_trajectory(
+        fw_fictrac.values, side_fictrac.values, heading_fictrac.values)
+    x_head_sim, y_head_sim = get_flat_trajectory(
+        -fw_sim, -side_sim, -heading_sim)
 
     plt.figure(0)
     plt.plot(x_head_fictrac, y_head_fictrac, label="fictrac path")
@@ -1875,11 +2010,10 @@ def plot_fly_path_comparison_old(
     quit()
     '''
 
-
     plt.figure(2)
     plt.plot(fw_fictrac, side_fictrac, label='Fictrac (x-y)')
     plt.plot(fw_sim, side_sim, label='NeuroMechFly (x-y)')
-    #plt.ylim(-0.5,1)
+    # plt.ylim(-0.5,1)
     plt.xlabel('Distance (mm)')
     plt.ylabel('Distance (mm)')
     plt.legend()
@@ -1934,6 +2068,7 @@ def plot_fly_path_comparison_old(
 
     plt.show()
 
+
 def get_flat_trajectory(fw, side, heading):
 
     x_trajectory = [0]
@@ -1941,8 +2076,10 @@ def get_flat_trajectory(fw, side, heading):
     diff_x = np.diff(fw)
     diff_y = np.diff(side)
     for ind in range(len(diff_x)):
-        new_x = diff_x[ind]*np.cos(heading[ind+1]) + diff_y[ind]*np.sin(heading[ind+1]) + x_trajectory[-1]
-        new_y = diff_x[ind]*np.sin(heading[ind+1]) - diff_y[ind]*np.cos(heading[ind+1]) + y_trajectory[-1]
+        new_x = diff_x[ind] * np.cos(heading[ind + 1]) + \
+            diff_y[ind] * np.sin(heading[ind + 1]) + x_trajectory[-1]
+        new_y = diff_x[ind] * np.sin(heading[ind + 1]) - \
+            diff_y[ind] * np.cos(heading[ind + 1]) + y_trajectory[-1]
         x_trajectory.append(new_x)
         y_trajectory.append(new_y)
 
@@ -1957,7 +2094,6 @@ def compare_collision_diagram(
         end=0,
         time_step_sim=0.001,
         time_step_gt=0.01):
-
     """ Plots collision/gait diagrams.
 
     Parameters
@@ -1979,26 +2115,25 @@ def compare_collision_diagram(
     if sim_data == 'walking':
         title_plot = 'Gait diagram'
         collisions = {
-                'LF': [],
-                'LM': [],
-                'LH': [],
-                'RF': [],
-                'RM': [],
-                'RH': []}
+            'LF': [],
+            'LM': [],
+            'LH': [],
+            'RF': [],
+            'RM': [],
+            'RH': []}
 
         collisions_gt = {
-                'LF': [],
-                'LM': [],
-                'LH': [],
-                'RF': [],
-                'RM': [],
-                'RH': []}
+            'LF': [],
+            'LM': [],
+            'LH': [],
+            'RF': [],
+            'RM': [],
+            'RH': []}
 
         data_sim = read_ground_contacts(path_data)
 
-        gt_file_path = os.path.join(gt_data,"ground_truth_contact.pkl")
-        data_gt = np.load(gt_file_path,allow_pickle=True)
-
+        gt_file_path = os.path.join(gt_data, "ground_truth_contact.pkl")
+        data_gt = np.load(gt_file_path, allow_pickle=True)
 
         for leg in collisions.keys():
             sum_force = np.sum(np.array(data_sim[leg]), axis=0)
@@ -2034,7 +2169,7 @@ def compare_collision_diagram(
             'RAntenna': []}
 
         for segment1 in collisions.keys():
-            seg_forces=[]
+            seg_forces = []
             for segment2, force in data[segment1].items():
                 seg_forces.append(force)
             sum_force = np.sum(np.array(seg_forces), axis=0)
@@ -2057,16 +2192,16 @@ def compare_collision_diagram(
     fig, axs = plt.subplots(len(collisions.keys()),
                             sharex=True, gridspec_kw={'hspace': 0})
     fig.suptitle(title_plot)
-    stance_frames={}
-    stance_frames_gt={}
+    stance_frames = {}
+    stance_frames_gt = {}
     for i, (segment, force) in enumerate(collisions.items()):
         time = np.arange(0, len(force[0]), 1) / steps_sim
-        stance_plot = get_stance_periods(force[0],start_sim,stop_sim)
+        stance_plot = get_stance_periods(force[0], start_sim, stop_sim)
         stance_frames[segment] = []
         for ind in range(0, len(stance_plot), 2):
             start_stance = stance_plot[ind]
-            stop_stance = stance_plot[ind+1]
-            num_steps = int(stop_stance-start_stance)
+            stop_stance = stance_plot[ind + 1]
+            num_steps = int(stop_stance - start_stance)
             axs[i].fill_between(time[start_stance:stop_stance], 0, 1,
                                 facecolor='deepskyblue', alpha=0.5,
                                 transform=axs[i].get_xaxis_transform())
@@ -2075,51 +2210,88 @@ def compare_collision_diagram(
                                                       num_steps,
                                                       endpoint=False))
 
-        axs[i].fill_between(time[start_sim:stance_plot[0]], 0, 1, facecolor='white', alpha=0.5, transform=axs[i].get_xaxis_transform())
+        axs[i].fill_between(time[start_sim:stance_plot[0]],
+                            0,
+                            1,
+                            facecolor='white',
+                            alpha=0.5,
+                            transform=axs[i].get_xaxis_transform())
 
-        axs[i].fill_between(time[stance_plot[-1]:stop_sim], 0, 1, facecolor='white', alpha=0.5, transform=axs[i].get_xaxis_transform())
+        axs[i].fill_between(time[stance_plot[-1]:stop_sim],
+                            0,
+                            1,
+                            facecolor='white',
+                            alpha=0.5,
+                            transform=axs[i].get_xaxis_transform())
 
         axs[i].set_yticks((0.5,))
         axs[i].set_yticklabels((segment,))
 
     for i, (segment, force) in enumerate(collisions_gt.items()):
-        scale_factor = time_step_gt/time_step_sim
-        stop_time = np.round(len(force[0])*scale_factor)
+        scale_factor = time_step_gt / time_step_sim
+        stop_time = np.round(len(force[0]) * scale_factor)
         time = np.arange(0, stop_time, 1) / steps_sim
         time_gt = np.arange(0, len(force[0]), 1) / steps_gt
-        stance_plot = get_stance_periods(force[0],start_gt,stop_gt)
+        stance_plot = get_stance_periods(force[0], start_gt, stop_gt)
         stance_frames_gt[segment] = []
         for ind in range(0, len(stance_plot), 2):
 
             start_stance = int(np.floor(stance_plot[ind] * scale_factor))
-            stop_stance = int(np.ceil(stance_plot[ind+1] * scale_factor))
-            num_steps = int(stop_stance-start_stance)
+            stop_stance = int(np.ceil(stance_plot[ind + 1] * scale_factor))
+            num_steps = int(stop_stance - start_stance)
 
             axs[i].fill_between(time[start_stance:stop_stance], 0, 1,
                                 facecolor='y', alpha=0.5,
                                 transform=axs[i].get_xaxis_transform())
             stance_frames_gt[segment].extend(np.linspace(start_stance,
-                                                      stop_stance,
-                                                      num_steps,
-                                                      endpoint=False))
+                                                         stop_stance,
+                                                         num_steps,
+                                                         endpoint=False))
 
-        axs[i].fill_between(time_gt[start_gt:stance_plot[0]], 0, 1, facecolor='white', alpha=0.5, transform=axs[i].get_xaxis_transform())
+        axs[i].fill_between(time_gt[start_gt:stance_plot[0]],
+                            0,
+                            1,
+                            facecolor='white',
+                            alpha=0.5,
+                            transform=axs[i].get_xaxis_transform())
 
-        axs[i].fill_between(time_gt[stance_plot[-1]:stop_gt], 0, 1, facecolor='white', alpha=0.5, transform=axs[i].get_xaxis_transform())
+        axs[i].fill_between(time_gt[stance_plot[-1]:stop_gt],
+                            0,
+                            1,
+                            facecolor='white',
+                            alpha=0.5,
+                            transform=axs[i].get_xaxis_transform())
 
         axs[i].set_yticks((0.5,))
         axs[i].set_yticklabels((segment,))
 
     results = pd.DataFrame()
-    tot_frames = stop_sim-start_sim
+    tot_frames = stop_sim - start_sim
     for leg, frames in stance_frames.items():
-        tp = np.count_nonzero(np.isin(np.array(frames),np.array(stance_frames_gt[leg])))
-        fp = len(frames)-tp
-        tp_count_gt = np.count_nonzero(np.isin(np.array(stance_frames_gt[leg]),np.array(frames)))
-        fn = len(stance_frames_gt[leg])-tp_count_gt
-        tn = tot_frames-tp-fp-fn
+        tp = np.count_nonzero(
+            np.isin(
+                np.array(frames),
+                np.array(
+                    stance_frames_gt[leg])))
+        fp = len(frames) - tp
+        tp_count_gt = np.count_nonzero(
+            np.isin(
+                np.array(
+                    stance_frames_gt[leg]),
+                np.array(frames)))
+        fn = len(stance_frames_gt[leg]) - tp_count_gt
+        tn = tot_frames - tp - fp - fn
 
-        df_vals = pd.DataFrame([[tp/tot_frames,tn/tot_frames,fp/tot_frames,fn/tot_frames,(tp+tn)/tot_frames]],columns=['True positive','True negative','False positive','False negative','Accuracy'])
+        df_vals = pd.DataFrame([[tp / tot_frames,
+                                 tn / tot_frames,
+                                 fp / tot_frames,
+                                 fn / tot_frames,
+                                 (tp + tn) / tot_frames]],
+                               columns=['True positive',
+                                        'True negative',
+                                        'False positive',
+                                        'False negative',
+                                        'Accuracy'])
         df_vals['Leg'] = leg
         results = results.append(df_vals, ignore_index=True)
         #print(leg, [[key, v/tot_frames] for key, v in results[leg].items()])
@@ -2127,8 +2299,11 @@ def compare_collision_diagram(
     axs[len(axs) - 1].set_xlabel('Time (s)')
     if sim_data == 'walking':
         gt_patch = mpatches.Patch(color='y', alpha=0.5, label='GT-Stance')
-        sim_patch = mpatches.Patch(color='deepskyblue', alpha=0.5, label='NMF-Stance')
-        patches = [gt_patch,sim_patch]
+        sim_patch = mpatches.Patch(
+            color='deepskyblue',
+            alpha=0.5,
+            label='NMF-Stance')
+        patches = [gt_patch, sim_patch]
     elif sim_data == 'grooming':
         black_patch = mpatches.Patch(color='black', label='Collision')
         patches = [black_patch]
@@ -2142,10 +2317,25 @@ def compare_collision_diagram(
     print(results)
     print(np.mean(results['Accuracy']))
     fig, ax2 = plt.subplots()
-    ax2.bar(results['Leg'],results['True positive'], label='True positive')
-    ax2.bar(results['Leg'],results['True negative'],bottom=results['True positive'],label='True negative')
-    ax2.bar(results['Leg'],results['False negative'],bottom=results['True positive']+results['True negative'],label='False negative')
-    ax2.bar(results['Leg'],results['False positive'],bottom=results['True positive']+results['True negative']+results['False negative'],label='False positive')
+    ax2.bar(results['Leg'], results['True positive'], label='True positive')
+    ax2.bar(
+        results['Leg'],
+        results['True negative'],
+        bottom=results['True positive'],
+        label='True negative')
+    ax2.bar(
+        results['Leg'],
+        results['False negative'],
+        bottom=results['True positive'] +
+        results['True negative'],
+        label='False negative')
+    ax2.bar(
+        results['Leg'],
+        results['False positive'],
+        bottom=results['True positive'] +
+        results['True negative'] +
+        results['False negative'],
+        label='False positive')
     ax2.set_xlabel('Leg')
     ax2.set_ylabel('Percentage')
     ax2.legend()

@@ -17,23 +17,25 @@ joints = [
     'Tarsus1']
 
 ##### CALCULATE STATISTICS #####
+
+
 def calculate_forces(leg, k_value, *args):
     """ Computes the ground reaction force on one single leg.
 
     Parameters
     ----------
-    leg: <string> 
+    leg: <string>
         Name of the leg, e.g., 'LF' 'RM'.
-    k_value: <string> 
+    k_value: <string>
         Value of the gain, e.g. 'kp1.0_kv0.9'.
-    args: 
+    args:
         Dictionary containing the measured forces.
-    
+
     Returns
     -------
-    force_vector: <np.array> 
+    force_vector: <np.array>
         Array containing GRF forces in x, y, z.
-    force_norm: <np.array> 
+    force_norm: <np.array>
         Array containing the norm of the GRF forces.
     """
     force = {'x': 0, 'y': 0, 'z': 0}
@@ -56,25 +58,25 @@ def calculate_stack_array(
     scaling_factor=1
 ):
     """ Concatenates and scales physical quantities.
-   
+
     Parameters
     ----------
-    args: 
+    args:
         arrays to be concatenated.
-    force_cal: <bool> 
+    force_cal: <bool>
         If true, then calculates the norm of the vector.
-    leg: <string> 
+    leg: <string>
         Name of the leg, e.g., 'LF' 'RM'.
-    constant: <string> 
+    constant: <string>
         Value of the constant gain, i.e. 'kv0.9'.
-    scaling_factor: <float> 
+    scaling_factor: <float>
         Scales the force and torque measurements, used for unit changes.
-   
+
     Returns
     -------
-    stack_array: <np.array> 
+    stack_array: <np.array>
         array of values that have the same constant gain (kp or kv).
-    """    
+    """
     first_iteration = True
     for k_value in args[0].keys():
         if constant in k_value:
@@ -110,19 +112,19 @@ def calculate_statistics_joints(
     """ Calculates statistical properties of joint physical quantities.
 
     Parameters
-    ----------    
-    scaling_factor: <int> 
+    ----------
+    scaling_factor: <int>
         Scales the force and torque measurements, used for unit changes.
-    constant: <str> 
+    constant: <str>
         Used for fixing one of two independent variables. E.g. 'kv0.9'.
-    force_calculation: <bool> 
+    force_calculation: <bool>
         True-> calculates force, false->calculates torque, angles, velocity.
-    joints: <list> 
+    joints: <list>
         If GRF then ['LF', 'LM', 'LH', 'RF', 'RM', 'RH'].
 
     Returns
     -------
-    stat_joints: <dict> 
+    stat_joints: <dict>
         Dictionary containing mean, standard deviaton and standard error of the given data.
     """
     stat_joints = {}
@@ -140,16 +142,16 @@ def calculate_statistics_joints(
 
 
 def calculate_stats(data):
-    """ Calculates, std, mean, and stderror of a given data. 
+    """ Calculates, std, mean, and stderror of a given data.
 
     Parameters
     ----------
-    data: <np.array> 
+    data: <np.array>
         Physical quantities of different gain values.
 
     Returns
     -------
-    stat_dict: <dict> 
+    stat_dict: <dict>
         Dictionary containing mean, standard deviaton and standard error of the given data
     """
     stat_dict = {}
@@ -163,37 +165,42 @@ def calculate_stats(data):
 def calculate_mse_joints(
     joint_data,
     ground_truth,
-    beg=100
+    starting_time,
+    time_step,
 ):
     """ Calculates MSE between the ground truth and given data.
 
     Parameters
     ----------
-    joint_data: <dict> 
+    joint_data: <dict>
         Dictionary containing the joint information (angle or velocity).
-    ground_truth: <dict> 
+    ground_truth: <dict>
         Dictionary containing the ground truth angle or velocity data.
-    beg: <int> 
+    beg: <int>
         Beginning of the process. Defaults to 100.
 
     Returns
     -------
-    error_df: <pd.DataFrame> 
+    error_df: <pd.DataFrame>
         Mean squared error between the baseline and the simulation values.
-    error_dict: <dictionary> 
+    error_dict: <dictionary>
         Mean squared error between the baseline and the simulation values.
     """
+    import matplotlib.pyplot as plt
     leg_mse = []
     error_dict = {leg: {} for leg in legs}
+    beg = int(np.round(starting_time / time_step))
+
     for gain_name in joint_data.keys():
         for leg in legs:
             mse = 0
             for joint in joints:
                 key_name = 'joint_' + leg + joint
-                joint_baseline = ground_truth[key_name][beg:]
+                joint_baseline = ground_truth[key_name]
                 joint_comparison = joint_data[gain_name][key_name][beg:]
-                #assert len(joint_baseline) == len(joint_comparison), "Two arrays should be of the same length"
-                
+                assert len(joint_baseline) == len(joint_comparison), "Two arrays should be of the same length {} and {}".format(
+                    len(joint_baseline), len(joint_comparison))
+
                 mse += mean_squared_error(joint_baseline, joint_comparison)
 
             error_dict[leg][gain_name] = mse / len(joints)
