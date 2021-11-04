@@ -50,10 +50,9 @@ NeuroMechFly is run in [PyBullet](https://github.com/bulletphysics/bullet3/tree/
 </p>
 
 Run the following commands on the terminal to reproduce the kinematic replay experiments:
-- ```$ run_kinematic_replay --behavior walking```  for locomotion on the spherical treadmill. To simulate foreleg/antennal grooming, change ```walking``` at the end of the command to ```grooming```.
-**Note:** Locomotion begins ~2.5 seconds into the simulation. Until then, the fly stands still.
+- ```$ run_kinematic_replay --behavior walking -it 100```  for locomotion on the spherical treadmill. To simulate foreleg/antennal grooming, change ```walking``` at the end of the command to ```grooming```.
 
-- ```$ run_kinematic_replay_ground --perturbation``` to simulate locomotion on the ground with perturbations enabled. Remove ```--perturbation``` to disable perturbations. To change the behavior to grooming, append ```--behavior grooming``` to the command.
+- ```$ run_kinematic_replay_ground --perturbation -it 100``` to simulate locomotion on the ground with perturbations enabled. Remove ```--perturbation``` to disable perturbations. To change the behavior to grooming, append ```--behavior grooming``` to the command.
 
 <p align="center">
   <img src="docs/images/perturbation.gif" width="450" />
@@ -72,11 +71,11 @@ Run the following commands on the terminal to reproduce the kinematic replay exp
 </p>
 
 Run the following commands on the terminal to reproduce the locomotor gait optimization experiments:
-- ```$ run_neuromuscular_control``` to run the latest generation of the last optimization run. By default, this script will read and run the files *FUN.txt* and *VAR.txt* under the *scripts/neuromuscular_optimization/* folder. To run different files, simply run ```$ run_neuromuscular_control -p <'path-of-the-optimization-results'> -g <'generation-number'> -s <'solution-type'>``` (solution type being fastest, medium, slowest, or a specific index). **The results path should be relative to the *scripts* folder.** To see the results that are already provided, go to the folder *scripts/neuromuscular_optimization/* and run: ```$ run_neuromuscular_control  -p optimization_results/run_Drosophila_example/ -g 59```.
+- ```$ run_neuromuscular_control --gui``` to run the latest generation of the last optimization run. By default, this script will read and run the files *FUN.txt* and *VAR.txt* under the *scripts/neuromuscular_optimization/* folder. To run different files, simply run ```$ run_neuromuscular_control --gui -p <'path-of-the-optimization-results'> -g <'generation-number'> -s <'solution-type'>``` (solution type being fastest, win_win, most_stable, or a specific index). **The results path should be relative to the *scripts* folder.** To see the results that are already provided, go to the folder *scripts/neuromuscular_optimization/* and run: ```$ run_neuromuscular_control --gui  -p optimization_results/run_Drosophila_example/ -g 99```. Append ```--plot``` to the command to visualize the Pareto front and the gait diagram of the solution.
 
 **NOTE:** At the end of each simulation run, a folder named according to the chosen optimization run will be created under the *scripts/neuromuscular_optimization* folder which contains the network parameters and physical quantities.
 
-- ```$ run_multiobj_optimization``` to run locomotor gait optimization from scratch. This script will create new files named *FUN.txt* and *VAR.txt* as well as a new folder containing the results from each generation in a folder named *optimization_results*. After optimization has completed, run ```$ run_neuromuscular_control``` to visualize the results from the last generation. To see different generations, follow the instructions above and select a different file.
+- ```$ run_multiobj_optimization``` to run locomotor gait optimization from scratch. This script will create new files named *FUN.txt* and *VAR.txt* as well as a new folder containing the results from each generation in a folder named *optimization_results*. After optimization has completed, run ```$ run_neuromuscular_control --gui``` to visualize the results from the last generation. To see different generations, follow the instructions above and select a different file.
 
 **NOTE:** Optimization results will be stored under *scripts/neuromuscular_optimization/optimization_results* inside a folder named according to the chosen optimization run.
 
@@ -167,32 +166,23 @@ plotting.plot_collision_diagram(path_data,
 ```python
 from NeuroMechFly.utils import plotting
 
-# e.g. type: fastest, slowest, medium, tradeoff and number: generation number of final
+# e.g. type: fastest, win_win, most_stable, or the individual, number: generation number
 path_data = '~/NeuroMechFly/scripts/neuromuscular_optimization/simulation_last_run/gen_<number>/sol_<type>'
 
-# Selecting right front leg for plotting intraleg angles(other options are LF, RM, LM, LH, or RH)
-leg = 'RF'
-
-
-#Selecting joint of interes (other options CTr, FTi, TiTa)
-joint = 'ThC'
+# Selecting the joint of interest (Femur-Tibia)
+link = 'Femur'
 
 # Defining time limits for the plot (seconds)
 start_time = 1.0
-stop_time = 2.0
+stop_time = 1.5
 
-plotting.plot_data(path_data,
-		   leg,
-		   joint_key=joint,
-		   plot_angles_intraleg=True,
-		   plot_torques=False,
-		   plot_grf=False,
-		   collisions_across=False,
-		   plot_muscles_act=True,
-		   plot_torques_muscles=True,
-		   plot_angles_interleg=True,
-		   begin=start_time,
-		   end=stop_time)
+plotting.plot_network_activity(
+    results_path=path_data,
+    link=link,
+    beg=start_time,
+    end=stop_time
+)
+
 ```
 ---
 
