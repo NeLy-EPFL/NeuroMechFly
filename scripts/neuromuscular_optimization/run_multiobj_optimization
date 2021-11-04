@@ -1,5 +1,14 @@
 #!/usr/bin/env python
-""" Script to run NSGA-II multip objective optimization. """
+"""
+Script to run NSGA-II multip objective optimization.
+
+In the command line, run $ run_multiobj_optimization --gui
+To select the size of the population append '--pop' to the command you run.
+To select the number of the generations append '--gen' to the command you run.
+To set the number of cores that the script will run, add --process <core-number>
+
+To make further changes to the simulation, see 'sim_options' on line 114.
+"""
 
 import os
 import argparse
@@ -28,8 +37,8 @@ neuromechfly_path = Path(pkgutil.get_loader("NeuroMechFly").get_filename()).pare
 def parse_args():
     """ Parse arguments from command line """
     parser = argparse.ArgumentParser()
-    parser.add_argument('-g', '--gen', type=int, default=60)
-    parser.add_argument('-p', '--pop', type=int, default=30)
+    parser.add_argument('-g', '--gen', type=int, default=200)
+    parser.add_argument('-p', '--pop', type=int, default=60)
     parser.add_argument('-n', '--process', type=int, default=8)
     parser.set_defaults(gui=False, profile=False)
     return parser.parse_args()
@@ -69,9 +78,9 @@ if __name__ == "__main__":
         'scripts/neuromuscular_optimization'
     )
 
-    if os.path.exists(os.path.join(output_dir, 'optimization_results/PENALTIES.txt')):
-        os.remove(os.path.join(output_dir, 'optimization_results/PENALTIES.txt'))
-        print('Removing penalties file as it already exists..')
+    # if os.path.exists(os.path.join(output_dir, 'optimization_results/PENALTIES.txt')):
+    #     os.remove(os.path.join(output_dir, 'optimization_results/PENALTIES.txt'))
+    #     print('Removing penalties file as it already exists..')
 
     # Results Dumping
     result_path = 'optimization_results/run_{}_var_{}_obj_{}_pop_{}_gen_{}_{}'.format(
@@ -120,7 +129,7 @@ if __name__ == "__main__":
     print_variables_to_file(front,  os.path.join(output_dir,'VAR.txt'))
 
     # Save penalties into separate files
-    separate_penalties_into_gens(n_gen, n_pop, os.path.join(output_dir, result_path))
+    # separate_penalties_into_gens(n_gen, n_pop, os.path.join(output_dir, result_path))
     # Move the config file inside the results directory
     Path(os.path.join(output_dir, 'optimization_results/CONFIG.yaml')).rename(os.path.join(output_dir, result_path, 'CONFIG.yaml'))
 
