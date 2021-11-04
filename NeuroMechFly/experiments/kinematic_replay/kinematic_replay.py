@@ -47,15 +47,6 @@ class DrosophilaSimulation(BulletSimulation):
             meters=1000,
             kilograms=1000)):
 
-        # Add table for mechanical work and thermal loss
-        self.analysis_data = container.add_namespace('analysis')
-        self.analysis_data.add_table('mechanical_work')
-        self.analysis_data.add_table('thermal_loss')
-        self.analysis_data.add_table('static_stability')
-        self.analysis_data.mechanical_work.add_parameter('mechanical_work')
-        self.analysis_data.thermal_loss.add_parameter('thermal_loss')
-        self.analysis_data.static_stability.add_parameter('static_stability')
-
         self.last_draw = []
         self.grf = []
         self.kp = kp
@@ -148,15 +139,7 @@ class DrosophilaSimulation(BulletSimulation):
             Time running in the physics engine.
         """
 
-        # Update logs for physical quantities
-        self.update_data_logs()
-
         # Setting the joint angular positions of the fixed joints
-        if not self.fixed_positions:
-            self.fixed_positions = {
-                'joint_LAntenna': 35,
-                'joint_RAntenna': -35,
-            }
         for joint_name, joint_pos in self.fixed_positions.items():
             self.pose[self.joint_id[joint_name]] = np.deg2rad(joint_pos)
 
@@ -176,6 +159,7 @@ class DrosophilaSimulation(BulletSimulation):
                 p.resetJointState(
                     self.animal, joint,
                     targetValue=self.pose[joint],
+                    targetVelocity=self.vel[joint]
                 )
 
         # Control the joints through position controller
@@ -196,24 +180,17 @@ class DrosophilaSimulation(BulletSimulation):
         if self.draw_collisions:
             draw = []
             if self.behavior == 'walking':
-                # Only take into account the ground sensors
-                #ground_reaction_force = self.contact_normal_force[:len(
-                #    self.ground_contacts), :]
-                #links_contact = np.where(
-                #    np.linalg.norm(
-                #        ground_reaction_force,
-                #        axis=1) > 0)[0]
                 links_contact = self.get_current_contacts()
                 link_names = list(self.link_id.keys())
                 link_ids = list(self.link_id.values())
                 for i in links_contact:
-                    link1 = link_names[link_ids.index(i)][:-1]
+                    link1 = link_names[link_ids.index(i)]
                     if link1 not in draw:
                         draw.append(link1)
-                        self.change_color(link1 + '5', self.color_collision)
+                        self.change_color(link1, self.color_collision)
                 for link in self.last_draw:
                     if link not in draw:
-                        self.change_color(link + '5', self.color_legs)
+                        self.change_color(link, self.color_legs)
 
             elif self.behavior == 'grooming':
                 # Don't consider the ground sensors
@@ -256,113 +233,3 @@ class DrosophilaSimulation(BulletSimulation):
 
     def optimization_check(self):
         """ Optimization check. """
-
-    def compute_static_stability(self, draw_polygon=False):
-        """ Computes static stability  of the model.
-
-        Parameters
-        ----------
-        self :
-
-        draw_polygon: <bool>
-            Draws the stance polygon and center of mass if True
-
-        Returns
-        -------
-        static_stability : <float>
-            Value of static stability for the fly
-
-        """
-        # Initialize static stability
-        static_stability = -10.0  # Why 10?
-        # Ground contacts
-        current_ground_contact_links = self.get_current_contacts()
-        contact_points = [
-            self.get_link_position(f"{side}Tarsus5") * self.units.meters + [0, 0, .2]
-            for side in ("RF", "RM", "RH", "LH", "LM", "LF")
-            if any(
-                self.link_id[f"{side}Tarsus{num}"] in current_ground_contact_links
-                for num in range(1, 6)
-            )
-        ]
-        contact_points = [[]] if not contact_points else contact_points
-        assert len(contact_points) <= 6
-        # compute center of mass of the model
-        center_of_mass = self.center_of_mass
-
-        # Make polygon from contact points
-        # TODO: Refactor
-        try:
-            polygon = Polygon(LinearRing(contact_points))
-        except ValueError:
-            return static_stability
-        # Get polygon exterior coords
-        coords = polygon.exterior.coords
-        # Compute distances to COM
-        # NOTE : This only works for flat cases. Not for inclined walking
-        distances = [
-            ds.compute_perpendicular_distance(
-                ds.compute_line_coefficients(
-                    coords[idx], coords[idx + 1]
-                ),
-                center_of_mass
-            )
-            for idx in range(len(coords) - 1)
-        ]
-        # Check if COM is within the polygon
-        com_inside = polygon.contains(Point(center_of_mass))
-        # Compute static_stability
-        min_distance = np.min(distances)
-        static_stability = min_distance if com_inside else -1 * min_distance
-        # DEBUG : Drawing
-        if draw_polygon:
-            # Draw the polygon
-            num_coords = len(coords)
-            for idx, line_id in enumerate(self.draw_ss_line_ids):
-                from_coord, to_coord = (0, 0, 0), (0, 0, 0)
-                if idx < num_coords - 1:
-                    from_coord, to_coord = coords[idx], coords[idx + 1]
-                p.addUserDebugLine(
-                    from_coord, to_coord, lineColorRGB=(1, 0, 0),
-                    replaceItemUniqueId=line_id
-                )
-            # Draw a vertical line from center of mass
-            color = (0, 1, 0) if com_inside else (1, 0, 0)
-            p.addUserDebugLine(
-                center_of_mass + [0, 0, -1e0],
-                center_of_mass + [0, 0, 1e0],
-                lineColorRGB=color,
-                replaceItemUniqueId=self.draw_com_line_vert_id
-            )
-            # Draw a horizontal line from com to intersecting line
-            p.addUserDebugLine(
-                center_of_mass + [0, 0, -1e0],
-                list(ds.compute_perpendicular_point(
-                    np.array(coords[int(np.argmin(distances))])[:2],
-                    np.array(coords[int(np.argmin(distances)) + 1])[:2],
-                    center_of_mass[:2],
-                )) + [np.array(coords[int(np.argmin(distances))])[-1]],
-                lineColorRGB=(0, 1, 0),
-                replaceItemUniqueId=self.draw_com_line_horz_id
-            )
-        return static_stability
-
-    @property
-    def mechanical_work(self):
-        """ Mechanical work done by the animal. """
-        return self.compute_mechanical_work(
-            np.array(self.joint_torques),
-            np.array(self.joint_velocities)
-        )
-
-    @property
-    def thermal_loss(self):
-        """ Thermal loss for the animal. """
-        return self.compute_thermal_loss(np.array(self.joint_torques))
-
-    def update_data_logs(self):
-        """ Update the logs that are implemented in this class. """
-        self.analysis_data.mechanical_work.values = np.asarray(self.mechanical_work, dtype='double').reshape((1,))
-        self.analysis_data.thermal_loss.values = np.asarray(self.thermal_loss, dtype='double').reshape((1,))
-        self.analysis_data.static_stability.values = np.asarray(self.compute_static_stability(), dtype='double').reshape((1,))
-

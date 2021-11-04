@@ -86,20 +86,24 @@ class DrosophilaSimulation(BulletSimulation):
             self, container, sim_options, kp, kv,
             angles_path, velocity_path,
             add_perturbation,
+            starting_time = 0.0,
+            fixed_positions = None,
             units=SimulationUnitScaling(meters=1000, kilograms=1000)
     ):
         super().__init__(container, units, **sim_options)
+        self.last_draw = []
         self.kp = kp
         self.kv = kv
         self.pose = [0] * self.num_joints
         self.vel = [0] * self.num_joints
-        self.angles = self.load_data(angles_path)
-        self.velocities = self.load_data(velocity_path)
+        self.angles = self.load_data(angles_path,starting_time)
+        self.velocities = self.load_data(velocity_path,starting_time)
         self.impulse_sign = 1
         self.add_perturbation = add_perturbation
         self.pball = None
+        self.fixed_positions = fixed_positions
 
-    def load_data(self, data_path):
+    def load_data(self, data_path, starting_time):
         """ Function that loads the pickle format joint angle or velocity gile.
 
         Parameters
@@ -124,11 +128,12 @@ class DrosophilaSimulation(BulletSimulation):
         converted_dict = {}
         try:
             data = pd.read_pickle(data_path)
+            start = int(np.round(starting_time/self.time_step))
             for leg, joints in data.items():
                 for joint_name, val in joints.items():
                     new_name = 'joint_' + leg[:2] + \
                         names_equivalence[joint_name]
-                    converted_dict[new_name] = val
+                    converted_dict[new_name] = val[start:]
             return converted_dict
         except BaseException:
             FileNotFoundError(f"File {data_path} not found!")
@@ -168,13 +173,7 @@ class DrosophilaSimulation(BulletSimulation):
                 )
                 p.changeDynamics(self.pball, -1, 0.3)
 
-        # Setting the joint angular positions joints
-        # Setting the joint angular positions of the fixed joints
-        fixed_positions = {
-            'joint_LAntenna': 35,
-            'joint_RAntenna': -35,
-        }
-        for joint_name, joint_pos in fixed_positions.items():
+        for joint_name, joint_pos in self.fixed_positions.items():
             self.pose[self.joint_id[joint_name]] = np.deg2rad(joint_pos)
 
         # Setting the joint angular positions of leg DOFs based on pose
@@ -187,33 +186,77 @@ class DrosophilaSimulation(BulletSimulation):
         for joint_name, joint_vel in self.velocities.items():
             self.vel[self.joint_id[joint_name]] = joint_vel[t]
 
-        # Leg joint indices
-        joint_control_front = list(np.arange(17, 23)) + list(np.arange(56, 63))
-        joint_control_middle = list(
-            np.arange(42, 49)) + list(np.arange(81, 88))
-        joint_control_hind = list(np.arange(28, 35)) + list(np.arange(67, 74))
-        joint_control = joint_control_hind + joint_control_middle + joint_control_front
+
+        # Reset joint states to prevent explosion at high gains
+        if t==0:
+            for joint in range(self.num_joints):
+                p.resetJointState(
+                    self.animal, joint,
+                    targetValue=self.pose[joint],
+                    targetVelocity=self.vel[joint]
+                )
 
         # Control the joints through position controller
         # Velocity can be discarded if not available and gains can be changed
         for joint in range(self.num_joints):
-            if joint in joint_control:
-                p.setJointMotorControl2(
-                    self.animal, joint,
-                    controlMode=p.POSITION_CONTROL,
-                    targetPosition=self.pose[joint],
-                    targetVelocity=self.vel[joint],
-                    positionGain=self.kp,
-                    velocityGain=self.kv,
-                    maxVelocity=1e8
-                )
-            else:
-                p.setJointMotorControl2(
-                    self.animal, joint,
-                    controlMode=p.POSITION_CONTROL,
-                    targetPosition=self.pose[joint],
-                )
+            p.setJointMotorControl2(
+                self.animal, joint,
+                controlMode=p.POSITION_CONTROL,
+                targetPosition=self.pose[joint],
+                targetVelocity=self.vel[joint],
+                positionGain= self.kp,
+                velocityGain=self.kv,
+                maxVelocity=1e8
+            )
             p.changeDynamics(self.animal, joint, maxJointVelocity=1e8)
+
+        # Change the color of the colliding body segments
+        if self.draw_collisions:
+            draw = []
+            if self.behavior == 'walking':
+                links_contact = self.get_current_contacts()
+                link_names = list(self.link_id.keys())
+                link_ids = list(self.link_id.values())
+                for i in links_contact:
+                    link1 = link_names[link_ids.index(i)]
+                    if link1 not in draw:
+                        draw.append(link1)
+                        self.change_color(link1, self.color_collision)
+                for link in self.last_draw:
+                    if link not in draw:
+                        self.change_color(link, self.color_legs)
+
+            elif self.behavior == 'grooming':
+                # Don't consider the ground sensors
+                collision_forces = self.contact_normal_force[len(
+                    self.ground_contacts):, :]
+                links_contact = np.where(
+                    np.linalg.norm(collision_forces, axis=1) > 0
+                )[0]
+                for i in links_contact:
+                    link1 = self.self_collisions[i][0]
+                    link2 = self.self_collisions[i][1]
+                    if link1 not in draw:
+                        draw.append(link1)
+                        self.change_color(link1, self.color_collision)
+                    if link2 not in draw:
+                        draw.append(link2)
+                        self.change_color(link2, self.color_collision)
+                for link in self.last_draw:
+                    if link not in draw:
+                        if 'Antenna' in link:
+                            self.change_color(link, self.color_body)
+                        else:
+                            self.change_color(link, self.color_legs)
+            self.last_draw = draw
+
+
+    def change_color(self, identity, color):
+        """ Change color of a given body segment. """
+        p.changeVisualShape(
+            self.animal,
+            self.link_id[identity],
+            rgbaColor=color)
 
     def feedback_to_controller(self):
         """

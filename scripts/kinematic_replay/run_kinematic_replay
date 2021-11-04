@@ -153,7 +153,6 @@ def main(args):
         velocity_path=velocity_path,
         starting_time=starting_time,
         fixed_positions=fixed_positions,
-        analysis_record=False # Set True to record stability, mechanical work etc.
     )
     # Run the simulation
     animal.run(optimization=False)
