@@ -31,6 +31,7 @@ if __name__ == "__main__":
         '--perturbation',
         default=False,
         action='store_true')
+    parser.add_argument('-it', '--solver_iteration', type=int, default=1000)
     args = parser.parse_args()
 
     behavior = args.behavior.lower()
@@ -124,6 +125,7 @@ if __name__ == "__main__":
         'num_substep': 5,
         'contactERP': 0.1,
         'globalCFM': 3.0,
+        'solver_iterations': args.solver_iteration,
     }
 
     # Paths of the position and velocity data

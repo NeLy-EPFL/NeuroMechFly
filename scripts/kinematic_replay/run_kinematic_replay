@@ -31,6 +31,7 @@ def parse_args():
         dest="profile"
     )
     parser.add_argument('--record', dest='record', action='store_true')
+    parser.add_argument('-it', '--solver_iteration', type=int, default=1000)
     args = parser.parse_args()
     return args
 
@@ -124,14 +125,14 @@ def main(args):
         'moviespeed': 0.2,  # Speed of the recorded movie
         'slow_down': False,
         'sleep_time': 0.001,
-        'rot_cam': False, # Set True to rate the camera
+        'rot_cam': True, # Set True to rate the camera
         'behavior': behavior,
         'ground': 'ball',
         'ball_mass': 54.6e-6,
         'ball_friction_coef': 1.3,
         'contactERP': 0.1,
         'globalCFM': 3.0,
-        'numSolverIterations': 1000,
+        'solver_iterations': args.solver_iteration,
     }
 
     # Paths of the position and velocity data
