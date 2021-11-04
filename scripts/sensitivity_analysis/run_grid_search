@@ -1,5 +1,11 @@
 #!/usr/bin/env python
-""" Perform grid search for sensitivity analysis """
+"""
+Perform grid search for sensitivity analysis.
+
+This script will run the kinematic replay for each controllar gain pair and
+save the results in the data/sensitivity_analysis folder in a pkl format.
+
+"""
 
 import os
 import pkgutil
