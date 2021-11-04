@@ -148,6 +148,7 @@ class DrosophilaSimulation(BulletSimulation):
     def muscle_controller(self):
         """ Muscle controller. """
         utorque = self.units.torques
+
         torques = {
             self.joint_id[key] : value.compute_torque(only_passive=False)*utorque
             for key, value in self.active_muscles.items()
@@ -171,18 +172,19 @@ class DrosophilaSimulation(BulletSimulation):
         # Change the color of the colliding body segments
         if self.draw_collisions:
             draw = []
-            links_contact = np.where(
-                np.linalg.norm(
-                    self.ground_reaction_forces, axis=1
-                ) > 0)[0]
+
+            links_contact = self.get_current_contacts()
+            link_names = list(self.link_id.keys())
+            link_ids = list(self.link_id.values())
             for i in links_contact:
-                link1 = self.ground_contacts[i][:-1]
+                link1 = link_names[link_ids.index(i)]
                 if link1 not in draw:
                     draw.append(link1)
-                    self.change_color(link1 + '5', self.color_collision)
+                    self.change_color(link1, self.color_collision)
             for link in self.last_draw:
                 if link not in draw:
-                    self.change_color(link + '5', self.color_legs)
+                    self.change_color(link, self.color_legs)
+
             self.last_draw = draw
 
     def change_color(self, identity, color):
@@ -265,7 +267,7 @@ class DrosophilaSimulation(BulletSimulation):
         point_d = np.array([x1+a*dx, y1+a*dy])
         return point_d
 
-    def compute_static_stability(self, draw_polygon=False):
+    def compute_static_stability(self, draw_polygon=True):
         """ Computes static stability  of the model.
 
         Parameters
@@ -541,32 +543,10 @@ class DrosophilaSimulation(BulletSimulation):
         """
         norm_fun = (fun - np.min(fun, axis=0)) / \
             (np.max(fun, axis=0) - np.min(fun, axis=0))
-
         if criteria == 'fastest':
             return np.argmin(norm_fun[:, 0])
-        if criteria == 'slowest':
-            return np.argmax(norm_fun[:, 0])
-        if criteria == 'tradeoff':
+        if criteria == 'most_stable':
+            return np.argmin(norm_fun[:, 1])
+        if criteria == 'win_win':
             return np.argmin(np.sqrt(norm_fun[:, 0]**2 + norm_fun[:, 1]**2))
-        if criteria == 'medium':
-            mida = mid(norm_fun[:, 0])
-            midb = mid(norm_fun[:, 1])
-            return np.argmin(
-                np.sqrt((norm_fun[:, 0] - mida)**2 + (norm_fun[:, 1] - midb)**2))
         return int(criteria)
-
-
-def mid(array):
-    """ Middle between min and max of array x
-
-    Parameters
-    ----------
-    array: <array>
-        Input array
-
-    Returns
-    -------
-    out : (max(x)+min(x))*0.5
-
-    """
-    return (max(array) + min(array)) * 0.5

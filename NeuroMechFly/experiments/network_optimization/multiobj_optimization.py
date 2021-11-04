@@ -361,7 +361,7 @@ class DrosophilaEvolution(FloatProblem):
         penalties = {}
 
         duty_factor = fly.duty_factor
-        # Keep the duty factor between 45% and 90%
+        # Keep the duty factor between 40% and 90%
         # Taken from Mendes et al. 2012
         penalties['duty_factor'] = np.count_nonzero(duty_factor < 0.4) + np.count_nonzero(duty_factor > 0.90)
 
