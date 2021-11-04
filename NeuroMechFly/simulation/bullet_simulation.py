@@ -62,8 +62,10 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         self.behavior = kwargs.get('behavior', None)
         self.ground = kwargs.get('ground', 'ball')
         # Ball properties
-        self.ball_density = kwargs.get('ball_density', 96) * (self.units.kilograms / self.units.volume) # kg/m^3
-        self.ball_radius = kwargs.get('ball_radius', 5.0e-3) # 1x (real size 10mm)
+        self.ball_density = kwargs.get(
+            'ball_density', 96) * (self.units.kilograms / self.units.volume)  # kg/m^3
+        self.ball_radius = kwargs.get(
+            'ball_radius', 5.0e-3)  # 1x (real size 10mm)
         self.ball_mass = kwargs.get('ball_mass', 0) * self.units.kilograms
         self.ball_friction_coef = kwargs.get('ball_friction_coef', 10)
         self.enable_concave_mesh = kwargs.get(
@@ -189,10 +191,10 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             numSolverIterations=self.solver_iterations,
             numSubSteps=self.num_substep,
             solverResidualThreshold=1e-10,
-            erp = 0.0,
+            erp=0.0,
             contactERP=self.contactERP,
             frictionERP=0.0,
-            globalCFM = self.globalCFM,
+            globalCFM=self.globalCFM,
             reportSolverAnalytics=1
         )
 
@@ -217,7 +219,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             try:
                 # Load ball info from fictrac data
                 self.ball_radius, ball_pos = self.load_ball_info()
-            except:
+            except BaseException:
                 # If not provided, then set the ball pos to None
                 ball_pos = None
 
@@ -227,7 +229,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                 self.ball_mass,
                 self.ball_friction_coef,
                 ball_pos
-                )
+            )
 
             # When ball is used the plane id is 2 as the ball has 3 links
             self.link_plane = 2
@@ -440,11 +442,10 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             p.changeDynamics(self.animal, njoint, angularDamping=0.0)
             p.changeDynamics(self.animal, njoint, jointDamping=0.0)
 
-        #for contact in self.ground_contacts:
+        # for contact in self.ground_contacts:
         #    if 'Tarsus5' not in contact and 'Tarsus4' not in contact:
         #        print(contact)
         #        p.changeDynamics(self.animal, self.link_id[contact], lateralFriction=0.0)
-
 
         self.total_mass = 0.0
 
@@ -543,15 +544,15 @@ class BulletSimulation(metaclass=abc.ABCMeta):
     def add_ball(self, radius, density, mass, ball_friction_coef, position):
         """ Create a ball with specified radius """
         ball_radius = radius * self.units.meters
-        volume = 4/3 * np.pi * ball_radius**3
+        volume = 4 / 3 * np.pi * ball_radius**3
         calculated_mass = density * volume
         # Assert if calculated and measured ball mass are not the same
 
         if mass != 0:
             # TODO: Decide the threshold here, it is 8 mg now
-            assert abs(mass - calculated_mass) < 8.0e-6 * self.units.kilograms, "Calculated ({} kg) and measured ({} kg) ball masses do not match!".format(
-                calculated_mass / self.units.kilograms, mass / self.units.kilograms
-            )
+            assert abs(
+                mass - calculated_mass) < 8.0e-6 * self.units.kilograms, "Calculated ({} kg) and measured ({} kg) ball masses do not match!".format(
+                calculated_mass / self.units.kilograms, mass / self.units.kilograms)
         else:
             mass = calculated_mass
 
@@ -559,7 +560,8 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             p.GEOM_SPHERE,
             radius=ball_radius / 100,
         )
-        col_sphere_id = p.createCollisionShape(p.GEOM_SPHERE, radius=ball_radius)
+        col_sphere_id = p.createCollisionShape(
+            p.GEOM_SPHERE, radius=ball_radius)
 
         mass_parent = 0
         visual_shape_id = -1
@@ -577,11 +579,15 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                 ) * self.units.meters + self.model_offset
             else:
                 base_position = np.array(
-                    [-0.09e-3, -0.0e-3,-5.11e-3]
+                    [-0.09e-3, -0.0e-3, -5.11e-3]
                 ) * self.units.meters + self.model_offset
         else:
-            base_position = np.array(position) * self.units.meters + self.model_offset
-            print("Adding ball position from file:", base_position, self.model_offset)
+            base_position = np.array(position) * \
+                self.units.meters + self.model_offset
+            print(
+                "Adding ball position from file:",
+                base_position,
+                self.model_offset)
             print("Adding ball radius from file:", ball_radius)
 
         # Create the sphere
@@ -592,7 +598,8 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         link_positions = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
         link_orientations = [[0, 0, 0, 1], [0, 0, 0, 1], [0, 0, 0, 1]]
         link_inertial_frame_positions = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
-        link_inertial_frame_orientations = [[0, 0, 0, 1], [0, 0, 0, 1], [0, 0, 0, 1]]
+        link_inertial_frame_orientations = [
+            [0, 0, 0, 1], [0, 0, 0, 1], [0, 0, 0, 1]]
         indices = [0, 1, 2]
         joint_types = [p.JOINT_REVOLUTE, p.JOINT_REVOLUTE, p.JOINT_REVOLUTE]
         axis = [[0, -1, 0], [1, 0, 0], [0, 0, -1]]
@@ -688,13 +695,13 @@ class BulletSimulation(metaclass=abc.ABCMeta):
     def ball_velocities(self):
         """ Return the ball angular velocity. """
         return tuple(
-          p.getLinkState(
+            p.getLinkState(
                 self.plane,
                 2,
                 computeLinkVelocity=1
-          )[7]
+            )[7]
         )
-        #return tuple(
+        # return tuple(
         #    state[1] / self.units.velocity for state in p.getJointStates(
         #        self.plane,
         #        np.arange(0, p.getNumJoints(self.plane))
@@ -792,7 +799,6 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             self.sim_data.ball_velocities.values = np.asarray(
                 self.ball_velocities).flatten()
 
-
     @abc.abstractmethod
     def controller_to_actuator(self):
         """
@@ -843,7 +849,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         -------
         out :
         """
-        convert_time = lambda ts: int(ts / self.time_step)
+        def convert_time(ts): return int(ts / self.time_step)
         base = np.array(self.base_position) * self.units.meters
 
         # Camera
@@ -910,7 +916,8 @@ class BulletSimulation(metaclass=abc.ABCMeta):
 
         if self.gui == p.GUI and self.rotate_camera and self.behavior is None:
             base = np.array(self.base_position) * self.units.meters
-            yaw = (t - convert_time(2.5)) / (self.run_time/self.time_step) * 180
+            yaw = (t - convert_time(2.5)) / \
+                (self.run_time / self.time_step) * 180
             pitch = -10
             p.resetDebugVisualizerCamera(
                 self.camera_distance,
@@ -922,16 +929,18 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             if self.gui == p.DIRECT:
                 base = np.array(self.base_position) * self.units.meters
                 matrix = p.computeViewMatrixFromYawPitchRoll(
-                  base, self.camera_distance, 5, -10, 0, 2
+                    base, self.camera_distance, 5, -10, 0, 2
                 )
-                projectionMatrix = [1.0825318098068237, 0.0, 0.0, 0.0, 0.0, 1.732050895690918, 0.0, 0.0, 0.0, 0.0,-1.0002000331878662, -1.0, 0.0, 0.0, -0.020002000033855438, 0.0]
+                projectionMatrix = [1.0825318098068237, 0.0, 0.0, 0.0, 0.0, 1.732050895690918, 0.0,
+                                    0.0, 0.0, 0.0, -1.0002000331878662, -1.0, 0.0, 0.0, -0.020002000033855438, 0.0]
                 img = p.getCameraImage(1024,
-                                        768,
-                                        viewMatrix=matrix,
-                                        projectionMatrix=projectionMatrix)
-            if self.gui == p.GUI: #and t % 10 == 0:
+                                       768,
+                                       viewMatrix=matrix,
+                                       projectionMatrix=projectionMatrix)
+            if self.gui == p.GUI:  # and t % 10 == 0:
                 # TODO: change to frame rate
-                img = p.getCameraImage(1024, 768, renderer=p.ER_BULLET_HARDWARE_OPENGL)
+                img = p.getCameraImage(
+                    1024, 768, renderer=p.ER_BULLET_HARDWARE_OPENGL)
                 rgb_array = img[2]
                 im = Image.fromarray(rgb_array)
 
