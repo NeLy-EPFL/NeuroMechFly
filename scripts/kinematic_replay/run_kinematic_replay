@@ -25,15 +25,15 @@ def parse_args():
         dest="profile"
     )
     parser.add_argument('-erp', '--contactERP', default='0.1')
-    parser.add_argument('-cfm', '--globalCFM', default='5.0')
+    parser.add_argument('-cfm', '--globalCFM', default='3.0')
     args = parser.parse_args()
     return args
 
 def main(args):
     """ Main function """
-    run_time = 6.0
+    run_time = 4.0
     time_step = 5e-4
-    starting_time = 0.5
+    starting_time = 0.0
     behavior = args.behavior.lower()
 
     # Setting up the collision and ground sensors
@@ -62,7 +62,7 @@ def main(args):
     #: Setting the fixed joint angles to default values, can be altered to change the appearance of the fly
     
     fixed_positions = {
-            'revolute_support_1': 3.6,
+            'revolute_support_1': 0,
             'joint_A3': -15,
             'joint_A4': -15,
             'joint_A5': -15,
@@ -82,11 +82,11 @@ def main(args):
     # Setting up the paths for the SDF and POSE files
     model_path = os.path.join(
         neuromechfly_path,
-        'data/design/sdf/neuromechfly_noLimits.sdf')
-        #'data/design/sdf/neuromechfly_kinematic_replay.sdf')
+        'data/design/sdf/neuromechfly_frontleg_antenna_cylinder.sdf')
+        #'data/design/sdf/neuromechfly_noLimits.sdf')
     pose_path = os.path.join(
         neuromechfly_path,
-        'data/config/pose/pose_default.yaml')
+        'data/config/pose/pose_stretch.yaml')
     results_path = os.path.join(
         neuromechfly_path,
         'scripts/kinematic_replay',
@@ -122,11 +122,9 @@ def main(args):
         'rot_cam': False,  # Set true to rotate the camera automatically
         'behavior': behavior,
         'ground': 'ball',
-        'ball_info': True,
+        'ball_info': False,
         'ball_mass': 54.6e-6,
-        'ball_friction_coef': 1.3,
-        'contactERP': float(args.contactERP),
-        'globalCFM': float(args.globalCFM)
+        'ground_friction_coef': 1.3,
     }
 
     # Paths of the position and velocity data

@@ -85,7 +85,7 @@ class DrosophilaSimulation(BulletSimulation):
             (0., 0., 0.), (0., 0., 0.), lineColorRGB=[1, 0, 0]
         )
 
-    def load_data(self, data_path,starting_time):
+    def load_data(self, data_path, starting_time):
         """ Function that loads the pickle format joint angle or velocity gile.
 
         Parameters
@@ -199,16 +199,18 @@ class DrosophilaSimulation(BulletSimulation):
                 link_names = list(self.link_id.keys())
                 link_ids = list(self.link_id.values())
                 for i in links_contact:
-                    link1 = link_names[link_ids.index(i)][:-1]
+                    link1 = link_names[link_ids.index(i)]#[:-1]
                     if link1 not in draw:
                         draw.append(link1)
-                        self.change_color(link1 + '5', self.color_collision)
+                        #self.change_color(link1 + '5', self.color_collision)
+                        self.change_color(link1, self.color_collision)
                 for link in self.last_draw:
                     if link not in draw:
-                        self.change_color(link + '5', self.color_legs)
+                        #self.change_color(link + '5', self.color_legs)
+                        self.change_color(link, self.color_legs)
 
             elif self.behavior == 'grooming':
-                # Don't consider the ground sensors
+                # Don't consider the ground sensors
                 collision_forces = self.contact_normal_force[len(
                     self.ground_contacts):, :]
                 links_contact = np.where(
@@ -230,6 +232,30 @@ class DrosophilaSimulation(BulletSimulation):
                         else:
                             self.change_color(link, self.color_legs)
             self.last_draw = draw
+            
+            '''
+                links_contact = self.get_current_contacts()
+                link_names = list(self.link_id.keys())
+                link_ids = list(self.link_id.values())
+                for i in links_contact:
+                    link = link_names[link_ids.index(i)]
+                    print(link)
+                    #link1 = self.self_collisions[i][0]
+                    #link2 = self.self_collisions[i][1]
+                    #if link1 not in draw:
+                    #    draw.append(link1)
+                    #    self.change_color(link1, self.color_collision)
+                    if link not in draw and link in self.self_collisions:
+                        draw.append(link)
+                        self.change_color(link, self.color_collision)
+                for link in self.last_draw:
+                    if link not in draw:
+                        if 'Antenna' in link:
+                            self.change_color(link, self.color_body)
+                        else:
+                            self.change_color(link, self.color_legs)
+            self.last_draw = draw
+            '''
 
     def change_color(self, identity, color):
         """ Change color of a given body segment. """

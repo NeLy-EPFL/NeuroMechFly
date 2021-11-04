@@ -25,8 +25,9 @@ if __name__ == "__main__":
         action='store_true')
     args = parser.parse_args()
 
-    run_time = 8.0
-    time_step = 0.001
+    run_time = 6.5
+    time_step = 5e-4
+    starting_time = 0.0
     behavior = args.behavior.lower()
 
     # Setting up the collision and ground sensors
@@ -52,27 +53,57 @@ if __name__ == "__main__":
         p +
         name for s in side for p in pos for name in leg_segments if name != 'Tibia']
 
+    #: Setting the fixed joint angles to default values, can be altered to change the appearance of the fly
+    
+    fixed_positions = {
+            'joint_A3': -15,
+            'joint_A4': -15,
+            'joint_A5': -15,
+            'joint_A6': -15,
+            'joint_LAntenna': 35,
+            'joint_RAntenna': -35,
+            'joint_Rostrum': 90,
+            'joint_Haustellum': -60,
+            'joint_LWing_roll': 90,
+            'joint_LWing_yaw': -17,
+            'joint_RWing_roll': -90,
+            'joint_RWing_yaw': 17,
+            'joint_Head': 10
+        }
+
     # Setting up the paths for the SDF and POSE files
     model_path = os.path.join(
         neuromechfly_path,
-        'data/design/sdf/neuromechfly_kinematic_replay_no_support.sdf')
+        'data/design/sdf/neuromechfly_noLimits_ground.sdf')
     pose_path = os.path.join(
         neuromechfly_path,
-        'data/config/pose/pose_tripod.yaml')
+        'data/config/pose/pose_stretch.yaml')
+    results_path = os.path.join(
+        neuromechfly_path,
+        'scripts/kinematic_replay',
+        'simulation_results',
+        'kinematic_replay_ground_{}_{}'.format(
+            behavior,
+            datetime.now().strftime('%y%m%d_%H%M%S')
+        ))
+    if not os.path.exists(results_path):
+        os.makedirs(results_path)
     # Simulation options
     sim_options = {
-        "headless": False,
+        "headless": True,
         "model": model_path,
         "pose": pose_path,
-        "model_offset": [0, 0., 0.5e-3],
+        "model_offset": [0, 0., 1.2e-3],
         "run_time": run_time,
         "time_step": time_step,
         "base_link": 'Thorax',
         "ground_contacts": ground_contact,
         "self_collisions": self_collision,
         "record": False, # Set True to record the simulation
+        "save_frames": False,
+        "results_path": results_path,
         'camera_distance': 7.0,
-        'track': False, # Set True to track the animal automatically
+        'track': True, # Set True to track the animal automatically
         'moviename': './kinematic_replay_ground.mp4',
         'moviespeed': 0.2, # Speed of the recorded movie
         'slow_down': False,
@@ -80,13 +111,15 @@ if __name__ == "__main__":
         'rot_cam': False,
         'behavior': behavior, # Set true to rotate the camera automatically
         'ground': 'floor',
-        'num_substep': 5
+        'ground_friction_coef': 0.1
     }
 
     # Paths of the position and velocity data
+    #data_path = "/home/lobato/Desktop/DF3D_data/210902_PR_Fly3_001_beh_behData/images/df3d"
     data_path = os.path.join(
         neuromechfly_path,
-        f'data/joint_tracking/{behavior}/df3d')
+        f'data/joint_tracking/{behavior}/fly2/df3d')
+    
     angles_path = glob.glob(data_path + '/joint_angles*.pkl')[0]
     velocity_path = glob.glob(data_path + '/joint_velocities*.pkl')[0]
     # Initialize the container
@@ -99,17 +132,13 @@ if __name__ == "__main__":
         angles_path=angles_path,
         velocity_path=velocity_path,
         add_perturbation=args.perturbation,
+        starting_time=starting_time,
+        fixed_positions=fixed_positions
     )
     # Run the simulation
     animal.run(optimization=False)
     # Dump the results based on the date
     animal.container.dump(
-        dump_path=os.path.join(
-            neuromechfly_path,
-            'scripts/kinematic_replay/kinematic_replay_ground_{}_{}'.format(
-                behavior,
-                datetime.now().strftime('%y%m%d_%H%M')
-            )
-        ),
-        overwrite=False
+        dump_path=results_path,
+        overwrite=True
     )

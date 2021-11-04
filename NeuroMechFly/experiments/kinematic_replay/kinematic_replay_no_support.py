@@ -86,6 +86,8 @@ class DrosophilaSimulation(BulletSimulation):
             self, container, sim_options, kp, kv,
             angles_path, velocity_path,
             add_perturbation,
+            starting_time = 0.0,
+            fixed_positions=None,
             units=SimulationUnitScaling(meters=1000, kilograms=1000)
     ):
         super().__init__(container, units, **sim_options)
@@ -93,13 +95,14 @@ class DrosophilaSimulation(BulletSimulation):
         self.kv = kv
         self.pose = [0] * self.num_joints
         self.vel = [0] * self.num_joints
-        self.angles = self.load_data(angles_path)
-        self.velocities = self.load_data(velocity_path)
+        self.angles = self.load_data(angles_path,starting_time)
+        self.velocities = self.load_data(velocity_path,starting_time)
         self.impulse_sign = 1
         self.add_perturbation = add_perturbation
+        self.fixed_positions = fixed_positions
         self.pball = None
 
-    def load_data(self, data_path):
+    def load_data(self, data_path, starting_time):
         """ Function that loads the pickle format joint angle or velocity gile.
 
         Parameters
@@ -124,11 +127,12 @@ class DrosophilaSimulation(BulletSimulation):
         converted_dict = {}
         try:
             data = pd.read_pickle(data_path)
+            start = int(np.round(starting_time/self.time_step))
             for leg, joints in data.items():
                 for joint_name, val in joints.items():
                     new_name = 'joint_' + leg[:2] + \
                         names_equivalence[joint_name]
-                    converted_dict[new_name] = val
+                    converted_dict[new_name] = val[start:]
             return converted_dict
         except BaseException:
             FileNotFoundError(f"File {data_path} not found!")
@@ -170,11 +174,12 @@ class DrosophilaSimulation(BulletSimulation):
 
         # Setting the joint angular positions joints
         # Setting the joint angular positions of the fixed joints
-        fixed_positions = {
-            'joint_LAntenna': 35,
-            'joint_RAntenna': -35,
-        }
-        for joint_name, joint_pos in fixed_positions.items():
+        if not self.fixed_positions:
+            self.fixed_positions = {
+                'joint_LAntenna': 35,
+                'joint_RAntenna': -35,
+            }
+        for joint_name, joint_pos in self.fixed_positions.items():
             self.pose[self.joint_id[joint_name]] = np.deg2rad(joint_pos)
 
         # Setting the joint angular positions of leg DOFs based on pose
@@ -188,17 +193,17 @@ class DrosophilaSimulation(BulletSimulation):
             self.vel[self.joint_id[joint_name]] = joint_vel[t]
 
         # Leg joint indices
-        joint_control_front = list(np.arange(17, 23)) + list(np.arange(56, 63))
-        joint_control_middle = list(
-            np.arange(42, 49)) + list(np.arange(81, 88))
-        joint_control_hind = list(np.arange(28, 35)) + list(np.arange(67, 74))
-        joint_control = joint_control_hind + joint_control_middle + joint_control_front
+        #joint_control_front = list(np.arange(17, 23)) + list(np.arange(56, 63))
+        #joint_control_middle = list(
+        #    np.arange(42, 49)) + list(np.arange(81, 88))
+        #joint_control_hind = list(np.arange(28, 35)) + list(np.arange(67, 74))
+        #joint_control = joint_control_hind + joint_control_middle + joint_control_front
 
         # Control the joints through position controller
         # Velocity can be discarded if not available and gains can be changed
         for joint in range(self.num_joints):
-            if joint in joint_control:
-                p.setJointMotorControl2(
+            #if joint in joint_control:
+            p.setJointMotorControl2(
                     self.animal, joint,
                     controlMode=p.POSITION_CONTROL,
                     targetPosition=self.pose[joint],
@@ -206,13 +211,13 @@ class DrosophilaSimulation(BulletSimulation):
                     positionGain=self.kp,
                     velocityGain=self.kv,
                     maxVelocity=1e8
-                )
-            else:
-                p.setJointMotorControl2(
-                    self.animal, joint,
-                    controlMode=p.POSITION_CONTROL,
-                    targetPosition=self.pose[joint],
-                )
+            )
+            #else:
+            #    p.setJointMotorControl2(
+            #        self.animal, joint,
+            #        controlMode=p.POSITION_CONTROL,
+            #        targetPosition=self.pose[joint],
+            #    )
             p.changeDynamics(self.animal, joint, maxJointVelocity=1e8)
 
     def feedback_to_controller(self):
