@@ -71,14 +71,11 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             True if self.behavior == 'grooming' else False
         )
         self.self_collisions = kwargs.get('self_collisions', [])
-        self.draw_collisions = kwargs.get('draw_collisions', False)
         self.ball_info = kwargs.get('ball_info', False)
         self.contactERP = kwargs.get('contactERP', 0.1)
         self.globalCFM = kwargs.get('globalCFM', 3.0)
         self.save_frames = kwargs.get('save_frames', False)
-        self.results_path = kwargs.get('results_path', 'last_simulation')
-
-        self.path_imgs = self.results_path.replace('kinematic_replay_', 'images_')
+        self.path_imgs = kwargs.get('results_path', 'last_simulation').replace('kinematic_replay_', 'images_')
 
         # Init
         self.time = 0.0
@@ -169,7 +166,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             p.connect(
                 self.gui,
                 options=(
-                    '--background_color_red={}'
+                    ' --background_color_red={}'
                     ' --background_color_green={}'
                     ' --background_color_blue={}'
                 ).format(
@@ -223,7 +220,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             if self.ball_info:
                 self.ball_radius, ball_pos = self.load_ball_info()
             else:
-                ball_pos = np.array([])
+                ball_pos = None
                 
             self.plane = self.add_ball(
                 self.ball_radius,
@@ -555,7 +552,13 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         volume = 4/3 * np.pi * ball_radius**3
         calculated_mass = density * volume
         # Assert if calculated and measured ball mass are not the same
-        if mass == 0:
+
+        if mass != 0:
+            # TODO: Decide the threshold here, it is 8 mg now
+            assert abs(mass - calculated_mass) < 8.0e-6 * self.units.kilograms, "Calculated ({} kg) and measured ({} kg) ball masses do not match!".format(
+                calculated_mass / self.units.kilograms, mass / self.units.kilograms
+            )
+        else:
             mass = calculated_mass
 
         col_sphere_parent = p.createCollisionShape(
@@ -569,7 +572,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
 
         #: Different ball positions used for different experiments
         #: Else corresponds to the ball position during optimization
-        if position.size == 0:
+        if position is None:
             if self.behavior == 'walking':
                 base_position = np.array(
                     [0.28e-3, -0.2e-3, -4.965e-3]
@@ -690,7 +693,8 @@ class BulletSimulation(metaclass=abc.ABCMeta):
     @property
     def ball_velocity(self):
         """ Return the ball angular velocity. """
-        return tuple(p.getLinkState(
+        return tuple(
+          p.getLinkState(
                 self.plane,
                 2,
                 computeLinkVelocity=1)[7])
@@ -959,9 +963,9 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         if self.save_frames:
             if self.gui == p.DIRECT:
                 base = np.array(self.base_position) * self.units.meters
-                matrix = p.computeViewMatrixFromYawPitchRoll(base,
-                                                         self.camera_distance,
-                                                         5, -10, 0, 2)
+                matrix = p.computeViewMatrixFromYawPitchRoll(
+                  base, self.camera_distance, 5, -10, 0, 2
+                )
                 projectionMatrix = [1.0825318098068237, 0.0, 0.0, 0.0, 0.0, 1.732050895690918, 0.0, 0.0, 0.0, 0.0,-1.0002000331878662, -1.0, 0.0, 0.0, -0.020002000033855438, 0.0]
                 img = p.getCameraImage(1024,
                                         768,

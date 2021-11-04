@@ -264,7 +264,7 @@ class DrosophilaSimulation(BulletSimulation):
         point_d = np.array([x1+a*dx, y1+a*dy])
         return point_d
 
-    def compute_static_stability(self, draw_polygon=True):
+    def compute_static_stability(self, draw_polygon=False):
         """ Computes static stability  of the model.
 
         Parameters
