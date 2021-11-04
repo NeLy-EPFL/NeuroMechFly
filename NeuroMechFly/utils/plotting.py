@@ -1,6 +1,6 @@
 """ Script to plot the simulation results. """
-import os
 
+import os
 from typing import List
 import numpy as np
 import pandas as pd
@@ -110,31 +110,22 @@ def plot_kp_joint(
     ----------
     *args: <np.array>
         Force to be plotted, i.e. grf, lateral friction, thorax.
-
     multiple: <bool>
         Plots vectors instead of norm.
-
     data: <dictionary>
         Dictionary to be plotted, i.e. joint torques.
-
     full_name: <str>
         Key name, e.g., 'joint_LMTibia'.
-
     gain_range: <np.array>
         Range of gains to be plotted, i.e. np.arange(0.1,1.4,0.2).
-
     scaling_factor: <int>
         Scale to change the units.
-
     ax:
         Axis to be plotted on, otherwise the current is axis with plt.gca().
-
     beg: <int>
         Beginning of the data to be plotted. the entire data is long.
-
     intv: <int>
         Int of the data to be plotted.
-
     ground_truth: <np.array>
         Ground truth for position or velocity.
     """
@@ -217,81 +208,102 @@ def heatmap_plot(
         ax=ax,
         linewidth=linewidth,
         cmap=cmap,
+        vmin=np.nanmin(joint_data),
+        vmax=np.nanmax(joint_data),
         fmt=precision,
         cbar_kws={
             'label': colorbar_title})
     ax.set_title(title)
     ax.invert_yaxis()
 
-def plot_pareto_front(path_data,
-                      generation_list,
-                      solution_ind='',
-                      **kwargs):
-    """ Plots solutions from optimization results.
+
+def plot_pareto_gens(
+    parent_dir,
+    generations,
+    inds_to_annotate,
+    export_path=None
+    ):
+    """ Plots multiple generations with selected individuals.
 
     Parameters
     ----------
-    path_data: <str>
-        Path to optimization results.
-    g: <int, list>
-        Generations' number from where solutions 's' will be taken, it can be one number or a list of numbers.
-    s: <str, list>
-        Solutions' criteria or number to plot, it can be one name or a list of names.
+    parent_dir : <str>
+        Directory where the FUN and VAR files are located.
+    generations : <np.darray>
+        Generations to be plotted.
+    inds_to_annotate : <dict>
+        A dictionary with keys 'gen<number>' and values int or string ('fastest' etc.) format
+    export_path: <str>
+        Path at which the plot will be saved.
+
+    Example usage:
+        plot_pareto_gens(
+        parent_dir='/home/NeuroMechFly/scripts/neuromuscular_optimization/optimization_results/run_Drosophila_var_63_obj_2_pop_200_gen_100_211022_134952',
+        generations=np.arange(15,100,14),
+        inds_to_annotate = {
+            'gen15': [0,3,5],
+            'gen29': 12,
+            'gen57': 14,
+            'gen85': 48
+        },
+        export_path='./pareto.png'
+        )
+
+        OR
+
+        plot_pareto_gens(
+        parent_dir='/home/NeuroMechFly/scripts/neuromuscular_optimization/optimization_results/run_Drosophila_var_63_obj_2_pop_200_gen_100_211022_134952',
+        generations=99,
+        inds_to_annotate = {
+            'gen99': ['fastest', 'win_win', 'most_stable']
+        },
+        export_path='./pareto.png'
+        )
+
     """
-    from ..experiments.network_optimization.neuromuscular_control import DrosophilaSimulation as ds
-    from matplotlib import colors
 
-    alpha = kwargs.get('alpha', 0.6)
+    from NeuroMechFly.experiments.network_optimization.neuromuscular_control import DrosophilaSimulation as ds
+    from collections.abc import Iterable   # import directly from collections for Python < 3.3
 
-    if not isinstance(generation_list, list):
-        generations = [generation_list]
-    else:
-        generations = generation_list
+    rc_params = {
+        'axes.spines.right': False,
+        'axes.spines.top': False,
+    }
+    plt.rcParams.update(rc_params)
+    colors = ('#B4479A', '#3953A4', '#027545', '#808080', '#FE420F', '#650021', '#E6DAA6',  '#008080', '#FFC0CB')
 
-    if not isinstance(solution_ind, list):
-        solutions = [solution_ind]
-    else:
-        solutions = solution_ind
+    if not isinstance(generations,Iterable):
+        generations = [generations]
 
-    edge = plt.cm.cool(np.linspace(0,1,len(solutions)))
-    ax = plt.gca()
+
+    fig, ax = plt.subplots(figsize = (7,4))
+
     for i, gen in enumerate(generations):
-        fun_path = os.path.join(path_data,f"FUN.{gen}")
-        fun = np.loadtxt(fun_path)
+        fun_path = os.path.join(parent_dir, f'FUN.{gen}')
+        var_path = os.path.join(parent_dir, f'VAR.{gen}')
+        fun, var = np.loadtxt(fun_path), np.loadtxt(var_path)
 
-        color = next(ax._get_lines.prop_cycler)['color']
-        formation_colors = np.random.choice(list(colors.XKCD_COLORS), 70, replace=False)  # 70 random color names
-        formation_colors = np.asarray(formation_colors)
-        color = formation_colors[i]
-
-        plt.scatter(fun[:,0],
-                    fun[:,1],
-                    c=color,
-                    s=60,
-                    label=f"gen: {gen+1}",
-                    alpha=alpha)
-
-        for i, sol in enumerate(solutions):
-            if sol != '':
-                ind = ds.select_solution(sol, fun)
+        ax.scatter(fun[:,0], fun[:,1], c=colors[i%len(colors)], alpha=0.3, s=30, label=f'Gen {gen+1}')
+        if 'gen'+str(gen) in inds_to_annotate:
+            if not isinstance(inds_to_annotate['gen'+str(gen)],Iterable):
+                individuals = [inds_to_annotate['gen'+str(gen)]]
             else:
-                ind=-1
+                individuals = inds_to_annotate['gen'+str(gen)]
 
-            if ind > -1:
-                plt.scatter(fun[ind,0],
-                            fun[ind,1],
-                            c=color,
-                            s=60,
-                            edgecolors=edge[i],
-                            linewidth=3.5,
-                            label=f'sol: {ind} ({sol})',
-                            alpha=alpha)
+            for j, ind_ in enumerate(individuals):
+                cycle = plt.rcParams['axes.prop_cycle'].by_key()['color']
+                ind_number = ds.select_solution(ind_, fun)
+                if len(generations) > 1:
+                    ax.scatter(fun[ind_number,0], fun[ind_number,1], s=95,c=colors[i%len(colors)], edgecolor='black' )
+                else:
+                    ax.scatter(fun[ind_number,0], fun[ind_number,1], label=f'Sol {ind_}', s=60, edgecolor='black', c=cycle[j])
 
-    plt.xlabel('Distance')
-    plt.ylabel('Stability')
-    title = 'Pareto front'
-    plt.title(title)
-    plt.legend()
+
+    ax.set_xlabel('Distance')
+    ax.set_ylabel('Stability')
+    ax.legend()
+    if export_path is not None:
+        fig.savefig(export_path, bbox_inches='tight')
     plt.show()
 
 
@@ -300,9 +312,11 @@ def plot_population_statistics(
     pop_no,
     generations,
     penalty_number,
-    ax
+    penalty_name,
+    export_path=None
 ):
     """ Plots the population statistics (i.e. penalties across generations)
+
     Parameters
     ----------
     result_directory : str
@@ -311,89 +325,216 @@ def plot_population_statistics(
         Number of individual in a population.
     generations : list
         Generations to be analyzed.
-        e.g.: [1,2,3,4,5,6]
+        e.g.: np.arange(15,100,14)
     penalty_number : int
         Column number of the penalty based on the log file.
-    ax : matplotlib.axes.Axes
-        Ax object to plot the violins and data points.
+    penalty_name : str
+        Name of the penalty
+    export_path: <str>
+        Path at which the plot will be saved if not None
     """
+    rc_params = {
+        'axes.spines.right': False,
+        'axes.spines.top': False,
+    }
+    plt.rcParams.update(rc_params)
+
+    fig, ax = plt.subplots(figsize = (4,6))
     penalty = np.zeros((pop_no, len(generations)))
+
     for i, generation in enumerate(generations):
         penalty[:, i] = np.loadtxt(
             os.path.join(
                 result_directory, f'PENALTIES.{generation}'
             )
         )[:, penalty_number]
-    cols = [f'Gen {gen}' for gen in generations]
+
+    cols = [f'{gen + 1}' for gen in generations]
     rows = [f'Ind {ind}' for ind in range(pop_no)]
-    penalty_df = pd.DataFrame(penalty, columns=cols, index=rows)
-    sns.violinplot(data=penalty_df, scale='count', color='white', edgecolor='black', bw=0.5, ax=ax)
-    sns.swarmplot(data=penalty_df, size=12, color='red', edgecolor='black', alpha=0.3, ax=ax)
+
+    invert = -1 if penalty_number in (0,1) else 1
+    penalty_df = pd.DataFrame(invert*penalty, columns=cols, index=rows)
+    sns.stripplot(data=penalty_df, size=5, color='red', edgecolor='black', alpha=0.3, ax=ax)
+    sns.violinplot(data=penalty_df, scale='count', color='white', edgecolor='black', bw=0.35, ax=ax, cut=0, showfliers=False, showextrema=False)
+
+    ax.set_xlabel('Generations')
+    ax.set_title(penalty_name)
+
+    if export_path is not None:
+        fig.savefig(export_path, bbox_inches='tight')
+    plt.show()
 
 
-def plot_penalties(
-    result_directory: str,
-    generations: List[int],
-    individual_number: int,
-    variable_names: List[str],
-    **kwargs) -> None:
-    """ Plots the relative contribution of penalties in overall objective value as a bar chart.
+def plot_gait_diagram(data, ts=1e-4, ax=None, export_path=None):
+    """ Plot the contacts from the given contact_flag data.
+
     Parameters
     ----------
-    result_directory : str
-        Directory that PENALTIES files are in.
-    generations : List[int]
-        Generations to be plotted.
-    individual_number : int
-        Individual number, recommended: chosen through the
-        select_solution method in bullet_simulation.py
-    variable_names : List[str]
-        Names of columns in PENALTIES.
-    Usage:
-        path = '~/NeuroMechFly/scripts/neuromuscular_optimization/optimization_results/run_Drosophila_var_63_obj_2_pop_4_gen_5_210921_201940'
-        gens = [0, 1, 2, 3, 4]
-        ind_num = 1
-        variable_names = ['Obj 1', 'Obj 2', 'Pen 1', 'Pen 2', 'Pen 3']
-        plot_penalties(path, gens, ind_num, variable_names)
-        plt.show()
+    data: <pandas.DataFrame>
+        Contact flag data.
+    ts: <float>
+        Time step of the simulation.
+    ax:
+        axis to be plotted on, otherwise the current is axis with plt.gca().
+    export_path: <str>
+        Path at which the plot will be saved.
     """
-    ylabel = kwargs.get('ylabel', '')
-    title_obj1 = kwargs.get('title_obj1', 'First Objective')
-    title_obj2 = kwargs.get('title_obj2', 'Second Objective')
-    alpha = kwargs.get('alpha', 0.65)
+    # Total time
+    total_time = len(data)*ts
+    # Define the legs and its order for the plot
+    legs = ("RH", "RM", "RF", "LH", "LM", "LF")
+    # Setup the contact data
+    contact_intervals = {}
+    for leg in legs:
+        # Combine contact information of all the tarsus segments
+        values = np.squeeze(np.any(
+            [value for key, value in data.items() if leg in key],
+            axis=0,
+        ).astype(int))
+        intervals = np.where(
+            np.abs(np.diff(values, prepend=[0], append=[0])) == 1
+        )[0].reshape(-1, 2)*ts
+        intervals[:, 1] = intervals[:, 1] - intervals[:, 0]
+        contact_intervals[leg] = intervals
+    # Define the figure
+    if ax is None:
+        fig, ax = plt.subplots(figsize=(7, 3))
+    width = 0.75
+    for index, (key, value) in enumerate(contact_intervals.items()):
+        ax.broken_barh(
+            value, (index-width*0.5, width), facecolor='k'
+        )
+    ax.set_xlabel("Time (s)")
+    ax.set_yticks((0, 1, 2, 3, 4, 5))
+    ax.set_yticklabels(legs)
 
-    penalties = np.zeros((len(generations), len(variable_names)))
+    if export_path is not None:
+        plt.savefig(export_path, bbox_inches='tight')
+    plt.show()
 
-    for i, generation in enumerate(generations):
-        penalties[i, :] = np.loadtxt(
-            os.path.join(
-                result_directory, f'PENALTIES.{generation}'
-            )
-        )[individual_number, :]
 
-    labels = [f'Gen {gen}' for gen in generations]
+def load_opt_log(results_path):
+    """ Loads the optimization muscle torques and joint position results.
 
-    penalties_df = pd.DataFrame(penalties, columns=variable_names, index=labels)
+    Parameters
+    ----------
+    results_path: str
+        Directory containing the muscle, neural and physics folders.
 
-    ax1 = penalties_df.drop([variable_names[1]], axis=1).plot(kind = 'bar', stacked=True, alpha=alpha)
-    ax2 = penalties_df.drop([variable_names[0]], axis=1).plot(kind = 'bar', stacked=True, alpha=alpha)
+    Returns
+    ----------
+    (muscle, joint_pos): Tuple
+        Muscle and joint positions both in pandas.DataFrame format.
+    """
+    muscle_path = os.path.join(results_path, 'muscle/outputs.h5')
+    joint_angle_path = os.path.join(results_path, 'physics/joint_positions.h5')
+    muscle, joint_pos = pd.read_hdf(muscle_path), pd.read_hdf(joint_angle_path)
+    return muscle, joint_pos
 
-    ax1.set_ylabel(ylabel)
-    ax1.set_title(title_obj1)
-    ax1.spines['right'].set_visible(False)
-    ax1.spines['top'].set_visible(False)
-    ax1.legend()
 
-    ax2.set_ylabel(ylabel)
-    ax2.set_title(title_obj2)
-    ax2.spines['right'].set_visible(False)
-    ax2.spines['top'].set_visible(False)
-    ax2.legend()
+def plot_network_activity(results_path, time_step=1e-4, sim_duration=2.0, beg=1, end=1.5, torque_scale=1e9, link='Femur', export_path=None):
+    """ Plots the CPG activity, muscle torques and joint angles.
+
+    Parameters
+    ----------
+    results_path: str
+        Directory containing the muscle, neural and physics folders.
+    time_step : float, optional
+        Time step of the simulation, by default 1e-4
+    sim_duration : float, optional
+        Duration of the simulation in seconds, by default 2.0
+    beg : int, optional
+        Beginning from which the data will be plotted, by default 1
+    end : float, optional
+        Beginning at which the data will end, by default 1.5
+    torque_scale : [type], optional
+        Conversion scale from SI units to uNmm, by default 1e9
+    link : str, optional
+        Link to be plotted, by default 'Femur', could be 'Coxa' or 'Tibia' as well.
+    export_path : str, optional
+        If not None then the plot will be saved to that path, by default None
+    """
+    from matplotlib.gridspec import GridSpec
+
+    # Load data
+    muscle, joint_pos = load_opt_log(results_path)
+
+    rc_params = {'axes.spines.right': False, 'axes.spines.top': False}
+    plt.rcParams.update(rc_params)
+    cycle = plt.rcParams['axes.prop_cycle'].by_key()['color']
+    linestyles = ('solid', 'dashed', 'dotted')
+
+    equivalence = {'ThC_yaw': 'Coxa_yaw',
+                    'ThC_pitch': 'Coxa',
+                    'ThC_roll': 'Coxa_roll',
+                    'CTr_pitch': 'Femur',
+                    'CTr_roll': 'Femur_roll',
+                    'FTi_pitch': 'Tibia',
+                    'TiTa_pitch': 'Tarsus1'}
+
+    actuated_joints = {
+        'F': ['ThC_pitch', 'CTr_pitch', 'FTi_pitch'],
+        'M': ['ThC_roll', 'CTr_pitch', 'FTi_pitch'],
+        'H': ['ThC_roll', 'CTr_pitch', 'FTi_pitch'],
+
+    }
+    sides = ['Front', 'Middle', 'Hind']
+
+    duration = np.arange(0, sim_duration, time_step)
+    beg = int(beg/time_step)
+    end = int(end/time_step)
+
+    fig = plt.figure(figsize=(8,8))
+    gs = plt.GridSpec(4,3, figure=fig)
+    ax1 = fig.add_subplot(gs[0,:])
+    ax2 = fig.add_subplot(gs[1,:])
+    ax3 = fig.add_subplot(gs[2,:])
+    (ax4, ax5, ax6) = fig.add_subplot(gs[3,0]), fig.add_subplot(gs[3,1]), fig.add_subplot(gs[3,2])
+
+    for i, side in enumerate(sides):
+        part = side[0]
+        if part in ('M','H') and link[0]=='C':
+            link = 'Coxa_roll'
+
+        ax1.plot(duration[beg:end], muscle[f'joint_R{part}{link}_flexor_act'][beg:end], label=f'R{part}', color=cycle[i*2])
+        ax1.plot(duration[beg:end], muscle[f'joint_L{part}{link}_flexor_act'][beg:end], label= f'L{part}', color=cycle[i*2+1])
+        ax1.legend(bbox_to_anchor=(1.1,1))
+        ax1.set_ylabel(f'{link} Protractor (AU)')
+
+
+        ax2.plot(duration[beg:end], muscle[f'joint_R{part}{link}_torque'][beg:end] * torque_scale, color=cycle[i*2])
+        ax2.plot(duration[beg:end], muscle[f'joint_L{part}{link}_torque'][beg:end] * torque_scale, color=cycle[i*2+1])
+        ax2.set_ylabel(f'{link} Torques ($\mu$Nmm)')
+
+        ax3.plot(duration[beg:end], np.rad2deg(joint_pos[f'joint_R{part}{link}'][beg:end]), color=cycle[i*2])
+        ax3.plot(duration[beg:end], np.rad2deg(joint_pos[f'joint_L{part}{link}'][beg:end]), color=cycle[i*2+1])
+        ax3.set_ylabel(f'{link} Joint Angles(deg)')
+        ax3.set_xlabel('Time (s)')
+
+        for j, joint_angle in enumerate(actuated_joints[part]):
+            ls = linestyles[j] if not joint_angle=='ThC_pitch' else 'dashdot'
+            if part == 'F':
+                ax4.plot(duration[beg:end], np.rad2deg(joint_pos[f'joint_L{part}{equivalence[joint_angle]}'][beg:end]), label='LF ' + joint_angle, color=cycle[1], linestyle=ls)
+            elif part == 'M':
+                ax5.plot(duration[beg:end], np.rad2deg(joint_pos[f'joint_L{part}{equivalence[joint_angle]}'][beg:end]), label='LM ' + joint_angle, color=cycle[3], linestyle=ls)
+            if part == 'H':
+                ax6.plot(duration[beg:end], np.rad2deg(joint_pos[f'joint_L{part}{equivalence[joint_angle]}'][beg:end]), label='LH ' + joint_angle, color=cycle[5], linestyle=ls)
+        ax4.legend(loc='upper center', bbox_to_anchor=(0.5, -0.1), fancybox=True)
+        ax5.legend(loc='upper center', bbox_to_anchor=(0.5, -0.1), fancybox=True)
+        ax6.legend(loc='upper center', bbox_to_anchor=(0.5, -0.1), fancybox=True)
+        ax4.set_ylabel('Joint Angles(deg)')
+
+    plt.tight_layout()
+    if export_path is not None:
+        plt.savefig(export_path, bbox_inches='tight')
+    plt.show()
+
 
 
 def read_muscles_act(path_data,
                      equivalence,
                      leg_order):
+    # TODO: Remove??
     """ Reads muscle's data obtained after running a simulation (run_neuromuscular_control).
 
     Parameters
@@ -431,6 +572,8 @@ def read_muscles_act(path_data,
 def read_joint_positions(path_data,
                          equivalence,
                          leg_order):
+    # TODO: Remove??
+
     """ Reads joint position's data obtained after running a simulation (run_neuromuscular_control).
 
     Parameters
@@ -601,6 +744,7 @@ def plot_data(
         torqueScalingFactor=1e9,
         grfScalingFactor=1e6
     ):
+    # TODO: Remove optimization plots here??
 
     """ Plots data from the simulation.
 
@@ -684,7 +828,7 @@ def plot_data(
                 if joint_key in joint:
                     name = f"{leg[:2]} {joint.split('_')[0]} {joint.split('_')[1]}"
                     if 'torque' in joint:
-                        torques_muscles[name] = data
+                        torques_muscles[name] = data*torqueScalingFactor
                     if length_data == 0:
                         length_data = len(data)
 
@@ -721,8 +865,11 @@ def plot_data(
         for k in equivalence.keys():
             data2plot['angles'][k] = []
         for label, values in angles_raw.items():
+            print(label)
+            '''
             if label not in ('ThC_pitch', 'CTr_pitch', 'FTi_pitch'):
                 continue
+            '''
             if length_data == 0:
                 length_data = len(values)
             data2plot['angles'][label] = values
@@ -1156,7 +1303,8 @@ def plot_fly_path(
         ball_radius = 5.0,
         begin=0,
         end=0,
-        time_step=0.001
+        time_step=0.001,
+        ax=None
         ):
 
     """ Plots collision/gait diagrams.
@@ -1209,12 +1357,14 @@ def plot_fly_path(
         sim_res_folder = os.path.join(path_data, 'physics','ball_rotations.h5')
         ball_data_list.append(sim_res_folder)
 
-    fig = plt.figure()
-    ax = plt.axes()
+    if ax is None:
+        fig = plt.figure()
+        ax = plt.axes()
+
     m = MarkerStyle(marker=r'$\rightarrow$')
     ax.set_xlabel('x (mm)')
     ax.set_ylabel('y (mm)')
-    colors = plt.cm.Greens(np.linspace(0.3,1,len(ball_data_list)))
+    colors = plt.cm.jet(np.linspace(0.3,1,len(ball_data_list)))
 
     for ind, ball_data in enumerate(ball_data_list):
 
@@ -1234,7 +1384,7 @@ def plot_fly_path(
 
         for count, i in enumerate(range(start, stop-1)):
             th = data_array[i][2]
-            forward = -(data_array[i][0]-data_array[0][0]) * ball_radius
+            forward = (data_array[i][0]-data_array[0][0]) * ball_radius
             lateral = (data_array[i][1]-data_array[0][1]) * ball_radius
             x.append(forward)
             y.append(lateral)
@@ -1250,7 +1400,7 @@ def plot_fly_path(
                         begin,
                         begin+len(x)/steps,
                         len(x)),
-                    cmap='winter',
+                    cmap='jet',
                     vmin=begin,
                     vmax=end)
 
@@ -1280,8 +1430,7 @@ def plot_fly_path(
 
         lim = val_max + 0.05 * val_max
         low = val_min - 0.05 * val_min
-        ax.set_xlim(low, lim)
-        ax.set_ylim(-lim / 2, lim / 2)
+        # ax.set_xlim(low, lim)
 
         if not sequence:
             if generations:
@@ -1292,11 +1441,9 @@ def plot_fly_path(
                         linewidth=2,
                         label=f'Gen {gen_label}-{sol_label}',
                         c=colors[ind])
-                ax.legend()
             else:
                 ax.plot(x, y, linewidth=2)
 
-    plt.show()
 
 def get_data(data_path, begin, end, time_step, data_from=[], offset=0, window_time=0.2):
     fictrac_columns = ["Frame_counter",
