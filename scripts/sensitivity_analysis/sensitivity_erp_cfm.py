@@ -10,7 +10,7 @@ def main():
             cfm_val = float(cfm)
             command = f"run_kinematic_replay -erp {erp_val} -cfm {cfm_val}"
             print("Running: " + command)
-            #os.system(command)
+            os.system(command)
             
     
 
