@@ -33,7 +33,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         self.time_step = kwargs.get('time_step', 1e-3) * self.units.seconds
         self.real_time = kwargs.get('real_time', 0)
         self.run_time = kwargs.get('run_time', 10) * self.units.seconds
-        self.solver_iterations = kwargs.get('solver_iterations', 50)
+        self.solver_iterations = kwargs.get('solver_iterations', 100)
         self.model = kwargs.get('model', None)
         self.model_offset = np.array(
             kwargs.get('model_offset', [0., 0., 0.])
@@ -73,11 +73,10 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         self.self_collisions = kwargs.get('self_collisions', [])
         self.draw_collisions = kwargs.get('draw_collisions', False)
 
-        self.numSolverIterations = kwargs.get('numSolverIterations', 100)
         self.contactERP = kwargs.get('contactERP', 0.1)
         self.globalCFM = kwargs.get('globalCFM', 5.0)
         self.save_frames = kwargs.get('save_frames', False)
-        self.path_imgs = kwargs.get('results_path', 'last_simulation').replace('kinematic_replay_', 'images_')
+        self.path_imgs = kwargs.get('results_path', 'last_simulation_images')
 
         # Init
         self.time = 0.0
@@ -126,9 +125,9 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             base = np.array(self.base_position) * self.units.meters
             p.resetDebugVisualizerCamera(
                 self.camera_distance,
-                5,
-                -10,
-                base)
+                cameraYaw=5,
+                cameraPitch=-10,
+                cameraTargetPosition=base)
 
         # Initialize simulation
         self.initialize_simulation()
@@ -187,7 +186,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
 
         p.setPhysicsEngineParameter(
             fixedTimeStep=self.time_step,
-            numSolverIterations=self.numSolverIterations,
+            numSolverIterations=self.solver_iterations,
             numSubSteps=self.num_substep,
             solverResidualThreshold=1e-10,
             erp = 0.0,
@@ -295,7 +294,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                     rgbaColor=self.color_body,
                     specularColor=nospecular)
 
-            #print('Link name {} id {}'.format(link_name, _id))
+            # print('Link name {} id {}'.format(link_name, _id))
 
         # Configure contacts
 
@@ -415,7 +414,6 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             )
 
         # Disable default bullet controllers
-
         p.setJointMotorControlArray(
             self.animal,
             np.arange(self.num_joints),
@@ -575,7 +573,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                 ) * self.units.meters + self.model_offset
             elif self.behavior == 'grooming':
                 base_position = np.array(
-                    [0.28e-3, 0.0e-3, -4.9e-3]
+                    [0.08e-3, -0.0e-3, -4.9e-3]
                 ) * self.units.meters + self.model_offset
             else:
                 base_position = np.array(
@@ -845,10 +843,11 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         -------
         out :
         """
+        convert_time = lambda ts: int(ts / self.time_step)
+        base = np.array(self.base_position) * self.units.meters
 
         # Camera
         if self.gui == p.GUI and self.track_animal:
-            base = np.array(self.base_position) * self.units.meters
             yaw = 30
             pitch = -10
             p.resetDebugVisualizerCamera(
@@ -857,29 +856,27 @@ class BulletSimulation(metaclass=abc.ABCMeta):
 
         # Walking camera sequence, set rotate_camera to True to activate
         if self.gui == p.GUI and self.rotate_camera and self.behavior == 'walking':
-            base = np.array(self.base_position)
-            base[-1] = 1.10
 
-            if t < 3000:
+            if t < convert_time(3):
                 yaw = 0
                 pitch = -10
-            elif t >= 3000 and t < 4000:
-                yaw = (t - 3000) / 1000 * 90
+            elif t >= convert_time(3) and t < convert_time(4):
+                yaw = (t - convert_time(3)) / convert_time(1) * 90
                 pitch = -10
-            elif t >= 4000 and t < 4250:
+            elif t >= convert_time(4) and t < convert_time(4.25):
                 yaw = 90
                 pitch = -10
-            elif t >= 4250 and t < 4750:
+            elif t >= convert_time(4.25) and t < convert_time(4.75):
                 yaw = 90
-                pitch = (t - 4250) / 500 * 70 - 10
-            elif t >= 4750 and t < 5000:
+                pitch = (t - convert_time(4.25)) / convert_time(.5) * 70 - 10
+            elif t >= convert_time(4.75) and t < convert_time(5):
                 yaw = 90
                 pitch = 60
-            elif t >= 5000 and t < 5500:
+            elif t >= convert_time(5.) and t < convert_time(5.5):
                 yaw = 90
-                pitch = 60 - (t - 5000) / 500 * 70
-            elif t >= 5500 and t < 7000:
-                yaw = (t - 5500) / 1500 * 300 + 90
+                pitch = 60 - (t - convert_time(5)) / convert_time(.5) * 70
+            elif t >= convert_time(5.5) and t < convert_time(7):
+                yaw = (t - convert_time(5.5)) / convert_time(1.5) * 300 + 90
                 pitch = -10
             else:
                 yaw = 30
@@ -892,15 +889,15 @@ class BulletSimulation(metaclass=abc.ABCMeta):
 
         # Grooming camera sequence, set rotate_camera to True to activate
         if self.gui == p.GUI and self.rotate_camera and self.behavior == 'grooming':
-            base = np.array(self.base_position)
-            if t < 250:
+
+            if t < convert_time(0.25):
                 yaw = 0
                 pitch = -10
-            elif t >= 250 and t < 2000:
-                yaw = (t - 250) / 1750 * 150
+            elif t >= convert_time(.25) and t < convert_time(2.):
+                yaw = (t - convert_time(.25)) / convert_time(1.75) * 150
                 pitch = -10
-            elif t >= 2000 and t < 3500:
-                yaw = 150 - (t - 2000) / 1500 * 120
+            elif t >= convert_time(2.) and t < convert_time(3.5):
+                yaw = 150 - (t - convert_time(2.)) / convert_time(1.5) * 120
                 pitch = -10
             else:
                 yaw = 30
@@ -913,7 +910,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
 
         if self.gui == p.GUI and self.rotate_camera and self.behavior is None:
             base = np.array(self.base_position) * self.units.meters
-            yaw = (t - (self.run_time/self.time_step)) / (self.run_time/self.time_step) * 360
+            yaw = (t - convert_time(2.5)) / (self.run_time/self.time_step) * 180
             pitch = -10
             p.resetDebugVisualizerCamera(
                 self.camera_distance,
@@ -932,21 +929,23 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                                         768,
                                         viewMatrix=matrix,
                                         projectionMatrix=projectionMatrix)
-            if self.gui == p.GUI:
+            if self.gui == p.GUI: #and t % 10 == 0:
+                # TODO: change to frame rate
                 img = p.getCameraImage(1024, 768, renderer=p.ER_BULLET_HARDWARE_OPENGL)
-            rgb_array = img[2]
-            im = Image.fromarray(rgb_array)
+                rgb_array = img[2]
+                im = Image.fromarray(rgb_array)
 
-            im_name = f"{self.path_imgs}/Frame_{t:06d}.png"
-            if not os.path.exists(self.path_imgs):
-                os.mkdir(self.path_imgs)
+                im_name = f"{self.path_imgs}/Frame_{t:06d}.png"
 
-            im.save(im_name)
+                if not os.path.exists(self.path_imgs):
+                    os.mkdir(self.path_imgs)
 
-            # Disable rendering temporary makes adding objects faster
-            p.configureDebugVisualizer(p.COV_ENABLE_RENDERING, 0)
-            p.configureDebugVisualizer(p.COV_ENABLE_GUI, 0)
-            p.configureDebugVisualizer(p.COV_ENABLE_TINY_RENDERER, 0)
+                im.save(im_name)
+
+                # Disable rendering temporary makes adding objects faster
+                p.configureDebugVisualizer(p.COV_ENABLE_RENDERING, 0)
+                p.configureDebugVisualizer(p.COV_ENABLE_GUI, 0)
+                p.configureDebugVisualizer(p.COV_ENABLE_TINY_RENDERER, 0)
 
         # Update logs
         self.update_logs()
@@ -966,7 +965,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         self.time += self.time_step
         # Step physics
         solver = p.stepSimulation()
-        #print(f"numIterationsUsed: {solver[0]['numIterationsUsed']}\tremainingResidual: {solver[0]['remainingResidual']}")
+        # print(f"numIterationsUsed: {solver[0]['numIterationsUsed']}\tremainingResidual: {solver[0]['remainingResidual']}")
         # Slow down the simulation
         if self.slow_down:
             time.sleep(self.sleep_time)
