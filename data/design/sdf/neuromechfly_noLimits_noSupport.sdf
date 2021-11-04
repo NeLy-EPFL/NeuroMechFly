@@ -2870,7 +2870,7 @@
         </limit>
       </axis>
     </joint>
-    <joint name="joint_LFTarsus2" type="fixed">
+    <joint name="joint_LFTarsus2" type="revolute">
       <parent>LFTarsus1</parent>
       <child>LFTarsus2</child>
       <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
@@ -2884,7 +2884,7 @@
         </limit>
       </axis>
     </joint>
-    <joint name="joint_LFTarsus3" type="fixed">
+    <joint name="joint_LFTarsus3" type="revolute">
       <parent>LFTarsus2</parent>
       <child>LFTarsus3</child>
       <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
@@ -2898,7 +2898,7 @@
         </limit>
       </axis>
     </joint>
-    <joint name="joint_LFTarsus4" type="fixed">
+    <joint name="joint_LFTarsus4" type="revolute">
       <parent>LFTarsus3</parent>
       <child>LFTarsus4</child>
       <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
@@ -2912,7 +2912,7 @@
         </limit>
       </axis>
     </joint>
-    <joint name="joint_LFTarsus5" type="fixed">
+    <joint name="joint_LFTarsus5" type="revolute">
       <parent>LFTarsus4</parent>
       <child>LFTarsus5</child>
       <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
@@ -3024,7 +3024,7 @@
         </limit>
       </axis>
     </joint>
-    <joint name="joint_LHTarsus2" type="fixed">
+    <joint name="joint_LHTarsus2" type="revolute">
       <parent>LHTarsus1</parent>
       <child>LHTarsus2</child>
       <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
@@ -3038,7 +3038,7 @@
         </limit>
       </axis>
     </joint>
-    <joint name="joint_LHTarsus3" type="fixed">
+    <joint name="joint_LHTarsus3" type="revolute">
       <parent>LHTarsus2</parent>
       <child>LHTarsus3</child>
       <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
@@ -3052,7 +3052,7 @@
         </limit>
       </axis>
     </joint>
-    <joint name="joint_LHTarsus4" type="fixed">
+    <joint name="joint_LHTarsus4" type="revolute">
       <parent>LHTarsus3</parent>
       <child>LHTarsus4</child>
       <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
@@ -3066,7 +3066,7 @@
         </limit>
       </axis>
     </joint>
-    <joint name="joint_LHTarsus5" type="fixed">
+    <joint name="joint_LHTarsus5" type="revolute">
       <parent>LHTarsus4</parent>
       <child>LHTarsus5</child>
       <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
@@ -3220,7 +3220,7 @@
         </limit>
       </axis>
     </joint>
-    <joint name="joint_LMTarsus2" type="fixed">
+    <joint name="joint_LMTarsus2" type="revolute">
       <parent>LMTarsus1</parent>
       <child>LMTarsus2</child>
       <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
@@ -3234,7 +3234,7 @@
         </limit>
       </axis>
     </joint>
-    <joint name="joint_LMTarsus3" type="fixed">
+    <joint name="joint_LMTarsus3" type="revolute">
       <parent>LMTarsus2</parent>
       <child>LMTarsus3</child>
       <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
@@ -3248,7 +3248,7 @@
         </limit>
       </axis>
     </joint>
-    <joint name="joint_LMTarsus4" type="fixed">
+    <joint name="joint_LMTarsus4" type="revolute">
       <parent>LMTarsus3</parent>
       <child>LMTarsus4</child>
       <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
@@ -3262,7 +3262,7 @@
         </limit>
       </axis>
     </joint>
-    <joint name="joint_LMTarsus5" type="fixed">
+    <joint name="joint_LMTarsus5" type="revolute">
       <parent>LMTarsus4</parent>
       <child>LMTarsus5</child>
       <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
@@ -3444,7 +3444,7 @@
         </limit>
       </axis>
     </joint>
-    <joint name="joint_RFTarsus2" type="fixed">
+    <joint name="joint_RFTarsus2" type="revolute">
       <parent>RFTarsus1</parent>
       <child>RFTarsus2</child>
       <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
@@ -3458,7 +3458,7 @@
         </limit>
       </axis>
     </joint>
-    <joint name="joint_RFTarsus3" type="fixed">
+    <joint name="joint_RFTarsus3" type="revolute">
       <parent>RFTarsus2</parent>
       <child>RFTarsus3</child>
       <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
@@ -3472,7 +3472,7 @@
         </limit>
       </axis>
     </joint>
-    <joint name="joint_RFTarsus4" type="fixed">
+    <joint name="joint_RFTarsus4" type="revolute">
       <parent>RFTarsus3</parent>
       <child>RFTarsus4</child>
       <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
@@ -3486,7 +3486,7 @@
         </limit>
       </axis>
     </joint>
-    <joint name="joint_RFTarsus5" type="fixed">
+    <joint name="joint_RFTarsus5" type="revolute">
       <parent>RFTarsus4</parent>
       <child>RFTarsus5</child>
       <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
@@ -3598,7 +3598,7 @@
         </limit>
       </axis>
     </joint>
-    <joint name="joint_RHTarsus2" type="fixed">
+    <joint name="joint_RHTarsus2" type="revolute">
       <parent>RHTarsus1</parent>
       <child>RHTarsus2</child>
       <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
@@ -3612,7 +3612,7 @@
         </limit>
       </axis>
     </joint>
-    <joint name="joint_RHTarsus3" type="fixed">
+    <joint name="joint_RHTarsus3" type="revolute">
       <parent>RHTarsus2</parent>
       <child>RHTarsus3</child>
       <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
@@ -3626,7 +3626,7 @@
         </limit>
       </axis>
     </joint>
-    <joint name="joint_RHTarsus4" type="fixed">
+    <joint name="joint_RHTarsus4" type="revolute">
       <parent>RHTarsus3</parent>
       <child>RHTarsus4</child>
       <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
@@ -3639,8 +3639,8 @@
           <velocity>628.3185307179587</velocity>
         </limit>
       </axis>
-    </joint>
-    <joint name="joint_RHTarsus5" type="fixed">
+    </joint>    
+    <joint name="joint_RHTarsus5" type="revolute">
       <parent>RHTarsus4</parent>
       <child>RHTarsus5</child>
       <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
@@ -3794,7 +3794,7 @@
         </limit>
       </axis>
     </joint>
-    <joint name="joint_RMTarsus2" type="fixed">
+    <joint name="joint_RMTarsus2" type="revolute">
       <parent>RMTarsus1</parent>
       <child>RMTarsus2</child>
       <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
@@ -3808,7 +3808,7 @@
         </limit>
       </axis>
     </joint>
-    <joint name="joint_RMTarsus3" type="fixed">
+    <joint name="joint_RMTarsus3" type="revolute">
       <parent>RMTarsus2</parent>
       <child>RMTarsus3</child>
       <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
@@ -3822,7 +3822,7 @@
         </limit>
       </axis>
     </joint>
-    <joint name="joint_RMTarsus4" type="fixed">
+    <joint name="joint_RMTarsus4" type="revolute">
       <parent>RMTarsus3</parent>
       <child>RMTarsus4</child>
       <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
@@ -3836,7 +3836,7 @@
         </limit>
       </axis>
     </joint>
-    <joint name="joint_RMTarsus5" type="fixed">
+    <joint name="joint_RMTarsus5" type="revolute">
       <parent>RMTarsus4</parent>
       <child>RMTarsus5</child>
       <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
