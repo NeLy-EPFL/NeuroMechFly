@@ -23,7 +23,8 @@ from NeuroMechFly.experiments.network_optimization.neuromuscular_control import 
 
 LOGGER = logging.getLogger('jmetal')
 
-neuromechfly_path = Path(pkgutil.get_loader("NeuroMechFly").get_filename()).parents[1]
+neuromechfly_path = Path(pkgutil.get_loader(
+    "NeuroMechFly").get_filename()).parents[1]
 
 pylog.set_level('error')
 
@@ -108,11 +109,11 @@ def print_penalties_to_file(penalties: Tuple) -> None:
     """ Writes penalties into a txt file inside results. """
 
     output_file_directory = os.path.join(
-                neuromechfly_path,
-                'scripts/neuromuscular_optimization',
-                'optimization_results',
-                'PENALTIES.txt'
-            )
+        neuromechfly_path,
+        'scripts/neuromuscular_optimization',
+        'optimization_results',
+        'PENALTIES.txt'
+    )
 
     pylog.info('Output file (penalty values): ' + output_file_directory)
 
@@ -126,11 +127,11 @@ def generate_config_file(log: dict) -> None:
     """ Generates a config file of the weights used in the optimization. """
 
     output_file_directory = os.path.join(
-                neuromechfly_path,
-                'scripts/neuromuscular_optimization',
-                'optimization_results',
-                'CONFIG.yaml'
-            )
+        neuromechfly_path,
+        'scripts/neuromuscular_optimization',
+        'optimization_results',
+        'CONFIG.yaml'
+    )
 
     pylog.info('Output config file : ' + output_file_directory)
 
@@ -153,11 +154,11 @@ def separate_penalties_into_gens(n_gen: int, n_pop: int, output_directory: str) 
     """
 
     penalties_directory = os.path.join(
-            neuromechfly_path,
-            'scripts/neuromuscular_optimization',
-            'optimization_results',
-            'PENALTIES.txt'
-        )
+        neuromechfly_path,
+        'scripts/neuromuscular_optimization',
+        'optimization_results',
+        'PENALTIES.txt'
+    )
 
     penalties = np.loadtxt(penalties_directory)
 
@@ -167,7 +168,7 @@ def separate_penalties_into_gens(n_gen: int, n_pop: int, output_directory: str) 
                 output_directory,
                 'PENALTIES.{}'.format(generation)
             ),
-            penalties[generation * n_pop : (generation + 1) * n_pop, :],
+            penalties[generation * n_pop: (generation + 1) * n_pop, :],
             '%.15f'
         )
 
@@ -191,47 +192,47 @@ class DrosophilaEvolution(FloatProblem):
         self.obj_labels = ["Distance (negative)", "Stability"]
 
         # Bounds for frequency
-        lower_bound_frequency = 6 # Hz
-        upper_bound_frequency = 10 # Hz
+        lower_bound_frequency = 6  # Hz
+        upper_bound_frequency = 10  # Hz
 
         # Bounds for the muscle parameters 3 muscles per leg
         # Each muscle has 5 variables to be optimized corresponding to
         # Alpha, beta, gamma, delta, and resting pose of the Ekeberg model
         lower_bound_active_muscles = (
-                np.asarray(
-                    [# Front
-                    [1e-10, 1e-10, 1.0, 5e-13, 0.0], # Coxa
-                    [1e-10, 1e-10, 1.0, 5e-13, -2.0], # Femur
-                    [1e-10, 1e-10, 1.0, 5e-13, 1.31], # Tibia
+            np.asarray(
+                [  # Front
+                    [1e-10, 1e-10, 1.0, 5e-13, 0.0],  # Coxa
+                    [1e-10, 1e-10, 1.0, 5e-13, -2.0],  # Femur
+                    [1e-10, 1e-10, 1.0, 5e-13, 1.31],  # Tibia
                     # Mid
-                    [1e-10, 1e-10, 1.0, 5e-13, 2.18], # Coxa_roll
-                    [1e-10, 1e-10, 1.0, 5e-13, -2.14], # Femur
-                    [1e-10, 1e-10, 1.0, 5e-13, 1.96], # Tibia
+                    [1e-10, 1e-10, 1.0, 5e-13, 2.18],  # Coxa_roll
+                    [1e-10, 1e-10, 1.0, 5e-13, -2.14],  # Femur
+                    [1e-10, 1e-10, 1.0, 5e-13, 1.96],  # Tibia
                     # Hind
-                    [1e-10, 1e-10, 1.0, 5e-13, 2.69], # Coxa_roll
-                    [1e-10, 1e-10, 1.0, 5e-13, -2.14], # Femur
-                    [1e-10, 1e-10, 1.0, 5e-13, 1.43], # Tibia
-                    ]
-                )
+                    [1e-10, 1e-10, 1.0, 5e-13, 2.69],  # Coxa_roll
+                    [1e-10, 1e-10, 1.0, 5e-13, -2.14],  # Femur
+                    [1e-10, 1e-10, 1.0, 5e-13, 1.43],  # Tibia
+                ]
+            )
         ).flatten()
 
         upper_bound_active_muscles = (
-                np.asarray(
-                    [
+            np.asarray(
+                [
                     # Front
-                    [5e-9, 1e-9, 10.0, 1e-11, 0.47], # Coxa
-                    [1e-9, 1e-9, 10.0, 1e-11, -1.68], # Femur
-                    [1e-9, 1e-9, 10.0, 1e-11, 2.05], # Tibia
+                    [5e-9, 1e-9, 10.0, 1e-11, 0.47],  # Coxa
+                    [1e-9, 1e-9, 10.0, 1e-11, -1.68],  # Femur
+                    [1e-9, 1e-9, 10.0, 1e-11, 2.05],  # Tibia
                     # Mid
-                    [5e-9, 1e-9, 10.0, 1e-11, 2.01], # Coxa_roll
-                    [1e-9, 1e-9, 10.0, 1e-11, -2.0], # Femur
-                    [1e-9, 1e-9, 10.0, 1e-11, 2.22], # Tibia
+                    [5e-9, 1e-9, 10.0, 1e-11, 2.01],  # Coxa_roll
+                    [1e-9, 1e-9, 10.0, 1e-11, -2.0],  # Femur
+                    [1e-9, 1e-9, 10.0, 1e-11, 2.22],  # Tibia
                     # Hind
-                    [5e-9, 1e-9, 10.0, 1e-11, 2.53], # Coxa_roll
-                    [1e-9, 1e-9, 10.0, 1e-11, -1.55], # Femur
-                    [1e-9, 1e-9, 10.0, 1e-11, 2.26], # Tibia
-                    ]
-                )
+                    [5e-9, 1e-9, 10.0, 1e-11, 2.53],  # Coxa_roll
+                    [1e-9, 1e-9, 10.0, 1e-11, -1.55],  # Femur
+                    [1e-9, 1e-9, 10.0, 1e-11, 2.26],  # Tibia
+                ]
+            )
         ).flatten()
 
         #: Bounds for the intraleg (12) and interleg (5) phases
@@ -353,7 +354,8 @@ class DrosophilaEvolution(FloatProblem):
         objectives = {}
 
         #: Forward distance (backward rotation of the ball)
-        objectives['distance'] = np.array(fly.ball_rotations)[0] * fly.ball_radius * fly.units.meters
+        objectives['distance'] = np.array(fly.ball_rotations)[
+            0] * fly.ball_radius * fly.units.meters
         objectives['stability'] = fly.opti_stability
         # objectives['mechanical_work'] = np.sum(fly.mechanical_work)
 
@@ -363,7 +365,8 @@ class DrosophilaEvolution(FloatProblem):
         duty_factor = fly.duty_factor
         # Keep the duty factor between 40% and 90%
         # Taken from Mendes et al. 2012
-        penalties['duty_factor'] = np.count_nonzero(duty_factor < 0.4) + np.count_nonzero(duty_factor > 0.90)
+        penalties['duty_factor'] = np.count_nonzero(
+            duty_factor < 0.4) + np.count_nonzero(duty_factor > 0.90)
 
         #: Penalty long stance periods
         # constraints = {}
@@ -410,11 +413,13 @@ class DrosophilaEvolution(FloatProblem):
         print('\nPenalties\n=========')
         for name, item in penalties_weighted.items():
             print(
-                '{}: {}'.format(name,item)
+                '{}: {}'.format(name, item)
             )
 
-        solution.objectives[0] = objectives_weighted['distance'] + sum(penalties_weighted.values())
-        solution.objectives[1] = objectives_weighted['stability'] + sum(penalties_weighted.values())
+        solution.objectives[0] = objectives_weighted['distance'] + \
+            sum(penalties_weighted.values())
+        solution.objectives[1] = objectives_weighted['stability'] + \
+            sum(penalties_weighted.values())
 
         print(
             f'\nObjective func eval:\nFirst: {solution.objectives[0]}\nSecond: {solution.objectives[1]}\n'

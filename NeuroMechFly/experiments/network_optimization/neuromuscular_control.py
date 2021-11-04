@@ -98,10 +98,13 @@ class DrosophilaSimulation(BulletSimulation):
         # Set the physical properties of the environment
         # TODO: Move this to bullet
         dynamics = {
-            "lateralFriction": 1.0, "restitution": 0.0, "spinningFriction": 0.0,
-            "rollingFriction": 0.0, "linearDamping": 0.0, "angularDamping": 0.0,
-            "maxJointVelocity": 1e8
-        }
+            "lateralFriction": 1.0,
+            "restitution": 0.0,
+            "spinningFriction": 0.0,
+            "rollingFriction": 0.0,
+            "linearDamping": 0.0,
+            "angularDamping": 0.0,
+            "maxJointVelocity": 1e8}
         for _link, idx in self.link_id.items():
             for name, value in dynamics.items():
                 p.changeDynamics(self.animal, idx, **{name: value})
@@ -140,7 +143,7 @@ class DrosophilaSimulation(BulletSimulation):
         # Read joint limits from the model
         _sdf_model = ModelSDF.read(self.model)[0]
         self.joint_limits = {
-            joint.name : joint.axis.limits[:2]
+            joint.name: joint.axis.limits[:2]
             for joint in _sdf_model.joints
             if joint.axis.limits
         }
@@ -150,7 +153,7 @@ class DrosophilaSimulation(BulletSimulation):
         utorque = self.units.torques
 
         torques = {
-            self.joint_id[key] : value.compute_torque(only_passive=False)*utorque
+            self.joint_id[key]: value.compute_torque(only_passive=False) * utorque
             for key, value in self.active_muscles.items()
         }
         p.setJointMotorControlArray(
@@ -166,7 +169,11 @@ class DrosophilaSimulation(BulletSimulation):
         self.muscle_controller()
 
         if t == 2.999 * 1e4:
-            average_speed = abs((self.ball_radius * self.units.meters * self.ball_rotations[0]) / 3.0)
+            average_speed = abs(
+                (self.ball_radius *
+                 self.units.meters *
+                 self.ball_rotations[0]) /
+                3.0)
             print(f'Fly average speed is: {average_speed} mm/s')
             print(f'Duty factor is: {self.duty_factor}')
         # Change the color of the colliding body segments
@@ -261,10 +268,10 @@ class DrosophilaSimulation(BulletSimulation):
         x1, y1 = point_a
         x2, y2 = point_b
         x3, y3 = point_c
-        dx, dy = x2-x1, y2-y1
-        det = dx*dx + dy*dy
-        a = (dy*(y3-y1)+dx*(x3-x1))/det
-        point_d = np.array([x1+a*dx, y1+a*dy])
+        dx, dy = x2 - x1, y2 - y1
+        det = dx * dx + dy * dy
+        a = (dy * (y3 - y1) + dx * (x3 - x1)) / det
+        point_d = np.array([x1 + a * dx, y1 + a * dy])
         return point_d
 
     def compute_static_stability(self, draw_polygon=True):
@@ -284,11 +291,11 @@ class DrosophilaSimulation(BulletSimulation):
 
         """
         # Initialize static stability
-        static_stability = -1.0 # Why 10?
+        static_stability = -1.0  # Why 10?
         # Ground contacts
         current_ground_contact_links = self.get_current_contacts()
         contact_points = [
-            self.get_link_position(f"{side}Tarsus5")*self.units.meters + [0, 0, .2]
+            self.get_link_position(f"{side}Tarsus5") * self.units.meters + [0, 0, .2]
             for side in ("RF", "RM", "RH", "LH", "LM", "LF")
             if any(
                 self.link_id[f"{side}Tarsus{num}"] in current_ground_contact_links
@@ -309,16 +316,17 @@ class DrosophilaSimulation(BulletSimulation):
         distances = [
             DrosophilaSimulation.compute_perpendicular_distance(
                 DrosophilaSimulation.compute_line_coefficients(
-                    coords[idx], coords[idx+1]
+                    coords[idx], coords[idx + 1]
                 ),
                 center_of_mass
             )
-            for idx in range(len(coords)-1)
+            for idx in range(len(coords) - 1)
         ]
         # Check if COM is within the polygon
         com_inside = polygon.contains(Point(center_of_mass))
         # Compute static_stability
-        static_stability =  np.min(distances) if com_inside else static_stability
+        static_stability = np.min(
+            distances) if com_inside else static_stability
         # DEBUG : Drawing
         if draw_polygon:
             # Draw the polygon
@@ -326,16 +334,16 @@ class DrosophilaSimulation(BulletSimulation):
             for idx, line_id in enumerate(self.draw_ss_line_ids):
                 from_coord, to_coord = (0, 0, 0), (0, 0, 0)
                 contact_pos = (0, 0, 0)
-                if idx < num_coords-1:
-                    from_coord, to_coord = coords[idx], coords[idx+1]
+                if idx < num_coords - 1:
+                    from_coord, to_coord = coords[idx], coords[idx + 1]
                     contact_pos = contact_points[idx] - [0, 0, .2]
                 p.addUserDebugLine(
-                    from_coord, to_coord, lineColorRGB=(1,0,0),
+                    from_coord, to_coord, lineColorRGB=(1, 0, 0),
                     replaceItemUniqueId=line_id
                 )
                 # Draw a vertical line from contact point to polygon
                 p.addUserDebugLine(
-                    contact_pos, from_coord, lineColorRGB=(0,0,1),
+                    contact_pos, from_coord, lineColorRGB=(0, 0, 1),
                     replaceItemUniqueId=self.draw_ss_horz_line_ids[idx]
                 )
             # Draw a vertical line from center of mass
@@ -352,7 +360,7 @@ class DrosophilaSimulation(BulletSimulation):
                     center_of_mass + [0, 0, -1e0],
                     list(DrosophilaSimulation.compute_perpendicular_point(
                         np.array(coords[int(np.argmin(distances))])[:2],
-                        np.array(coords[int(np.argmin(distances))+1])[:2],
+                        np.array(coords[int(np.argmin(distances)) + 1])[:2],
                         center_of_mass[:2],
                     )) + [np.array(coords[int(np.argmin(distances))])[-1]],
                     lineColorRGB=(0, 1, 0),
@@ -396,11 +404,10 @@ class DrosophilaSimulation(BulletSimulation):
 
         return np.array(
             [
-                np.count_nonzero(np.sum(contact[:,leg_id:leg_id+5], axis=1)) / contact.shape[0]
-                for leg_id in range(0,30,5)
+                np.count_nonzero(np.sum(contact[:, leg_id:leg_id + 5], axis=1)) / contact.shape[0]
+                for leg_id in range(0, 30, 5)
             ]
         )
-
 
     def check_movement(self):
         """ State of lava approaching the model. """
@@ -409,9 +416,9 @@ class DrosophilaSimulation(BulletSimulation):
         total_angular_dist = 1.2 * self.run_time
         ball_angular_position = np.array(self.ball_rotations)[0]
         moving_limit_lower = ((self.time / self.run_time)
-                        * total_angular_dist) - 0.20
+                              * total_angular_dist) - 0.20
         moving_limit_upper = ((self.time / self.run_time)
-                        * 6 * total_angular_dist)
+                              * 6 * total_angular_dist)
         # print(moving_limit_lower, ball_angular_position, moving_limit_upper)
 
         self.opti_lava += 1.0 if np.any(
@@ -425,17 +432,18 @@ class DrosophilaSimulation(BulletSimulation):
     def check_joint_limits(self):
         """ Check if the active exceed joint limits """
         for joint in self.actuated_joints:
-            joint_position = self.physics.joint_positions.get_parameter_value(joint)
+            joint_position = self.physics.joint_positions.get_parameter_value(
+                joint)
             limits = self.joint_limits[joint]
             if joint_position < limits[0]:
-                self.opti_joint_limit += limits[0]-joint_position
+                self.opti_joint_limit += limits[0] - joint_position
             elif joint_position > limits[1]:
-                self.opti_joint_limit += joint_position-limits[1]
+                self.opti_joint_limit += joint_position - limits[1]
 
     def check_velocity_limit(self):
         """ Check velocity limits. """
         self.opti_velocity += 1.0 if np.any(
-            np.array(self.joint_velocities) > 250.0 # Can be changed!!
+            np.array(self.joint_velocities) > 250.0  # Can be changed!!
         ) else 0.0
 
     def optimization_check(self):
@@ -502,7 +510,7 @@ class DrosophilaSimulation(BulletSimulation):
                         ).value = opti_joint_phases[4 * j0 + 2 * j1 + j2]
                         parameters.get_parameter(
                             f"phi_{node_2}_to_{node_1}"
-                        ).value = -1*opti_joint_phases[4 * j0 + 2 * j1 + j2]
+                        ).value = -1 * opti_joint_phases[4 * j0 + 2 * j1 + j2]
 
         # Update the phases for interleg phase relationships
         coxae_edges = [
