@@ -195,7 +195,7 @@ plotting.plot_data(path_data,
 		   end=stop_time)
 ```
 	
-## Customizing NeuroMechFly for your application
+## Customizing NeuroMechFly
 * [Biomechanical model](docs/biomechanical_tutorial.md)
 	- Adding/removing joints
 	- Modifying physical properties
