@@ -14,6 +14,8 @@ from NeuroMechFly.experiments.network_optimization import (
     multiobj_optimization, neuromuscular_control)
 from NeuroMechFly.utils.plotting import plot_collision_diagram, plot_data
 from NeuroMechFly.utils.profiler import profile
+import matplotlib.pyplot as plt
+
 
 neuromechfly_path = Path(pkgutil.get_loader("NeuroMechFly").get_filename()).parents[1]
 
@@ -36,7 +38,7 @@ def parse_args():
 def main(args):
     """ Main function """
 
-    run_time = 12.5
+    run_time = 0.5
     time_step = 1e-4
 
     # Set collision segments
@@ -115,6 +117,27 @@ def main(args):
     results_path = neuromechfly_path.joinpath("scripts/tests/test")
     animal.container.dump(dump_path=results_path, overwrite=True)
     #
+
+    from NeuroMechFly.utils.plot_contacts import plot_gait_diagram
+    contact_flag_data = animal.container.physics.contact_flag.log
+    contact_flag_names = animal.container.physics.contact_flag.names
+    contact_flag = {
+        name: contact_flag_data[:,i] for i, name in enumerate(contact_flag_names)
+    }
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize = (16,4))
+    # ax1.scatter(fun[:,0], fun[:,1])
+    # ax1.scatter(fun[ind,0], fun[ind,1], label=f'Ind: {ind}')
+    ax1.set_xlabel('Distance')
+    ax1.set_ylabel('Stability')
+    ax1.legend()
+    # plt.savefig(os.path.join(results_path, f'selected_sol_{ind}.png'))
+    duty_factor = [round(dut,3) for dut in animal.duty_factor]
+    plot_gait_diagram(data=contact_flag, ax=ax2)
+    ax2.set_title(f'Duty factor: {duty_factor}')
+    ax1.set_title(f'Speed: {round(animal.ball_rotations[0]*5/3, 2)} mm/s')
+    fig.savefig(os.path.join(results_path, f'../selected_sol.png'))
+    plt.show()
 
 
 if __name__ == "__main__":
