@@ -389,9 +389,9 @@ class DrosophilaEvolution(FloatProblem):
             'mechanical_work': 1e-2,
             'stance': 1e0,
             'lava': 1e-1,
-            'velocity': 1e-1,
-            'joint_limits': 5e-2,
-            'duty_factor': 1e2
+            'velocity': 5e-2,
+            'joint_limits': 1e-2,
+            'duty_factor': 5e2
         }
 
         objectives_weighted = {
