@@ -547,6 +547,6 @@ class DrosophilaSimulation(BulletSimulation):
             return np.argmin(norm_fun[:, 0])
         if criteria == 'most_stable':
             return np.argmin(norm_fun[:, 1])
-        if criteria == 'win_win':
+        if criteria == 'tradeoff':
             return np.argmin(np.sqrt(norm_fun[:, 0]**2 + norm_fun[:, 1]**2))
         return int(criteria)

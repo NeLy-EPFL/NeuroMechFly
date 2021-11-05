@@ -273,10 +273,10 @@ def plot_pareto_gens(
     }
     plt.rcParams.update(rc_params)
     colors = (
+        '#808080',
         '#B4479A',
         '#3953A4',
         '#027545',
-        '#808080',
         '#FE420F',
         '#650021',
         '#E6DAA6',
@@ -301,12 +301,12 @@ def plot_pareto_gens(
                 individuals = inds_to_annotate['gen' + str(gen)]
 
             for j, ind_ in enumerate(individuals):
-                cycle = plt.rcParams['axes.prop_cycle'].by_key()['color']
                 ind_number = ds.select_solution(ind_, fun)
                 if len(generations) > 1:
                     ax.scatter(fun[ind_number, 0], fun[ind_number, 1],
                                s=95, c=colors[i % len(colors)], edgecolor='black')
                 else:
+                    cycle = ('#B4479A', '#3953A4', '#027545')
                     ax.scatter(fun[ind_number, 0], fun[ind_number, 1], label=f'Sol {ind_}', s=60, edgecolor='black', c=cycle[j])
 
     ax.set_xlabel('Distance')
@@ -362,8 +362,7 @@ def plot_population_statistics(
     cols = [f'{gen + 1}' for gen in generations]
     rows = [f'Ind {ind}' for ind in range(pop_no)]
 
-    invert = -1 if penalty_number in (0, 1) else 1
-    penalty_df = pd.DataFrame(invert * penalty, columns=cols, index=rows)
+    penalty_df = pd.DataFrame(penalty, columns=cols, index=rows)
     sns.stripplot(
         data=penalty_df,
         size=5,
@@ -464,7 +463,8 @@ def plot_network_activity(
         end=1.5,
         torque_scale=1e9,
         link='Femur',
-        export_path=None):
+        export_path=None,
+        lw=1.5):
     """ Plots the CPG activity, muscle torques and joint angles.
 
     Parameters
@@ -529,28 +529,28 @@ def plot_network_activity(
         if part in ('M', 'H') and link[0] == 'C':
             link = 'Coxa_roll'
 
-        ax1.plot(duration[beg:end], muscle[f'joint_R{part}{link}_flexor_act'][beg:end], label=f'R{part}', color=cycle[i * 2])
-        ax1.plot(duration[beg:end], muscle[f'joint_L{part}{link}_flexor_act'][beg:end], label=f'L{part}', color=cycle[i * 2 + 1])
+        ax1.plot(duration[beg:end], muscle[f'joint_R{part}{link}_flexor_act'][beg:end], label=f'R{part}', linewidth=lw, color=cycle[i * 2])
+        ax1.plot(duration[beg:end], muscle[f'joint_L{part}{link}_flexor_act'][beg:end], label=f'L{part}', linewidth=lw, color=cycle[i * 2 + 1])
         ax1.legend(bbox_to_anchor=(1.1, 1))
         ax1.set_ylabel(f'{link} Protractor (AU)')
 
-        ax2.plot(duration[beg:end], muscle[f'joint_R{part}{link}_torque'][beg:end] * torque_scale, color=cycle[i * 2])
-        ax2.plot(duration[beg:end], muscle[f'joint_L{part}{link}_torque'][beg:end] * torque_scale, color=cycle[i * 2 + 1])
+        ax2.plot(duration[beg:end], muscle[f'joint_R{part}{link}_torque'][beg:end] * torque_scale, linewidth=lw, color=cycle[i * 2])
+        ax2.plot(duration[beg:end], muscle[f'joint_L{part}{link}_torque'][beg:end] * torque_scale, linewidth=lw, color=cycle[i * 2 + 1])
         ax2.set_ylabel(f'{link} Torques ($\mu$Nmm)')
 
-        ax3.plot(duration[beg:end], np.rad2deg(joint_pos[f'joint_R{part}{link}'][beg:end]), color=cycle[i * 2])
-        ax3.plot(duration[beg:end], np.rad2deg(joint_pos[f'joint_L{part}{link}'][beg:end]), color=cycle[i * 2 + 1])
+        ax3.plot(duration[beg:end], np.rad2deg(joint_pos[f'joint_R{part}{link}'][beg:end]), linewidth=lw, color=cycle[i * 2])
+        ax3.plot(duration[beg:end], np.rad2deg(joint_pos[f'joint_L{part}{link}'][beg:end]), linewidth=lw, color=cycle[i * 2 + 1])
         ax3.set_ylabel(f'{link} Joint Angles(deg)')
         ax3.set_xlabel('Time (s)')
 
         for j, joint_angle in enumerate(actuated_joints[part]):
             ls = linestyles[j] if not joint_angle == 'ThC_pitch' else 'dashdot'
             if part == 'F':
-                ax4.plot(duration[beg:end], np.rad2deg(joint_pos[f'joint_L{part}{equivalence[joint_angle]}'][beg:end]), label='LF ' + joint_angle, color=cycle[1], linestyle=ls)
+                ax4.plot(duration[beg:end], np.rad2deg(joint_pos[f'joint_L{part}{equivalence[joint_angle]}'][beg:end]), linewidth=lw, label='LF ' + joint_angle, color=cycle[1], linestyle=ls)
             elif part == 'M':
-                ax5.plot(duration[beg:end], np.rad2deg(joint_pos[f'joint_L{part}{equivalence[joint_angle]}'][beg:end]), label='LM ' + joint_angle, color=cycle[3], linestyle=ls)
+                ax5.plot(duration[beg:end], np.rad2deg(joint_pos[f'joint_L{part}{equivalence[joint_angle]}'][beg:end]), linewidth=lw, label='LM ' + joint_angle, color=cycle[3], linestyle=ls)
             if part == 'H':
-                ax6.plot(duration[beg:end], np.rad2deg(joint_pos[f'joint_L{part}{equivalence[joint_angle]}'][beg:end]), label='LH ' + joint_angle, color=cycle[5], linestyle=ls)
+                ax6.plot(duration[beg:end], np.rad2deg(joint_pos[f'joint_L{part}{equivalence[joint_angle]}'][beg:end]), linewidth=lw, label='LH ' + joint_angle, color=cycle[5], linestyle=ls)
         ax4.legend(
             loc='upper center', bbox_to_anchor=(
                 0.5, -0.1), fancybox=True)

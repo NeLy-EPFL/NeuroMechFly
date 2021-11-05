@@ -937,14 +937,14 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                                        768,
                                        viewMatrix=matrix,
                                        projectionMatrix=projectionMatrix)
-            if self.gui == p.GUI:  # and t % 10 == 0:
+            if self.gui == p.GUI and t % 10 == 0:
                 # TODO: change to frame rate
                 img = p.getCameraImage(
                     1024, 768, renderer=p.ER_BULLET_HARDWARE_OPENGL)
                 rgb_array = img[2]
                 im = Image.fromarray(rgb_array)
 
-                im_name = f"{self.path_imgs}/Frame_{t:06d}.png"
+                im_name = f"{self.path_imgs}/Frame_{t//10:06d}.png"
 
                 if not os.path.exists(self.path_imgs):
                     os.mkdir(self.path_imgs)

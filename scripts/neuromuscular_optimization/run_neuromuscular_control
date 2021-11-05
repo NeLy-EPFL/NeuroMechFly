@@ -63,6 +63,7 @@ def parse_args():
     parser.add_argument('--record', dest='record', action='store_true')
     parser.add_argument('--plot', dest='plot', action='store_true')
     parser.add_argument('--slow', dest='slow', action='store_true')
+    parser.add_argument('--log_penalties', dest='log_penalties', action='store_true')
     parser.add_argument('--profile', dest='profile', action='store_true')
     parser.add_argument('--solver_iterations', dest='solver_iterations', type=int, default=100)
     parser.set_defaults(gui=False, profile=False)
@@ -136,7 +137,7 @@ def main(args):
         "controller": controller_path,
         "ground_contacts": ground_contact,
         # 'self_collisions': self_collision,
-        "draw_collisions": False,  # : Set True to change the color of colliding segments
+        "draw_collisions": True,  # : Set True to change the color of colliding segments
         "record": args.record,  # : Set True to record the simulation
         "solver_iterations":args.solver_iterations,
         'camera_distance': 4.4,
@@ -145,10 +146,10 @@ def main(args):
         'moviespeed': 0.1,  # : Speed of the recorded movie
         'slow_down': args.slow,
         'sleep_time': 1e-3,
-        'rot_cam': False,  # : Set true to rotate the camera automatically
+        'rot_cam': True,  # : Set true to rotate the camera automatically
         'ground': 'ball',
         'results_path': f'{exp}_gen_{gen}_sol_{args.sol}',
-        'save_frames': False,
+        'save_frames': True,
         **ball_specs
     }
     #: Initialize the container
@@ -191,64 +192,42 @@ def main(args):
     if not os.path.exists(results_path):
         os.makedirs(results_path)
 
-    animal.container.dump(dump_path=results_path, overwrite=True)
+    if not args.log_penalties:
+        animal.container.dump(dump_path=results_path, overwrite=False)
+    else:
+        # Log penalties
+        # OBJECTIVES
+        objectives = {}
+        #: Forward distance (backward rotation of the ball)
+        objectives['distance'] = np.array(
+            animal.ball_rotations)[0] * animal.ball_radius * animal.units.meters
+        objectives['stability'] = animal.opti_stability
+        # PENALTIES
+        penalties = {}
+        duty_factor = animal.duty_factor
+        # Keep the duty factor between 40% and 90%
+        # Taken from Mendes et al. 2012
+        penalties['duty_factor'] = np.count_nonzero(
+            duty_factor < 0.4) + np.count_nonzero(duty_factor > 0.90)
+        penalties['lava'] = animal.opti_lava
+        penalties['velocity'] = animal.opti_velocity
+        penalties['joint_limits'] = animal.opti_joint_limit
 
-    # Log penalties
-    # OBJECTIVES
-    objectives = {}
-    #: Forward distance (backward rotation of the ball)
-    objectives['distance'] = np.array(
-        animal.ball_rotations)[0] * animal.ball_radius * animal.units.meters
-    objectives['stability'] = animal.opti_stability
-    # PENALTIES
-    penalties = {}
-    duty_factor = animal.duty_factor
-    # Keep the duty factor between 40% and 90%
-    # Taken from Mendes et al. 2012
-    penalties['duty_factor'] = np.count_nonzero(
-        duty_factor < 0.4) + np.count_nonzero(duty_factor > 0.90)
-    penalties['lava'] = animal.opti_lava
-    penalties['velocity'] = animal.opti_velocity
-    penalties['joint_limits'] = animal.opti_joint_limit
+        print_penalties_to_file(
+            file_path=neuromechfly_path.joinpath(
+                'scripts/neuromuscular_optimization',
+                args.path
+            ), generation=args.gen,
+            penalties=(*objectives.values(), *penalties.values())
+        )
+        print('Penalties logged!')
 
-    weights = {
-        'distance': -1e1,
-        'stability': -1e-2,
-        'mechanical_work': 1e-2,
-        'stance': 1e0,
-        'lava': 1e-1,
-        'velocity': 5e-2,
-        'joint_limits': 1e-2,
-        'duty_factor': 5e2
-    }
-
-    objectives_weighted = {
-        obj_name: obj_value * weights[obj_name]
-        for obj_name, obj_value in objectives.items()
-    }
-
-    penalties_weighted = {
-        pen_name: pen_value * weights[pen_name]
-        for pen_name, pen_value in penalties.items()
-    }
-
-    print_penalties_to_file(
-        file_path=neuromechfly_path.joinpath(
-            'scripts/neuromuscular_optimization',
-            args.path
-        ), generation=args.gen,
-        penalties=(*objectives_weighted.values(), *penalties_weighted.values())
-    )
-    print([(
-            objectives_weighted['distance'] + sum(penalties_weighted.values()) +
-            objectives_weighted['stability'] + sum(penalties_weighted.values())
-        )], [fun[ind, 0] + fun[ind, 1]])
-    # assert np.isclose(
-    #     [(
-    #         objectives_weighted['distance'] + sum(penalties_weighted.values()) +
-    #         objectives_weighted['stability'] + sum(penalties_weighted.values())
-    #     )], [fun[ind, 0] + fun[ind, 1]]
-    # )
+        # assert np.isclose(
+        #     [(
+        #         objectives_weighted['distance'] + sum(penalties_weighted.values()) +
+        #         objectives_weighted['stability'] + sum(penalties_weighted.values())
+        #     )], [fun[ind, 0] + fun[ind, 1]]
+        # )
 
     if args.plot:
         contact_flag_data = animal.container.physics.contact_flag.log
@@ -280,3 +259,7 @@ if __name__ == "__main__":
         profile(main, args=cli_args)
     else:
         main(cli_args)
+
+
+
+
