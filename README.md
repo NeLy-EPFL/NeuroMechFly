@@ -194,6 +194,25 @@ plotting.plot_data(path_data,
 		   begin=start_time,
 		   end=stop_time)
 ```
+	
+## Customizing NeuroMechFly for your application
+* [Biomechanical model](docs/biomechanical_tutorial.md)
+	- Adding/removing joints
+	- Modifying physical properties
+	- Changing the pose
+	
+* [Neural controller](docs/controller_tutorial.md)
+	- Changing neuron type
+	- Incorporating customized controllers
+	
+* [Muscle model](docs/muscles_tutorial.md)
+	- Modifying muscle's properties
+	- Incorporating customized muscle models
+
+* [Environment](docs/environment_tutorial.md)	
+	- Managing the simulation
+	- Modifying the environment
+	
 ---
 
 ## License
