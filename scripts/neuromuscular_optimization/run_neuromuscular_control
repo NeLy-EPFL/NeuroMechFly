@@ -194,19 +194,61 @@ def main(args):
     animal.container.dump(dump_path=results_path, overwrite=True)
 
     # Log penalties
-    distance = np.array(
-        animal.ball_rotations
-    )[0] * animal.ball_radius * animal.units.meters
-    stability = animal.opti_stability
-    lava = animal.opti_lava
-    velocity = animal.opti_velocity
-    joint_limits = animal.opti_joint_limit
+    # OBJECTIVES
+    objectives = {}
+    #: Forward distance (backward rotation of the ball)
+    objectives['distance'] = np.array(
+        animal.ball_rotations)[0] * animal.ball_radius * animal.units.meters
+    objectives['stability'] = animal.opti_stability
+    # PENALTIES
+    penalties = {}
     duty_factor = animal.duty_factor
-    duty_factor = np.count_nonzero(duty_factor < 0.4) + np.count_nonzero(duty_factor > 0.90)
-    animal.duty_factor
-    objective1 = distance*-1e1 + 1e-1*lava + 5e-2*velocity + 1e-2*joint_limits + 1e2*duty_factor
-    objective2 = stability*-1e-2 + 1e-1*lava + 5e-2*velocity + 1e-2*joint_limits + 1e2*duty_factor
-    print(objective1, objective2, fun[ind])
+    # Keep the duty factor between 40% and 90%
+    # Taken from Mendes et al. 2012
+    penalties['duty_factor'] = np.count_nonzero(
+        duty_factor < 0.4) + np.count_nonzero(duty_factor > 0.90)
+    penalties['lava'] = animal.opti_lava
+    penalties['velocity'] = animal.opti_velocity
+    penalties['joint_limits'] = animal.opti_joint_limit
+
+    weights = {
+        'distance': -1e1,
+        'stability': -1e-2,
+        'mechanical_work': 1e-2,
+        'stance': 1e0,
+        'lava': 1e-1,
+        'velocity': 5e-2,
+        'joint_limits': 1e-2,
+        'duty_factor': 5e2
+    }
+
+    objectives_weighted = {
+        obj_name: obj_value * weights[obj_name]
+        for obj_name, obj_value in objectives.items()
+    }
+
+    penalties_weighted = {
+        pen_name: pen_value * weights[pen_name]
+        for pen_name, pen_value in penalties.items()
+    }
+
+    print_penalties_to_file(
+        file_path=neuromechfly_path.joinpath(
+            'scripts/neuromuscular_optimization',
+            args.path
+        ), generation=args.gen,
+        penalties=(*objectives_weighted.values(), *penalties_weighted.values())
+    )
+    print([(
+            objectives_weighted['distance'] + sum(penalties_weighted.values()) +
+            objectives_weighted['stability'] + sum(penalties_weighted.values())
+        )], [fun[ind, 0] + fun[ind, 1]])
+    # assert np.isclose(
+    #     [(
+    #         objectives_weighted['distance'] + sum(penalties_weighted.values()) +
+    #         objectives_weighted['stability'] + sum(penalties_weighted.values())
+    #     )], [fun[ind, 0] + fun[ind, 1]]
+    # )
 
     if args.plot:
         contact_flag_data = animal.container.physics.contact_flag.log
