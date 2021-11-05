@@ -64,11 +64,12 @@ def parse_args():
     parser.add_argument('--plot', dest='plot', action='store_true')
     parser.add_argument('--slow', dest='slow', action='store_true')
     parser.add_argument('--profile', dest='profile', action='store_true')
+    parser.add_argument('--solver_iterations', dest='solver_iterations', type=int, default=100)
     parser.set_defaults(gui=False, profile=False)
     return parser.parse_args()
 
 
-def print_penalties_to_file(file_path: str, generation: int, penalties: Tuple) -> None:
+def print_penalties_to_file(file_path: str, generation: int, penalties: tuple) -> None:
     """ Writes penalties into a txt file inside results. """
 
     output_file_directory = os.path.join(file_path, f"PENALTIES.{generation}")
@@ -137,6 +138,7 @@ def main(args):
         # 'self_collisions': self_collision,
         "draw_collisions": False,  # : Set True to change the color of colliding segments
         "record": args.record,  # : Set True to record the simulation
+        "solver_iterations":args.solver_iterations,
         'camera_distance': 4.4,
         'track': False,
         'moviename': f'{exp}_gen_{gen}_sol_{args.sol}.mp4',
