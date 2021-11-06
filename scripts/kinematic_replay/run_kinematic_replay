@@ -30,8 +30,12 @@ def parse_args():
         '-pf', '--profile', default=False, type=str, required=False,
         dest="profile"
     )
-    parser.add_argument('--record', dest='record', action='store_true')
-    parser.add_argument('-it', '--solver_iteration', type=int, default=1000)
+
+    parser.add_argument('--record', dest='record', action='store_false')
+    parser.add_argument('-erp', '--contactERP', type=float, default=0.1)
+    parser.add_argument('-cfm', '--globalCFM', type=float, default=3.0)
+    parser.add_argument('-th', '--fly_angle', type=float, default=4.0)
+    
     args = parser.parse_args()
     return args
 
@@ -39,10 +43,11 @@ def parse_args():
 def main(args):
     """ Main function """
     behavior = args.behavior.lower()
-    run_time = 6.0
-    time_step = 5e-4
-    starting_time = 0.0 if behavior=='grooming' else 2.0
 
+    run_time = 4.0 if behavior=='grooming' else 6.0
+    time_step = 5e-4
+    starting_time = 0.0
+    
     # Setting up the collision and ground sensors
     side = ['L', 'R']
     pos = ['F', 'M', 'H']
@@ -69,7 +74,7 @@ def main(args):
     # Setting the fixed joint angles to default values, can be altered to
     # change the appearance of the fly
     fixed_positions = {
-        'revolute_support_1': 3.6,
+        'revolute_support_1': args.flyAngle,
         'joint_A3': -15,
         'joint_A4': -15,
         'joint_A5': -15,
@@ -92,7 +97,7 @@ def main(args):
     )
     pose_path = os.path.join(
         neuromechfly_path,
-        'data/config/pose/pose_default.yaml')
+        'data/config/pose/pose_stretch.yaml')
     results_path = os.path.join(
         neuromechfly_path,
         'scripts/kinematic_replay',
@@ -128,10 +133,11 @@ def main(args):
         'rot_cam': True, # Set True to rate the camera
         'behavior': behavior,
         'ground': 'ball',
+        'ball_info': False if behavior=='grooming' else True,
         'ball_mass': 54.6e-6,
         'ball_friction_coef': 1.3,
-        'contactERP': 0.1,
-        'globalCFM': 3.0,
+        'contactERP': args.contactERP,
+        'globalCFM': args.globalCFM,
         'solver_iterations': args.solver_iteration,
     }
 

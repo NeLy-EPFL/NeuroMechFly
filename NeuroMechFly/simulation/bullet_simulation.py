@@ -33,7 +33,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         self.time_step = kwargs.get('time_step', 1e-3) * self.units.seconds
         self.real_time = kwargs.get('real_time', 0)
         self.run_time = kwargs.get('run_time', 10) * self.units.seconds
-        self.solver_iterations = kwargs.get('solver_iterations', 100)
+        self.solver_iterations = kwargs.get('solver_iterations', 1000)
         self.model = kwargs.get('model', None)
         self.model_offset = np.array(
             kwargs.get('model_offset', [0., 0., 0.])
@@ -67,7 +67,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         self.ball_radius = kwargs.get(
             'ball_radius', 5.0e-3)  # 1x (real size 10mm)
         self.ball_mass = kwargs.get('ball_mass', 0) * self.units.kilograms
-        self.ball_friction_coef = kwargs.get('ball_friction_coef', 10)
+        self.ground_friction_coef = kwargs.get('ground_friction_coef', 10)
         self.enable_concave_mesh = kwargs.get(
             'enable_concave_mesh',
             True if self.behavior == 'grooming' else False
@@ -76,7 +76,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         self.draw_collisions = kwargs.get('draw_collisions', False)
 
         self.contactERP = kwargs.get('contactERP', 0.1)
-        self.globalCFM = kwargs.get('globalCFM', 5.0)
+        self.globalCFM = kwargs.get('globalCFM', 3.0)
         self.save_frames = kwargs.get('save_frames', False)
         self.path_imgs = kwargs.get('results_path', 'last_simulation_images')
 
@@ -209,6 +209,10 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             )
             # When plane is used the link id is -1
             self.link_plane = -1
+            p.changeDynamics(self.plane, -1, lateralFriction=self.ground_friction_coef)
+            self.sim_data.add_table('base_linear_velocity')
+            self.sim_data.add_table('base_angular_velocity')
+            self.sim_data.add_table('base_orientation')
         elif self.ground == 'ball':
             # Add floor and ball
             self.floor = p.loadURDF(
@@ -227,14 +231,14 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                 self.ball_radius,
                 self.ball_density,
                 self.ball_mass,
-                self.ball_friction_coef,
+                self.ground_friction_coef,
                 ball_pos
             )
 
             # When ball is used the plane id is 2 as the ball has 3 links
             self.link_plane = 2
             self.sim_data.add_table('ball_rotations')
-            self.sim_data.add_table('ball_velocities')
+            self.sim_data.add_table('ball_velocity')
 
         # Add the animal model
         if '.sdf' in self.model and self.behavior is not None:
@@ -392,7 +396,11 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             # self.sim_data.thorax_force.add_parameter(f'{axis}')
             if self.ground == 'ball':
                 self.sim_data.ball_rotations.add_parameter(f'{axis}')
-                self.sim_data.ball_velocities.add_parameter(f'{axis}')
+                self.sim_data.ball_velocity.add_parameter(f'{axis}')
+            if self.ground == 'floor':
+                self.sim_data.base_linear_velocity.add_parameter(f'{axis}')
+                self.sim_data.base_angular_velocity.add_parameter(f'{axis}')
+                self.sim_data.base_orientation.add_parameter(f'{axis}')
 
         # ADD joint parameters
         for name, _ in self.joint_id.items():
@@ -441,12 +449,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             p.changeDynamics(self.animal, njoint, linearDamping=0.0)
             p.changeDynamics(self.animal, njoint, angularDamping=0.0)
             p.changeDynamics(self.animal, njoint, jointDamping=0.0)
-
-        # for contact in self.ground_contacts:
-        #    if 'Tarsus5' not in contact and 'Tarsus4' not in contact:
-        #        print(contact)
-        #        p.changeDynamics(self.animal, self.link_id[contact], lateralFriction=0.0)
-
+        
         self.total_mass = 0.0
 
         for j in np.arange(-1, p.getNumJoints(self.animal)):
@@ -582,12 +585,8 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                     [-0.09e-3, -0.0e-3, -5.11e-3]
                 ) * self.units.meters + self.model_offset
         else:
-            base_position = np.array(position) * \
-                self.units.meters + self.model_offset
-            print(
-                "Adding ball position from file:",
-                base_position,
-                self.model_offset)
+            base_position = np.array(position) * self.units.meters + self.model_offset
+            print("Adding ball position from file:", base_position)
             print("Adding ball radius from file:", ball_radius)
 
         # Create the sphere
@@ -692,21 +691,38 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         )
 
     @property
-    def ball_velocities(self):
+    def ball_velocity(self):
         """ Return the ball angular velocity. """
         return tuple(
             p.getLinkState(
                 self.plane,
                 2,
-                computeLinkVelocity=1
-            )[7]
-        )
-        # return tuple(
-        #    state[1] / self.units.velocity for state in p.getJointStates(
-        #        self.plane,
-        #        np.arange(0, p.getNumJoints(self.plane))
-        #    )
-        #)
+                computeLinkVelocity=1)[7])
+
+    @property
+    def base_linear_velocity(self):
+        """ Return the base world linear velocity. """
+        imeter = 1. / self.units.meters
+        if self.base_link and self.link_id[self.base_link] != -1:
+            link_id = self.link_id[self.base_link]
+            return np.array(p.getLinkState(
+                self.animal,
+                self.link_id[self.base_link],
+                computeLinkVelocity=1)[6]) * imeter
+        else:
+            return np.array(p.getBaseVelocity(self.animal)[0])*imeter
+
+    @property
+    def base_angular_velocity(self):
+        """ Return the base world angular velocity. """
+        if self.base_link and self.link_id[self.base_link] != -1:
+            link_id = self.link_id[self.base_link]
+            return np.array(p.getLinkState(
+                self.animal,
+                self.link_id[self.base_link],
+                computeLinkVelocity=1)[7])
+        else:
+            return np.array(p.getBaseVelocity(self.animal)[1])
 
     @property
     def base_position(self):
@@ -720,6 +736,18 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             return np.array(
                 (p.getBasePositionAndOrientation(
                     self.animal))[0]) * imeter
+    @property
+    def base_orientation(self):
+        """ Get the position of the animal  """
+        if self.base_link and self.link_id[self.base_link] != -1:
+            link_id = self.link_id[self.base_link]
+            orientation = np.array((p.getLinkState(self.animal, link_id))[
+                            1]) 
+        else:
+            orientation = np.array(
+                (p.getBasePositionAndOrientation(
+                    self.animal))[1])
+        return p.getEulerFromQuaternion(orientation)
 
     @property
     def joint_positions(self):
@@ -796,8 +824,15 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         if self.ground == 'ball':
             self.sim_data.ball_rotations.values = np.asarray(
                 self.ball_rotations).flatten()
-            self.sim_data.ball_velocities.values = np.asarray(
-                self.ball_velocities).flatten()
+            self.sim_data.ball_velocity.values = np.asarray(
+                self.ball_velocity).flatten()
+        if self.ground == 'floor':
+            self.sim_data.base_linear_velocity.values = np.asarray(
+                self.base_linear_velocity).flatten()
+            self.sim_data.base_angular_velocity.values = np.asarray(
+                self.base_angular_velocity).flatten()
+            self.sim_data.base_orientation.values = np.asarray(
+                self.base_orientation)
 
     @abc.abstractmethod
     def controller_to_actuator(self):
@@ -849,11 +884,12 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         -------
         out :
         """
-        def convert_time(ts): return int(ts / self.time_step)
         base = np.array(self.base_position) * self.units.meters
 
         # Camera
         if self.gui == p.GUI and self.track_animal:
+            base = np.array(self.base_position) * self.units.meters
+            base[2]= self.model_offset[2]
             yaw = 30
             pitch = -10
             p.resetDebugVisualizerCamera(
@@ -862,27 +898,28 @@ class BulletSimulation(metaclass=abc.ABCMeta):
 
         # Walking camera sequence, set rotate_camera to True to activate
         if self.gui == p.GUI and self.rotate_camera and self.behavior == 'walking':
+            base = np.array(self.base_position) * self.units.meters
 
-            if t < convert_time(3):
+            if t < 3/self.time_step:
                 yaw = 0
                 pitch = -10
-            elif t >= convert_time(3) and t < convert_time(4):
-                yaw = (t - convert_time(3)) / convert_time(1) * 90
+            elif t >= 3/self.time_step and t < 4/self.time_step:
+                yaw = (t - (3/self.time_step)) / (1/self.time_step) * 90
                 pitch = -10
-            elif t >= convert_time(4) and t < convert_time(4.25):
+            elif t >= 4/self.time_step and t < 4.25/self.time_step:
                 yaw = 90
                 pitch = -10
-            elif t >= convert_time(4.25) and t < convert_time(4.75):
+            elif t >= 4.25/self.time_step and t < 4.75/self.time_step:
                 yaw = 90
-                pitch = (t - convert_time(4.25)) / convert_time(.5) * 70 - 10
-            elif t >= convert_time(4.75) and t < convert_time(5):
+                pitch = (t - (4.25/self.time_step)) / (0.5/self.time_step) * 70 - 10
+            elif t >= 4.75/self.time_step and t < 5/self.time_step:
                 yaw = 90
                 pitch = 60
-            elif t >= convert_time(5.) and t < convert_time(5.5):
+            elif t >= 5/self.time_step and t < 5.5/self.time_step:
                 yaw = 90
-                pitch = 60 - (t - convert_time(5)) / convert_time(.5) * 70
-            elif t >= convert_time(5.5) and t < convert_time(7):
-                yaw = (t - convert_time(5.5)) / convert_time(1.5) * 300 + 90
+                pitch = 60 - (t - (5/self.time_step)) / (0.5/self.time_step) * 70
+            elif t >= 5.5/self.time_step and t < 7/self.time_step:
+                yaw = (t - (5.5/self.time_step)) / (1.5/self.time_step) * 300 + 90
                 pitch = -10
             else:
                 yaw = 30
@@ -895,15 +932,15 @@ class BulletSimulation(metaclass=abc.ABCMeta):
 
         # Grooming camera sequence, set rotate_camera to True to activate
         if self.gui == p.GUI and self.rotate_camera and self.behavior == 'grooming':
-
-            if t < convert_time(0.25):
+            base = np.array(self.base_position) * self.units.meters
+            if t < 0.25/self.time_step:
                 yaw = 0
                 pitch = -10
-            elif t >= convert_time(.25) and t < convert_time(2.):
-                yaw = (t - convert_time(.25)) / convert_time(1.75) * 150
+            elif t >= 0.25/self.time_step and t < 2.0/self.time_step:
+                yaw = (t - (0.25/self.time_step)) / (1.75/self.time_step) * 150
                 pitch = -10
-            elif t >= convert_time(2.) and t < convert_time(3.5):
-                yaw = 150 - (t - convert_time(2.)) / convert_time(1.5) * 120
+            elif t >= 2.0/self.time_step and t < 3.5/self.time_step:
+                yaw = 150 - (t - (2.0/self.time_step)) / (1.5/self.time_step) * 120
                 pitch = -10
             else:
                 yaw = 30
@@ -974,7 +1011,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         self.time += self.time_step
         # Step physics
         solver = p.stepSimulation()
-        # print(f"numIterationsUsed: {solver[0]['numIterationsUsed']}\tremainingResidual: {solver[0]['remainingResidual']}")
+        
         # Slow down the simulation
         if self.slow_down:
             time.sleep(self.sleep_time)

@@ -76,13 +76,17 @@ class DrosophilaSimulation(BulletSimulation):
             (0., 0., 0.), (0., 0., 0.), lineColorRGB=[1, 0, 0]
         )
 
-    def load_data(self, data_path, starting_time=0):
+
+    def load_data(self, data_path, starting_time):
         """ Function that loads the pickle format joint angle or velocity gile.
 
         Parameters
         ----------
         data_path : <str>
             Path of the .pkl file.
+
+        starting_time : <float>
+            Experiment's time from which the simulation will start.
 
         Returns
         -------
@@ -193,7 +197,7 @@ class DrosophilaSimulation(BulletSimulation):
                         self.change_color(link, self.color_legs)
 
             elif self.behavior == 'grooming':
-                # Don't consider the ground sensors
+                # Don't consider the ground sensors
                 collision_forces = self.contact_normal_force[len(
                     self.ground_contacts):, :]
                 links_contact = np.where(
@@ -215,6 +219,7 @@ class DrosophilaSimulation(BulletSimulation):
                         else:
                             self.change_color(link, self.color_legs)
             self.last_draw = draw
+            
 
     def change_color(self, identity, color):
         """ Change color of a given body segment. """

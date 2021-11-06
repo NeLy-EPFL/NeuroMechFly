@@ -184,6 +184,25 @@ plotting.plot_network_activity(
 )
 
 ```
+	
+## Customizing NeuroMechFly
+* [Biomechanical model](docs/biomechanical_tutorial.md)
+	- Adding/removing joints
+	- Modifying physical properties
+	- Changing the pose
+	
+* [Neural controller](docs/controller_tutorial.md)
+	- Changing neuron type
+	- Incorporating customized controllers
+	
+* [Muscle model](docs/muscles_tutorial.md)
+	- Modifying muscle's properties
+	- Incorporating customized muscle models
+
+* [Environment](docs/environment_tutorial.md)	
+	- Managing the simulation
+	- Modifying the environment
+	
 ---
 
 ## License
