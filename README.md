@@ -85,9 +85,7 @@ Run the following commands on the terminal to reproduce the locomotor gait optim
 
 **NOTE:** Optimization results will be stored under *scripts/neuromuscular_optimization/optimization_results* inside a folder named according to the chosen optimization run.
 
-**NOTE:** The code and results in this repository are improved compared with the results in our original [paper](https://www.biorxiv.org/content/10.1101/2021.04.17.440214v1).
-
-**NOTE:** To formulate new objective functions and penalties, please refer to the *NeuroMechFly/experiments/network_optimization*.
+**NOTE:** To formulate new objective functions and penalties, please refer to the [neural controller tutorial](docs/controller_tutorial.md).
 
 ---
 
