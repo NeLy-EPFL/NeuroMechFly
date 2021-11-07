@@ -74,11 +74,11 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         )
         self.self_collisions = kwargs.get('self_collisions', [])
         self.draw_collisions = kwargs.get('draw_collisions', False)
-
+        self.ball_info = kwargs.get('ball_info', False)
         self.contactERP = kwargs.get('contactERP', 0.1)
         self.globalCFM = kwargs.get('globalCFM', 3.0)
         self.save_frames = kwargs.get('save_frames', False)
-        self.path_imgs = kwargs.get('results_path', 'last_simulation_images')
+        self.path_imgs = kwargs.get('results_path', 'last_simulation').replace('kinematic_replay_', 'images_')
 
         # Init
         self.time = 0.0
@@ -220,20 +220,18 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                 globalScaling=0.01 * self.units.meters
             )
 
-            try:
-                # Load ball info from fictrac data
+            if self.ball_info:
                 self.ball_radius, ball_pos = self.load_ball_info()
-            except BaseException:
-                # If not provided, then set the ball pos to None
+            else:
                 ball_pos = None
-
+                
             self.plane = self.add_ball(
                 self.ball_radius,
                 self.ball_density,
                 self.ball_mass,
                 self.ground_friction_coef,
                 ball_pos
-            )
+                )
 
             # When ball is used the plane id is 2 as the ball has 3 links
             self.link_plane = 2
@@ -884,7 +882,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         -------
         out :
         """
-        base = np.array(self.base_position) * self.units.meters
+        #base = np.array(self.base_position) * self.units.meters
 
         # Camera
         if self.gui == p.GUI and self.track_animal:
@@ -953,8 +951,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
 
         if self.gui == p.GUI and self.rotate_camera and self.behavior is None:
             base = np.array(self.base_position) * self.units.meters
-            yaw = (t - convert_time(2.5)) / \
-                (self.run_time / self.time_step) * 180
+            yaw = (t - (self.run_time/self.time_step)) / (self.run_time/self.time_step) * 360
             pitch = -10
             p.resetDebugVisualizerCamera(
                 self.camera_distance,
@@ -974,24 +971,21 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                                        768,
                                        viewMatrix=matrix,
                                        projectionMatrix=projectionMatrix)
-            if self.gui == p.GUI and t % 10 == 0:
-                # TODO: change to frame rate
-                img = p.getCameraImage(
-                    1024, 768, renderer=p.ER_BULLET_HARDWARE_OPENGL)
-                rgb_array = img[2]
-                im = Image.fromarray(rgb_array)
+            if self.gui == p.GUI:
+                img = p.getCameraImage(1024, 768, renderer=p.ER_BULLET_HARDWARE_OPENGL)
+            rgb_array = img[2]
+            im = Image.fromarray(rgb_array)
+            
+            im_name = f"{self.path_imgs}/Frame_{t:06d}.png"
+            if not os.path.exists(self.path_imgs):
+                os.mkdir(self.path_imgs)
+        
+            im.save(im_name)
 
-                im_name = f"{self.path_imgs}/Frame_{t//10:06d}.png"
-
-                if not os.path.exists(self.path_imgs):
-                    os.mkdir(self.path_imgs)
-
-                im.save(im_name)
-
-                # Disable rendering temporary makes adding objects faster
-                p.configureDebugVisualizer(p.COV_ENABLE_RENDERING, 0)
-                p.configureDebugVisualizer(p.COV_ENABLE_GUI, 0)
-                p.configureDebugVisualizer(p.COV_ENABLE_TINY_RENDERER, 0)
+            #disable rendering temporary makes adding objects faster
+            p.configureDebugVisualizer(p.COV_ENABLE_RENDERING, 0)
+            p.configureDebugVisualizer(p.COV_ENABLE_GUI, 0)
+            p.configureDebugVisualizer(p.COV_ENABLE_TINY_RENDERER, 0)
 
         # Update logs
         self.update_logs()

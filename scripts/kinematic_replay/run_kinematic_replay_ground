@@ -5,7 +5,7 @@ In the command line, run $ run_kinematic_replay_ground
 Default behavior is walking, to change it to grooming, add '-b grooming' to the command you run.
 To record the simulation, append '--record' to the command you run.
 To add ball perturbations, append '--perturbation' to the command you run.
-To make further changes to the simulation, see 'sim_options' on line 108.
+To make further changes to the simulation, see 'sim_options' on line 110.
 """
 
 import os
@@ -26,18 +26,27 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-b', '--behavior', default='walking')
     parser.add_argument('--record', dest='record', action='store_false')
+    parser.add_argument('--show_collisions', dest='show_collisions', action='store_true')
+    parser.add_argument('-fly', '--fly_number', default='1')
     parser.add_argument(
         '-p',
         '--perturbation',
         default=False,
         action='store_true')
-    parser.add_argument('-it', '--solver_iteration', type=int, default=1000)
     args = parser.parse_args()
 
     behavior = args.behavior.lower()
     run_time = 6.0
     time_step = 5e-4
-    starting_time = 0.0 
+    starting_time = 0.0
+
+    # Paths of the position and velocity data
+    data_path = os.path.join(
+        neuromechfly_path,
+        f'data/joint_tracking/{behavior}/fly{args.fly_number}/df3d')
+    
+    angles_path = glob.glob(data_path + '/joint_angles*.pkl')[0]
+    velocity_path = glob.glob(data_path + '/joint_velocities*.pkl')[0]
 
     # Setting up the collision and ground sensors
     side = ['L', 'R']
@@ -109,7 +118,7 @@ if __name__ == "__main__":
         "base_link": 'Thorax',
         "ground_contacts": ground_contact,
         "self_collisions": self_collision,
-        "draw_collisions": True,  # Set True to change the color of colliding segments
+        "draw_collisions": args.show_collisions,  # Set True to change the color of colliding segments
         "record": args.record,  # Set True to record the simulation
         "save_frames": False,  # Set True to save frames instead of video
         "results_path": results_path,
@@ -125,14 +134,6 @@ if __name__ == "__main__":
         'ground_friction_coef': 0.1
     }
 
-    # Paths of the position and velocity data
-    #data_path = "/home/lobato/Desktop/DF3D_data/210902_PR_Fly3_001_beh_behData/images/df3d"
-    data_path = os.path.join(
-        neuromechfly_path,
-        f'data/joint_tracking/{behavior}/fly2/df3d')
-    
-    angles_path = glob.glob(data_path + '/joint_angles*.pkl')[0]
-    velocity_path = glob.glob(data_path + '/joint_velocities*.pkl')[0]
     # Initialize the container
     container = Container(run_time / time_step)
     # Initialize the simulation

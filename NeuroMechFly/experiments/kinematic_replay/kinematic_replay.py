@@ -141,8 +141,14 @@ class DrosophilaSimulation(BulletSimulation):
         ----------
         t : <int>
             Time running in the physics engine.
-        """
-
+        """        
+        # Setting the joint angular positions of the fixed joints
+        if not self.fixed_positions:
+            self.fixed_positions = {
+                'joint_LAntenna': 35,
+                'joint_RAntenna': -35,
+            }
+        
         # Setting the joint angular positions of the fixed joints
         for joint_name, joint_pos in self.fixed_positions.items():
             self.pose[self.joint_id[joint_name]] = np.deg2rad(joint_pos)
@@ -156,15 +162,6 @@ class DrosophilaSimulation(BulletSimulation):
         # estimation
         for joint_name, joint_vel in self.velocities.items():
             self.vel[self.joint_id[joint_name]] = joint_vel[t]
-
-        # Reset joint states to prevent explosion at high gains
-        if t==0:
-            for joint in range(self.num_joints):
-                p.resetJointState(
-                    self.animal, joint,
-                    targetValue=self.pose[joint],
-                    targetVelocity=self.vel[joint]
-                )
 
         # Control the joints through position controller
         # Velocity can be discarded if not available and gains can be changed
