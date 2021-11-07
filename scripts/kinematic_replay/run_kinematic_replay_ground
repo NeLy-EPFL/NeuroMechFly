@@ -5,7 +5,7 @@ In the command line, run $ run_kinematic_replay_ground
 Default behavior is walking, to change it to grooming, add '-b grooming' to the command you run.
 To record the simulation, append '--record' to the command you run.
 To add ball perturbations, append '--perturbation' to the command you run.
-To make further changes to the simulation, see 'sim_options' on line 108.
+To make further changes to the simulation, see 'sim_options' on line 110.
 """
 
 import os
@@ -25,19 +25,28 @@ if __name__ == "__main__":
     """ Main. """
     parser = argparse.ArgumentParser()
     parser.add_argument('-b', '--behavior', default='walking')
-    parser.add_argument('--record', dest='record', action='store_true')
+    parser.add_argument('--record', dest='record', action='store_false')
+    parser.add_argument('--show_collisions', dest='show_collisions', action='store_true')
+    parser.add_argument('-fly', '--fly_number', default='1')
     parser.add_argument(
         '-p',
         '--perturbation',
         default=False,
         action='store_true')
-    parser.add_argument('-it', '--solver_iteration', type=int, default=1000)
     args = parser.parse_args()
 
     behavior = args.behavior.lower()
     run_time = 6.0
     time_step = 5e-4
-    starting_time = 0.0 if behavior == 'grooming' else 2.0
+    starting_time = 0.0
+
+    # Paths of the position and velocity data
+    data_path = os.path.join(
+        neuromechfly_path,
+        f'data/joint_tracking/{behavior}/fly{args.fly_number}/df3d')
+    
+    angles_path = glob.glob(data_path + '/joint_angles*.pkl')[0]
+    velocity_path = glob.glob(data_path + '/joint_velocities*.pkl')[0]
 
     # Setting up the collision and ground sensors
     side = ['L', 'R']
@@ -83,10 +92,10 @@ if __name__ == "__main__":
     # Setting up the paths for the SDF and POSE files
     model_path = os.path.join(
         neuromechfly_path,
-        'data/design/sdf/neuromechfly_noLimits_noSupport.sdf')
+        'data/design/sdf/neuromechfly_noLimits_ground.sdf')
     pose_path = os.path.join(
         neuromechfly_path,
-        'data/config/pose/pose_tripod.yaml')
+        'data/config/pose/pose_stretch.yaml')
     results_path = os.path.join(
         neuromechfly_path,
         'scripts/kinematic_replay',
@@ -100,21 +109,21 @@ if __name__ == "__main__":
 
     # Simulation options
     sim_options = {
-        "headless": False,
+        "headless": True,
         "model": model_path,
         "pose": pose_path,
-        "model_offset": [0, 0., 1.70e-3],
+        "model_offset": [0, 0., 1.2e-3],
         "run_time": run_time,
         "time_step": time_step,
         "base_link": 'Thorax',
         "ground_contacts": ground_contact,
         "self_collisions": self_collision,
-        "draw_collisions": True,  # Set True to change the color of colliding segments
+        "draw_collisions": args.show_collisions,  # Set True to change the color of colliding segments
         "record": args.record,  # Set True to record the simulation
         "save_frames": False,  # Set True to save frames instead of video
         "results_path": results_path,
         'camera_distance': 7.0,
-        'track': False,  # Set True to track the animal automatically
+        'track': True,  # Set True to track the animal automatically
         'moviename': f'{results_path}.mp4',
         'moviespeed': 0.2,  # Speed of the recorded movie
         'slow_down': False,
@@ -122,18 +131,9 @@ if __name__ == "__main__":
         'rot_cam': False,
         'behavior': behavior,  # Set true to rotate the camera automatically
         'ground': 'floor',
-        'num_substep': 5,
-        'contactERP': 0.1,
-        'globalCFM': 3.0,
-        'solver_iterations': args.solver_iteration,
+        'ground_friction_coef': 0.1
     }
 
-    # Paths of the position and velocity data
-    data_path = os.path.join(
-        neuromechfly_path,
-        f'data/joint_tracking/{behavior}/df3d')
-    angles_path = glob.glob(data_path + '/joint_angles*.pkl')[0]
-    velocity_path = glob.glob(data_path + '/joint_velocities*.pkl')[0]
     # Initialize the container
     container = Container(run_time / time_step)
     # Initialize the simulation

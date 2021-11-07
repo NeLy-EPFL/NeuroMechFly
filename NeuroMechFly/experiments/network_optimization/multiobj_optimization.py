@@ -4,6 +4,7 @@ import logging
 import os
 from pathlib import Path
 import pkgutil
+import random
 import yaml
 from typing import Tuple
 
@@ -28,6 +29,8 @@ neuromechfly_path = Path(pkgutil.get_loader(
 
 pylog.set_level('error')
 
+random.seed(0)
+np.random.seed(0)
 
 class WriteFullFrontToFileObserver(Observer):
     """ Write full front to file. """

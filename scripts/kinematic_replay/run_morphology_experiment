@@ -91,7 +91,6 @@ def main(args):
     elif args.experiment == 'stick_legs_antennae':
         sdf_name = 'neuromechfly_frontleg_antenna_cylinder.sdf'
     else:
-        print('Setting the normal SDF...')
         sdf_name = 'neuromechfly_noLimits.sdf'
 
     model_path = os.path.join(

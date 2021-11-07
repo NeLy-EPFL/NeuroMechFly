@@ -27,7 +27,7 @@ If you use NeuroMechFly in your research, you can cite us:
 ## Content
 
 - [Starting](#starting)
-- [Reproducing the experiments](#replicating-our-results)
+- [Reproducing the experiments](#reproducing-the-experiments)
 - [Miscellaneous](#miscellaneous)
 
 
@@ -35,7 +35,7 @@ If you use NeuroMechFly in your research, you can cite us:
 * [Installation](docs/installation.md)
 * [Angle Processing](docs/angleprocessing.md)
 
-## Replicating our results
+## Reproducing the experiments
 **Note:** before running the following scripts, please be sure to activate the virtual environment (see the [installation guide](docs/installation.md))
 
 NeuroMechFly is run in [PyBullet](https://github.com/bulletphysics/bullet3/tree/master/examples/pybullet). In the Graphical User Interface, you can use the following keyboard and mouse combinations to control the camera's viewpoint:
@@ -50,15 +50,17 @@ NeuroMechFly is run in [PyBullet](https://github.com/bulletphysics/bullet3/tree/
 </p>
 
 Run the following commands on the terminal to reproduce the kinematic replay experiments:
-- ```$ run_kinematic_replay --behavior walking -it 100```  for locomotion on the spherical treadmill. To simulate foreleg/antennal grooming, change ```walking``` at the end of the command to ```grooming```.
+- ```$ run_kinematic_replay -b walking```  for walking behavior on the spherical treadmill. Replace ```walking``` for ```grooming``` to simulate the foreleg/antennal grooming example. 
 
-- ```$ run_kinematic_replay_ground --perturbation -it 100``` to simulate locomotion on the ground with perturbations enabled. Remove ```--perturbation``` to disable perturbations. To change the behavior to grooming, append ```--behavior grooming``` to the command.
+- ```$ run_kinematic_replay_ground``` to replay tethered walking kinematics on the ground. Add ```--perturbation``` to enable perturbations. To change the behavior to grooming, append ```--behavior grooming``` to the command.
+
+Furthermore, for both commands above, you can add the flag ```-fly #``` to run the simulation with other walking behaviors, # can be 1, 2, or 3 (default is 1). The flag ```--show_collisions``` will colored in green the segments in collision. Finally, the flag ```--record``` will save a video from the simulation in the folder *scripts/kinematic_replay/simulation_results*. The video will be recorded at 0.2x real-time (refer to the [environment tutorial](docs/environment_tutorial.md) to learn how to change this value). Flags ```--show_collisions``` and ```--record``` will slow down your simulation.
 
 <p align="center">
   <img src="docs/images/perturbation.gif" width="450" />
 </p>
 
-**NOTE:** At the end of each simulation run, a folder called *kinematic_replay_<behavior>_<time-stamp>* containing the physical quantities (joint angles, torques etc.) will be created under the *scripts/kinematic_replay* folder.
+**NOTE:** At the end of each simulation run, a folder called *kinematic_replay_<behavior>_<time-stamp>* containing the physical quantities (joint angles, torques etc.) will be created under the *scripts/kinematic_replay/simulation_results* folder.
 
 **NOTE:** To obtain new pose estimates from the [DeepFly3D Database](https://dataverse.harvard.edu/dataverse/DeepFly3D), please refer to [DeepFly3D repository](https://github.com/NeLy-EPFL/DeepFly3D). After running the pose estimator on the recordings, you can follow the instructions for computing joint angles to control NeuroMechFly [here.](https://github.com/NeLy-EPFL/NeuroMechFly/blob/master/docs/angleprocessing.md)
 
@@ -106,28 +108,34 @@ Run the following commands on the terminal to reproduce the locomotor gait optim
 
 **3. Reproducing the Figures**
 -  All of the plotting functions used in the paper can be found in [*NeuroMechFly/utils/plotting.py*](NeuroMechFly/utils/plotting.py). Please refer to the docstrings provided in the code for the details about how to plot your simulation data.
--  For example, for reproducing plots on Fig. 5 and 6 panel E, first, run the script *run_kinematic_replay* or *run_kinematic_replay_ground*, and then use:
+-  For example, for reproducing plots on Fig. 4 and 5 panel E, first, run the script *run_kinematic_replay* or *run_kinematic_replay_ground*, and then use:
 ```python
 from NeuroMechFly.utils import plotting
+from pathlib import Path
 import pickle
 import glob
+import os
 
 path_data = '~/NeuroMechFly/scripts/kinematic_replay/simulation_results/<name-of-the-results-folder>'
 
 # Selecting behavior (walking or grooming)
 behavior = 'walking'
 
+# Selecting fly
+fly_number = 1
+
 # Selecting right front leg for plotting (other options are LF, RM, LM, LH, or RH)
-leg = 'RF'
+leg = 'LF' # 'RF' for grooming
 
 # Read angles from file
-angles_path = glob.glob(f'~/NeuroMechFly/data/joint_tracking/{behavior}/df3d/joint_angles*.pkl')[0]
-with open(angles_path, 'rb') as f:
+angles_path = os.path.join(str(Path.home()),f'NeuroMechFly/data/joint_tracking/{behavior}/fly{fly_number}/df3d/')
+file_path = glob.glob(f'{angles_path}/joint_angles*.pkl')[0]
+with open(file_path, 'rb') as f:
     angles = pickle.load(f)
 
 # Defining time limits for the plot (seconds)
-start_time = 3.5 # 0.5 for grooming
-stop_time = 4.6 # 2.5 for grooming
+start_time = 3.0 # 0.5 for grooming
+stop_time = 5.0 # 2.5 for grooming
 
 plotting.plot_data(path_data,
 		   leg,
@@ -142,7 +150,7 @@ plotting.plot_data(path_data,
 		   end=stop_time)
 ```
 
-- For reproducing gait/collision diagrams from Fig. 5 and 6, first, run the script *run_kinematic_replay* or *run_kinematic_replay_ground*, and then use:
+- For reproducing gait/collision diagrams from Fig. 4 and 5, first, run the script *run_kinematic_replay* or *run_kinematic_replay_ground*, and then use:
 ```python
 from NeuroMechFly.utils import plotting
 
@@ -152,8 +160,8 @@ path_data = '~/NeuroMechFly/scripts/kinematic_replay/simulation_results/<name-of
 behavior = 'walking'
 
 # Defining time limits for the plot (seconds)
-start_time = 3.5 # 0.5 for grooming
-stop_time = 4.6 # 2.5 for grooming
+start_time = 3.0 # 0.5 for grooming
+stop_time = 5.0 # 2.5 for grooming
 
 plotting.plot_collision_diagram(path_data,
 		                behavior,
@@ -162,7 +170,7 @@ plotting.plot_collision_diagram(path_data,
 
 ```
 
-- For reproducing plots from Fig. 7 panel E, first, run the script *run_neuromuscular_control*, and then use:
+- For reproducing plots from Fig. 6 panel E, and F, first, run the script *run_neuromuscular_control*, and then use:
 ```python
 from NeuroMechFly.utils import plotting
 
@@ -184,6 +192,25 @@ plotting.plot_network_activity(
 )
 
 ```
+	
+## Customizing NeuroMechFly
+* [Biomechanical model](docs/biomechanical_tutorial.md)
+	- Adding/removing joints
+	- Modifying physical properties
+	- Changing the pose
+	
+* [Neural controller](docs/controller_tutorial.md)
+	- Changing neuron type
+	- Incorporating customized controllers
+	
+* [Muscle model](docs/muscles_tutorial.md)
+	- Modifying muscle's properties
+	- Incorporating customized muscle models
+
+* [Environment](docs/environment_tutorial.md)	
+	- Managing the simulation
+	- Modifying the environment
+	
 ---
 
 ## License

@@ -100,6 +100,7 @@ class DrosophilaSimulation(BulletSimulation):
         self.velocities = self.load_data(velocity_path,starting_time)
         self.impulse_sign = 1
         self.add_perturbation = add_perturbation
+        self.fixed_positions = fixed_positions
         self.pball = None
         self.fixed_positions = fixed_positions
 
@@ -110,6 +111,9 @@ class DrosophilaSimulation(BulletSimulation):
         ----------
         data_path : <str>
             Path of the .pkl file.
+
+        starting_time : <float>
+            Experiment's time from which the simulation will start.
 
         Returns
         -------
@@ -173,6 +177,13 @@ class DrosophilaSimulation(BulletSimulation):
                 )
                 p.changeDynamics(self.pball, -1, 0.3)
 
+        # Setting the joint angular positions joints
+        # Setting the joint angular positions of the fixed joints
+        if not self.fixed_positions:
+            self.fixed_positions = {
+                'joint_LAntenna': 35,
+                'joint_RAntenna': -35,
+            }
         for joint_name, joint_pos in self.fixed_positions.items():
             self.pose[self.joint_id[joint_name]] = np.deg2rad(joint_pos)
 
@@ -186,28 +197,19 @@ class DrosophilaSimulation(BulletSimulation):
         for joint_name, joint_vel in self.velocities.items():
             self.vel[self.joint_id[joint_name]] = joint_vel[t]
 
-
-        # Reset joint states to prevent explosion at high gains
-        if t==0:
-            for joint in range(self.num_joints):
-                p.resetJointState(
-                    self.animal, joint,
-                    targetValue=self.pose[joint],
-                    targetVelocity=self.vel[joint]
-                )
-
         # Control the joints through position controller
         # Velocity can be discarded if not available and gains can be changed
         for joint in range(self.num_joints):
             p.setJointMotorControl2(
-                self.animal, joint,
-                controlMode=p.POSITION_CONTROL,
-                targetPosition=self.pose[joint],
-                targetVelocity=self.vel[joint],
-                positionGain= self.kp,
-                velocityGain=self.kv,
-                maxVelocity=1e8
+                    self.animal, joint,
+                    controlMode=p.POSITION_CONTROL,
+                    targetPosition=self.pose[joint],
+                    targetVelocity=self.vel[joint],
+                    positionGain=self.kp,
+                    velocityGain=self.kv,
+                    maxVelocity=1e8
             )
+            
             p.changeDynamics(self.animal, joint, maxJointVelocity=1e8)
 
         # Change the color of the colliding body segments

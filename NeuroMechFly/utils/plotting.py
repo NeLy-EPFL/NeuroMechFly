@@ -177,10 +177,14 @@ def heatmap_plot(
         title,
         joint_data,
         colorbar_title,
+        annot=True,
         precision="g",
         linewidth="0.005",
         ax=None,
-        cmap='viridis'):
+        cmap='magma',
+        annot_size = 18,
+        xticklabels=[],
+        yticklabels=[]):
     """ Plots a heatmap plot for global sensitivity analysis.
 
     Parameters
@@ -203,19 +207,33 @@ def heatmap_plot(
     if ax is None:
         ax = plt.gca()
 
+    if xticklabels:
+        x_tick = xticklabels
+    else:
+        x_tick = 'auto'
+
+    if yticklabels:
+        y_tick = yticklabels
+    else:
+        y_tick = 'auto'
+    
     ax = sns.heatmap(
         joint_data,
-        annot=True,
+        annot=annot,
         ax=ax,
         linewidth=linewidth,
         cmap=cmap,
         vmin=np.nanmin(joint_data),
         vmax=np.nanmax(joint_data),
         fmt=precision,
+        xticklabels=x_tick,
+        yticklabels=y_tick,
+        annot_kws={"size": annot_size},
         cbar_kws={
             'label': colorbar_title})
     ax.set_title(title)
     ax.invert_yaxis()
+    #plt.show()
 
 
 def plot_pareto_gens(
@@ -614,15 +632,15 @@ def read_collision_forces(path_data):
     collisions: <dict>
         Collision forces for all segments in all legs.
     """
-    collisions_data = os.path.join(path_data, 'physics', 'collision_forces.h5')
+    collisions_data = os.path.join(path_data, 'physics', 'contact_normal_force.h5')
     data = pd.read_hdf(collisions_data)
 
     collisions = {}
     check = []
     for key in data.keys():
         body_parts, force_axis = key.split('_')
-        segment1, segment2 = body_parts.split('-')
-        if body_parts not in check:
+        if body_parts not in check and "-" in body_parts:
+            segment1, segment2 = body_parts.split('-')
             check.append(body_parts)
             components = [k for k in data.keys() if body_parts in k]
             data_x = data[components[0]].values
@@ -1038,10 +1056,9 @@ def plot_data(
 def plot_collision_diagram(
         path_data,
         sim_data,
-        gt=False,
         begin=0,
         end=0,
-        time_step=0.001):
+        time_step=0.0005):
     """ Plots collision/gait diagrams.
 
     Parameters
@@ -1063,17 +1080,14 @@ def plot_collision_diagram(
     if sim_data == 'walking':
         title_plot = 'Gait diagram'
         collisions = {
-            'LF': [],
-            'LM': [],
-            'LH': [],
-            'RF': [],
-            'RM': [],
-            'RH': []}
-        if not gt:
-            data = read_ground_contacts(path_data)
-        else:
-            file_path = os.path.join(path_data, "ground_truth_contact.pkl")
-            data = np.load(file_path, allow_pickle=True)
+                'LF': [],
+                'LM': [],
+                'LH': [],
+                'RF': [],
+                'RM': [],
+                'RH': []}
+        
+        data = read_ground_contacts(path_data)
 
         for leg in collisions.keys():
             sum_force = np.sum(np.array(data[leg]), axis=0)
@@ -1318,7 +1332,9 @@ def get_data(
         time_step,
         data_from=[],
         offset=0,
-        window_time=0.2):
+        window_time=0.2,
+        baseline_time=0.1):
+
     fictrac_columns = ["Frame_counter",
                        "delta_rot_cam_x",
                        "delta_rot_cam_y",
@@ -1349,8 +1365,11 @@ def get_data(
         data = pd.read_csv(data_path, header=None, names=fictrac_columns)
 
     if ".h5" in data_path:
-        data = pd.read_hdf(data_path)
-
+        try:
+            data = pd.read_hdf(data_path)
+        except:
+            data_path = data_path.replace('ball_velocity','ball_velocities')
+            data = pd.read_hdf(data_path)
     if end == 0:
         end = len(data) * time_step
 
@@ -1368,7 +1387,7 @@ def get_data(
                 data[key], size=int(window_time / time_step))
         else:
             filtered_data = np.array(data[key].values)
-        baseline = np.mean(filtered_data[start:start + int(0.1 / time_step)])
+        baseline = np.mean(filtered_data[start:start+int(baseline_time/time_step)])
         norm_data[key] = filtered_data[start:stop] - baseline
         if "lab_heading" in key:
             diff_heading = np.abs(np.diff(norm_data[key]))
@@ -1396,9 +1415,10 @@ def plot_fly_path_comparison(
         offset_fictrac=0,
         offset_sim=0,
         time_step_fictrac=0.01,
-        time_step_sim=0.001,
-        filter_window_time=0.2
-):
+        time_step_sim=5e-4,
+        filter_window_time=0.1,
+        baseline_time=0.2
+        ):
     """ Comparing fly path/ball rotations between ground truth (obtained from FicTrac) and simulation
 
     Parameters
@@ -1428,7 +1448,9 @@ def plot_fly_path_comparison(
         time_step_fictrac,
         data_from_fictrac,
         offset_fictrac,
-        filter_window_time)
+        filter_window_time,
+        baseline_time)
+
     fw_fictrac = fictrac_data["integrated_forward_movement"] * ball_radius
     side_fictrac = fictrac_data["integrated_side_movement"] * ball_radius
     heading_fictrac = fictrac_data["integrated_lab_heading"]
@@ -1446,12 +1468,14 @@ def plot_fly_path_comparison(
         time_step_sim,
         data_from_sim,
         offset_sim,
-        filter_window_time)
+        filter_window_time,
+        baseline_time)
+
     fw_sim = ball_data["x"] * ball_radius
     side_sim = ball_data["y"] * ball_radius
     heading_sim = ball_data["z"]
 
-    sim_vel_data_path = os.path.join(sim_path, 'physics', 'ball_velocities.h5')
+    sim_vel_data_path = os.path.join(sim_path, 'physics', 'ball_velocity.h5')
     vel_data = get_data(
         sim_vel_data_path,
         begin,
@@ -1459,7 +1483,8 @@ def plot_fly_path_comparison(
         time_step_sim,
         data_from_sim,
         offset_sim,
-        filter_window_time)
+        filter_window_time,
+        baseline_time)
     vel_fw_sim = -vel_data["y"]
     vel_side_sim = vel_data["x"]
     vel_heading_sim = -vel_data["z"]
@@ -1467,25 +1492,26 @@ def plot_fly_path_comparison(
     window = 11
     order = 3
 
-    '''
-    vel_fw_fictrac = scipy.signal.savgol_filter(fw_fictrac, window, order, deriv=1, delta=time_step_fictrac, mode='nearest')
-    vel_side_fictrac = scipy.signal.savgol_filter(side_fictrac, window, order, deriv=1, delta=time_step_fictrac, mode='nearest')
-    vel_heading_fictrac = scipy.signal.savgol_filter(heading_fictrac, window, order, deriv=1, delta=time_step_fictrac, mode='nearest')
-
-    vel_fw_sim = scipy.signal.savgol_filter(fw_sim, 111, order, deriv=1, delta=time_step_sim, mode='nearest')
-    vel_side_sim = scipy.signal.savgol_filter(side_sim, 111, order, deriv=1, delta=time_step_sim, mode='nearest')
-    vel_heading_sim = scipy.signal.savgol_filter(heading_sim, 111, order, deriv=1, delta=time_step_sim, mode='nearest')
-    '''
+    if end == 0:
+        end = len(fw_fictrac) * time_step_fictrac
 
     time_fictrac = np.arange(begin, end, time_step_fictrac)
     time_sim = np.arange(begin, end, time_step_sim)
-    filter_window_time = 0.2
 
+    corr_coefs = {}
+
+    interp_fw_fictrac, corr_coef_fw = calculate_correlation_between(vel_fw_fictrac,vel_fw_sim,time_fictrac,time_sim)
+    corr_coefs['forward']=corr_coef_fw
+
+    interp_side_fictrac, corr_coef_side = calculate_correlation_between(vel_side_fictrac,vel_side_sim,time_fictrac,time_sim)
+    corr_coefs['side']=corr_coef_side
+
+    interp_heading_fictrac, corr_coef_heading = calculate_correlation_between(vel_heading_fictrac,vel_heading_sim,time_fictrac,time_sim)
+    corr_coefs['heading']=corr_coef_heading
+    
     if plot_traj:
-        x_head_fictrac, y_head_fictrac = get_flat_trajectory(
-            fw_fictrac, side_fictrac, heading_fictrac)
-        x_head_sim, y_head_sim = get_flat_trajectory(
-            -fw_sim, -side_sim, -heading_sim)
+        x_head_fictrac, y_head_fictrac = get_flat_trajectory(fw_fictrac,side_fictrac,heading_fictrac)
+        x_head_sim, y_head_sim = get_flat_trajectory(fw_sim, side_sim, heading_sim)
 
         plt.figure()
         plt.plot(x_head_fictrac, y_head_fictrac, label="Fictrac path")
@@ -1495,13 +1521,6 @@ def plot_fly_path_comparison(
         plt.legend(fontsize=11)
         plt.xticks(fontsize=13)
         plt.yticks(fontsize=13)
-
-        # plt.figure(2)
-        #plt.plot(fw_fictrac, side_fictrac, label='Fictrac (x-y)')
-        #plt.plot(fw_sim, side_sim, label='NeuroMechFly (x-y)')
-        #plt.xlabel('Distance (mm)', fontsize=14)
-        #plt.ylabel('Distance (mm)', fontsize=14)
-        # plt.legend()
 
         plt.figure()
         plt.plot(time_fictrac, side_fictrac, label='Fictrac')
@@ -1532,344 +1551,43 @@ def plot_fly_path_comparison(
 
     if plot_vel:
         plt.figure()
-        interp_fictrac, corr_coef = calculate_correlation_between(
-            vel_fw_fictrac, vel_fw_sim, time_fictrac, time_sim)
-        plt.plot(time_sim, interp_fictrac, label='Fictrac')
-        #plt.plot(time_fictrac, smooth_vel_fw_fictrac, label='vel fw smooth fictrac')
+        plt.plot(time_sim, interp_fw_fictrac, label='Fictrac')
         plt.plot(time_sim, vel_fw_sim, label='NeuroMechFly')
         plt.xlabel('Time (s)', fontsize=14)
         plt.ylabel('Forward Velocity (rad/s)', fontsize=14)
         plt.legend(fontsize=11)
         plt.xticks(fontsize=13)
         plt.yticks(fontsize=13)
-        print(f"Correlation coeficient (Fw vel): {corr_coef}")
 
         plt.figure()
-        interp_fictrac, corr_coef = calculate_correlation_between(
-            vel_side_fictrac, vel_side_sim, time_fictrac, time_sim)
-        plt.plot(time_sim, interp_fictrac, label='Fictrac')
-        #plt.plot(time_fictrac, scipy.ndimage.median_filter(vel_side_fictrac,size=20), label='vel fw smooth fictrac')
+        plt.plot(time_sim, interp_side_fictrac, label='Fictrac')
         plt.plot(time_sim, vel_side_sim, label='NeuroMechFly')
         plt.xlabel('Time (s)', fontsize=14)
         plt.ylabel('Side Velocity (rad/s)', fontsize=14)
         plt.legend(fontsize=11)
         plt.xticks(fontsize=13)
         plt.yticks(fontsize=13)
-        print(f"Correlation coeficient (Side vel): {corr_coef}")
 
         plt.figure()
-        interp_fictrac, corr_coef = calculate_correlation_between(
-            vel_heading_fictrac, vel_heading_sim, time_fictrac, time_sim)
-        plt.plot(time_sim, interp_fictrac, label='Fictrac')
-        #plt.plot(time_fictrac, scipy.ndimage.median_filter(vel_heading_fictrac,size=20), label='vel fw smooth fictrac')
+        plt.plot(time_sim, interp_heading_fictrac, label='Fictrac')
         plt.plot(time_sim, vel_heading_sim, label='NeuroMechFly')
         plt.xlabel('Time (s)', fontsize=14)
         plt.ylabel('Heading Velocity (rad/s)', fontsize=14)
         plt.legend(fontsize=11)
         plt.xticks(fontsize=13)
         plt.yticks(fontsize=13)
-        print(f"Correlation coeficient (Heading vel): {corr_coef}")
 
-    plt.show()
+    if plot_vel or plot_traj:
+        plt.show()
+
+    return corr_coefs
 
 
 def calculate_correlation_between(fictrac, sim, time_fictrac, time_sim):
     interpolated_fictrac = pchip_interpolate(time_fictrac, fictrac, time_sim)
-
     corr_coef, p_value = scipy.stats.spearmanr(interpolated_fictrac, sim)
 
     return interpolated_fictrac, corr_coef
-
-
-def plot_fly_path_comparison_old(
-        fictrac_path,
-        ball_path,
-        ball_radius=5,
-        begin=0,
-        end=0,
-        offset_fictrac=0,
-        time_step_fictrac=0.01,
-        time_step_sim=0.001
-):
-    """ Comparing fly path/ball rotations between ground truth (obtained from FicTrac) and simulation
-
-    Parameters
-    ----------
-    path_data: <str>
-        Path to simulation results.
-    ball_radius: <float>
-        Radius of the spherical treadmill in millimeters.
-    begin: <float>
-        Starting time for initiating the plots.
-    end: <float>
-        Stoping time for finishing the plots. If 0.0, all data is plotted.
-    time_step: <float>
-        Data time step.
-    """
-
-    fictrac_columns = ["Frame_counter",
-                       "delta_rot_cam_x",
-                       "delta_rot_cam_y",
-                       "delta_rot_cam_z",
-                       "delta_rot_error",
-                       "delta_rot_lab_x",
-                       "delta_rot_lab_y",
-                       "delta_rot_lab_z",
-                       "abs_rot_cam_x",
-                       "abs_rot_cam_y",
-                       "abs_rot_cam_z",
-                       "abs_rot_lab_x",
-                       "abs_rot_lab_y",
-                       "abs_rot_lab_z",
-                       "integrated_lab_x",
-                       "integrated_lab_y",
-                       "integrated_lab_heading",
-                       "animal_movement_direction_lab",
-                       "animal_movement_speed",
-                       "integrated_side_movement",
-                       "integrated_forward_movement",
-                       "timestamp",
-                       "seq_counter",
-                       "delta_time",
-                       "alt_time"]
-
-    fictrac_data_path = fictrac_path
-    fictrac_data = pd.read_csv(
-        fictrac_data_path,
-        header=None,
-        names=fictrac_columns)
-
-    ball_data_path = os.path.join(ball_path, 'physics', 'ball_rotations.h5')
-    ball_data = np.array(pd.read_hdf(ball_data_path).values).transpose()
-
-    vel_data_path = os.path.join(ball_path, 'physics', 'ball_velocities.h5')
-    vel_data = np.array(pd.read_hdf(vel_data_path).values).transpose()
-
-    if end == 0:
-        end = len(fictrac_data) * time_step_fictrac
-
-    steps_fictrac = 1 / time_step_fictrac
-    start_fictrac = int((begin + offset_fictrac) * steps_fictrac)
-    stop_fictrac = int((end + offset_fictrac) * steps_fictrac)
-
-    # y_fictrac = -(fictrac_data["integrated_lab_x"][start_fictrac:stop_fictrac]-fictrac_data["integrated_lab_x"][start_fictrac]) #* ball_radius
-    # x_fictrac =
-    # (fictrac_data["integrated_lab_y"][start_fictrac:stop_fictrac] -
-    # fictrac_data["integrated_lab_y"][start_fictrac]) #* ball_radius
-
-    side_fictrac = (fictrac_data["integrated_side_movement"][start_fictrac:stop_fictrac] -
-                    fictrac_data["integrated_side_movement"][start_fictrac + 5]) * ball_radius
-    fw_fictrac = (fictrac_data["integrated_forward_movement"][start_fictrac:stop_fictrac] -
-                  fictrac_data["integrated_forward_movement"][start_fictrac + 5]) * ball_radius
-    heading_raw = (fictrac_data["integrated_lab_heading"][start_fictrac:stop_fictrac] -
-                   fictrac_data["integrated_lab_heading"][start_fictrac + 5])
-
-    delta_fw_fictrac = -(fictrac_data["delta_rot_lab_x"][start_fictrac:stop_fictrac] -
-                         fictrac_data["delta_rot_lab_x"][start_fictrac + 5]) / time_step_fictrac
-    delta_side_fictrac = -(fictrac_data["delta_rot_lab_y"][start_fictrac:stop_fictrac] -
-                           fictrac_data["delta_rot_lab_y"][start_fictrac + 5]) / time_step_fictrac
-    delta_heading_fictrac = -(fictrac_data["delta_rot_lab_z"][start_fictrac:stop_fictrac] -
-                              fictrac_data["delta_rot_lab_z"][start_fictrac + 5]) / time_step_fictrac
-
-    diff_heading = np.abs(np.diff(heading_raw))
-    cross_points = np.where(diff_heading > np.pi)[0]
-    if len(cross_points) % 2 != 0:
-        cross_points = np.append(cross_points, stop_fictrac)
-    heading_fictrac = heading_raw.copy()
-    for p in range(1, len(cross_points), 2):
-        init = cross_points[p - 1] + 1
-        fin = cross_points[p] + 1
-        heading_fictrac[init:fin] = heading_fictrac[init:fin] - 2 * np.pi
-
-    steps_sim = 1 / time_step_sim
-    start_sim = int(begin * steps_sim)
-    stop_sim = int(end * steps_sim)
-
-    fw_sim = (ball_data[0][start_sim:stop_sim] -
-              ball_data[0][start_sim + 5]) * ball_radius
-    side_sim = (ball_data[1][start_sim:stop_sim] -
-                ball_data[1][start_sim + 5]) * ball_radius
-    heading_sim = (ball_data[2][start_sim:stop_sim] -
-                   ball_data[2][start_sim + 5])
-
-    delta_fw_sim = np.diff(fw_sim)
-    delta_side_sim = np.diff(side_sim)
-    delta_heading_sim = np.diff(heading_sim)
-
-    delta_fw_sim = np.insert(delta_fw_sim, 0, 0) / time_step_sim
-    delta_side_sim = np.insert(delta_side_sim, 0, 0) / time_step_sim
-    delta_heading_sim = np.insert(delta_heading_sim, 0, 0) / time_step_sim
-
-    #vel_x = (vel_data[0][start_sim:stop_sim]-vel_data[0][start_sim+5])
-    #vel_y = (vel_data[1][start_sim:stop_sim]-vel_data[1][start_sim+5])
-    #vel_z = (vel_data[2][start_sim:stop_sim]-vel_data[2][start_sim+5])
-
-    window = 11
-    order = 3
-
-    vel_fw_fictrac = scipy.signal.savgol_filter(
-        fw_fictrac,
-        window,
-        order,
-        deriv=1,
-        delta=time_step_fictrac,
-        mode='nearest')
-    vel_side_fictrac = scipy.signal.savgol_filter(
-        side_fictrac,
-        window,
-        order,
-        deriv=1,
-        delta=time_step_fictrac,
-        mode='nearest')
-    vel_heading_fictrac = scipy.signal.savgol_filter(
-        heading_fictrac,
-        window,
-        order,
-        deriv=1,
-        delta=time_step_fictrac,
-        mode='nearest')
-
-    vel_fw_sim = scipy.signal.savgol_filter(
-        fw_sim, 111, order, deriv=1, delta=time_step_sim, mode='nearest')
-    vel_side_sim = scipy.signal.savgol_filter(
-        side_sim, 111, order, deriv=1, delta=time_step_sim, mode='nearest')
-    vel_heading_sim = scipy.signal.savgol_filter(
-        heading_sim, 111, order, deriv=1, delta=time_step_sim, mode='nearest')
-
-    x_head_fictrac, y_head_fictrac = get_flat_trajectory(
-        fw_fictrac.values, side_fictrac.values, heading_fictrac.values)
-    x_head_sim, y_head_sim = get_flat_trajectory(
-        -fw_sim, -side_sim, -heading_sim)
-
-    plt.figure(0)
-    plt.plot(x_head_fictrac, y_head_fictrac, label="fictrac path")
-    plt.plot(x_head_sim, y_head_sim, label="NeuroMechFly path")
-    plt.xlabel('Distance (mm)')
-    plt.ylabel('Distance (mm)')
-    plt.legend()
-
-    '''
-    plt.figure(1)
-    ax = plt.axes()
-    m = MarkerStyle(marker=r'$\rightarrow$')
-    gap = 0.5
-    max_x = np.max(x_fictrac) + gap
-    min_x = np.min(x_fictrac) - gap
-    max_y = np.max(y_fictrac) + gap
-    min_y = np.min(y_fictrac) - gap
-    #print(heading_fictrac)
-    #plt.plot(x_fictrac, y_fictrac)
-    for i in range(len(x_fictrac)):
-        ax.clear()
-        ax.set_xlim(min_x, max_x)
-        ax.set_ylim(min_y, max_y)
-        curr_time = (i+2)/steps_fictrac
-        print(f'\rTime: {curr_time:.3f}', end='')
-        sc = ax.scatter(
-            x_fictrac[0:i],
-            y_fictrac[0:i],
-            c=np.linspace(
-                begin,
-                begin+len(x_fictrac[0:i])/steps_fictrac,
-                len(x_fictrac[0:i])),
-            cmap='winter',
-            vmin=begin,
-            vmax=end)
-        m._transform.rotate_deg(heading_fictrac.values[i] * 180 / np.pi)
-        ax.scatter(x_fictrac.values[i], y_fictrac.values[i], marker=m, s=200, color='black')
-        m._transform.rotate_deg(-heading_fictrac.values[i] * 180 / np.pi)
-        if i == 0:
-            sc.set_clim([begin, end])
-            cb = plt.colorbar(sc)
-            cb.set_label('Time (s)')
-
-        ax.set_xlabel('x (mm)')
-        ax.set_ylabel('y (mm)')
-        plt.draw()
-        plt.pause(0.001)
-    '''
-
-    time_fictrac = np.arange(begin, end, time_step_fictrac)
-    time_sim = np.arange(begin, end, time_step_sim)
-
-    '''
-    plt.figure(10)
-    plt.plot(time_fictrac, fw_fictrac, label='Fictrac forward')
-    plt.plot(time_fictrac, side_fictrac, label='Fictrac side')
-    plt.plot(time_fictrac, heading_fictrac, label='Fictrac heading')
-    plt.xlabel('Time (s)')
-    plt.ylabel('Distance (mm)')
-    plt.legend()
-
-    plt.figure(11)
-    plt.plot(time_fictrac, delta_fw_fictrac, label='Fictrac forward')
-    plt.plot(time_fictrac, delta_side_fictrac, label='Fictrac side')
-    plt.plot(time_fictrac, delta_heading_fictrac, label='Fictrac heading')
-    plt.xlabel('Time (s)')
-    plt.ylabel('Distance (mm)')
-    plt.legend()
-
-    plt.show()
-    quit()
-    '''
-
-    plt.figure(2)
-    plt.plot(fw_fictrac, side_fictrac, label='Fictrac (x-y)')
-    plt.plot(fw_sim, side_sim, label='NeuroMechFly (x-y)')
-    # plt.ylim(-0.5,1)
-    plt.xlabel('Distance (mm)')
-    plt.ylabel('Distance (mm)')
-    plt.legend()
-
-    plt.figure(3)
-    plt.plot(time_fictrac, side_fictrac, label='Fictrac side')
-    plt.plot(time_sim, side_sim, label='NeuroMechFly side')
-    plt.xlabel('Time (s)')
-    plt.ylabel('Distance (mm)')
-    plt.legend()
-
-    plt.figure(4)
-    plt.plot(time_fictrac, fw_fictrac, label='Fictrac forward')
-    plt.plot(time_sim, fw_sim, label='NeuroMechFly forward')
-    plt.xlabel('Time (s)')
-    plt.ylabel('Distance (mm)')
-    plt.legend()
-
-    plt.figure(5)
-    plt.plot(time_fictrac, heading_fictrac, label='Fictrac heading')
-    plt.plot(time_sim, heading_sim, label='NeuroMechFly heading')
-    plt.xlabel('Time (s)')
-    plt.ylabel('Distance (rad)')
-    plt.legend()
-
-    plt.figure(6)
-    #plt.plot(time_fictrac, delta_fw_fictrac, label='delta fw fictrac')
-    plt.plot(time_fictrac, vel_fw_fictrac, label='vel fw fictrac')
-    plt.plot(time_sim, vel_fw_sim, label='vel fw sim')
-    #plt.plot(time_sim, delta_fw_sim, label='delta fw sim')
-    plt.xlabel('Time (s)')
-    plt.ylabel('Velocity (mm/s)')
-    plt.legend()
-
-    plt.figure(7)
-    #plt.plot(time_fictrac, delta_side_fictrac, label='delta side fictrac')
-    plt.plot(time_fictrac, vel_side_fictrac, label='vel side fictrac')
-    plt.plot(time_sim, vel_side_sim, label='vel side sim')
-    #plt.plot(time_sim, delta_side_sim, label='delta side sim')
-    plt.xlabel('Time (s)')
-    plt.ylabel('Velocity (mm/s)')
-    plt.legend()
-
-    plt.figure(8)
-    #plt.plot(time_fictrac, delta_heading_fictrac, label='delta heading fictrac')
-    plt.plot(time_fictrac, vel_heading_fictrac, label='vel heading fictrac')
-    plt.plot(time_sim, vel_heading_sim, label='vel heading sim')
-    #plt.plot(time_sim, delta_heading_sim, label='delta heading sim')
-    plt.xlabel('Time (s)')
-    plt.ylabel('Velocity (rad/s)')
-    plt.legend()
-
-    plt.show()
 
 
 def get_flat_trajectory(fw, side, heading):
@@ -1895,7 +1613,7 @@ def compare_collision_diagram(
         sim_data,
         begin=0,
         end=0,
-        time_step_sim=0.001,
+        time_step_sim=0.0005,
         time_step_gt=0.01):
     """ Plots collision/gait diagrams.
 
@@ -2142,5 +1860,318 @@ def compare_collision_diagram(
     ax2.set_xlabel('Leg')
     ax2.set_ylabel('Percentage')
     ax2.legend()
+
+    plt.show()
+
+
+def compare_movement_on_ground(
+        fictrac_path,
+        path_data_ball,
+        path_data_floor,
+        animation = False,
+        save_imgs = False,
+        begin=0,
+        end = 0,
+        offset = 0.0,
+        time_step_fictrac=0.01,
+        time_step_sim = 5e-4,
+        ball_radius = 5,
+        filter_window_time=0.1,
+        baseline_time=0.2
+):
+
+    data_from_fictrac = ["integrated_forward_movement",
+                         "integrated_side_movement",
+                         "integrated_lab_heading",
+                         "delta_rot_lab_x",
+                         "delta_rot_lab_y",
+                         "delta_rot_lab_z"]
+    
+    fictrac_data = get_data(fictrac_path,begin,end,time_step_fictrac,data_from_fictrac,offset,filter_window_time, baseline_time)
+    fw_fictrac = fictrac_data["integrated_forward_movement"] * ball_radius
+    side_fictrac = fictrac_data["integrated_side_movement"] * ball_radius
+    heading_fictrac = fictrac_data["integrated_lab_heading"]
+
+    vel_fw_fictrac = -fictrac_data["delta_rot_lab_x"] / time_step_fictrac  * ball_radius
+    vel_side_fictrac = -fictrac_data["delta_rot_lab_y"] / time_step_fictrac  * ball_radius
+    vel_heading_fictrac = -fictrac_data["delta_rot_lab_z"] / time_step_fictrac
+    
+    data_from_sim = ["x", "y", "z"]    
+    path_ball = os.path.join(path_data_ball, 'physics','ball_rotations.h5')
+    ball_data = get_data(path_ball,begin,end,time_step_sim,data_from_sim, offset, filter_window_time, baseline_time)
+    fw_ball = ball_data["x"] * ball_radius
+    side_ball = ball_data["y"] * ball_radius
+    heading_ball = ball_data["z"]
+
+    sim_vel_data_path = os.path.join(path_data_ball, 'physics','ball_velocity.h5')
+    vel_data = get_data(sim_vel_data_path,begin,end,time_step_sim,data_from_sim, offset, filter_window_time,baseline_time)
+    fw_vel_ball = -vel_data["y"] * ball_radius
+    side_vel_ball = vel_data["x"] * ball_radius
+    heading_vel_ball = -vel_data["z"]
+
+    path_pos = os.path.join(path_data_floor,'physics','base_position.h5')
+    pos_data = get_data(path_pos,begin,end,time_step_sim,data_from_sim, offset, filter_window_time,baseline_time)
+    x_floor = pos_data['x']*1000
+    y_floor = pos_data['y']*1000
+
+    path_vel = os.path.join(path_data_floor,'physics','base_linear_velocity.h5')
+    vel_floor = get_data(path_vel,begin,end,time_step_sim,data_from_sim, offset, filter_window_time,baseline_time)
+    fw_vel_floor = vel_floor['x']*1000
+    side_vel_floor = -vel_floor['y']*1000
+    z_vel_floor = vel_floor['z']*1000
+
+    path_ori = os.path.join(path_data_floor,'physics','base_orientation.h5')
+    th_floor = get_data(path_ori,begin,end,time_step_sim,data_from_sim, offset, filter_window_time,baseline_time)
+    th_x = th_floor['x']
+    th_y = th_floor['y']
+    th_z = -th_floor['z']
+    
+    path_ang_vel = os.path.join(path_data_floor,'physics','base_angular_velocity.h5')
+    ang_vel_floor = get_data(path_ang_vel,begin,end,time_step_sim,data_from_sim, offset, filter_window_time,baseline_time)
+    ang_vel_x = ang_vel_floor['x']
+    ang_vel_y = ang_vel_floor['y']
+    heading_vel_floor = ang_vel_floor['z']
+
+    
+    if end == 0:
+        end = len(x_sim) * time_step_sim
+    
+    time_sim = np.arange(begin+offset, end, time_step_sim)
+    time_fictrac = np.arange(begin, end, time_step_fictrac)
+
+    
+    x_fictrac, y_fictrac = get_flat_trajectory(fw_fictrac,side_fictrac,heading_fictrac)
+    x_ball, y_ball = get_flat_trajectory(fw_ball, side_ball, heading_ball)
+    fw_vel, side_vel = get_flat_trajectory(fw_vel_floor, side_vel_floor, th_z)
+
+    interp_fw_fictrac, corr_coef_fw = calculate_correlation_between(vel_fw_fictrac,fw_vel,time_fictrac,time_sim)
+
+    interp_side_fictrac, corr_coef_side = calculate_correlation_between(vel_side_fictrac,side_vel,time_fictrac,time_sim)
+
+    interp_heading_fictrac, corr_coef_heading = calculate_correlation_between(vel_heading_fictrac,heading_vel_floor,time_fictrac,time_sim)
+
+    print(corr_coef_fw)
+    print(corr_coef_side)
+    print(corr_coef_heading)
+
+    if animation:
+        fig = plt.figure()
+        ax = plt.axes()
+        #m = MarkerStyle(marker=r'$\rightarrow$')
+        m = MarkerStyle(marker=">")
+        m2 = MarkerStyle(marker=">")
+        ax.set_xlabel('X (mm)')
+        ax.set_ylabel('Y (mm)')
+        #colors = plt.cm.Greens(np.linspace(0.3,1,len(ball_data_list)))
+
+        for count, i in enumerate(range(0,len(x_floor),int(time_step_fictrac/time_step_sim))):
+            ax.clear()
+            curr_time = (i+2)*time_step_sim
+            print(f'\rTime: {curr_time:.3f}', end='')
+            sc = ax.scatter(
+                    x_floor[0:i],
+                    y_floor[0:i],
+                    c=np.linspace(
+                        begin,
+                        begin+len(x_floor[0:i])*time_step_sim,
+                        len(x_floor[0:i])),
+                    cmap='Greens',
+                    vmin=begin,
+                    vmax=end)
+
+            m._transform.rotate_deg(-th_z[i] * 180 / np.pi)
+            ax.scatter(x_floor[i], y_floor[i], marker=m, s=200, color='green',label='Flat ground')
+            m._transform.rotate_deg(th_z[i] * 180 / np.pi)
+            
+            ax.scatter(
+                    x_ball[0:i],
+                    y_ball[0:i],
+                    c=np.linspace(
+                        begin,
+                        begin+len(x_ball[0:i])*time_step_sim,
+                        len(x_ball[0:i])),
+                    cmap='Oranges',
+                    vmin=begin,
+                    vmax=end)
+
+            m2._transform.rotate_deg(heading_ball[i] * 180 / np.pi)
+            ax.scatter(x_ball[i], y_ball[i], marker=m2, s=200, color='orange', label='Tethered')
+            m2._transform.rotate_deg(-heading_ball[i] * 180 / np.pi)
+
+            if i == 0:
+                sc.set_clim([begin, end])
+                cb = plt.colorbar(sc)
+                cb.set_label('Time (s)')
+
+            ax.set_xlabel('X (mm)')
+            ax.set_ylabel('Y (mm)')
+            ax.set_xlim([np.min(x_floor)-2,np.max(x_floor)+2])
+            ax.set_ylim([np.min(y_ball)-2,np.max(y_ball)+1])
+            plt.legend()
+            if save_imgs:
+                new_folder = os.path.join(path_data_floor,'fly_path')
+                if not os.path.exists(new_folder):
+                    os.makedirs(new_folder)
+                name = new_folder + '/img_' + '{:06}'.format(count) + '.jpg'
+                fig.set_size_inches(6,4)
+                plt.savefig(name, dpi=300)
+            else:
+                plt.draw()
+                plt.pause(0.001)
+            
+    
+    plt.figure()
+    plt.plot(x_fictrac, y_fictrac, label="Fictrac path")
+    plt.plot(x_ball,y_ball, label = 'Tethered walking')
+    plt.plot(x_floor,y_floor, label = 'Free walking')
+    plt.xlabel('Distance (mm)', fontsize=14)
+    plt.ylabel('Distance (mm)', fontsize=14)
+    plt.legend(fontsize=11)
+    plt.xticks(fontsize=13)
+    plt.yticks(fontsize=13)
+    
+    plt.figure()
+    plt.plot(time_sim, interp_fw_fictrac, label = 'Fictrac')
+    plt.plot(time_sim, fw_vel_ball, label = 'Tethered walking')
+    plt.plot(time_sim, fw_vel, label = 'Free walking')
+    plt.xlabel('Time (s)', fontsize=14)
+    plt.ylabel('Forward Velocity (mm/s)', fontsize=14)
+    plt.legend(fontsize=11)
+    plt.xticks(fontsize=13)
+    plt.yticks(fontsize=13)
+
+    plt.figure()
+    plt.plot(time_sim, interp_side_fictrac, label = 'Fictrac')
+    plt.plot(time_sim, side_vel_ball, label = 'Tethered walking')    
+    plt.plot(time_sim, np.array(side_vel), label = 'Free walking')
+    plt.xlabel('Time (s)', fontsize=14)
+    plt.ylabel('Side Velocity (mm/s)', fontsize=14)
+    plt.legend(fontsize=11)
+    plt.xticks(fontsize=13)
+    plt.yticks(fontsize=13)
+
+    plt.figure()
+    plt.plot(time_sim, interp_heading_fictrac, label = 'Fictrac')
+    plt.plot(time_sim, heading_vel_ball, label = 'Thetered walking')
+    plt.plot(time_sim, heading_vel_floor, label = 'Free walking')
+    plt.xlabel('Time (s)', fontsize=14)
+    plt.ylabel('Heading Velocity (rad/s)', fontsize=14)
+    plt.legend(fontsize=11)
+    plt.xticks(fontsize=13)
+    plt.yticks(fontsize=13)
+
+    plt.show()
+
+
+def plot_sensitivity_constraints(
+        data_path,
+        fictrac_path,
+        annot = True,
+        annot_size = 18
+        ):   
+    coef_mat_fw = np.zeros((11, 11))
+    coef_mat_side = np.zeros((11, 11))
+    coef_mat_heading = np.zeros((11, 11))
+
+    x_ticks = np.linspace(0, 10, num=11, endpoint=True)
+    y_ticks = np.linspace(0, 1, num=11, endpoint=True)
+
+    x_tick_labels = [f'{val:.1f}' for val in x_ticks]
+    y_tick_labels = [f'{val:.1f}' for val in y_ticks]        
+
+    experiments = next(os.walk(data_path))[1]
+    date_time = [exp.split('_')[-2]+exp.split('_')[-1] for exp in experiments]
+
+    date_time_array = np.array([int(x) for x in date_time])
+
+    order = np.argsort(date_time_array)
+
+    for i, ind in enumerate(order):
+        print(f'Exp: {i+1}/{len(order)}',end='\r')
+        exp_path = os.path.join(data_path,experiments[ind])
+        row = int(i/11)
+        col = int(i%11)
+        corr_coef = plot_fly_path_comparison(fictrac_path, exp_path, plot_vel=False, end=6.0, offset_fictrac=0.5)
+        coef_mat_fw[row][col] = corr_coef['forward']
+        coef_mat_side[row][col] = corr_coef['side']
+        coef_mat_heading[row][col] = corr_coef['heading']
+
+    std_fw = np.std(coef_mat_fw.flatten())
+    std_side = np.std(coef_mat_side.flatten())
+    std_heading = np.std(coef_mat_heading.flatten())
+    tot_dev = std_fw+std_side+std_heading
+    
+    alpha = std_fw/tot_dev
+    beta = std_side/tot_dev
+    gamma = std_heading/tot_dev
+    
+    print()
+    
+    sum_mat = alpha*coef_mat_fw + beta*coef_mat_side + gamma*coef_mat_heading
+
+    norm_sum = (sum_mat - np.min(sum_mat))/(np.max(sum_mat) - np.min(sum_mat))
+
+    sort_sum = np.argsort(norm_sum.flatten())
+    for ind in range(-1,-6,-1):
+        row = int(sort_sum[ind]/11)
+        col = int(sort_sum[ind]%11)
+        print(f"{ind*-1}: ERP = {row/10} - CFM = {col}")
+    
+    fig = plt.figure()
+    ax_fw = plt.axes()
+    fig = plt.figure()
+    ax_side = plt.axes()
+    fig = plt.figure()
+    ax_heading = plt.axes()
+    fig = plt.figure()
+    ax_sum = plt.axes()
+    
+    heatmap_plot('Constraints sensitivity analysis: forward',
+                 coef_mat_fw,
+                 'Spearman coefficient',
+                 annot=annot,
+                 annot_size=annot_size,
+                 precision=".3g",
+                 ax=ax_fw,
+                 xticklabels=x_tick_labels,
+                 yticklabels=y_tick_labels)
+    ax_fw.set_xlabel("CFM")
+    ax_fw.set_ylabel("ERP")
+
+    heatmap_plot('Constraints sensitivity analysis: side',
+                 coef_mat_side,
+                 'Spearman coefficient',
+                 annot=annot,
+                 annot_size=annot_size,
+                 precision=".3g",
+                 ax=ax_side,
+                 xticklabels=x_tick_labels,
+                 yticklabels=y_tick_labels)
+    ax_side.set_xlabel("CFM")
+    ax_side.set_ylabel("ERP")
+
+    heatmap_plot('Constraints sensitivity analysis: heading',
+                 coef_mat_heading,
+                 'Spearman coefficient',
+                 annot=annot,
+                 annot_size=annot_size,
+                 precision=".3g",
+                 ax=ax_heading,
+                 xticklabels=x_tick_labels,
+                 yticklabels=y_tick_labels)
+    ax_heading.set_xlabel("CFM")
+    ax_heading.set_ylabel("ERP")
+
+    heatmap_plot('Constraints sensitivity analysis: sum',
+                 norm_sum,
+                 'values',
+                 annot=annot,
+                 annot_size=annot_size,
+                 precision=".3g",
+                 ax=ax_sum,
+                 xticklabels=x_tick_labels,
+                 yticklabels=y_tick_labels)
+    ax_heading.set_xlabel("CFM")
+    ax_heading.set_ylabel("ERP")
 
     plt.show()
