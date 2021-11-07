@@ -25,7 +25,7 @@ if __name__ == "__main__":
     """ Main. """
     parser = argparse.ArgumentParser()
     parser.add_argument('-b', '--behavior', default='walking')
-    parser.add_argument('--record', dest='record', action='store_false')
+    parser.add_argument('--record', dest='record', action='store_true')
     parser.add_argument('--show_collisions', dest='show_collisions', action='store_true')
     parser.add_argument('-fly', '--fly_number', default='1')
     parser.add_argument(
@@ -36,9 +36,9 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     behavior = args.behavior.lower()
-    run_time = 6.0
+    run_time = 4.0
     time_step = 5e-4
-    starting_time = 0.0
+    starting_time = 2.0
 
     # Paths of the position and velocity data
     data_path = os.path.join(
@@ -109,7 +109,7 @@ if __name__ == "__main__":
 
     # Simulation options
     sim_options = {
-        "headless": True,
+        "headless": False,
         "model": model_path,
         "pose": pose_path,
         "model_offset": [0, 0., 1.2e-3],
@@ -131,7 +131,7 @@ if __name__ == "__main__":
         'rot_cam': False,
         'behavior': behavior,  # Set true to rotate the camera automatically
         'ground': 'floor',
-        'ground_friction_coef': 0.1
+        'ground_friction_coef': 0.5 if args.perturbation else 0.1
     }
 
     # Initialize the container

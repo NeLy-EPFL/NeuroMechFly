@@ -576,7 +576,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                 ) * self.units.meters + self.model_offset
             elif self.behavior == 'grooming':
                 base_position = np.array(
-                    [0.08e-3, -0.0e-3, -4.9e-3]
+                    [0.1e-3, -0.0e-3, -4.9e-3]
                 ) * self.units.meters + self.model_offset
             else:
                 base_position = np.array(

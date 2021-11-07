@@ -52,15 +52,19 @@ NeuroMechFly is run in [PyBullet](https://github.com/bulletphysics/bullet3/tree/
 Run the following commands on the terminal to reproduce the kinematic replay experiments:
 - ```$ run_kinematic_replay -b walking```  for walking behavior on the spherical treadmill. Replace ```walking``` for ```grooming``` to simulate the foreleg/antennal grooming example. 
 
-- ```$ run_kinematic_replay_ground``` to replay tethered walking kinematics on the ground. Add ```--perturbation``` to enable perturbations. To change the behavior to grooming, append ```--behavior grooming``` to the command.
+- ```$ run_kinematic_replay_ground``` for replaying tethered walking kinematics on the floor. Add ```--perturbation``` to enable perturbations. For changing the behavior to grooming, append ```-b grooming``` to the command.
 
-Furthermore, for both commands above, you can add the flag ```-fly #``` to run the simulation with other walking behaviors, # can be 1, 2, or 3 (default is 1). The flag ```--show_collisions``` will colored in green the segments in collision. Finally, the flag ```--record``` will save a video from the simulation in the folder *scripts/kinematic_replay/simulation_results*. The video will be recorded at 0.2x real-time (refer to the [environment tutorial](docs/environment_tutorial.md) to learn how to change this value). Flags ```--show_collisions``` and ```--record``` will slow down your simulation.
+Furthermore, for both commands above, you can add the flag ```-fly #``` to run the simulation with other walking behaviors, # can be 1, 2, or 3 (default is 1). The flag ```--show_collisions``` will colored in green the segments in collision. Finally, the flag ```--record``` will save a video from the simulation in the folder *scripts/kinematic_replay/simulation_results*. The video will be recorded at 0.2x real-time (refer to the [environment tutorial](docs/environment_tutorial.md) to learn how to change this value). 
 
 <p align="center">
   <img src="docs/images/perturbation.gif" width="450" />
 </p>
 
+- ```$ run_morphology_experiment``` for replaying grooming kinematics changing the legs and antennae morphology. Add ```--model model_name``` to select the morphology. ```model_name``` can be ```nmf```, ```stick_legs```, or ```stick_legs_antennae```. This command also support ```--record``` and ```--show_collisions``` flags.
+
 **NOTE:** At the end of each simulation run, a folder called *kinematic_replay_<behavior>_<time-stamp>* containing the physical quantities (joint angles, torques etc.) will be created under the *scripts/kinematic_replay/simulation_results* folder.
+
+**NOTE:** Flags ```--show_collisions``` and ```--record``` will slow down your simulation.
 
 **NOTE:** To obtain new pose estimates from the [DeepFly3D Database](https://dataverse.harvard.edu/dataverse/DeepFly3D), please refer to [DeepFly3D repository](https://github.com/NeLy-EPFL/DeepFly3D). After running the pose estimator on the recordings, you can follow the instructions for computing joint angles to control NeuroMechFly [here.](https://github.com/NeLy-EPFL/NeuroMechFly/blob/master/docs/angleprocessing.md)
 

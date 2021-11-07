@@ -25,8 +25,8 @@ def add_perturbation(
         3D position of the ball
     target_position: <array>
         3D position of the target
-    target_velocity: <float>
-        Final velocity during impact
+    time: <float>
+        Time before reaching the target position
 
     Returns
     -------
@@ -155,7 +155,7 @@ class DrosophilaSimulation(BulletSimulation):
         """
         # Throw mini balls at the fly during kinematic replay
         if self.add_perturbation:
-            if ((t + 1) % 500) == 0:
+            if ((t + 1) % (0.5/self.time_step)) == 0:
                 print("Adding perturbation")
                 self.pball = add_perturbation(
                     size=5e-2,
@@ -166,8 +166,8 @@ class DrosophilaSimulation(BulletSimulation):
                 )
                 self.impulse_sign *= -1
 
-            if ((t + 1) % 3000) == 0 and t < 3012:
-                radius = 10e-2
+            if ((t + 1) % (3.0/self.time_step)) == 0 and t < (3.012/self.time_step):
+                radius = 20e-2
                 self.pball = add_perturbation(
                     size=radius,
                     initial_position=np.asarray(

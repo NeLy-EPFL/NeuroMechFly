@@ -28,8 +28,10 @@ def parse_args():
     """ Parse arguments from command line """
     parser = argparse.ArgumentParser()
     parser.add_argument('-b', '--behavior', default='grooming')
-    parser.add_argument('-e', '--experiment', default='stick_legs')
+    parser.add_argument('-m', '--model', default='nmf')
     parser.add_argument('--record', dest='record', action='store_true')
+    parser.add_argument('--show_collisions', dest='show_collisions', action='store_true')
+    parser.add_argument('-fly', '--fly_number', default='1')
     parser.add_argument(
         '-pf', '--profile', default=False, type=str, required=False,
         dest="profile"
@@ -70,7 +72,7 @@ def main(args):
     # Setting the fixed joint angles to default values, can be altered to
     # change the appearance of the fly
     fixed_positions = {
-        'revolute_support_1': 3.6,
+        'revolute_support_1': 0.0,
         'joint_A3': -15,
         'joint_A4': -15,
         'joint_A5': -15,
@@ -86,9 +88,9 @@ def main(args):
         'joint_Head': 10
     }
 
-    if args.experiment == 'stick_legs':
+    if args.model == 'stick_legs':
         sdf_name = 'neuromechfly_frontleg_cylinder_antenna_normal.sdf'
-    elif args.experiment == 'stick_legs_antennae':
+    elif args.model == 'stick_legs_antennae':
         sdf_name = 'neuromechfly_frontleg_antenna_cylinder.sdf'
     else:
         sdf_name = 'neuromechfly_noLimits.sdf'
@@ -98,7 +100,7 @@ def main(args):
         f'data/design/sdf/{sdf_name}')
     pose_path = os.path.join(
         neuromechfly_path,
-        'data/config/pose/pose_default.yaml')
+        'data/config/pose/pose_stretch.yaml')
     results_path = os.path.join(
         neuromechfly_path,
         'scripts/kinematic_replay',
@@ -110,12 +112,7 @@ def main(args):
     if not os.path.exists(results_path):
         os.makedirs(results_path)
 
-    # Set the ball specs
-    ball_specs = {
-        'ball_friction_coef': 1.3,
-        'ball_mass': 54.e-6
-    }
-
+    
     # Simulation options
     sim_options = {
         "headless": False,
@@ -126,7 +123,7 @@ def main(args):
         "base_link": 'Thorax',
         "ground_contacts": ground_contact,
         "self_collisions": self_collision,
-        "draw_collisions": True,  # Set True to change the color of colliding segments
+        "draw_collisions": args.show_collisions,#Set True to change the color of colliding segments
         "record": args.record,  # Set True to record the simulation
         'camera_distance': 5.5,
         'track': False,
@@ -137,13 +134,14 @@ def main(args):
         'rot_cam': False,  # Set true to rotate the camera automatically
         'behavior': behavior,
         'ground': 'ball',
-        **ball_specs
+        'ground_friction_coef': 1.3,
+        'ball_mass': 54.e-6
     }
 
     # Paths of the position and velocity data
     data_path = os.path.join(
         neuromechfly_path,
-        f'data/joint_tracking/{behavior}/df3d')
+        f'data/joint_tracking/{behavior}/fly{args.fly_number}/df3d')
     angles_path = glob.glob(data_path + '/joint_angles*.pkl')[0]
     velocity_path = glob.glob(data_path + '/joint_velocities*.pkl')[0]
 
