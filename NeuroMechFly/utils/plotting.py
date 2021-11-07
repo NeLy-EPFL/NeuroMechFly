@@ -1335,6 +1335,33 @@ def get_data(
         window_time=0.2,
         baseline_time=0.1):
 
+    """ Read data from simulation results or fictrac ground truth.
+
+    Parameters
+    ----------
+    path_data: <str>
+        Path to data.
+    begin: <float>
+        Starting time for initiating the plots.
+    end: <float>
+        Stoping time for finishing the plots. If 0.0, all data is plotted.
+    time_step: <float>
+        Data time step.
+    data_from: <list>
+        Fictrac keys from which the data will be obtained.
+    offset: <float>
+        Offset in seconds of simulation with respect to fictrac data.
+    window_time: <float>
+        Window size in seconds for smoothing the signals.
+    baseline_time: <float>
+        Time in seconds for calculating the baseline of the signal.
+
+    Returns
+    ----------
+    norm_data: <dict>
+        Dictionary with the required data.
+    """
+
     fictrac_columns = ["Frame_counter",
                        "delta_rot_cam_x",
                        "delta_rot_cam_y",
@@ -1404,7 +1431,7 @@ def get_data(
     return norm_data
 
 
-def plot_fly_path_comparison(
+def plot_treadmill_rotations_comparison(
         fictrac_path,
         sim_path,
         plot_vel=True,
@@ -1419,20 +1446,41 @@ def plot_fly_path_comparison(
         filter_window_time=0.1,
         baseline_time=0.2
         ):
-    """ Comparing fly path/ball rotations between ground truth (obtained from FicTrac) and simulation
+    """ Comparing fly path/treadmill rotations between ground truth (obtained from FicTrac) and simulation.
 
     Parameters
     ----------
-    path_data: <str>
+    fictrac_path: <str>
+        Path to fictrac data.
+    sim_path: <str>
         Path to simulation results.
+    plot_vel: <bool>
+        Plot rotational velocities.
+    plot_traj: <bool>
+        Plot integrated path and displacement.
     ball_radius: <float>
         Radius of the spherical treadmill in millimeters.
     begin: <float>
         Starting time for initiating the plots.
     end: <float>
         Stoping time for finishing the plots. If 0.0, all data is plotted.
-    time_step: <float>
-        Data time step.
+    offset_fictrac: <float>
+        Offset in seconds of fictrac data with respect to the simulation.
+    offset_sim: <float>
+        Offset in seconds of the simulation with respect to the fictrac data.
+    time_step_fictrac: <float>
+        Fictrac time step.
+    time_step_sim: <float>
+        Simulation results time step.
+    filter_window_time: <float>
+        Window size in seconds for smoothing the signals.
+    baseline_time: <float>
+        Time in seconds for calculating the baseline of the signal.
+
+    Returns
+    ----------
+    corr_coefs: <dict>
+        Dictionary with the Spearman correlation coefficients for each axis (forward, lateral, and yaw).
     """
     data_from_fictrac = ["integrated_forward_movement",
                          "integrated_side_movement",
@@ -1504,10 +1552,10 @@ def plot_fly_path_comparison(
     corr_coefs['forward']=corr_coef_fw
 
     interp_side_fictrac, corr_coef_side = calculate_correlation_between(vel_side_fictrac,vel_side_sim,time_fictrac,time_sim)
-    corr_coefs['side']=corr_coef_side
+    corr_coefs['lateral']=corr_coef_side
 
     interp_heading_fictrac, corr_coef_heading = calculate_correlation_between(vel_heading_fictrac,vel_heading_sim,time_fictrac,time_sim)
-    corr_coefs['heading']=corr_coef_heading
+    corr_coefs['yaw']=corr_coef_heading
     
     if plot_traj:
         x_head_fictrac, y_head_fictrac = get_flat_trajectory(fw_fictrac,side_fictrac,heading_fictrac)
@@ -1526,7 +1574,7 @@ def plot_fly_path_comparison(
         plt.plot(time_fictrac, side_fictrac, label='Fictrac')
         plt.plot(time_sim, side_sim, label='NeuroMechFly')
         plt.xlabel('Time (s)', fontsize=14)
-        plt.ylabel('Side distance (mm)', fontsize=14)
+        plt.ylabel('Lateral distance (mm)', fontsize=14)
         plt.legend(fontsize=11)
         plt.xticks(fontsize=13)
         plt.yticks(fontsize=13)
@@ -1544,7 +1592,7 @@ def plot_fly_path_comparison(
         plt.plot(time_fictrac, heading_fictrac, label='Fictrac')
         plt.plot(time_sim, heading_sim, label='NeuroMechFly')
         plt.xlabel('Time (s)', fontsize=14)
-        plt.ylabel('Heading rotation (rad)', fontsize=14)
+        plt.ylabel('Yaw rotation (rad)', fontsize=14)
         plt.legend(fontsize=11)
         plt.xticks(fontsize=13)
         plt.yticks(fontsize=13)
@@ -1563,7 +1611,7 @@ def plot_fly_path_comparison(
         plt.plot(time_sim, interp_side_fictrac, label='Fictrac')
         plt.plot(time_sim, vel_side_sim, label='NeuroMechFly')
         plt.xlabel('Time (s)', fontsize=14)
-        plt.ylabel('Side Velocity (rad/s)', fontsize=14)
+        plt.ylabel('Lateral Velocity (rad/s)', fontsize=14)
         plt.legend(fontsize=11)
         plt.xticks(fontsize=13)
         plt.yticks(fontsize=13)
@@ -1572,7 +1620,7 @@ def plot_fly_path_comparison(
         plt.plot(time_sim, interp_heading_fictrac, label='Fictrac')
         plt.plot(time_sim, vel_heading_sim, label='NeuroMechFly')
         plt.xlabel('Time (s)', fontsize=14)
-        plt.ylabel('Heading Velocity (rad/s)', fontsize=14)
+        plt.ylabel('Yaw Velocity (rad/s)', fontsize=14)
         plt.legend(fontsize=11)
         plt.xticks(fontsize=13)
         plt.yticks(fontsize=13)
@@ -1583,14 +1631,61 @@ def plot_fly_path_comparison(
     return corr_coefs
 
 
-def calculate_correlation_between(fictrac, sim, time_fictrac, time_sim):
+def calculate_correlation_between(
+        fictrac,
+        sim,
+        time_fictrac,
+        time_sim):
+    """ Calculates the Spearman correlation coefficient betwen two signals.
+
+    Parameters
+    ----------
+    fictrac: <np.array>
+        Fictrac data (higher timestep).
+    sim: <np.array>
+        Simulation data (smaller timestep).
+    time_fictrac: <np.array>
+        Time vector for fictrac data.
+    time_sim: <np.array>
+        Time vector for simulation data.
+
+    Returns
+    ----------
+    interpolated_fictrac: <np.array>
+        Interpolated data from the higher to the smaller time step.
+    corr_coef:
+        Spearman correlation coefficient between both signals.
+    """
+    
     interpolated_fictrac = pchip_interpolate(time_fictrac, fictrac, time_sim)
     corr_coef, p_value = scipy.stats.spearmanr(interpolated_fictrac, sim)
 
     return interpolated_fictrac, corr_coef
 
 
-def get_flat_trajectory(fw, side, heading):
+def get_flat_trajectory(
+        fw,
+        side,
+        heading):
+
+    """ Integrates path trajectory.
+
+    Parameters
+    ----------
+    fw: <np.array>
+        Fictrac data (higher timestep).
+    side: <np.array>
+        Simulation data (smaller timestep).
+    heading: <np.array>
+        Time vector for fictrac data.
+
+    Returns
+    ----------
+    x_trajectory: <list>
+        Integrated path for the x axis.
+    y_trajectory: <list>
+        Integrated path for the y axis.
+    """
 
     x_trajectory = [0]
     y_trajectory = [0]
@@ -1627,8 +1722,10 @@ def compare_collision_diagram(
         Starting time for initiating the plots.
     end: <float>
         Stoping time for finishing the plots. If 0.0, all data is plotted.
-    time_step: <float>
-        Data time step.
+    time_step_sim: <float>
+        Simulation data time step.
+    time_step_gt: <float>
+        Ground truth time step.
     """
     data = {}
     length_data = 0
@@ -1880,6 +1977,43 @@ def compare_movement_on_ground(
         baseline_time=0.2
 ):
 
+    """ Comparing fly integrated path between FicTrac data, and tethered kinematic replay on the treadmill and on flat ground.
+
+    Parameters
+    ----------
+    fictrac_path: <str>
+        Path to fictrac data.
+    path_data_ball: <str>
+        Path to simulation results from tethered walking.
+    path_data_floor: <str>
+        Path to simulation results from flat ground (untethered) walking.
+    animation: <bool>
+        Plot integrated path step by step.
+    save_imgs: <bool>
+        Save plot from animation.
+    begin: <float>
+        Starting time for initiating the plots.
+    end: <float>
+        Stoping time for finishing the plots. If 0.0, all data is plotted.
+    offset: <float>
+        Offset in seconds of the simulation with respect to the fictrac data.
+    time_step_fictrac: <float>
+        Fictrac time step.
+    time_step_sim: <float>
+        Simulation results time step.
+    ball_radius: <float>
+        Radius of the spherical treadmill in millimeters.
+    filter_window_time: <float>
+        Window size in seconds for smoothing the signals.
+    baseline_time: <float>
+        Time in seconds for calculating the baseline of the signal.
+
+    Returns
+    ----------
+    corr_coefs: <dict>
+        Dictionary with the Spearman correlation coefficients for each axis (forward, lateral, and yaw).
+    """
+
     data_from_fictrac = ["integrated_forward_movement",
                          "integrated_side_movement",
                          "integrated_lab_heading",
@@ -2021,9 +2155,9 @@ def compare_movement_on_ground(
             
     
     plt.figure()
-    plt.plot(x_fictrac, y_fictrac, label="Fictrac path")
-    plt.plot(x_ball,y_ball, label = 'Tethered walking')
-    plt.plot(x_floor,y_floor, label = 'Free walking')
+    plt.plot(x_fictrac, y_fictrac, label="Fictrac")
+    plt.plot(x_ball,y_ball, label = 'Tethered')
+    plt.plot(x_floor,y_floor, label = 'Flat ground')
     plt.xlabel('Distance (mm)', fontsize=14)
     plt.ylabel('Distance (mm)', fontsize=14)
     plt.legend(fontsize=11)
@@ -2032,8 +2166,8 @@ def compare_movement_on_ground(
     
     plt.figure()
     plt.plot(time_sim, interp_fw_fictrac, label = 'Fictrac')
-    plt.plot(time_sim, fw_vel_ball, label = 'Tethered walking')
-    plt.plot(time_sim, fw_vel, label = 'Free walking')
+    plt.plot(time_sim, fw_vel_ball, label = 'Tethered')
+    plt.plot(time_sim, fw_vel, label = 'Flat ground')
     plt.xlabel('Time (s)', fontsize=14)
     plt.ylabel('Forward Velocity (mm/s)', fontsize=14)
     plt.legend(fontsize=11)
@@ -2042,20 +2176,20 @@ def compare_movement_on_ground(
 
     plt.figure()
     plt.plot(time_sim, interp_side_fictrac, label = 'Fictrac')
-    plt.plot(time_sim, side_vel_ball, label = 'Tethered walking')    
-    plt.plot(time_sim, np.array(side_vel), label = 'Free walking')
+    plt.plot(time_sim, side_vel_ball, label = 'Tethered')    
+    plt.plot(time_sim, np.array(side_vel), label = 'Flat ground')
     plt.xlabel('Time (s)', fontsize=14)
-    plt.ylabel('Side Velocity (mm/s)', fontsize=14)
+    plt.ylabel('Lateral Velocity (mm/s)', fontsize=14)
     plt.legend(fontsize=11)
     plt.xticks(fontsize=13)
     plt.yticks(fontsize=13)
 
     plt.figure()
     plt.plot(time_sim, interp_heading_fictrac, label = 'Fictrac')
-    plt.plot(time_sim, heading_vel_ball, label = 'Thetered walking')
-    plt.plot(time_sim, heading_vel_floor, label = 'Free walking')
+    plt.plot(time_sim, heading_vel_ball, label = 'Thetered')
+    plt.plot(time_sim, heading_vel_floor, label = 'Flat ground')
     plt.xlabel('Time (s)', fontsize=14)
-    plt.ylabel('Heading Velocity (rad/s)', fontsize=14)
+    plt.ylabel('Yaw Velocity (rad/s)', fontsize=14)
     plt.legend(fontsize=11)
     plt.xticks(fontsize=13)
     plt.yticks(fontsize=13)
@@ -2068,7 +2202,20 @@ def plot_sensitivity_constraints(
         fictrac_path,
         annot = True,
         annot_size = 18
-        ):   
+        ):
+    """ Plots the heatmaps for the constraints sensitivity analysis. Three heatmaps correspond to each rotation axis (forward, lateral, and yaw) and the fourth one corresponds to the normalized weighted sum for selecting the best combination.
+
+    Parameters
+    ----------
+    data_path: <str>
+        Path to the simulation results.
+    fictrac_path: <str>
+        Path to the fictrac data.
+    annot: <bool>
+        Show annotations in heatmaps.
+    annot_size: <int>
+        Font size for the annotations in heatmaps.
+    """
     coef_mat_fw = np.zeros((11, 11))
     coef_mat_side = np.zeros((11, 11))
     coef_mat_heading = np.zeros((11, 11))
@@ -2093,8 +2240,8 @@ def plot_sensitivity_constraints(
         col = int(i%11)
         corr_coef = plot_fly_path_comparison(fictrac_path, exp_path, plot_vel=False, end=6.0, offset_fictrac=0.5)
         coef_mat_fw[row][col] = corr_coef['forward']
-        coef_mat_side[row][col] = corr_coef['side']
-        coef_mat_heading[row][col] = corr_coef['heading']
+        coef_mat_side[row][col] = corr_coef['lateral']
+        coef_mat_heading[row][col] = corr_coef['yaw']
 
     std_fw = np.std(coef_mat_fw.flatten())
     std_side = np.std(coef_mat_side.flatten())
@@ -2138,7 +2285,7 @@ def plot_sensitivity_constraints(
     ax_fw.set_xlabel("CFM")
     ax_fw.set_ylabel("ERP")
 
-    heatmap_plot('Constraints sensitivity analysis: side',
+    heatmap_plot('Constraints sensitivity analysis: lateral',
                  coef_mat_side,
                  'Spearman coefficient',
                  annot=annot,
@@ -2150,7 +2297,7 @@ def plot_sensitivity_constraints(
     ax_side.set_xlabel("CFM")
     ax_side.set_ylabel("ERP")
 
-    heatmap_plot('Constraints sensitivity analysis: heading',
+    heatmap_plot('Constraints sensitivity analysis: yaw',
                  coef_mat_heading,
                  'Spearman coefficient',
                  annot=annot,
@@ -2162,7 +2309,7 @@ def plot_sensitivity_constraints(
     ax_heading.set_xlabel("CFM")
     ax_heading.set_ylabel("ERP")
 
-    heatmap_plot('Constraints sensitivity analysis: sum',
+    heatmap_plot('Constraints sensitivity analysis: normalized weighted sum',
                  norm_sum,
                  'values',
                  annot=annot,
