@@ -29,8 +29,9 @@ neuromechfly_path = Path(pkgutil.get_loader(
 
 pylog.set_level('error')
 
-random.seed(0)
-np.random.seed(0)
+# NOTE: Uncomment these lines to always get the same optimization results
+# random.seed(0)
+# np.random.seed(0)
 
 class WriteFullFrontToFileObserver(Observer):
     """ Write full front to file. """
@@ -108,24 +109,6 @@ def read_optimization_results(fun, var):
     return (np.loadtxt(fun), np.loadtxt(var))
 
 
-def print_penalties_to_file(penalties: Tuple) -> None:
-    """ Writes penalties into a txt file inside results. """
-
-    output_file_directory = os.path.join(
-        neuromechfly_path,
-        'scripts/neuromuscular_optimization',
-        'optimization_results',
-        'PENALTIES.txt'
-    )
-
-    pylog.info('Output file (penalty values): ' + output_file_directory)
-
-    with open(output_file_directory, 'a') as of:
-        for penalty in penalties:
-            of.write(str(penalty) + ' ')
-        of.write('\n')
-
-
 def generate_config_file(log: dict) -> None:
     """ Generates a config file of the weights used in the optimization. """
 
@@ -140,45 +123,6 @@ def generate_config_file(log: dict) -> None:
 
     with open(output_file_directory, 'w') as of:
         yaml.dump(log, of, default_flow_style=False)
-
-
-def separate_penalties_into_gens(n_gen: int, n_pop: int, output_directory: str) -> None:
-    """Saves penalties based on generations at the end of optimization
-    and removes the temporary txt file that stores the penalties.
-
-    Parameters
-    ----------
-    n_gen : int
-        Number of generations.
-    n_pop : int
-        Number of individuals in a generation.
-    output_directory : str
-        Directory where the FUN and VAR files are saved.
-    """
-
-    penalties_directory = os.path.join(
-        neuromechfly_path,
-        'scripts/neuromuscular_optimization',
-        'optimization_results',
-        'PENALTIES.txt'
-    )
-
-    penalties = np.loadtxt(penalties_directory)
-
-    for generation in range(n_gen):
-        np.savetxt(
-            os.path.join(
-                output_directory,
-                'PENALTIES.{}'.format(generation)
-            ),
-            penalties[generation * n_pop: (generation + 1) * n_pop, :],
-            '%.15f'
-        )
-
-    pylog.info('Penalties are saved separately!')
-
-    os.remove(penalties_directory)
-    pylog.info('{} is removed!'.format(penalties_directory))
 
 
 class DrosophilaEvolution(FloatProblem):
@@ -327,13 +271,14 @@ class DrosophilaEvolution(FloatProblem):
         # Set the ball specs based on your experimental setup
         ball_specs = {
             'ball_mass': 54.6e-6,
-            'ball_friction_coef': 1.3
+            'ground_friction_coef': 1.3
         }
         # Simulation options
         sim_options = {
             "headless": True,
             "model": str(model_path),
             "time_step": time_step,
+            "solver_iterations": 100,
             "model_offset": [0., 0., 11.2e-3],
             "pose": pose_path,
             "run_time": run_time,
@@ -342,6 +287,7 @@ class DrosophilaEvolution(FloatProblem):
             "ground_contacts": ground_contacts,
             "camera_distance": 4.5,
             "track": False,
+            "globalCFM": 5.,
             **ball_specs
         }
         #: Create the container instance that the simulation results will be dumped
@@ -392,9 +338,9 @@ class DrosophilaEvolution(FloatProblem):
             'mechanical_work': 1e-2,
             'stance': 1e0,
             'lava': 1e-1,
-            'velocity': 5e-2,
-            'joint_limits': 1e-2,
-            'duty_factor': 5e2
+            'velocity': 1e-1,
+            'joint_limits': 5e-2,
+            'duty_factor': 1e2
         }
 
         objectives_weighted = {
@@ -428,7 +374,6 @@ class DrosophilaEvolution(FloatProblem):
             f'\nObjective func eval:\nFirst: {solution.objectives[0]}\nSecond: {solution.objectives[1]}\n'
         )
 
-        print_penalties_to_file((*objectives_weighted.values(), *penalties_weighted.values()))
         config_file = {
             weight_name: weight for weight_name, weight in weights.items()
             if weight_name in {**objectives, **penalties}

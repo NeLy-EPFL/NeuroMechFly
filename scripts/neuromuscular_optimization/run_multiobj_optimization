@@ -28,8 +28,7 @@ from jmetal.util.solution import (print_function_values_to_file,
 from jmetal.util.termination_criterion import StoppingByEvaluations
 
 from NeuroMechFly.experiments.network_optimization import multiobj_optimization
-from NeuroMechFly.experiments.network_optimization.multiobj_optimization import \
-    WriteFullFrontToFileObserver, separate_penalties_into_gens
+from NeuroMechFly.experiments.network_optimization.multiobj_optimization import WriteFullFrontToFileObserver
 
 neuromechfly_path = Path(pkgutil.get_loader("NeuroMechFly").get_filename()).parents[1]
 
@@ -37,8 +36,8 @@ neuromechfly_path = Path(pkgutil.get_loader("NeuroMechFly").get_filename()).pare
 def parse_args():
     """ Parse arguments from command line """
     parser = argparse.ArgumentParser()
-    parser.add_argument('-g', '--gen', type=int, default=200)
-    parser.add_argument('-p', '--pop', type=int, default=60)
+    parser.add_argument('-g', '--gen', type=int, default=60)
+    parser.add_argument('-p', '--pop', type=int, default=200)
     parser.add_argument('-n', '--process', type=int, default=8)
     parser.set_defaults(gui=False, profile=False)
     return parser.parse_args()
@@ -77,10 +76,6 @@ if __name__ == "__main__":
         neuromechfly_path,
         'scripts/neuromuscular_optimization'
     )
-
-    # if os.path.exists(os.path.join(output_dir, 'optimization_results/PENALTIES.txt')):
-    #     os.remove(os.path.join(output_dir, 'optimization_results/PENALTIES.txt'))
-    #     print('Removing penalties file as it already exists..')
 
     # Results Dumping
     result_path = 'optimization_results/run_{}_var_{}_obj_{}_pop_{}_gen_{}_{}'.format(
@@ -128,8 +123,6 @@ if __name__ == "__main__":
     print_function_values_to_file(front,  os.path.join(output_dir,'FUN.txt'))
     print_variables_to_file(front,  os.path.join(output_dir,'VAR.txt'))
 
-    # Save penalties into separate files
-    # separate_penalties_into_gens(n_gen, n_pop, os.path.join(output_dir, result_path))
     # Move the config file inside the results directory
     Path(os.path.join(output_dir, 'optimization_results/CONFIG.yaml')).rename(os.path.join(output_dir, result_path, 'CONFIG.yaml'))
 
