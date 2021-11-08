@@ -4,6 +4,7 @@ In the command line, run $ python run_optimization_analysis.py --plot --path <pa
 
 To change frequency of generation skip, add --frequency <freq-value>
 To set the number of cores that the script will run, add --ncores <core-number>
+To log the penalty and objective values separately, add --log_penalties to the command.
 """
 
 import argparse
@@ -73,7 +74,7 @@ def run_simulation(args, sol, gen):
     # Set the ball specs based on your experimental setup
     ball_specs = {
         'ball_mass': 54.6e-6,
-        'ball_friction_coef': 1.3
+        'ground_friction_coef': 1.3
     }
     # Simulation options
     sim_options = {
@@ -100,6 +101,7 @@ def run_simulation(args, sol, gen):
         'ground': 'ball',
         'results_path': f'{exp}_gen_{gen}_sol_{sol}',
         'save_frames': False,
+        'globalCFM': 5.0,
         **ball_specs
     }
     #: Initialize the container
@@ -139,7 +141,7 @@ def run_simulation(args, sol, gen):
         f"sol_{sol}"
     )
 
-    if not os.path.exists(results_path) or not args.log_penalties or args.plot:
+    if not os.path.exists(results_path):
         os.makedirs(results_path)
 
     if not args.log_penalties:
