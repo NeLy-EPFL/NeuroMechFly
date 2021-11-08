@@ -56,7 +56,7 @@ def parse_args():
         default='',
         help='Path relative to the scripts/neuromuscular_optimization')
     parser.add_argument(
-        '-s', '--sol', default='fastest',
+        '-s', '--sol', default='tradeoff',
         help='Solution types are: fastest, win_win, most_stable or an integer (ind number)'
     )
     parser.add_argument('--gui', dest='gui', action='store_true')
@@ -123,7 +123,7 @@ def main(args):
     # Set the ball specs based on your experimental setup
     ball_specs = {
         'ball_mass': 54.6e-6,
-        'ball_friction_coef': 1.3
+        'ground_friction_coef': 1.3
     }
     # Simulation options
     sim_options = {
@@ -133,6 +133,7 @@ def main(args):
         "run_time": run_time,
         "time_step": time_step,
         "pose": pose_path,
+        "solver_iterations":100,
         "base_link": 'Thorax',
         "controller": controller_path,
         "ground_contacts": ground_contact,
@@ -149,7 +150,7 @@ def main(args):
         'rot_cam': True,  # : Set true to rotate the camera automatically
         'ground': 'ball',
         'results_path': f'{exp}_gen_{gen}_sol_{args.sol}',
-        'save_frames': True,
+        'save_frames': False,
         **ball_specs
     }
     #: Initialize the container
@@ -179,7 +180,7 @@ def main(args):
 
     #: Run the selected parameter values in the simulation
     animal.update_parameters(params)
-    animal.run(optimization=True)
+    animal.run(optimization=False)
     #: Dump the optimization results
     results_path = os.path.join(
         neuromechfly_path,
@@ -193,7 +194,7 @@ def main(args):
         os.makedirs(results_path)
 
     if not args.log_penalties:
-        animal.container.dump(dump_path=results_path, overwrite=False)
+        animal.container.dump(dump_path=results_path, overwrite=True)
     else:
         # Log penalties
         # OBJECTIVES
