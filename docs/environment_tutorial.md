@@ -1,6 +1,6 @@
 ## Managing the simulation options
 
-There are 40 simulation options that can be changed from the scripts. Please refer to ```NeuroMechFly/simulation/bullet_simulation.py``` for checking all the options. Here we enlisted the options used on our scripts:
+There are 40 simulation options that can be changed from the scripts. Please refer to ```NeuroMechFly/simulation/bullet_simulation.py``` for checking all the options. Here we enlisted the options we use in our scripts for managing the environment:
 
 - ```headless```: The GUI is not shown if *True*. This speed-up the simulation. 
 - ```model```: Global path to the sdf file with the desired model description.
@@ -44,7 +44,5 @@ animal = kinematic_replay.DrosophilaSimulation(
     )
 ```
 
-## Modifying the environment
-**Changing the spherical treadmill**
+## Adding objects to the environment
 
-**Adding objects**
