@@ -3,9 +3,9 @@
 Links and joints are defined in the ```sdf``` configuration files located in ```data/design/sdf/```, for a complete guide about the simulation description format (sdf) please refer to its [main page](http://sdformat.org/).
 
 In this tutorial you can leanr how to:
-- [Modify the body segments](Modifying-the-body-segments)
-- [Modify the joints](Modifying-joints)
-- [Change the pose](Changing-the-pose)
+- [Modify the body segments](modifying-the-body-segments)
+- [Modify the joints](modifying-joints)
+- [Change the pose](changing-the-pose)
 
 
 ## Modifying the body segments
