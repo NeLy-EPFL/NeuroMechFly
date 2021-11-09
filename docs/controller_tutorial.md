@@ -1,4 +1,11 @@
-## Modyfing PyBullet joint controller
+# Controller module
+
+In this tutorial you can learn how to:
+- [Modify the PyBullet joint controller](#modifying-PyBullet-joint-controller)
+- [Modify our neural controller](#Modifying-our-neural-controller)
+- [Incorporate customized controllers](#incorporating-customized-controllers)
+
+## Modifying PyBullet joint controller
 
 We use two control modes in our experiments for actuating NeuroMechFly joints: 
 
