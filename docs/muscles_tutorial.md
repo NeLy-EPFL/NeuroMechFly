@@ -8,7 +8,7 @@ The muscle model is implemented in the script ```NeuroMechFly/control/spring_dam
 
 ## Incorporating customized muscle models
 
-There is always the possibility to incorporate completely different muscle models in NeuroMechFly, e.g., Hill-type muscles. That implies to implement your own script computing your prefered model. However, once you have your muscle model, you can use our other three modules (neural controller, biomechanical, and environment) to run a complete simulation. The requirements for using NeuroMechFly would depend on the modules you want to use:
+There is always the possibility to incorporate completely different muscle models in NeuroMechFly, e.g., Hill-type muscles. That implies to implement your own script for computing your prefered model. However, once you have your muscle model, you can use our other three modules (neural controller, biomechanical, and environment) to run a complete simulation. The requirements for using NeuroMechFly would depend on the modules you want to use:
 
 **Using neural controller, biomechanical, and environment modules**
 
