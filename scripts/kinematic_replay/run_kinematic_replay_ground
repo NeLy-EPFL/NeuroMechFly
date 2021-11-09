@@ -38,7 +38,7 @@ if __name__ == "__main__":
     behavior = args.behavior.lower()
     run_time = 4.0
     time_step = 5e-4
-    starting_time = 2.0
+    starting_time = 3.0
 
     # Paths of the position and velocity data
     data_path = os.path.join(
