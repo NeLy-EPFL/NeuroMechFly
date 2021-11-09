@@ -1,3 +1,9 @@
+# Muscles module
+
+In this tutorial you can learn how to:
+- [Modify our muscle model](#modifying-our-muscle-model)
+- [Incorporate customized muscle models](#incorporating-customized-muscle-models)
+
 ## Modifying our muscle model
 
 We use our Ekeberg muscle model when controlling NeuroMechfLy with our coupled oscillators network. Please refer to our related [publication](https://www.biorxiv.org/content/10.1101/2021.04.17.440214v2) to have a complete description of this model. Each variable from this muscle model is determined through our multi-objective optimization. However, you could modify (or replace) these parameters from the scripts. 
