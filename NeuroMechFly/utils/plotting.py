@@ -2141,7 +2141,7 @@ def compare_movement_on_ground(
             ax.set_ylabel('Y (mm)')
             ax.set_xlim([np.min(x_floor)-2,np.max(x_floor)+2])
             ax.set_ylim([np.min(y_ball)-2,np.max(y_ball)+1])
-            plt.legend()
+            plt.legend(loc='upper left')
             if save_imgs:
                 new_folder = os.path.join(path_data_floor,'fly_path')
                 if not os.path.exists(new_folder):
