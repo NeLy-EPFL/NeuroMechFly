@@ -1,3 +1,4 @@
+# Environment module
 ## Managing the simulation options
 
 There are 40 simulation options that can be changed from the scripts. Please refer to ```NeuroMechFly/simulation/bullet_simulation.py``` for checking all the options. Here we enlisted the ones we use in our scripts for managing the environment:
