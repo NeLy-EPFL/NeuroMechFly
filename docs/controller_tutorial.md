@@ -37,7 +37,7 @@ On the other hand, you can always define completely new objective functions and 
 
 ## Incorporating customized controllers
 
-You can also incorporate a completely different neural controller in NeuroMechFly, e.g., Hodgkin-Huxley model. That implies to implement your own script for computing your prefered model. However, once you have your neural controller, you can use our other three modules (muscles, biomechanical, and environment) to run a complete simulation. The requirements for using NeuroMechFly are:
+You can also incorporate a completely different neural controller in NeuroMechFly, e.g., a Hodgkin-Huxley model. This implies to implement your own script for computing your prefered model, or you can also check [FARMS Network](https://gitlab.com/farmsim/farms_network) to learn how to design new neural network controllers. However, once you have your neural controller, you can use our other three modules (muscles, biomechanical, and environment) to run a complete simulation. The requirements for using NeuroMechFly are:
 
 **Using muscles, biomechanical, and environment modules**
 
