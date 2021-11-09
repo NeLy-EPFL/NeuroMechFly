@@ -1,4 +1,10 @@
 # Environment module
+
+In this tutorial you can learn how to:
+- [Manage the simulation options](#managing-the-simulation-options)
+- [Initialize the simulation](#initializing-the-simulation)
+- [Add objects to the environment](#adding-objects-to-the-environment)
+
 ## Managing the simulation options
 
 There are 40 simulation options that can be changed from the scripts. Please refer to ```NeuroMechFly/simulation/bullet_simulation.py``` for checking all the options. Here we enlisted the ones we use in our scripts for managing the environment:
