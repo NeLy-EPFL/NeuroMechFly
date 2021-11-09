@@ -1,3 +1,5 @@
+# Biomechanical module
+
 Links and joints are defined in the ```sdf``` configuration files located in ```data/design/sdf/```, for a complete guide about the simulation description format (sdf) please refer to http://sdformat.org/
 
 ## Modifying the body segments
