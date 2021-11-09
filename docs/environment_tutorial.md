@@ -1,6 +1,6 @@
 ## Managing the simulation options
 
-There are 40 simulation options that can be changed from the scripts. Please refer to ```NeuroMechFly/simulation/bullet_simulation.py``` for checking all the options. Here we enlisted the options we use in our scripts for managing the environment:
+There are 40 simulation options that can be changed from the scripts. Please refer to ```NeuroMechFly/simulation/bullet_simulation.py``` for checking all the options. Here we enlisted the ones we use in our scripts for managing the environment:
 
 - ```headless```: The GUI is not shown if *True*. This speed-up the simulation. 
 - ```model```: Global path to the sdf file with the desired model description.
@@ -28,9 +28,11 @@ There are 40 simulation options that can be changed from the scripts. Please ref
 - ```ball_info```: If *True* a file named *treadmill_info__** will be read to obtain the treadmill position and size.
 - ```ball_mass```: Specifies the mass of the treadmill. If *None* the mass is calculated based on its size and the polyurethane foam density.
 
-You can refer to any of the scripts in the ```scripts/kinematic_replay``` folder to have an example of how to use any of these options. 
+You can refer to any of the scripts in the ```scripts/kinematic_replay``` folder to have an example of how to use them. 
 
 ## Initializing the simulation
+
+When the simulation is initialized, we can set other parameters beside the simulation options explained above. For example, as shown in the snippet below, we can set the controller gains (*kp* and *kv*) if we are using PyBullet's PD controller, specify the position for the joints that should remain fixed along the simulation, and define the paths were the data can be found. We use this kind of initialization for the kinematic replay scripts. You can find usage examples in ```scripts/kinematic_replay/```. If you want to add other variables during the initialization you need to modify the class ```DrosophilaSimulation``` found in any script in the folder ```NeuroMechFly/experiments```.
 
 ```python
 animal = kinematic_replay.DrosophilaSimulation(
@@ -40,9 +42,10 @@ animal = kinematic_replay.DrosophilaSimulation(
         angles_path=angles_path,
         velocity_path=velocity_path,
         starting_time=starting_time,
-        fixed_positions=fixed_positions,
+        fixed_positions=fixed_positions
     )
 ```
 
 ## Adding objects to the environment
 
+Please refer to the [PyBullet documentation](https://pybullet.org/wordpress/) for a complete guide on how to include objects into your simulation. We include objects into the simulation in three ways. NeuroMechFly model is imported from a *sdf* file which contains the model description (see the [biomechanics tutorial](biomechanical_tutorial.md)). External perturbations shown in Video 10 from our related [publication](https://www.biorxiv.org/content/10.1101/2021.04.17.440214v2) are added from an [*urdf*](https://wiki.ros.org/urdf/Tutorials) file, which is another format supported by PyBullet for describing objects (you can find this example in the file ```NeuroMechFly/experiments/kinematic_replay/kinematic_replay_no_support.py```). Finally, we included the spherical treadmill into the simulation using the *createMultiBody* build-in function from PyBullet. You can refer to ```NeuroMechFly/simulation/bullet_simulation.py``` to see an example of how we use this function.
