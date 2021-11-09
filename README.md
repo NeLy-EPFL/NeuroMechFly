@@ -196,22 +196,27 @@ plotting.plot_network_activity(
 ```
 	
 ## Customizing NeuroMechFly
+	
+Each module in NeuroMechFly can be modified for creating a customized simulation. Here are some examples on how to do it:
+	
 * [Biomechanical model](docs/biomechanical_tutorial.md)
-	- Adding/removing joints
-	- Modifying physical properties
-	- Changing the pose
+	- Modify the body segments.
+	- Modify the joints.
+	- Change the pose.
 	
 * [Neural controller](docs/controller_tutorial.md)
-	- Changing neuron type
-	- Incorporating customized controllers
+	- Modify the PyBullet joint controller.
+	- Modify our neural controller.
+	- Incorporate customized controllers.
 	
 * [Muscle model](docs/muscles_tutorial.md)
-	- Modifying muscle's properties
-	- Incorporating customized muscle models
+	- Modify our muscle model.
+	- Incorporate customized muscle models.
 
 * [Environment](docs/environment_tutorial.md)	
-	- Managing the simulation
-	- Modifying the environment
+	- Manage the simulation options.
+	- Initialize the simulation.
+	- Add objects to the environment.
 	
 ---
 
