@@ -1,6 +1,12 @@
 # Biomechanical module
 
-Links and joints are defined in the ```sdf``` configuration files located in ```data/design/sdf/```, for a complete guide about the simulation description format (sdf) please refer to http://sdformat.org/
+Links and joints are defined in the ```sdf``` configuration files located in ```data/design/sdf/```, for a complete guide about the simulation description format (sdf) please refer to its [main page](http://sdformat.org/).
+
+In this tutorial you can leanr how to:
+- [Modify the body segments](Modifying-the-body-segments)
+- [Modify the joints](Modifying-joints)
+- [Change the pose](Changing-the-pose)
+
 
 ## Modifying the body segments
 
@@ -69,7 +75,7 @@ On the other hand, changing the *visual* and *collision* shapes is fairly easy w
 </tr>
 </table>
 
-## Managing joints
+## Modifying joints
 
 We have defined 90 joints (degrees-of-freedom) in NeuroMechFly. They are listed in Table 3 in our related [publication](https://www.biorxiv.org/content/10.1101/2021.04.17.440214v2). 
 In every sdf configuration file, joints are defined as follows:
