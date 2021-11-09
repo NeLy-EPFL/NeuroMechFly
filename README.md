@@ -28,12 +28,14 @@ If you use NeuroMechFly in your research, you can cite us:
 
 - [Starting](#starting)
 - [Reproducing the experiments](#reproducing-the-experiments)
+- [Customizing NeuroMechFly](#customizing-neuromechfly)
 - [Miscellaneous](#miscellaneous)
 
 
 ## Starting
 * [Installation](docs/installation.md)
 * [Angle Processing](docs/angleprocessing.md)
+
 
 ## Reproducing the experiments
 **Note:** before running the following scripts, please be sure to activate the virtual environment (see the [installation guide](docs/installation.md))
@@ -93,6 +95,31 @@ Run the following commands on the terminal to reproduce the locomotor gait optim
 
 - First, download the simulation data pertaining to the sensitivity analyses from [here](https://drive.google.com/file/d/1drWEwl-gcv4oGbpIwz6--iVvo93yDtLz/view?usp=sharing) and place these files in the folder, *data/sensitivity_analysis*
 - To reproduce the sensitivity analysis figures, ```$ run_sensitivity_analysis```. Make sure that the downloaded files are in the correct location.
+	
+## Customizing NeuroMechFly
+	
+Each module in NeuroMechFly can be modified for creating a customized simulation. Here are some examples on how to do it:
+	
+* [Biomechanical model](docs/biomechanical_tutorial.md)
+	- Modify the body segments.
+	- Modify the joints.
+	- Change the pose.
+	
+* [Neural controller](docs/controller_tutorial.md)
+	- Modify the PyBullet joint controller.
+	- Modify our neural controller.
+	- Incorporate customized controllers.
+	
+* [Muscle model](docs/muscles_tutorial.md)
+	- Modify our muscle model.
+	- Incorporate customized muscle models.
+
+* [Environment](docs/environment_tutorial.md)	
+	- Manage the simulation options.
+	- Initialize the simulation.
+	- Add objects to the environment.
+	
+---
 
 ## Miscellaneous
 
@@ -194,29 +221,6 @@ plotting.plot_network_activity(
 )
 
 ```
-	
-## Customizing NeuroMechFly
-	
-Each module in NeuroMechFly can be modified for creating a customized simulation. Here are some examples on how to do it:
-	
-* [Biomechanical model](docs/biomechanical_tutorial.md)
-	- Modify the body segments.
-	- Modify the joints.
-	- Change the pose.
-	
-* [Neural controller](docs/controller_tutorial.md)
-	- Modify the PyBullet joint controller.
-	- Modify our neural controller.
-	- Incorporate customized controllers.
-	
-* [Muscle model](docs/muscles_tutorial.md)
-	- Modify our muscle model.
-	- Incorporate customized muscle models.
-
-* [Environment](docs/environment_tutorial.md)	
-	- Manage the simulation options.
-	- Initialize the simulation.
-	- Add objects to the environment.
 	
 ---
 
