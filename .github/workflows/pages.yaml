@@ -2,7 +2,7 @@ name: "Github pages CI/CD"
 on:
   push:
     branches:
-      - master # TODO: Change to main once branches are renamed
+      - main
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 jobs:
@@ -26,7 +26,7 @@ jobs:
           apt-get update
           apt-get install -y git
           git clone "https://github.com/${GITHUB_REPOSITORY}.git" .
-          git checkout master
+          git checkout main
         shell: bash
       - run: |
           echo "The ${{ github.repository }} repository has been cloned to the runner."
