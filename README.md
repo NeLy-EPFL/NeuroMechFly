@@ -96,16 +96,16 @@ Run the following commands on the terminal to reproduce the locomotor gait optim
 
 **3. Sensitivity Analysis**
 
-- First, download the simulation data pertaining to the sensitivity analyses from [here](https://drive.google.com/file/d/10XfMkMY0nhDABekzQ7wVid9hVI5C4Xiz/view?usp=sharing) and place these files in the folder, *data/sensitivity_analysis*
+- First, download the data from sensitivity analyses [here](https://drive.google.com/file/d/10XfMkMY0nhDABekzQ7wVid9hVI5C4Xiz/view?usp=sharing). Place these files into the folder, *data/sensitivity_analysis*
 - To reproduce the sensitivity analysis figures, ```$ run_sensitivity_analysis```. Make sure that the downloaded files are in the correct location.
 	
 ## Customizing NeuroMechFly
 	
-Each module in NeuroMechFly can be modified for creating a customized simulation. Here are some examples on how to do it:
+Each module in NeuroMechFly can be modified to create a customized simulation. Here are some tutorials explaining how to do this:
 	
 * [Biomechanical model](docs/biomechanical_tutorial.md)
-	- Modify the body segments.
-	- Modify the joints.
+	- Modify body segments.
+	- Modify joints.
 	- Change the pose.
 	
 * [Neural controller](docs/controller_tutorial.md)
@@ -139,8 +139,8 @@ Each module in NeuroMechFly can be modified for creating a customized simulation
 ---
 
 **3. Reproducing the Figures**
--  All of the plotting functions used in the paper can be found in [*NeuroMechFly/utils/plotting.py*](NeuroMechFly/utils/plotting.py). Please refer to the docstrings provided in the code for the details about how to plot your simulation data.
--  For example, for reproducing plots on Fig. 4 and 5 panel E, first, run the script *run_kinematic_replay* or *run_kinematic_replay_ground*, and then use:
+-  All of the plotting functions used in the paper can be found in [*NeuroMechFly/utils/plotting.py*](NeuroMechFly/utils/plotting.py). Please refer to the docstrings provided in the code for details on how to plot your simulation data.
+-  For example, to reproduce the plots on Figs. 4 and 5 panel E, first, run the script *run_kinematic_replay* or *run_kinematic_replay_ground*, and then use:
 ```python
 from NeuroMechFly.utils import plotting
 from pathlib import Path
@@ -150,22 +150,22 @@ import os
 
 path_data = '~/NeuroMechFly/scripts/kinematic_replay/simulation_results/<name-of-the-results-folder>'
 
-# Selecting behavior (walking or grooming)
+# Selecting a behavior (walking or grooming)
 behavior = 'walking'
 
-# Selecting fly
+# Selecting a fly
 fly_number = 1
 
-# Selecting right front leg for plotting (other options are LF, RM, LM, LH, or RH)
+# Selecting the right front leg for plotting (other options are LF, RM, LM, LH, or RH)
 leg = 'LF' # 'RF' for grooming
 
-# Read angles from file
+# Reading angles from a file
 angles_path = os.path.join(str(Path.home()),f'NeuroMechFly/data/joint_tracking/{behavior}/fly{fly_number}/df3d/')
 file_path = glob.glob(f'{angles_path}/joint_angles*.pkl')[0]
 with open(file_path, 'rb') as f:
     angles = pickle.load(f)
 
-# Defining time limits for the plot (seconds)
+# Defining time limits for a plot (in seconds)
 start_time = 3.0 # 0.5 for grooming
 stop_time = 5.0 # 2.5 for grooming
 
@@ -182,7 +182,7 @@ plotting.plot_data(path_data,
 		   end=stop_time)
 ```
 
-- For reproducing gait/collision diagrams from Fig. 4 and 5, first, run the script *run_kinematic_replay* or *run_kinematic_replay_ground*, and then use:
+- To reproduce gait/collision diagrams from Figs. 4 and 5, first, run the script *run_kinematic_replay* or *run_kinematic_replay_ground*, and then use:
 ```python
 from NeuroMechFly.utils import plotting
 
@@ -212,7 +212,7 @@ path_data = '~/NeuroMechFly/scripts/neuromuscular_optimization/simulation_last_r
 # Selecting the joint of interest (Femur-Tibia)
 link = 'Femur'
 
-# Defining time limits for the plot (seconds)
+# Defining time limits for the plot (in seconds)
 start_time = 1.0
 stop_time = 1.5
 
