@@ -39,6 +39,15 @@ Starting
 -  `Installation <docs/source/installation.rst>`__
 -  `Angle Processing <docs/source/angleprocessing.rst>`__
 
+Tutorials
+---------
+
+-  `Biomechanical model <docs/source/biomechanical_tutorial.rst>`__
+-  `Neural controller <docs/source/controller_tutorial.rst>`__
+-  `Muscle model <docs/source/muscles_tutorial.rst>`__
+-  `Environment configuration <docs/source/environment_tutorial.rst>`__
+
+
 License
 -------
 
