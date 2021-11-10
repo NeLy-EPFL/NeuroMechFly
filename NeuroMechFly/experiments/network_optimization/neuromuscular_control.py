@@ -283,7 +283,7 @@ class DrosophilaSimulation(BulletSimulation):
 
         """
         # Initialize static stability
-        static_stability = -1.0  # Why 10?
+        static_stability = -1.0
         # Ground contacts
         current_ground_contact_links = self.get_current_contacts()
         contact_points = [

@@ -78,7 +78,11 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         self.contactERP = kwargs.get('contactERP', 0.1)
         self.globalCFM = kwargs.get('globalCFM', 3.0)
         self.save_frames = kwargs.get('save_frames', False)
-        self.path_imgs = kwargs.get('results_path', 'last_simulation').replace('kinematic_replay_', 'images_')
+        self.path_imgs = kwargs.get(
+            'results_path',
+            'last_simulation').replace(
+            'kinematic_replay_',
+            'images_')
 
         # Init
         self.time = 0.0
@@ -209,7 +213,8 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             )
             # When plane is used the link id is -1
             self.link_plane = -1
-            p.changeDynamics(self.plane, -1, lateralFriction=self.ground_friction_coef)
+            p.changeDynamics(self.plane, -
+                             1, lateralFriction=self.ground_friction_coef)
             self.sim_data.add_table('base_linear_velocity')
             self.sim_data.add_table('base_angular_velocity')
             self.sim_data.add_table('base_orientation')
@@ -224,14 +229,14 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                 self.ball_radius, ball_pos = self.load_ball_info()
             else:
                 ball_pos = None
-                
+
             self.plane = self.add_ball(
                 self.ball_radius,
                 self.ball_density,
                 self.ball_mass,
                 self.ground_friction_coef,
                 ball_pos
-                )
+            )
 
             # When ball is used the plane id is 2 as the ball has 3 links
             self.link_plane = 2
@@ -447,7 +452,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             p.changeDynamics(self.animal, njoint, linearDamping=0.0)
             p.changeDynamics(self.animal, njoint, angularDamping=0.0)
             p.changeDynamics(self.animal, njoint, jointDamping=0.0)
-        
+
         self.total_mass = 0.0
 
         for j in np.arange(-1, p.getNumJoints(self.animal)):
@@ -583,7 +588,8 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                     [-0.09e-3, -0.0e-3, -5.11e-3]
                 ) * self.units.meters + self.model_offset
         else:
-            base_position = np.array(position) * self.units.meters + self.model_offset
+            base_position = np.array(position) * \
+                self.units.meters + self.model_offset
             print("Adding ball position from file:", base_position)
             print("Adding ball radius from file:", ball_radius)
 
@@ -708,7 +714,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                 self.link_id[self.base_link],
                 computeLinkVelocity=1)[6]) * imeter
         else:
-            return np.array(p.getBaseVelocity(self.animal)[0])*imeter
+            return np.array(p.getBaseVelocity(self.animal)[0]) * imeter
 
     @property
     def base_angular_velocity(self):
@@ -734,13 +740,14 @@ class BulletSimulation(metaclass=abc.ABCMeta):
             return np.array(
                 (p.getBasePositionAndOrientation(
                     self.animal))[0]) * imeter
+
     @property
     def base_orientation(self):
         """ Get the position of the animal  """
         if self.base_link and self.link_id[self.base_link] != -1:
             link_id = self.link_id[self.base_link]
             orientation = np.array((p.getLinkState(self.animal, link_id))[
-                            1]) 
+                1])
         else:
             orientation = np.array(
                 (p.getBasePositionAndOrientation(
@@ -813,8 +820,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
 
     def update_logs(self):
         """ Update all the physics logs. """
-        self.sim_data.base_position.values = np.asarray(
-            self.base_position)
+        self.sim_data.base_position.values = np.asarray(self.base_position)
         # Update sensors
         self.joint_sensors.update()
         self.contact_sensors.update()
@@ -887,7 +893,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         # Camera
         if self.gui == p.GUI and self.track_animal:
             base = np.array(self.base_position) * self.units.meters
-            base[2]= self.model_offset[2]
+            base[2] = self.model_offset[2]
             yaw = 30
             pitch = -10
             p.resetDebugVisualizerCamera(
@@ -898,26 +904,29 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         if self.gui == p.GUI and self.rotate_camera and self.behavior == 'walking':
             base = np.array(self.base_position) * self.units.meters
 
-            if t < 3/self.time_step:
+            if t < 3 / self.time_step:
                 yaw = 0
                 pitch = -10
-            elif t >= 3/self.time_step and t < 4/self.time_step:
-                yaw = (t - (3/self.time_step)) / (1/self.time_step) * 90
+            elif t >= 3 / self.time_step and t < 4 / self.time_step:
+                yaw = (t - (3 / self.time_step)) / (1 / self.time_step) * 90
                 pitch = -10
-            elif t >= 4/self.time_step and t < 4.25/self.time_step:
+            elif t >= 4 / self.time_step and t < 4.25 / self.time_step:
                 yaw = 90
                 pitch = -10
-            elif t >= 4.25/self.time_step and t < 4.75/self.time_step:
+            elif t >= 4.25 / self.time_step and t < 4.75 / self.time_step:
                 yaw = 90
-                pitch = (t - (4.25/self.time_step)) / (0.5/self.time_step) * 70 - 10
-            elif t >= 4.75/self.time_step and t < 5/self.time_step:
+                pitch = (t - (4.25 / self.time_step)) / \
+                    (0.5 / self.time_step) * 70 - 10
+            elif t >= 4.75 / self.time_step and t < 5 / self.time_step:
                 yaw = 90
                 pitch = 60
-            elif t >= 5/self.time_step and t < 5.5/self.time_step:
+            elif t >= 5 / self.time_step and t < 5.5 / self.time_step:
                 yaw = 90
-                pitch = 60 - (t - (5/self.time_step)) / (0.5/self.time_step) * 70
-            elif t >= 5.5/self.time_step and t < 7/self.time_step:
-                yaw = (t - (5.5/self.time_step)) / (1.5/self.time_step) * 300 + 90
+                pitch = 60 - (t - (5 / self.time_step)) / \
+                    (0.5 / self.time_step) * 70
+            elif t >= 5.5 / self.time_step and t < 7 / self.time_step:
+                yaw = (t - (5.5 / self.time_step)) / \
+                    (1.5 / self.time_step) * 300 + 90
                 pitch = -10
             else:
                 yaw = 30
@@ -931,14 +940,16 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         # Grooming camera sequence, set rotate_camera to True to activate
         if self.gui == p.GUI and self.rotate_camera and self.behavior == 'grooming':
             base = np.array(self.base_position) * self.units.meters
-            if t < 0.25/self.time_step:
+            if t < 0.25 / self.time_step:
                 yaw = 0
                 pitch = -10
-            elif t >= 0.25/self.time_step and t < 2.0/self.time_step:
-                yaw = (t - (0.25/self.time_step)) / (1.75/self.time_step) * 150
+            elif t >= 0.25 / self.time_step and t < 2.0 / self.time_step:
+                yaw = (t - (0.25 / self.time_step)) / \
+                    (1.75 / self.time_step) * 150
                 pitch = -10
-            elif t >= 2.0/self.time_step and t < 3.5/self.time_step:
-                yaw = 150 - (t - (2.0/self.time_step)) / (1.5/self.time_step) * 120
+            elif t >= 2.0 / self.time_step and t < 3.5 / self.time_step:
+                yaw = 150 - (t - (2.0 / self.time_step)) / \
+                    (1.5 / self.time_step) * 120
                 pitch = -10
             else:
                 yaw = 30
@@ -951,7 +962,8 @@ class BulletSimulation(metaclass=abc.ABCMeta):
 
         if self.gui == p.GUI and self.rotate_camera and self.behavior is None:
             base = np.array(self.base_position) * self.units.meters
-            yaw = (t - (self.run_time/self.time_step)) / (self.run_time/self.time_step) * 360
+            yaw = (t - (self.run_time / self.time_step)) / \
+                (self.run_time / self.time_step) * 360
             pitch = -10
             p.resetDebugVisualizerCamera(
                 self.camera_distance,
@@ -972,17 +984,18 @@ class BulletSimulation(metaclass=abc.ABCMeta):
                                        viewMatrix=matrix,
                                        projectionMatrix=projectionMatrix)
             if self.gui == p.GUI:
-                img = p.getCameraImage(1024, 768, renderer=p.ER_BULLET_HARDWARE_OPENGL)
+                img = p.getCameraImage(
+                    1024, 768, renderer=p.ER_BULLET_HARDWARE_OPENGL)
             rgb_array = img[2]
             im = Image.fromarray(rgb_array)
-            
+
             im_name = f"{self.path_imgs}/Frame_{t:06d}.png"
             if not os.path.exists(self.path_imgs):
                 os.mkdir(self.path_imgs)
-        
+
             im.save(im_name)
 
-            #disable rendering temporary makes adding objects faster
+            # disable rendering temporary makes adding objects faster
             p.configureDebugVisualizer(p.COV_ENABLE_RENDERING, 0)
             p.configureDebugVisualizer(p.COV_ENABLE_GUI, 0)
             p.configureDebugVisualizer(p.COV_ENABLE_TINY_RENDERER, 0)
@@ -1005,7 +1018,7 @@ class BulletSimulation(metaclass=abc.ABCMeta):
         self.time += self.time_step
         # Step physics
         solver = p.stepSimulation()
-        
+
         # Slow down the simulation
         if self.slow_down:
             time.sleep(self.sleep_time)

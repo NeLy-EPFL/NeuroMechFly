@@ -33,6 +33,7 @@ pylog.set_level('error')
 # random.seed(0)
 # np.random.seed(0)
 
+
 class WriteFullFrontToFileObserver(Observer):
     """ Write full front to file. """
 
