@@ -79,7 +79,10 @@ Furthermore, for both commands above, you can add the flag ```-fly #``` to run t
 </p>
 
 Run the following commands on the terminal to reproduce the locomotor gait optimization experiments:
-- ```$ run_neuromuscular_control --gui``` to run the latest generation of the last optimization run. By default, this script will read and run the files *FUN.txt* and *VAR.txt* under the *scripts/neuromuscular_optimization/* folder. To run different files, simply run ```$ run_neuromuscular_control --gui -p <'path-of-the-optimization-results'> -g <'generation-number'> -s <'solution-type'>``` (solution type being fastest, win_win, most_stable, or a specific index). **The results path should be relative to the *scripts* folder.** To see the results that are already provided, go to the folder *scripts/neuromuscular_optimization/* and run: ```$ run_neuromuscular_control --gui  -p optimization_results/run_Drosophila_example/ -g 59```. Append ```--plot``` to the command to visualize the Pareto front and the gait diagram of the solution.
+- ```$ run_neuromuscular_control --gui``` to run the latest generation of the last optimization run. By default, this script will read and run the files *FUN.txt* and *VAR.txt* under the *scripts/neuromuscular_optimization/* folder. To run different files, simply run ```$ run_neuromuscular_control --gui -p <'path-of-the-optimization-results'> -g <'generation-number'> -s <'solution-type'>``` (solution type being 'fastest', 'tradeoff', 'most_stable', or a specific index). **The results path should be relative to the *scripts* folder.** 
+- To see the results that are already provided, go to the folder *scripts/neuromuscular_optimization/* and run: 
+	```$ run_neuromuscular_control --gui  -p optimization_results/run_Drosophila_example/ -g 59```. 
+- Append ```--plot``` to the command to visualize the Pareto front and the gait diagram of the solution. To record the simulation, append ```--record``` to the command you run. To log the penalties separately from the objective functions, append ```--log_penalties``` to the command you run, penalties will be logged in a new file named *PENALTIES.<gen>* in the provided path.
 
 **NOTE:** At the end of each simulation run, a folder named according to the chosen optimization run will be created under the *scripts/neuromuscular_optimization* folder which contains the network parameters and physical quantities.
 
@@ -93,7 +96,7 @@ Run the following commands on the terminal to reproduce the locomotor gait optim
 
 **3. Sensitivity Analysis**
 
-- First, download the simulation data pertaining to the sensitivity analyses from [here](https://drive.google.com/file/d/1drWEwl-gcv4oGbpIwz6--iVvo93yDtLz/view?usp=sharing) and place these files in the folder, *data/sensitivity_analysis*
+- First, download the simulation data pertaining to the sensitivity analyses from [here](https://drive.google.com/file/d/10XfMkMY0nhDABekzQ7wVid9hVI5C4Xiz/view?usp=sharing) and place these files in the folder, *data/sensitivity_analysis*
 - To reproduce the sensitivity analysis figures, ```$ run_sensitivity_analysis```. Make sure that the downloaded files are in the correct location.
 	
 ## Customizing NeuroMechFly
@@ -203,7 +206,7 @@ plotting.plot_collision_diagram(path_data,
 ```python
 from NeuroMechFly.utils import plotting
 
-# e.g. type: fastest, win_win, most_stable, or the individual, number: generation number
+# e.g. type: fastest, tradeoff, most_stable, or the individual, number: generation number
 path_data = '~/NeuroMechFly/scripts/neuromuscular_optimization/simulation_last_run/gen_<number>/sol_<type>'
 
 # Selecting the joint of interest (Femur-Tibia)
