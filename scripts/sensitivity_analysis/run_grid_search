@@ -170,7 +170,7 @@ def run_simulation(proportional_gain, derivative_gain):
     # Paths of the position and velocity data
     data_path = os.path.join(
         neuromechfly_path,
-        f'data/joint_tracking/{behavior}/df3d')
+        f'data/joint_tracking/{behavior}/fly1/df3d')
 
     angles_path = glob.glob(data_path + '/joint_angles*.pkl')[0]
     velocity_path = glob.glob(data_path + '/joint_velocities*.pkl')[0]
@@ -180,7 +180,6 @@ def run_simulation(proportional_gain, derivative_gain):
     # Initialize the simulation
     kp = round(float(proportional_gain), 1)
     kv = round(float(derivative_gain), 1)
-
 
     animal = kinematic_replay.DrosophilaSimulation(
         container,
@@ -213,7 +212,7 @@ if __name__ == "__main__":
     n_cores = 16
 
     # Sweep across varying proportional and derivative gain values
-    with Pool(processes=5) as pool:
+    with Pool(processes=n_cores) as pool:
         pool.starmap(
             run_simulation,
             [
@@ -223,12 +222,11 @@ if __name__ == "__main__":
             ]
         )
 
-
-    data_path = os.path.join(neuromechfly_path,'data/sensitivity_analysis/')
+    data_path = os.path.join(neuromechfly_path, 'data/sensitivity_analysis/')
     # Load data
     pybullet_data = load_data(data_path)
     # Save data
     pickle.dump(
         pybullet_data,
-        open(os.path.join(data_path,"sensitivity_analysis_data.pkl"),"wb")
+        open(os.path.join(data_path, "sensitivity_analysis_data.pkl"), "wb")
     )

@@ -6,8 +6,9 @@ By default, the fastest solution from the last generation will run, to change th
 generation and solution information with --gen and --sol arguments.
 To record the simulation, append '--record' to the command you run.
 To plot the population and gait diagram of the solution, append '--plot' to the command you run.
+To log the penalties separately from the objective functions, append --log_penalties to the command you run.
 
-To make further changes to the simulation, see 'sim_options' on line 114.
+To make further changes to the simulation, see 'sim_options' on line 112.
 """
 
 import argparse
@@ -28,15 +29,10 @@ neuromechfly_path = Path(pkgutil.get_loader(
     "NeuroMechFly").get_filename()).parents[1]
 
 
-def print_penalties_to_file(gen, penalties):
+def print_penalties_to_file(file_path: str, generation: int, penalties: tuple) -> None:
     """ Writes penalties into a txt file inside results. """
 
-    output_file_directory = os.path.join(
-        neuromechfly_path,
-        'scripts/neuromuscular_optimization',
-        'optimization_results',
-        f'PENALTIES.{gen}'
-    )
+    output_file_directory = os.path.join(file_path, f"PENALTIES.{generation}")
 
     pylog.info('Output file (penalty values): ' + output_file_directory)
 
@@ -50,15 +46,8 @@ def parse_args():
     """ Parse arguments from command line """
     parser = argparse.ArgumentParser()
     parser.add_argument('-g', '--gen', default='txt')
-    parser.add_argument(
-        '-p',
-        '--path',
-        default='',
-        help='Path relative to the scripts/neuromuscular_optimization')
-    parser.add_argument(
-        '-s', '--sol', default='tradeoff',
-        help='Solution types are: fastest, win_win, most_stable or an integer (ind number)'
-    )
+    parser.add_argument('-p', '--path', default='', help='Path relative to the scripts/neuromuscular_optimization')
+    parser.add_argument('-s', '--sol', default='tradeoff', help='Solution types are: fastest, win_win, most_stable or an integer (ind number)')
     parser.add_argument('--gui', dest='gui', action='store_true')
     parser.add_argument('--record', dest='record', action='store_true')
     parser.add_argument('--plot', dest='plot', action='store_true')
@@ -67,20 +56,8 @@ def parse_args():
     parser.add_argument('--profile', dest='profile', action='store_true')
     parser.add_argument('--solver_iterations', dest='solver_iterations', type=int, default=100)
     parser.set_defaults(gui=False, profile=False)
+
     return parser.parse_args()
-
-
-def print_penalties_to_file(file_path: str, generation: int, penalties: tuple) -> None:
-    """ Writes penalties into a txt file inside results. """
-
-    output_file_directory = os.path.join(file_path, f"PENALTIES.{generation}")
-
-    pylog.info('Output file (penalty values): ' + output_file_directory)
-
-    with open(output_file_directory, 'a') as of:
-        for penalty in penalties:
-            of.write(str(penalty) + ' ')
-        of.write('\n')
 
 
 def main(args):
@@ -133,14 +110,14 @@ def main(args):
         "run_time": run_time,
         "time_step": time_step,
         "pose": pose_path,
-        "solver_iterations":100,
+        "solver_iterations": 100,
         "base_link": 'Thorax',
         "controller": controller_path,
         "ground_contacts": ground_contact,
         # 'self_collisions': self_collision,
         "draw_collisions": True,  # : Set True to change the color of colliding segments
         "record": args.record,  # : Set True to record the simulation
-        "solver_iterations":args.solver_iterations,
+        "solver_iterations": args.solver_iterations,
         'camera_distance': 4.4,
         'track': False,
         'moviename': f'{exp}_gen_{gen}_sol_{args.sol}.mp4',
@@ -223,13 +200,6 @@ def main(args):
         )
         print('Penalties logged!')
 
-        # assert np.isclose(
-        #     [(
-        #         objectives_weighted['distance'] + sum(penalties_weighted.values()) +
-        #         objectives_weighted['stability'] + sum(penalties_weighted.values())
-        #     )], [fun[ind, 0] + fun[ind, 1]]
-        # )
-
     if args.plot:
         contact_flag_data = animal.container.physics.contact_flag.log
         contact_flag_names = animal.container.physics.contact_flag.names
@@ -260,7 +230,3 @@ if __name__ == "__main__":
         profile(main, args=cli_args)
     else:
         main(cli_args)
-
-
-
-

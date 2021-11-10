@@ -32,12 +32,9 @@ def parse_args():
     parser.add_argument('--record', dest='record', action='store_true')
     parser.add_argument('--show_collisions', dest='show_collisions', action='store_true')
     parser.add_argument('-fly', '--fly_number', default='1')
-    parser.add_argument(
-        '-pf', '--profile', default=False, type=str, required=False,
-        dest="profile"
-    )
-    args = parser.parse_args()
-    return args
+    parser.add_argument('-pf', '--profile', default=False, type=str, required=False, dest="profile")
+
+    return parser.parse_args()
 
 
 def main(args):
@@ -112,7 +109,6 @@ def main(args):
     if not os.path.exists(results_path):
         os.makedirs(results_path)
 
-    
     # Simulation options
     sim_options = {
         "headless": False,
@@ -123,7 +119,8 @@ def main(args):
         "base_link": 'Thorax',
         "ground_contacts": ground_contact,
         "self_collisions": self_collision,
-        "draw_collisions": args.show_collisions,#Set True to change the color of colliding segments
+        # Set True to change the color of colliding segments
+        "draw_collisions": args.show_collisions,
         "record": args.record,  # Set True to record the simulation
         'camera_distance': 5.5,
         'track': False,

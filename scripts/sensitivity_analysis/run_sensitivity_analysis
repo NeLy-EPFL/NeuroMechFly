@@ -405,7 +405,7 @@ def load_data(pybullet_path, baseline_path_pos, baseline_path_vel, **kwargs):
     except FileNotFoundError:
         print(f'''\n{pybullet_path} is not found!
         \n Please check the data path or download the data from:
-        \n https://drive.google.com/file/d/1qwm4HEMuuxXqt8TvsmngShzo3aS5QIIP/view?usp=sharing \n''')
+        \n https://drive.google.com/file/d/10XfMkMY0nhDABekzQ7wVid9hVI5C4Xiz/view \n''')
         raise
 
     # Load baseline files
@@ -443,12 +443,17 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # NOTE: User should change the paths to where they download the data
-    path_pybullet = os.path.join(
-        neuromechfly_path,
-        'data/sensitivity_analysis/sensitivity_analysis_data.pkl')
+    path_sensitivity_analysis = os.path.join(
+        neuromechfly_path, 'data/sensitivity_analysis')
+    if not os.path.isdir(path_sensitivity_analysis):
+        os.makedirs(path_sensitivity_analysis)
+
+    path_pybullet_results = os.path.join(
+        path_sensitivity_analysis,
+        'sensitivity_analysis_data.pkl')
     joint_tracking_path = os.path.join(
         neuromechfly_path,
-        'data/joint_tracking/walking/df3d')
+        'data/joint_tracking/walking/fly1/df3d')
     baseline_path_pos = glob.glob(
         joint_tracking_path +
         '/joint_angles*.pkl')[0]
@@ -458,7 +463,7 @@ if __name__ == '__main__':
     # True if figures to be saved
     save_figures = args.save
     # Read data
-    load_data(path_pybullet, baseline_path_pos, baseline_path_vel)
+    load_data(path_pybullet_results, baseline_path_pos, baseline_path_vel)
     # Plot figures
     plot_figure_s1(save_figures)
     plot_figure_s2a(save_figures)
