@@ -229,7 +229,8 @@ plotting.plot_network_activity(
 
 ## License
 [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0)
-=======
+	
+---
 ## README for the GitHub Pages Branch
 This branch is simply a cache for the website served from https://nely-epfl.github.io/NeuroMechFly/,
 and is  not intended to be viewed on github.com.
