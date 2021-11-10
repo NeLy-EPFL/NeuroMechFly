@@ -51,7 +51,40 @@ Reproducing the experiments
    :maxdepth: 2
 
    replication
+   
 
+Customizing the biomechanical model
+===================================
+
+.. toctree::
+   :maxdepth: 2
+
+   biomechanical_tutorial.rst
+   
+Changing the neural controller
+==============================
+
+.. toctree::
+   :maxdepth: 2
+
+   controller_tutorial.rst
+   
+Changing the simulation parameters
+==================================
+
+.. toctree::
+   :maxdepth: 2
+
+   environment_tutorial.rst
+   
+Changing the muscle model
+=========================
+
+.. toctree::
+   :maxdepth: 2
+
+   muscles_tutorial.rst
+   
 Miscellaneous
 =============
 
@@ -59,7 +92,6 @@ Miscellaneous
    :maxdepth: 2
 
    misc.rst
-
 
 Documentation
 ==============
