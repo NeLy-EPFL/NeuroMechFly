@@ -31,7 +31,7 @@ def add_perturbation(
     Returns
     -------
     ball : <int>
-    Pybullet ID for the ball
+        Pybullet ID for the ball
 
     """
     # Init
@@ -86,8 +86,8 @@ class DrosophilaSimulation(BulletSimulation):
             self, container, sim_options, kp, kv,
             angles_path, velocity_path,
             add_perturbation,
-            starting_time = 0.0,
-            fixed_positions = None,
+            starting_time=0.0,
+            fixed_positions=None,
             units=SimulationUnitScaling(meters=1000, kilograms=1000)
     ):
         super().__init__(container, units, **sim_options)
@@ -96,8 +96,8 @@ class DrosophilaSimulation(BulletSimulation):
         self.kv = kv
         self.pose = [0] * self.num_joints
         self.vel = [0] * self.num_joints
-        self.angles = self.load_data(angles_path,starting_time)
-        self.velocities = self.load_data(velocity_path,starting_time)
+        self.angles = self.load_data(angles_path, starting_time)
+        self.velocities = self.load_data(velocity_path, starting_time)
         self.impulse_sign = 1
         self.add_perturbation = add_perturbation
         self.fixed_positions = fixed_positions
@@ -132,7 +132,7 @@ class DrosophilaSimulation(BulletSimulation):
         converted_dict = {}
         try:
             data = pd.read_pickle(data_path)
-            start = int(np.round(starting_time/self.time_step))
+            start = int(np.round(starting_time / self.time_step))
             for leg, joints in data.items():
                 for joint_name, val in joints.items():
                     new_name = 'joint_' + leg[:2] + \
@@ -155,7 +155,7 @@ class DrosophilaSimulation(BulletSimulation):
         """
         # Throw mini balls at the fly during kinematic replay
         if self.add_perturbation:
-            if ((t + 1) % (0.5/self.time_step)) == 0:
+            if ((t + 1) % (0.5 / self.time_step)) == 0:
                 print("Adding perturbation")
                 self.pball = add_perturbation(
                     size=5e-2,
@@ -166,7 +166,8 @@ class DrosophilaSimulation(BulletSimulation):
                 )
                 self.impulse_sign *= -1
 
-            if ((t + 1) % (3.0/self.time_step)) == 0 and t < (3.012/self.time_step):
+            if ((t + 1) % (3.0 / self.time_step)
+                ) == 0 and t < (3.012 / self.time_step):
                 radius = 20e-2
                 self.pball = add_perturbation(
                     size=radius,
@@ -187,13 +188,11 @@ class DrosophilaSimulation(BulletSimulation):
         for joint_name, joint_pos in self.fixed_positions.items():
             self.pose[self.joint_id[joint_name]] = np.deg2rad(joint_pos)
 
-        # Setting the joint angular positions of leg DOFs based on pose
-        # estimation
+        # Setting the joint angular positions of leg DOFs based on pose estimation
         for joint_name, joint_pos in self.angles.items():
             self.pose[self.joint_id[joint_name]] = joint_pos[t]
 
-        # Setting the joint angular velocities of leg DOFs based on pose
-        # estimation
+        # Setting the joint angular velocities of leg DOFs based on pose estimation
         for joint_name, joint_vel in self.velocities.items():
             self.vel[self.joint_id[joint_name]] = joint_vel[t]
 
@@ -201,15 +200,15 @@ class DrosophilaSimulation(BulletSimulation):
         # Velocity can be discarded if not available and gains can be changed
         for joint in range(self.num_joints):
             p.setJointMotorControl2(
-                    self.animal, joint,
-                    controlMode=p.POSITION_CONTROL,
-                    targetPosition=self.pose[joint],
-                    targetVelocity=self.vel[joint],
-                    positionGain=self.kp,
-                    velocityGain=self.kv,
-                    maxVelocity=1e8
+                self.animal, joint,
+                controlMode=p.POSITION_CONTROL,
+                targetPosition=self.pose[joint],
+                targetVelocity=self.vel[joint],
+                positionGain=self.kp,
+                velocityGain=self.kv,
+                maxVelocity=1e8
             )
-            
+
             p.changeDynamics(self.animal, joint, maxJointVelocity=1e8)
 
         # Change the color of the colliding body segments
@@ -251,7 +250,6 @@ class DrosophilaSimulation(BulletSimulation):
                         else:
                             self.change_color(link, self.color_legs)
             self.last_draw = draw
-
 
     def change_color(self, identity, color):
         """ Change color of a given body segment. """

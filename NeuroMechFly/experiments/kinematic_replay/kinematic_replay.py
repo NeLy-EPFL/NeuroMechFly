@@ -41,7 +41,7 @@ class DrosophilaSimulation(BulletSimulation):
         kv,
         angles_path,
         velocity_path,
-        starting_time = 0.0,
+        starting_time=0.0,
         fixed_positions=None,
         units=SimulationUnitScaling(
             meters=1000,
@@ -58,9 +58,8 @@ class DrosophilaSimulation(BulletSimulation):
 
         self.pose = [0] * self.num_joints
         self.vel = [0] * self.num_joints
-        self.angles = self.load_data(angles_path,starting_time)
-        self.velocities = self.load_data(velocity_path,starting_time)
-
+        self.angles = self.load_data(angles_path, starting_time)
+        self.velocities = self.load_data(velocity_path, starting_time)
 
         # Debug parameter
         self.draw_ss_line_ids = [
@@ -75,7 +74,6 @@ class DrosophilaSimulation(BulletSimulation):
         self.draw_com_line_horz_id = p.addUserDebugLine(
             (0., 0., 0.), (0., 0., 0.), lineColorRGB=[1, 0, 0]
         )
-
 
     def load_data(self, data_path, starting_time):
         """ Function that loads the pickle format joint angle or velocity gile.
@@ -105,7 +103,7 @@ class DrosophilaSimulation(BulletSimulation):
         converted_dict = {}
         try:
             data = pd.read_pickle(data_path)
-            start = int(np.round(starting_time/self.time_step))
+            start = int(np.round(starting_time / self.time_step))
             for leg, joints in data.items():
                 for joint_name, val in joints.items():
                     new_name = 'joint_' + leg[:2] + \
@@ -115,10 +113,10 @@ class DrosophilaSimulation(BulletSimulation):
         except BaseException:
             FileNotFoundError(f"File {data_path} not found!")
 
-
     def load_ball_info(self):
-        to_replace = self.angles_path[self.angles_path.find('joint_angles'):self.angles_path.find('__')]
-        data_path = self.angles_path.replace(to_replace,'treadmill_info')
+        to_replace = self.angles_path[self.angles_path.find(
+            'joint_angles'):self.angles_path.find('__')]
+        data_path = self.angles_path.replace(to_replace, 'treadmill_info')
 
         try:
             data = pd.read_pickle(data_path)
@@ -130,7 +128,6 @@ class DrosophilaSimulation(BulletSimulation):
         except BaseException:
             FileNotFoundError(f"File {data_path} not found!")
 
-
     def controller_to_actuator(self, t):
         """
         Code that glues the controller the actuator in the system.
@@ -141,25 +138,23 @@ class DrosophilaSimulation(BulletSimulation):
         ----------
         t : <int>
             Time running in the physics engine.
-        """        
+        """
         # Setting the joint angular positions of the fixed joints
         if not self.fixed_positions:
             self.fixed_positions = {
                 'joint_LAntenna': 35,
                 'joint_RAntenna': -35,
             }
-        
+
         # Setting the joint angular positions of the fixed joints
         for joint_name, joint_pos in self.fixed_positions.items():
             self.pose[self.joint_id[joint_name]] = np.deg2rad(joint_pos)
 
-        # Setting the joint angular positions of leg DOFs based on pose
-        # estimation
+        # Setting the joint angular positions of leg DOFs based on pose estimation
         for joint_name, joint_pos in self.angles.items():
             self.pose[self.joint_id[joint_name]] = joint_pos[t]
 
-        # Setting the joint angular velocities of leg DOFs based on pose
-        # estimation
+        # Setting the joint angular velocities of leg DOFs based on pose estimation
         for joint_name, joint_vel in self.velocities.items():
             self.vel[self.joint_id[joint_name]] = joint_vel[t]
 
@@ -216,7 +211,6 @@ class DrosophilaSimulation(BulletSimulation):
                         else:
                             self.change_color(link, self.color_legs)
             self.last_draw = draw
-            
 
     def change_color(self, identity, color):
         """ Change color of a given body segment. """
