@@ -14,7 +14,7 @@ Each body segment in the biomechanical model is called a link. Each link is defi
 
 **Changing visual/collision shape**
 
-On the other hand, changing the *visual* and *collision* shapes is fairly easy and keeps the mass and intertial measurements untouched. To change these shapes, you must change the ```geometry``` definition in the ```collision``` and ```visual``` attributes for the link. We performed such an operation in our [publication](https://www.biorxiv.org/content/10.1101/2021.04.17.440214v2) to change the morphology of NeuroMechfly's detailed antennae into sticks.
+On the other hand, changing the *visual* and *collision* shapes is fairly easy and keeps the mass and intertial measurements untouched. To change these shapes, you must change the ```geometry``` definition in the ```collision``` and ```visual``` attributes for the link. We performed such an operation in our [publication](https://www.biorxiv.org/content/10.1101/2021.04.17.440214v2) to change the morphology of NeuroMechfly's detailed antennae into sticks. You can find an example on how to make these changes in the script ```scripts/model/change_sdf_forelegs.py```.
 
 <table>
 <tr>
