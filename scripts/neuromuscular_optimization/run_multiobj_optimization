@@ -48,7 +48,6 @@ if __name__ == "__main__":
     args = parse_args()
     n_pop = args.pop
     n_gen = args.gen
-
     # Problem
     max_evaluations = n_pop*n_gen
     problem = multiobj_optimization.DrosophilaEvolution()

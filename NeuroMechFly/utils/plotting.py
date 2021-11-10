@@ -1,7 +1,6 @@
 """ Script to plot the simulation results. """
 
 import os
-from typing import List
 import numpy as np
 import pandas as pd
 import seaborn as sns
@@ -12,6 +11,8 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from matplotlib.lines import Line2D
 from matplotlib.markers import MarkerStyle
+from typing import List
+
 from .sensitivity_analysis import calculate_forces
 from scipy.interpolate import pchip_interpolate
 
@@ -243,7 +244,6 @@ def plot_pareto_gens(
     export_path=None
 ):
     """ Plots multiple generations with selected individuals.
-
     Parameters
     ----------
     parent_dir : <str>
@@ -280,7 +280,6 @@ def plot_pareto_gens(
         )
 
     """
-
     from NeuroMechFly.experiments.network_optimization.neuromuscular_control import DrosophilaSimulation as ds
     # import directly from collections for Python < 3.3
     from collections.abc import Iterable
@@ -456,7 +455,7 @@ def plot_gait_diagram(data, ts=1e-4, ax=None, export_path=None):
 
 def load_opt_log(results_path):
     """ Loads the optimization muscle torques and joint position results.
-
+    
     Parameters
     ----------
     results_path: str
@@ -770,7 +769,6 @@ def plot_data(
 
     length_data = 0
 
-
     if plot_angles_intraleg:
         if bool(angles):
             angles_raw = angles[leg_key + '_leg']
@@ -880,7 +878,6 @@ def plot_data(
     grf_max = 0
 
     for i, (plot, data) in enumerate(data2plot.items()):
-
         if plot == 'angles':
             for name, angle_rad in data.items():
                 time = np.arange(0, len(angle_rad), 1) / steps
@@ -1156,7 +1153,6 @@ def plot_collision_diagram(
                             facecolor='white',
                             alpha=1,
                             transform=axs[i].get_xaxis_transform())
-
         axs[i].set_yticks((0.5,))
         axs[i].set_yticklabels((segment,))
 
@@ -1957,7 +1953,6 @@ def compare_collision_diagram(
     ax2.set_xlabel('Leg')
     ax2.set_ylabel('Percentage')
     ax2.legend()
-
     plt.show()
 
 

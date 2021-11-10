@@ -8,7 +8,7 @@ import random
 import yaml
 from typing import Tuple
 
-import farms_pylog as pylog
+from typing import Tuple
 import numpy as np
 from jmetal.core.observer import Observer
 from jmetal.core.problem import DynamicProblem, FloatProblem
@@ -17,6 +17,8 @@ from jmetal.util.solution import (
     print_function_values_to_file,
     print_variables_to_file,
 )
+
+import farms_pylog as pylog
 from farms_container import Container
 from NeuroMechFly.experiments.network_optimization.neuromuscular_control import \
     DrosophilaSimulation
