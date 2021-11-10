@@ -182,7 +182,7 @@ def heatmap_plot(
         linewidth="0.005",
         ax=None,
         cmap='magma',
-        annot_size = 18,
+        annot_size = 10,
         xticklabels=[],
         yticklabels=[]):
     """ Plots a heatmap plot for global sensitivity analysis.
@@ -216,7 +216,7 @@ def heatmap_plot(
         y_tick = yticklabels
     else:
         y_tick = 'auto'
-    
+
     ax = sns.heatmap(
         joint_data,
         annot=annot,
@@ -1086,7 +1086,7 @@ def plot_collision_diagram(
                 'RF': [],
                 'RM': [],
                 'RH': []}
-        
+
         data = read_ground_contacts(path_data)
 
         for leg in collisions.keys():
@@ -1556,7 +1556,7 @@ def plot_treadmill_rotations_comparison(
 
     interp_heading_fictrac, corr_coef_heading = calculate_correlation_between(vel_heading_fictrac,vel_heading_sim,time_fictrac,time_sim)
     corr_coefs['yaw']=corr_coef_heading
-    
+
     if plot_traj:
         x_head_fictrac, y_head_fictrac = get_flat_trajectory(fw_fictrac,side_fictrac,heading_fictrac)
         x_head_sim, y_head_sim = get_flat_trajectory(fw_sim, side_sim, heading_sim)
@@ -1656,7 +1656,7 @@ def calculate_correlation_between(
     corr_coef:
         Spearman correlation coefficient between both signals.
     """
-    
+
     interpolated_fictrac = pchip_interpolate(time_fictrac, fictrac, time_sim)
     corr_coef, p_value = scipy.stats.spearmanr(interpolated_fictrac, sim)
 
@@ -2020,7 +2020,7 @@ def compare_movement_on_ground(
                          "delta_rot_lab_x",
                          "delta_rot_lab_y",
                          "delta_rot_lab_z"]
-    
+
     fictrac_data = get_data(fictrac_path,begin,end,time_step_fictrac,data_from_fictrac,offset,filter_window_time, baseline_time)
     fw_fictrac = fictrac_data["integrated_forward_movement"] * ball_radius
     side_fictrac = fictrac_data["integrated_side_movement"] * ball_radius
@@ -2029,8 +2029,8 @@ def compare_movement_on_ground(
     vel_fw_fictrac = -fictrac_data["delta_rot_lab_x"] / time_step_fictrac  * ball_radius
     vel_side_fictrac = -fictrac_data["delta_rot_lab_y"] / time_step_fictrac  * ball_radius
     vel_heading_fictrac = -fictrac_data["delta_rot_lab_z"] / time_step_fictrac
-    
-    data_from_sim = ["x", "y", "z"]    
+
+    data_from_sim = ["x", "y", "z"]
     path_ball = os.path.join(path_data_ball, 'physics','ball_rotations.h5')
     ball_data = get_data(path_ball,begin,end,time_step_sim,data_from_sim, offset, filter_window_time, baseline_time)
     fw_ball = ball_data["x"] * ball_radius
@@ -2059,21 +2059,21 @@ def compare_movement_on_ground(
     th_x = th_floor['x']
     th_y = th_floor['y']
     th_z = -th_floor['z']
-    
+
     path_ang_vel = os.path.join(path_data_floor,'physics','base_angular_velocity.h5')
     ang_vel_floor = get_data(path_ang_vel,begin,end,time_step_sim,data_from_sim, offset, filter_window_time,baseline_time)
     ang_vel_x = ang_vel_floor['x']
     ang_vel_y = ang_vel_floor['y']
     heading_vel_floor = ang_vel_floor['z']
 
-    
+
     if end == 0:
         end = len(x_sim) * time_step_sim
-    
+
     time_sim = np.arange(begin+offset, end, time_step_sim)
     time_fictrac = np.arange(begin, end, time_step_fictrac)
 
-    
+
     x_fictrac, y_fictrac = get_flat_trajectory(fw_fictrac,side_fictrac,heading_fictrac)
     x_ball, y_ball = get_flat_trajectory(fw_ball, side_ball, heading_ball)
     fw_vel, side_vel = get_flat_trajectory(fw_vel_floor, side_vel_floor, th_z)
@@ -2116,7 +2116,7 @@ def compare_movement_on_ground(
             m._transform.rotate_deg(-th_z[i] * 180 / np.pi)
             ax.scatter(x_floor[i], y_floor[i], marker=m, s=200, color='green',label='Flat ground')
             m._transform.rotate_deg(th_z[i] * 180 / np.pi)
-            
+
             ax.scatter(
                     x_ball[0:i],
                     y_ball[0:i],
@@ -2152,8 +2152,8 @@ def compare_movement_on_ground(
             else:
                 plt.draw()
                 plt.pause(0.001)
-            
-    
+
+
     plt.figure()
     plt.plot(x_fictrac, y_fictrac, label="Fictrac")
     plt.plot(x_ball,y_ball, label = 'Tethered')
@@ -2163,7 +2163,7 @@ def compare_movement_on_ground(
     plt.legend(fontsize=11)
     plt.xticks(fontsize=13)
     plt.yticks(fontsize=13)
-    
+
     plt.figure()
     plt.plot(time_sim, interp_fw_fictrac, label = 'Fictrac')
     plt.plot(time_sim, fw_vel_ball, label = 'Tethered')
@@ -2176,7 +2176,7 @@ def compare_movement_on_ground(
 
     plt.figure()
     plt.plot(time_sim, interp_side_fictrac, label = 'Fictrac')
-    plt.plot(time_sim, side_vel_ball, label = 'Tethered')    
+    plt.plot(time_sim, side_vel_ball, label = 'Tethered')
     plt.plot(time_sim, np.array(side_vel), label = 'Flat ground')
     plt.xlabel('Time (s)', fontsize=14)
     plt.ylabel('Lateral Velocity (mm/s)', fontsize=14)
@@ -2224,7 +2224,7 @@ def plot_sensitivity_constraints(
     y_ticks = np.linspace(0, 1, num=11, endpoint=True)
 
     x_tick_labels = [f'{val:.1f}' for val in x_ticks]
-    y_tick_labels = [f'{val:.1f}' for val in y_ticks]        
+    y_tick_labels = [f'{val:.1f}' for val in y_ticks]
 
     experiments = next(os.walk(data_path))[1]
     date_time = [exp.split('_')[-2]+exp.split('_')[-1] for exp in experiments]
@@ -2247,13 +2247,13 @@ def plot_sensitivity_constraints(
     std_side = np.std(coef_mat_side.flatten())
     std_heading = np.std(coef_mat_heading.flatten())
     tot_dev = std_fw+std_side+std_heading
-    
+
     alpha = std_fw/tot_dev
     beta = std_side/tot_dev
     gamma = std_heading/tot_dev
-    
+
     print()
-    
+
     sum_mat = alpha*coef_mat_fw + beta*coef_mat_side + gamma*coef_mat_heading
 
     norm_sum = (sum_mat - np.min(sum_mat))/(np.max(sum_mat) - np.min(sum_mat))
@@ -2263,7 +2263,7 @@ def plot_sensitivity_constraints(
         row = int(sort_sum[ind]/11)
         col = int(sort_sum[ind]%11)
         print(f"{ind*-1}: ERP = {row/10} - CFM = {col}")
-    
+
     fig = plt.figure()
     ax_fw = plt.axes()
     fig = plt.figure()
@@ -2272,7 +2272,7 @@ def plot_sensitivity_constraints(
     ax_heading = plt.axes()
     fig = plt.figure()
     ax_sum = plt.axes()
-    
+
     heatmap_plot('Constraints sensitivity analysis: forward',
                  coef_mat_fw,
                  'Spearman coefficient',
