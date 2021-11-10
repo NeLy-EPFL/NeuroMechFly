@@ -1,10 +1,21 @@
 #!/usr/bin/env python
-""" Script to run NSGA-II multip objective optimization. """
+"""
+Script to run NSGA-II multip objective optimization.
 
-from datetime import datetime
+In the command line, run $ run_multiobj_optimization --gui
+To select the size of the population append '--pop' to the command you run.
+To select the number of the generations append '--gen' to the command you run.
+To set the number of cores that the script will run, add --process <core-number>
+
+To make further changes to the simulation, see 'sim_options' on line 114.
+"""
+
 import os
-from pathlib import Path
+import argparse
 import pkgutil
+from datetime import datetime
+from pathlib import Path
+
 import farms_pylog as pylog
 from jmetal.algorithm.multiobjective.nsgaii import NSGAII
 from jmetal.lab.visualization import Plot
@@ -17,20 +28,29 @@ from jmetal.util.solution import (print_function_values_to_file,
 from jmetal.util.termination_criterion import StoppingByEvaluations
 
 from NeuroMechFly.experiments.network_optimization import multiobj_optimization
-from NeuroMechFly.experiments.network_optimization.multiobj_optimization import \
-    WriteFullFrontToFileObserver, separate_penalties_into_gens
+from NeuroMechFly.experiments.network_optimization.multiobj_optimization import WriteFullFrontToFileObserver
 
 neuromechfly_path = Path(pkgutil.get_loader("NeuroMechFly").get_filename()).parents[1]
 
 
+def parse_args():
+    """ Parse arguments from command line """
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-g', '--gen', type=int, default=60)
+    parser.add_argument('-p', '--pop', type=int, default=200)
+    parser.add_argument('-n', '--process', type=int, default=8)
+    parser.set_defaults(gui=False, profile=False)
+
+    return parser.parse_args()
+
 if __name__ == "__main__":
     """ Main """
-    n_pop = 30
-    n_gen = 70
-    max_evaluations = n_pop*n_gen
+    args = parse_args()
+    n_pop = args.pop
+    n_gen = args.gen
     # Problem
-    problem = multiobj_optimization.DrosophilaEvolution()
     max_evaluations = n_pop*n_gen
+    problem = multiobj_optimization.DrosophilaEvolution()
 
     # Algorithm
     algorithm = NSGAII(
@@ -39,13 +59,13 @@ if __name__ == "__main__":
         offspring_population_size=n_pop,
         mutation=PolynomialMutation(
             probability=1.0 / problem.number_of_variables,
-            distribution_index=0.20,
-        ),
-        crossover=SBXCrossover(
-            probability=1.0,
             distribution_index=20,
         ),
-        population_evaluator=MultiprocessEvaluator(8),
+        crossover=SBXCrossover(
+            probability=0.9,
+            distribution_index=15,
+        ),
+        population_evaluator=MultiprocessEvaluator(args.process),
         termination_criterion=StoppingByEvaluations(
             max_evaluations=max_evaluations
         ),
@@ -56,6 +76,7 @@ if __name__ == "__main__":
         neuromechfly_path,
         'scripts/neuromuscular_optimization'
     )
+
     # Results Dumping
     result_path = 'optimization_results/run_{}_var_{}_obj_{}_pop_{}_gen_{}_{}'.format(
             problem.get_name(),
@@ -67,9 +88,8 @@ if __name__ == "__main__":
     )
     algorithm.observable.register(
         observer=WriteFullFrontToFileObserver(
-            output_directory=os.path.join(
-                output_dir,
-                result_path
+            output_directory=(
+                os.path.join(output_dir, result_path)
             )
         )
     )
@@ -103,8 +123,8 @@ if __name__ == "__main__":
     print_function_values_to_file(front,  os.path.join(output_dir,'FUN.txt'))
     print_variables_to_file(front,  os.path.join(output_dir,'VAR.txt'))
 
-    # Save penalties into separate files
-    separate_penalties_into_gens(n_gen, n_pop, os.path.join(output_dir, result_path))
+    # Move the config file inside the results directory
+    Path(os.path.join(output_dir, 'optimization_results/CONFIG.yaml')).rename(os.path.join(output_dir, result_path, 'CONFIG.yaml'))
 
     print('Algorithm (continuous problem): ' + algorithm.get_name())
     print('Problem: ' + problem.get_name())

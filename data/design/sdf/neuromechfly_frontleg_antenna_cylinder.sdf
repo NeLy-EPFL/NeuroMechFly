@@ -1,0 +1,4093 @@
+<?xml version="1.0" ?>
+<sdf version="1.6">
+  <model name="neuromechfly_noLimits">
+    <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+    <link name="A1A2">
+      <pose>-0.3096564032603055 -6.095955962237554e-07 0.9105792851187289 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>-0.2144249163904258 -6.603514162987662e-05 0.07071344339088977 0.0 0.0 0.0</pose>
+        <mass>8.571491383277525e-05</mass>
+        <inertia>
+          <ixx>5.379007258257524e-06</ixx>
+          <ixy>-2.7172143083138003e-10</ixy>
+          <ixz>-4.016699799635996e-07</ixz>
+          <iyy>2.8840520398898414e-06</iyy>
+          <iyz>1.2978086881476767e-09</iyz>
+          <izz>4.283754254534721e-06</izz>
+        </inertia>
+      </inertial>
+      <collision name="A1A2_collision">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/A1A2.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name="A1A2_visual">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/A1A2.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+        <material/>
+      </visual>
+    </link>
+    <link name="A3">
+      <pose>-0.6661299848929048 -6.225838733442401e-07 0.9098725859075785 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>-0.059876072219278195 -6.470005065229757e-05 -0.02268062650314694 0.0 0.0 0.0</pose>
+        <mass>0.00010704018580061077</mass>
+        <inertia>
+          <ixx>8.996426496899934e-06</ixx>
+          <ixy>-1.0189078085903943e-10</ixy>
+          <ixz>-2.182086660608849e-07</ixz>
+          <iyy>4.18077287566254e-06</iyy>
+          <iyz>4.0700063622846777e-10</iyz>
+          <izz>6.520348442338967e-06</izz>
+        </inertia>
+      </inertial>
+      <collision name="A3_collision">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/A3.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name="A3_visual">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/A3.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+        <material/>
+      </visual>
+    </link>
+    <link name="A4">
+      <pose>-0.9037149138748646 -6.236073324394908e-07 0.9102310286834836 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>-0.06720196470462239 -2.9355975765950454e-05 -0.01719776890983609 0.0 0.0 0.0</pose>
+        <mass>9.752435108452857e-05</mass>
+        <inertia>
+          <ixx>8.05161514355576e-06</ixx>
+          <ixy>-2.350168474990703e-10</ixy>
+          <ixz>-1.6058848411617763e-07</ixz>
+          <iyy>3.257527734203393e-06</iyy>
+          <iyz>6.270709172547439e-11</iyz>
+          <izz>6.2418857754968594e-06</izz>
+        </inertia>
+      </inertial>
+      <collision name="A4_collision">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/A4.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name="A4_visual">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/A4.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+        <material/>
+      </visual>
+    </link>
+    <link name="A5">
+      <pose>-1.1180111905559897 -6.257803164544384e-07 0.9101369068957865 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>-0.08348403510966948 2.2320234093630663e-05 -0.040628999176903706 0.0 0.0 0.0</pose>
+        <mass>9.704450609731538e-05</mass>
+        <inertia>
+          <ixx>6.510006856983616e-06</ixx>
+          <ixy>-6.353942720115236e-10</ixy>
+          <ixz>2.510708473554063e-08</ixz>
+          <iyy>3.3950607369438554e-06</iyy>
+          <iyz>-1.1669246567412128e-09</iyz>
+          <izz>5.0585773842176395e-06</izz>
+        </inertia>
+      </inertial>
+      <collision name="A5_collision">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/A5.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name="A5_visual">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/A5.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+        <material/>
+      </visual>
+    </link>
+    <link name="A6">
+      <pose>-1.386060263030231 -6.225402415793724e-07 0.9106406359933317 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>-0.05385654336887839 1.0378300620053557e-05 -0.034799459172733624 0.0 0.0 0.0</pose>
+        <mass>6.267604318477003e-05</mass>
+        <inertia>
+          <ixx>2.5686907519812623e-06</ixx>
+          <ixy>7.637514399896898e-11</ixy>
+          <ixz>-4.9756936064053624e-08</ixz>
+          <iyy>1.97061699442684e-06</iyy>
+          <iyz>4.215461293405398e-11</iyz>
+          <izz>2.0396207514768214e-06</izz>
+        </inertia>
+      </inertial>
+      <collision name="A6_collision">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/A6.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name="A6_visual">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/A6.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+        <material/>
+      </visual>
+    </link>
+    <link name="Haustellum">
+      <pose>0.9131766273640096 0.00023461312537165213 0.6270145531743765 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>0.2006048872859288 0.004706569000544392 -0.008783744400831264 0.0 0.0 0.0</pose>
+        <mass>6.941066853014398e-06</mass>
+        <inertia>
+          <ixx>4.907255111440599e-08</ixx>
+          <ixy>1.7929555828165396e-10</ixy>
+          <ixz>4.998376081429952e-11</ixz>
+          <iyy>5.8887346186315783e-08</iyy>
+          <iyz>3.09533767001756e-10</iyz>
+          <izz>8.014157063555477e-08</izz>
+        </inertia>
+      </inertial>
+      <collision name="Haustellum_collision">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/Haustellum.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name="Haustellum_visual">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/Haustellum.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+        <material/>
+      </visual>
+    </link>
+    <link name="Head">
+      <pose>0.49792276695370674 -6.537502761361225e-07 1.210771151818335 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>0.20209128549823524 -0.004384000391128551 0.043947808477246234 0.0 0.0 0.0</pose>
+        <mass>8.113157308044636e-05</mass>
+        <inertia>
+          <ixx>3.916686083637349e-06</ixx>
+          <ixy>5.496640594677064e-08</ixy>
+          <ixz>-1.355155214169488e-07</ixz>
+          <iyy>2.937974490210881e-06</iyy>
+          <iyz>-1.954467052189715e-08</iyz>
+          <izz>3.069572001355821e-06</izz>
+        </inertia>
+      </inertial>
+      <collision name="Head_collision">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/Head.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name="Head_visual">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/Head.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+        <material/>
+      </visual>
+    </link>
+    <link name="Head_roll">
+      <pose>0.49792276695370674 -6.537502761361225e-07 1.210771151818335 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <mass>0.0</mass>
+        <inertia>
+          <ixx>0.0</ixx>
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <iyy>0.0</iyy>
+          <iyz>0.0</iyz>
+          <izz>0.0</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <link name="Head_yaw">
+      <pose>0.49792276695370674 -6.537502761361225e-07 1.210771151818335 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <mass>0.0</mass>
+        <inertia>
+          <ixx>0.0</ixx>
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <iyy>0.0</iyy>
+          <iyz>0.0</iyz>
+          <izz>0.0</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <link name="LAntenna">
+      <pose>0.9306253050453961 0.06690004374831915 1.3502838555723429 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>0.050913967692634045 0.013138812804102763 -0.11156083302117965 0.0 0.0 0.0</pose>
+        <mass>1.7777389383760332e-06</mass>
+        <inertia>
+          <ixx>1.2132654283335043e-08</ixx>
+          <ixy>6.34643864390147e-10</ixy>
+          <ixz>-1.0707396219956799e-09</ixz>
+          <iyy>1.0481508781908762e-08</iyy>
+          <iyz>-3.6379731017516985e-10</iyz>
+          <izz>4.970367756570775e-09</izz>
+        </inertia>
+      </inertial>
+      <collision name="LAntenna_collision">
+        <pose>0.0 0.0 -0.1485 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.06</radius>
+            <length>0.297</length>
+          </cylinder>
+        </geometry>
+      </collision>
+      <visual name="LAntenna_visual">
+        <pose>0.0 0.0 -0.1485 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.06</radius>
+            <length>0.297</length>
+          </cylinder>
+        </geometry>
+        <material/>
+      </visual>
+    </link>
+    <link name="LEye">
+      <pose>0.7299907738342881 -5.636520139518097e-07 1.2999811442568898 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>-0.0070380362184485215 0.30096414280711453 -0.023738909987886896 0.0 0.0 0.0</pose>
+        <mass>9.502325241495403e-06</mass>
+        <inertia>
+          <ixx>1.3114464866873867e-07</ixx>
+          <ixy>-2.390665136022388e-08</ixy>
+          <ixz>-8.179075815846679e-09</ixz>
+          <iyy>1.7805336805296216e-07</iyy>
+          <iyz>5.857114763037776e-09</iyz>
+          <izz>8.81424038962953e-08</izz>
+        </inertia>
+      </inertial>
+      <collision name="LEye_collision">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/LEye.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name="LEye_visual">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/LEye.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+        <material/>
+      </visual>
+    </link>
+    <link name="LFCoxa">
+      <pose>0.417999952333048 0.2699994365684688 1.0799976298585534 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>0.0029810287946795233 -0.03152109421036321 -0.2531244761367978 0.0 0.0 0.0</pose>
+        <mass>5.741707610995013e-06</mass>
+        <inertia>
+          <ixx>5.983418637183175e-08</ixx>
+          <ixy>1.5355095860900972e-09</ixy>
+          <ixz>9.568855434245275e-10</ixz>
+          <iyy>5.79745744876736e-08</iyy>
+          <iyz>2.8728611156529988e-09</iyz>
+          <izz>1.4207714613335929e-08</izz>
+        </inertia>
+      </inertial>
+      <collision name="LFCoxa_collision">
+        <pose>0.0 0.0 -0.2125 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.048</radius>
+            <length>0.425</length>
+          </cylinder>
+        </geometry>
+      </collision>
+      <visual name="LFCoxa_visual">
+        <pose>0.0 0.0 -0.2125 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.048</radius>
+            <length>0.425</length>
+          </cylinder>
+        </geometry>
+        <material/>
+      </visual>
+    </link>
+    <link name="LFCoxa_roll">
+      <pose>0.417999952333048 0.2699994365684688 1.0799976298585534 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <mass>0.0</mass>
+        <inertia>
+          <ixx>0.0</ixx>
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <iyy>0.0</iyy>
+          <iyz>0.0</iyz>
+          <izz>0.0</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <link name="LFCoxa_yaw">
+      <pose>0.417999952333048 0.2699994365684688 1.0799976298585534 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <mass>0.0</mass>
+        <inertia>
+          <ixx>0.0</ixx>
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <iyy>0.0</iyy>
+          <iyz>0.0</iyz>
+          <izz>0.0</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <link name="LFFemur">
+      <pose>0.417999952333048 0.2699994365684688 0.6545163923874497 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>-0.019857742499327834 -0.006747393972577947 -0.35944431292591433 0.0 0.0 0.0</pose>
+        <mass>7.992114412322805e-06</mass>
+        <inertia>
+          <ixx>2.7267902127637655e-07</ixx>
+          <ixy>2.2529365411735334e-10</ixy>
+          <ixz>-8.562267397467378e-09</ixz>
+          <iyy>2.732996498121526e-07</iyy>
+          <iyz>-1.6672479243976315e-08</iyz>
+          <izz>1.5735837661850214e-08</izz>
+        </inertia>
+      </inertial>
+      <collision name="LFFemur_collision">
+        <pose>0.0 0.0 -0.353 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.048</radius>
+            <length>0.706</length>
+          </cylinder>
+        </geometry>
+      </collision>
+      <visual name="LFFemur_visual">
+        <pose>0.0 0.0 -0.353 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.048</radius>
+            <length>0.706</length>
+          </cylinder>
+        </geometry>
+        <material/>
+      </visual>
+    </link>
+    <link name="LFFemur_roll">
+      <pose>0.417999952333048 0.2699994365684688 0.6545163923874497 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <mass>0.0</mass>
+        <inertia>
+          <ixx>0.0</ixx>
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <iyy>0.0</iyy>
+          <iyz>0.0</iyz>
+          <izz>0.0</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <link name="LFTarsus1">
+      <pose>0.417999952333048 0.2699994365684688 -0.569105613976717 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>-0.004590283228152 -0.009428733897363525 -0.12341506798238376 0.0 0.0 0.0</pose>
+        <mass>5.902334137063546e-07</mass>
+        <inertia>
+          <ixx>2.6619196564244832e-09</ixx>
+          <ixy>-6.696196350980393e-12</ixy>
+          <ixz>-8.499819284680847e-11</ixz>
+          <iyy>2.671119021702012e-09</iyy>
+          <iyz>2.4720518054378474e-11</iyz>
+          <izz>2.137105482392998e-10</izz>
+        </inertia>
+      </inertial>
+      <collision name="LFTarsus1_collision">
+        <pose>0.0 0.0 -0.3315 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.048</radius>
+            <length>0.663</length>
+          </cylinder>
+        </geometry>
+      </collision>
+      <visual name="LFTarsus1_visual">
+        <pose>0.0 0.0 -0.3315 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.048</radius>
+            <length>0.663</length>
+          </cylinder>
+        </geometry>
+        <material/>
+      </visual>
+    </link>
+    <link name="LFTarsus2">
+      <pose>0.417999952333048 0.2699994365684688 -0.7946225232444704 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>-0.0012888989035801384 -0.005322672217033718 -0.08914309447925631 0.0 0.0 0.0</pose>
+        <mass>2.658976343874435e-07</mass>
+        <inertia>
+          <ixx>5.103329322322616e-10</ixx>
+          <ixy>-4.652931733921339e-12</ixy>
+          <ixz>2.2319235150477887e-11</ixz>
+          <iyy>5.110168665053002e-10</iyy>
+          <iyz>1.141795723786161e-12</iyz>
+          <izz>6.692566660715184e-11</izz>
+        </inertia>
+      </inertial>
+      <link name="LFTarsus2">
+        <pose>0.0 0.0 0.0 0 0 0</pose>
+        <inertial>
+          <pose>0.0 0.0 0.0 0 0 0</pose>
+          <mass>0.0</mass>
+          <inertia>
+            <ixx>0.0</ixx>
+            <ixy>0.0</ixy>
+            <ixz>0.0</ixz>
+            <iyy>0.0</iyy>
+            <iyz>0.0</iyz>
+            <izz>0.0</izz>
+          </inertia>
+        </inertial>
+      </link>
+      <link name="LFTarsus2">
+        <pose>0.0 0.0 0.0 0 0 0</pose>
+        <inertial>
+          <pose>0.0 0.0 0.0 0 0 0</pose>
+          <mass>0.0</mass>
+          <inertia>
+            <ixx>0.0</ixx>
+            <ixy>0.0</ixy>
+            <ixz>0.0</ixz>
+            <iyy>0.0</iyy>
+            <iyz>0.0</iyz>
+            <izz>0.0</izz>
+          </inertia>
+        </inertial>
+      </link>
+    </link>
+    <link name="LFTarsus3">
+      <pose>0.417999952333048 0.2699994365684688 -0.9482912137173116 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>-0.0010802106814425925 -0.0034542146302084377 -0.05935250463647158 0.0 0.0 0.0</pose>
+        <mass>1.5048445915428457e-07</mass>
+        <inertia>
+          <ixx>1.2943798832106454e-10</ixx>
+          <ixy>-1.636254884174268e-12</ixy>
+          <ixz>7.384017845364119e-12</ixz>
+          <iyy>1.2973339477855396e-10</iyy>
+          <iyz>-3.5369691091179722e-12</iyz>
+          <izz>3.237591364465404e-11</izz>
+        </inertia>
+      </inertial>
+      <link name="LFTarsus3">
+        <pose>0.0 0.0 0.0 0 0 0</pose>
+        <inertial>
+          <pose>0.0 0.0 0.0 0 0 0</pose>
+          <mass>0.0</mass>
+          <inertia>
+            <ixx>0.0</ixx>
+            <ixy>0.0</ixy>
+            <ixz>0.0</ixz>
+            <iyy>0.0</iyy>
+            <iyz>0.0</iyz>
+            <izz>0.0</izz>
+          </inertia>
+        </inertial>
+      </link>
+      <link name="LFTarsus3">
+        <pose>0.0 0.0 0.0 0 0 0</pose>
+        <inertial>
+          <pose>0.0 0.0 0.0 0 0 0</pose>
+          <mass>0.0</mass>
+          <inertia>
+            <ixx>0.0</ixx>
+            <ixy>0.0</ixy>
+            <ixz>0.0</ixz>
+            <iyy>0.0</iyy>
+            <iyz>0.0</iyz>
+            <izz>0.0</izz>
+          </inertia>
+        </inertial>
+      </link>
+    </link>
+    <link name="LFTarsus4">
+      <pose>0.417999952333048 0.2699994365684688 -1.0467886459082365 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>0.0008697305845887112 -0.0014729808624900627 -0.04997286401953682 0.0 0.0 0.0</pose>
+        <mass>1.1769954786975934e-07</mass>
+        <inertia>
+          <ixx>7.574844946658414e-11</ixx>
+          <ixy>-1.1218003527775303e-12</ixy>
+          <ixz>4.142658799359131e-12</ixz>
+          <iyy>7.619289827697055e-11</iyy>
+          <iyz>-1.8782525110208446e-12</iyz>
+          <izz>2.2848746233067172e-11</izz>
+        </inertia>
+      </inertial>
+      <link name="LFTarsus4">
+        <pose>0.0 0.0 0.0 0 0 0</pose>
+        <inertial>
+          <pose>0.0 0.0 0.0 0 0 0</pose>
+          <mass>0.0</mass>
+          <inertia>
+            <ixx>0.0</ixx>
+            <ixy>0.0</ixy>
+            <ixz>0.0</ixz>
+            <iyy>0.0</iyy>
+            <iyz>0.0</iyz>
+            <izz>0.0</izz>
+          </inertia>
+        </inertial>
+      </link>
+      <link name="LFTarsus4">
+        <pose>0.0 0.0 0.0 0 0 0</pose>
+        <inertial>
+          <pose>0.0 0.0 0.0 0 0 0</pose>
+          <mass>0.0</mass>
+          <inertia>
+            <ixx>0.0</ixx>
+            <ixy>0.0</ixy>
+            <ixz>0.0</ixz>
+            <iyy>0.0</iyy>
+            <iyz>0.0</iyz>
+            <izz>0.0</izz>
+          </inertia>
+        </inertial>
+      </link>
+    </link>
+    <link name="LFTarsus5">
+      <pose>0.417999952333048 0.2699994365684688 -1.1337874457240105 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>0.002577576096579278 -0.0008883747206176372 -0.05205810514267286 0.0 0.0 0.0</pose>
+        <mass>1.4544444513923852e-07</mass>
+        <inertia>
+          <ixx>1.135124894575874e-10</ixx>
+          <ixy>-5.371669362193046e-13</ixy>
+          <ixz>8.61959329236233e-12</ixz>
+          <iyy>1.203871149303067e-10</iyy>
+          <iyz>-1.0622825672702412e-12</iyz>
+          <izz>3.4301165518026506e-11</izz>
+        </inertia>
+      </inertial>
+      <link name="LFTarsus5">
+        <pose>0.0 0.0 0.0 0 0 0</pose>
+        <inertial>
+          <pose>0.0 0.0 0.0 0 0 0</pose>
+          <mass>0.0</mass>
+          <inertia>
+            <ixx>0.0</ixx>
+            <ixy>0.0</ixy>
+            <ixz>0.0</ixz>
+            <iyy>0.0</iyy>
+            <iyz>0.0</iyz>
+            <izz>0.0</izz>
+          </inertia>
+        </inertial>
+      </link>
+      <link name="LFTarsus5">
+        <pose>0.0 0.0 0.0 0 0 0</pose>
+        <inertial>
+          <pose>0.0 0.0 0.0 0 0 0</pose>
+          <mass>0.0</mass>
+          <inertia>
+            <ixx>0.0</ixx>
+            <ixy>0.0</ixy>
+            <ixz>0.0</ixz>
+            <iyy>0.0</iyy>
+            <iyz>0.0</iyz>
+            <izz>0.0</izz>
+          </inertia>
+        </inertial>
+      </link>
+    </link>
+    <link name="LFTibia">
+      <pose>0.417999952333048 0.2699994365684688 -0.050723549065878615 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>0.01139708108176748 -0.0035875815923113313 -0.2930237891675056 0.0 0.0 0.0</pose>
+        <mass>2.6268343212263377e-06</mass>
+        <inertia>
+          <ixx>5.50390271997034e-08</ixx>
+          <ixy>1.5267819432842367e-10</ixy>
+          <ixz>1.8890251848431905e-09</ixz>
+          <iyy>5.5191946361538317e-08</iyy>
+          <iyz>2.1350840278172453e-09</iyz>
+          <izz>2.18284819569887e-09</izz>
+        </inertia>
+      </inertial>
+      <collision name="LFTibia_collision">
+        <pose>0.0 0.0 -0.259 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.048</radius>
+            <length>0.518</length>
+          </cylinder>
+        </geometry>
+      </collision>
+      <visual name="LFTibia_visual">
+        <pose>0.0 0.0 -0.259 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.048</radius>
+            <length>0.518</length>
+          </cylinder>
+        </geometry>
+        <material/>
+      </visual>
+    </link>
+    <link name="LHCoxa">
+      <pose>-0.14771765563637018 0.08699285535840318 0.6072233081795275 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>-0.003819832986174356 0.020953860742999805 -0.10100873412509567 0.0 0.0 0.0</pose>
+        <mass>3.2548936150106453e-06</mass>
+        <inertia>
+          <ixx>1.350804012338567e-08</ixx>
+          <ixy>-1.6370509791399278e-10</ixy>
+          <ixz>2.639987688459687e-10</ixz>
+          <iyy>1.4484483552670528e-08</iyy>
+          <iyz>2.2778771682240345e-09</iyz>
+          <izz>8.879176902911457e-09</izz>
+        </inertia>
+      </inertial>
+      <collision name="LHCoxa_collision">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/LHCoxa.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name="LHCoxa_visual">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/LHCoxa.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+        <material/>
+      </visual>
+    </link>
+    <link name="LHCoxa_roll">
+      <pose>-0.14771765563637018 0.08699285535840318 0.6072233081795275 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <mass>0.0</mass>
+        <inertia>
+          <ixx>0.0</ixx>
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <iyy>0.0</iyy>
+          <iyz>0.0</iyz>
+          <izz>0.0</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <link name="LHCoxa_yaw">
+      <pose>-0.14771765563637018 0.08699285535840318 0.6072233081795275 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <mass>0.0</mass>
+        <inertia>
+          <ixx>0.0</ixx>
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <iyy>0.0</iyy>
+          <iyz>0.0</iyz>
+          <izz>0.0</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <link name="LHFemur">
+      <pose>-0.14799235214013606 0.08676703873788938 0.40780624840408564 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>0.03316854877098387 -0.018455760172428583 -0.43907611617171066 0.0 0.0 0.0</pose>
+        <mass>1.1113719808091789e-05</mass>
+        <inertia>
+          <ixx>5.240769260201016e-07</ixx>
+          <ixy>3.451887877192935e-09</ixy>
+          <ixz>8.697293494739268e-09</ixz>
+          <iyy>5.240994330025576e-07</iyy>
+          <iyz>1.0573373286421583e-08</iyz>
+          <izz>2.7097994814382908e-08</izz>
+        </inertia>
+      </inertial>
+      <collision name="LHFemur_collision">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/LHFemur.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name="LHFemur_visual">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/LHFemur.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+        <material/>
+      </visual>
+    </link>
+    <link name="LHFemur_roll">
+      <pose>-0.14799235214013606 0.08676703873788938 0.40780624840408564 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <mass>0.0</mass>
+        <inertia>
+          <ixx>0.0</ixx>
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <iyy>0.0</iyy>
+          <iyz>0.0</iyz>
+          <izz>0.0</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <link name="LHTarsus1">
+      <pose>-0.14759648183826357 0.08577121479902416 -1.1129628401249647 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>-0.002593139451936422 0.004060112744122988 -0.16763963948074695 0.0 0.0 0.0</pose>
+        <mass>1.3249969982172918e-06</mass>
+        <inertia>
+          <ixx>1.3948833895937138e-08</ixx>
+          <ixy>-3.408937645724606e-11</ixy>
+          <ixz>-1.3881187401653182e-10</ixz>
+          <iyy>1.3855442366983524e-08</iyy>
+          <iyz>1.1197135410054028e-10</iyz>
+          <izz>7.38346273473165e-10</izz>
+        </inertia>
+      </inertial>
+      <collision name="LHTarsus1_collision">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/LHTarsus1.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name="LHTarsus1_visual">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/LHTarsus1.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+        <material/>
+      </visual>
+    </link>
+    <link name="LHTarsus2">
+      <pose>-0.1476550241932273 0.08641673775855452 -1.4657053397968411 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>-0.001334283018335447 0.0022927819771864128 -0.09138825509727866 0.0 0.0 0.0</pose>
+        <mass>4.465595046515482e-07</mass>
+        <inertia>
+          <ixx>1.2421568618269873e-09</ixx>
+          <ixy>3.9195335774079074e-12</ixy>
+          <ixz>2.460386567916838e-11</ixz>
+          <iyy>1.248205629659075e-09</iyy>
+          <iyz>-3.238046634512226e-11</iyz>
+          <izz>1.5854710744795977e-10</izz>
+        </inertia>
+      </inertial>
+      <collision name="LHTarsus2_collision">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/LHTarsus2.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name="LHTarsus2_visual">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/LHTarsus2.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+        <material/>
+      </visual>
+    </link>
+    <link name="LHTarsus3">
+      <pose>-0.14763572835363448 0.08545085438527167 -1.6407578950747848 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>-0.004137079809770368 0.0032097378575986456 -0.048824643300694616 0.0 0.0 0.0</pose>
+        <mass>1.717215492644912e-07</mass>
+        <inertia>
+          <ixx>1.5704891128179778e-10</ixx>
+          <ixy>1.5793452052281098e-12</ixy>
+          <ixz>8.109874817632491e-13</ixz>
+          <iyy>1.597724065762652e-10</iyy>
+          <iyz>-1.1885304928094258e-12</iyz>
+          <izz>4.22558145229839e-11</izz>
+        </inertia>
+      </inertial>
+      <collision name="LHTarsus3_collision">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/LHTarsus3.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name="LHTarsus3_visual">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/LHTarsus3.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+        <material/>
+      </visual>
+    </link>
+    <link name="LHTarsus4">
+      <pose>-0.1476290781283751 0.08640861051389948 -1.7374661983922124 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <mass>1.1443416496255567e-07</mass>
+        <inertia>
+          <ixx>2.4683293542298094e-10</ixx>
+          <ixy>9.952485385943712e-15</ixy>
+          <ixz>1.827232963853714e-11</ixz>
+          <iyy>2.4985275489620366e-10</iyy>
+          <iyz>-9.339634542772557e-12</iyz>
+          <izz>2.642573729500649e-11</izz>
+        </inertia>
+      </inertial>
+      <collision name="LHTarsus4_collision">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/LHTarsus4.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name="LHTarsus4_visual">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/LHTarsus4.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+        <material/>
+      </visual>
+    </link>
+    <link name="LHTarsus5">
+      <pose>-0.14755726442672312 0.08615519618615508 -1.8107704818248749 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>-0.001764743330698272 -0.0003560893760946295 -0.052608636134907585 0.0 0.0 0.0</pose>
+        <mass>1.5831647994397422e-07</mass>
+        <inertia>
+          <ixx>1.275534557952797e-10</ixx>
+          <ixy>1.0387493793363336e-12</ixy>
+          <ixz>5.673485524053406e-12</ixz>
+          <iyy>1.3596468492812532e-10</iyy>
+          <iyz>1.8938777007182306e-12</iyz>
+          <izz>4.324883583492056e-11</izz>
+        </inertia>
+      </inertial>
+      <collision name="LHTarsus5_collision">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/LHTarsus5.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name="LHTarsus5_visual">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/LHTarsus5.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+        <material/>
+      </visual>
+    </link>
+    <link name="LHTibia">
+      <pose>-0.14785659732297063 0.08640384476166219 -0.42850757017731667 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>0.02332768356264899 -0.015456506909323486 -0.4177220523824261 0.0 0.0 0.0</pose>
+        <mass>4.280437218327039e-06</mass>
+        <inertia>
+          <ixx>1.36571973333874e-07</ixx>
+          <ixy>-3.589734864313778e-10</ixy>
+          <ixz>6.984979984449975e-09</ixz>
+          <iyy>1.373299267463762e-07</iyy>
+          <iyz>-1.6120199397614828e-09</iyz>
+          <izz>4.931242386774536e-09</izz>
+        </inertia>
+      </inertial>
+      <collision name="LHTibia_collision">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/LHTibia.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name="LHTibia_visual">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/LHTibia.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+        <material/>
+      </visual>
+    </link>
+    <link name="LHaltere">
+      <pose>-0.2589677460491657 0.21355571516323835 0.9370104526169598 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>-0.00820540677502057 0.20605274259945233 -0.0006526997028711223 0.0 0.0 0.0</pose>
+        <mass>1.4160896935430824e-06</mass>
+        <inertia>
+          <ixx>1.4020303628986903e-08</ixx>
+          <ixy>-1.6711254076134715e-11</ixy>
+          <ixz>-2.8079219660502452e-11</ixz>
+          <iyy>1.9730319364747313e-09</iyy>
+          <iyz>-6.1248840665395e-11</iyz>
+          <izz>1.3649625794138886e-08</izz>
+        </inertia>
+      </inertial>
+      <collision name="LHaltere_collision">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/LHaltere.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name="LHaltere_visual">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/LHaltere.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+        <material/>
+      </visual>
+    </link>
+    <link name="LHaltere_roll">
+      <pose>-0.2589677460491657 0.21355571516323835 0.9370104526169598 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <mass>0.0</mass>
+        <inertia>
+          <ixx>0.0</ixx>
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <iyy>0.0</iyy>
+          <iyz>0.0</iyz>
+          <izz>0.0</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <link name="LHaltere_yaw">
+      <pose>-0.2589677460491657 0.21355571516323835 0.9370104526169598 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <mass>0.0</mass>
+        <inertia>
+          <ixx>0.0</ixx>
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <iyy>0.0</iyy>
+          <iyz>0.0</iyz>
+          <izz>0.0</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <link name="LMCoxa">
+      <pose>0.06767547893105075 0.12490047083701938 0.6798476679250598 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>-0.0013411062898613273 0.0048803914773749004 -0.07880976582872125 0.0 0.0 0.0</pose>
+        <mass>3.295969018637448e-06</mass>
+        <inertia>
+          <ixx>1.613857024264124e-08</ixx>
+          <ixy>-5.2331361478733376e-11</ixy>
+          <ixz>4.438624551510217e-10</ixz>
+          <iyy>1.504033067194571e-08</iyy>
+          <iyz>4.489648201221683e-09</iyz>
+          <izz>1.0534992499367083e-08</izz>
+        </inertia>
+      </inertial>
+      <collision name="LMCoxa_collision">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/LMCoxa.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name="LMCoxa_visual">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/LMCoxa.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+        <material/>
+      </visual>
+    </link>
+    <link name="LMCoxa_roll">
+      <pose>0.06767547893105075 0.12490047083701938 0.6798476679250598 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <mass>0.0</mass>
+        <inertia>
+          <ixx>0.0</ixx>
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <iyy>0.0</iyy>
+          <iyz>0.0</iyz>
+          <izz>0.0</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <link name="LMCoxa_yaw">
+      <pose>0.06767547893105075 0.12490047083701938 0.6798476679250598 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <mass>0.0</mass>
+        <inertia>
+          <ixx>0.0</ixx>
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <iyy>0.0</iyy>
+          <iyz>0.0</iyz>
+          <izz>0.0</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <link name="LMFemur">
+      <pose>0.067459637648426 0.12510624947026372 0.4984009428881109 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>0.02351526002737405 0.002180069823072076 -0.40512465572748674 0.0 0.0 0.0</pose>
+        <mass>8.23079136553737e-06</mass>
+        <inertia>
+          <ixx>4.0989546919810974e-07</ixx>
+          <ixy>-1.0178035657241587e-10</ixy>
+          <ixz>1.4528507113592936e-09</ixz>
+          <iyy>4.100231084980835e-07</iyy>
+          <iyz>3.526875993502687e-09</iyz>
+          <izz>1.3630461220192824e-08</izz>
+        </inertia>
+      </inertial>
+      <collision name="LMFemur_collision">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/LMFemur.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name="LMFemur_visual">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/LMFemur.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+        <material/>
+      </visual>
+    </link>
+    <link name="LMFemur_roll">
+      <pose>0.067459637648426 0.12510624947026372 0.4984009428881109 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <mass>0.0</mass>
+        <inertia>
+          <ixx>0.0</ixx>
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <iyy>0.0</iyy>
+          <iyz>0.0</iyz>
+          <izz>0.0</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <link name="LMTarsus1">
+      <pose>0.06676963676000014 0.1262413861695677 -0.9525956702418625 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>-0.007508930804581151 0.00019421167872682904 -0.15360247106760438 0.0 0.0 0.0</pose>
+        <mass>6.662969614149409e-07</mass>
+        <inertia>
+          <ixx>4.789018669521419e-09</ixx>
+          <ixy>-1.0316838500437653e-11</ixy>
+          <ixz>-2.7181504941603465e-10</ixz>
+          <iyy>4.822226563942478e-09</iyy>
+          <iyz>9.26397614655992e-11</iyz>
+          <izz>2.3640331294254783e-10</izz>
+        </inertia>
+      </inertial>
+      <collision name="LMTarsus1_collision">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/LMTarsus1.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name="LMTarsus1_visual">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/LMTarsus1.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+        <material/>
+      </visual>
+    </link>
+    <link name="LMTarsus2">
+      <pose>0.0672164314892143 0.12576088192872703 -1.2469320790842175 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>-0.004910493027037917 0.0008204772912914994 -0.0791717987889233 0.0 0.0 0.0</pose>
+        <mass>2.988951419617774e-07</mass>
+        <inertia>
+          <ixx>6.076981460248074e-10</ixx>
+          <ixy>1.1809765506624864e-12</ixy>
+          <ixz>-3.539365327898226e-12</ixz>
+          <iyy>6.124552873374273e-10</iyy>
+          <iyz>1.139464593442061e-11</iyz>
+          <izz>8.12316436190037e-11</izz>
+        </inertia>
+      </inertial>
+      <collision name="LMTarsus2_collision">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/LMTarsus2.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name="LMTarsus2_visual">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/LMTarsus2.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+        <material/>
+      </visual>
+    </link>
+    <link name="LMTarsus3">
+      <pose>0.06712540198350325 0.12566363147925586 -1.4060972025617957 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>-0.0020937190564962556 0.0020650750164228015 -0.04465301651760458 0.0 0.0 0.0</pose>
+        <mass>1.49359671801039e-07</mass>
+        <inertia>
+          <ixx>1.1717508455759623e-10</ixx>
+          <ixy>8.825598086039782e-13</ixy>
+          <ixz>6.242686243253202e-12</ixz>
+          <iyy>1.2009349778572921e-10</iyy>
+          <iyz>-1.438987856164942e-12</iyz>
+          <izz>3.602772507055522e-11</izz>
+        </inertia>
+      </inertial>
+      <collision name="LMTarsus3_collision">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/LMTarsus3.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name="LMTarsus3_visual">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/LMTarsus3.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+        <material/>
+      </visual>
+    </link>
+    <link name="LMTarsus4">
+      <pose>0.06735506758559495 0.12555441935546696 -1.495831529609859 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <mass>8.690413245737014e-08</mass>
+        <inertia>
+          <ixx>1.210531784475736e-10</ixx>
+          <ixy>-4.205742483408226e-14</ixy>
+          <ixz>1.0531468623995063e-11</ixz>
+          <iyy>1.2340492144548685e-10</iyy>
+          <iyz>-3.237890546850215e-12</iyz>
+          <izz>1.9293008159881107e-11</izz>
+        </inertia>
+      </inertial>
+      <collision name="LMTarsus4_collision">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/LMTarsus4.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name="LMTarsus4_visual">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/LMTarsus4.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+        <material/>
+      </visual>
+    </link>
+    <link name="LMTarsus5">
+      <pose>0.06754857167834416 0.12564996723085642 -1.559109310619533 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>-0.0010362194106575133 -0.000547465612507959 -0.043055114788268865 0.0 0.0 0.0</pose>
+        <mass>1.4474194312568478e-07</mass>
+        <inertia>
+          <ixx>1.163034938087531e-10</ixx>
+          <ixy>-2.3589784652394145e-13</ixy>
+          <ixz>8.24390216345855e-12</ixz>
+          <iyy>1.2251731437552192e-10</iyy>
+          <iyz>1.2726489418338513e-12</iyz>
+          <izz>3.4839138473341044e-11</izz>
+        </inertia>
+      </inertial>
+      <collision name="LMTarsus5_collision">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/LMTarsus5.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name="LMTarsus5_visual">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/LMTarsus5.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+        <material/>
+      </visual>
+    </link>
+    <link name="LMTibia">
+      <pose>0.06649007991654798 0.1256917603313923 -0.2852689940482378 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>0.022280218979372428 0.0037263543557795992 -0.37377684165375935 0.0 0.0 0.0</pose>
+        <mass>3.631542037586609e-06</mass>
+        <inertia>
+          <ixx>1.345167712576714e-07</ixx>
+          <ixy>2.9286402925858677e-10</ixy>
+          <ixz>7.144603790900179e-09</ixz>
+          <iyy>1.3461153702722584e-07</iyy>
+          <iyz>2.247245573385288e-09</iyz>
+          <izz>3.332214283800136e-09</izz>
+        </inertia>
+      </inertial>
+      <collision name="LMTibia_collision">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/LMTibia.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name="LMTibia_visual">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/LMTibia.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+        <material/>
+      </visual>
+    </link>
+    <link name="LWing">
+      <pose>-0.09160547779174522 0.3698323271237314 1.3241820270195603 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>-0.11281485678214186 1.0776903404291704 0.0810290404790047 0.0 0.0 0.0</pose>
+        <mass>2.500079241447992e-06</mass>
+        <inertia>
+          <ixx>7.968332571849391e-07</ixx>
+          <ixy>6.886744796609743e-08</ixy>
+          <ixz>7.821732080410048e-10</ixz>
+          <iyy>1.8077978855800485e-07</iyy>
+          <iyz>-4.182696170877211e-08</iyz>
+          <izz>9.635553787092022e-07</izz>
+        </inertia>
+      </inertial>
+      <collision name="LWing_collision">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/LWing.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name="LWing_visual">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/LWing.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+        <material/>
+      </visual>
+    </link>
+    <link name="LWing_roll">
+      <pose>-0.09160547779174522 0.3698323271237314 1.3241820270195603 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <mass>0.0</mass>
+        <inertia>
+          <ixx>0.0</ixx>
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <iyy>0.0</iyy>
+          <iyz>0.0</iyz>
+          <izz>0.0</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <link name="LWing_yaw">
+      <pose>-0.09160547779174522 0.3698323271237314 1.3241820270195603 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <mass>0.0</mass>
+        <inertia>
+          <ixx>0.0</ixx>
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <iyy>0.0</iyy>
+          <iyz>0.0</iyz>
+          <izz>0.0</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <link name="RAntenna">
+      <pose>0.9306053980253637 -0.06800427217967808 1.3498123735189438 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>0.050924299361256364 -0.01329380216164954 -0.11155560368387411 0.0 0.0 0.0</pose>
+        <mass>1.7777381698425424e-06</mass>
+        <inertia>
+          <ixx>1.2118144852256564e-08</ixx>
+          <ixy>-6.470039446583768e-10</ixy>
+          <ixz>-1.0934780127445053e-09</ixz>
+          <iyy>1.048746933313142e-08</iyy>
+          <iyz>3.638498471065401e-10</iyz>
+          <izz>4.978045946204023e-09</izz>
+        </inertia>
+      </inertial>
+      <collision name="RAntenna_collision">
+        <pose>0.0 0.0 -0.1485 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.06</radius>
+            <length>0.297</length>
+          </cylinder>
+        </geometry>
+      </collision>
+      <visual name="RAntenna_visual">
+        <pose>0.0 0.0 -0.1485 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.06</radius>
+            <length>0.297</length>
+          </cylinder>
+        </geometry>
+        <material/>
+      </visual>
+    </link>
+    <link name="REye">
+      <pose>0.729990832041949 -5.634853139646623e-07 1.299981027841568 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>-0.012887709938656894 -0.3175920617363761 -0.03069054079255127 0.0 0.0 0.0</pose>
+        <mass>8.241895909613487e-06</mass>
+        <inertia>
+          <ixx>1.1751616768767936e-07</ixx>
+          <ixy>2.0157095834173952e-08</ixy>
+          <ixz>-1.2295797136979536e-08</ixz>
+          <iyy>1.624799495495446e-07</iyy>
+          <iyz>-9.003112986527057e-09</iyz>
+          <izz>7.805335340170162e-08</izz>
+        </inertia>
+      </inertial>
+      <collision name="REye_collision">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/REye.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name="REye_visual">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/REye.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+        <material/>
+      </visual>
+    </link>
+    <link name="RFCoxa">
+      <pose>0.41799998143687844 -0.2700005716178566 1.0799976298585534 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>0.002980887852581822 0.03152223171931674 -0.2531243584754531 0.0 0.0 0.0</pose>
+        <mass>5.741706163530321e-06</mass>
+        <inertia>
+          <ixx>5.983416911264356e-08</ixx>
+          <ixy>-1.5355083040571808e-09</ixy>
+          <ixz>9.56871277198453e-10</ixz>
+          <iyy>5.79745586306428e-08</iyy>
+          <iyz>-2.872861574361646e-09</iyz>
+          <izz>1.4207707028825396e-08</izz>
+        </inertia>
+      </inertial>
+      <collision name="RFCoxa_collision">
+        <pose>0.0 0.0 -0.2125 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.048</radius>
+            <length>0.425</length>
+          </cylinder>
+        </geometry>
+      </collision>
+      <visual name="RFCoxa_visual">
+        <pose>0.0 0.0 -0.2125 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.048</radius>
+            <length>0.425</length>
+          </cylinder>
+        </geometry>
+        <material/>
+      </visual>
+    </link>
+    <link name="RFCoxa_roll">
+      <pose>0.41799998143687844 -0.2700005716178566 1.0799976298585534 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <mass>0.0</mass>
+        <inertia>
+          <ixx>0.0</ixx>
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <iyy>0.0</iyy>
+          <iyz>0.0</iyz>
+          <izz>0.0</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <link name="RFCoxa_yaw">
+      <pose>0.41799998143687844 -0.2700005716178566 1.0799976298585534 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <mass>0.0</mass>
+        <inertia>
+          <ixx>0.0</ixx>
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <iyy>0.0</iyy>
+          <iyz>0.0</iyz>
+          <izz>0.0</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <link name="RFFemur">
+      <pose>0.41799998143687844 -0.2700005716178566 0.6545186042785645 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>-0.01985770965505081 0.0067485071274078915 -0.35944571823622823 0.0 0.0 0.0</pose>
+        <mass>7.99213320458308e-06</mass>
+        <inertia>
+          <ixx>2.72696734586788e-07</ixx>
+          <ixy>-3.118284866606571e-10</ixy>
+          <ixz>-8.359438387289132e-09</ixz>
+          <iyy>2.728445283155863e-07</iyy>
+          <iyz>1.9876090547921418e-08</iyz>
+          <izz>1.617812996347602e-08</izz>
+        </inertia>
+      </inertial>
+      <collision name="RFFemur_collision">
+        <pose>0.0 0.0 -0.353 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.048</radius>
+            <length>0.706</length>
+          </cylinder>
+        </geometry>
+      </collision>
+      <visual name="RFFemur_visual">
+        <pose>0.0 0.0 -0.353 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.048</radius>
+            <length>0.706</length>
+          </cylinder>
+        </geometry>
+        <material/>
+      </visual>
+    </link>
+    <link name="RFFemur_roll">
+      <pose>0.41799998143687844 -0.2700005716178566 0.6545186042785645 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <mass>0.0</mass>
+        <inertia>
+          <ixx>0.0</ixx>
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <iyy>0.0</iyy>
+          <iyz>0.0</iyz>
+          <izz>0.0</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <link name="RFTarsus1">
+      <pose>0.41799998143687844 -0.2700005716178566 -0.5691341357305646 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>-0.00459038931565034 0.009429876125538134 -0.12338642713012525 0.0 0.0 0.0</pose>
+        <mass>5.902334030056455e-07</mass>
+        <inertia>
+          <ixx>2.661919493380233e-09</ixx>
+          <ixy>6.696252541221297e-12</ixy>
+          <ixz>-8.49988421563367e-11</ixz>
+          <iyy>2.671118876236604e-09</iyy>
+          <iyz>-2.4721904367683828e-11</iyz>
+          <izz>2.1371061734877214e-10</izz>
+        </inertia>
+      </inertial>
+      <collision name="RFTarsus1_collision">
+        <pose>0.0 0.0 -0.3315 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.048</radius>
+            <length>0.663</length>
+          </cylinder>
+        </geometry>
+      </collision>
+      <visual name="RFTarsus1_visual">
+        <pose>0.0 0.0 -0.3315 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.048</radius>
+            <length>0.663</length>
+          </cylinder>
+        </geometry>
+        <material/>
+      </visual>
+    </link>
+    <link name="RFTarsus2">
+      <pose>0.41799998143687844 -0.2700005716178566 -0.7945623947307467 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>-0.001289009355112737 0.0053238059870437116 -0.08920322109717373 0.0 0.0 0.0</pose>
+        <mass>2.6589763376152175e-07</mass>
+        <inertia>
+          <ixx>5.103329473595504e-10</ixx>
+          <ixy>4.6529193246102694e-12</ixy>
+          <ixz>2.2319121199781353e-11</ixz>
+          <iyy>5.110168673582965e-10</iyy>
+          <iyz>-1.1420441148966488e-12</iyz>
+          <izz>6.692565506745885e-11</izz>
+        </inertia>
+      </inertial>
+      <link name="RFTarsus2">
+        <pose>0.0 0.0 0.0 0 0 0</pose>
+        <inertial>
+          <pose>0.0 0.0 0.0 0 0 0</pose>
+          <mass>0.0</mass>
+          <inertia>
+            <ixx>0.0</ixx>
+            <ixy>0.0</ixy>
+            <ixz>0.0</ixz>
+            <iyy>0.0</iyy>
+            <iyz>0.0</iyz>
+            <izz>0.0</izz>
+          </inertia>
+        </inertial>
+      </link>
+      <link name="RFTarsus2">
+        <pose>0.0 0.0 0.0 0 0 0</pose>
+        <inertial>
+          <pose>0.0 0.0 0.0 0 0 0</pose>
+          <mass>0.0</mass>
+          <inertia>
+            <ixx>0.0</ixx>
+            <ixy>0.0</ixy>
+            <ixz>0.0</ixz>
+            <iyy>0.0</iyy>
+            <iyz>0.0</iyz>
+            <izz>0.0</izz>
+          </inertia>
+        </inertial>
+      </link>
+    </link>
+    <link name="RFTarsus3">
+      <pose>0.41799998143687844 -0.2700005716178566 -0.9482387104071677 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>-0.0010803218732456106 0.0034553468870973047 -0.05940500581862796 0.0 0.0 0.0</pose>
+        <mass>1.5048445801063186e-07</mass>
+        <inertia>
+          <ixx>1.2943799114767103e-10</ixx>
+          <ixy>1.6362498656956743e-12</ixy>
+          <ixz>7.383992388634351e-12</ixz>
+          <iyy>1.2973339731991452e-10</iyy>
+          <iyz>3.5369150183889013e-12</iyz>
+          <izz>3.237590515384331e-11</izz>
+        </inertia>
+      </inertial>
+      <link name="RFTarsus3">
+        <pose>0.0 0.0 0.0 0 0 0</pose>
+        <inertial>
+          <pose>0.0 0.0 0.0 0 0 0</pose>
+          <mass>0.0</mass>
+          <inertia>
+            <ixx>0.0</ixx>
+            <ixy>0.0</ixy>
+            <ixz>0.0</ixz>
+            <iyy>0.0</iyy>
+            <iyz>0.0</iyz>
+            <izz>0.0</izz>
+          </inertia>
+        </inertial>
+      </link>
+      <link name="RFTarsus3">
+        <pose>0.0 0.0 0.0 0 0 0</pose>
+        <inertial>
+          <pose>0.0 0.0 0.0 0 0 0</pose>
+          <mass>0.0</mass>
+          <inertia>
+            <ixx>0.0</ixx>
+            <ixy>0.0</ixy>
+            <ixz>0.0</ixz>
+            <iyy>0.0</iyy>
+            <iyz>0.0</iyz>
+            <izz>0.0</izz>
+          </inertia>
+        </inertial>
+      </link>
+    </link>
+    <link name="RFTarsus4">
+      <pose>0.41799998143687844 -0.2700005716178566 -1.0467406827956438 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>0.0008696201063557554 0.0014741143644400173 -0.050020826810806954 0.0 0.0 0.0</pose>
+        <mass>1.1769954845621714e-07</mass>
+        <inertia>
+          <ixx>7.574845212622345e-11</ixx>
+          <ixy>1.1217974558331867e-12</ixy>
+          <ixz>4.142645119773969e-12</ixz>
+          <iyy>7.61929006021046e-11</iyy>
+          <iyz>1.8782227223917356e-12</iyz>
+          <izz>2.2848742197809424e-11</izz>
+        </inertia>
+      </inertial>
+      <link name="RFTarsus4">
+        <pose>0.0 0.0 0.0 0 0 0</pose>
+        <inertial>
+          <pose>0.0 0.0 0.0 0 0 0</pose>
+          <mass>0.0</mass>
+          <inertia>
+            <ixx>0.0</ixx>
+            <ixy>0.0</ixy>
+            <ixz>0.0</ixz>
+            <iyy>0.0</iyy>
+            <iyz>0.0</iyz>
+            <izz>0.0</izz>
+          </inertia>
+        </inertial>
+      </link>
+      <link name="RFTarsus4">
+        <pose>0.0 0.0 0.0 0 0 0</pose>
+        <inertial>
+          <pose>0.0 0.0 0.0 0 0 0</pose>
+          <mass>0.0</mass>
+          <inertia>
+            <ixx>0.0</ixx>
+            <ixy>0.0</ixy>
+            <ixz>0.0</ixz>
+            <iyy>0.0</iyy>
+            <iyz>0.0</iyz>
+            <izz>0.0</izz>
+          </inertia>
+        </inertial>
+      </link>
+    </link>
+    <link name="RFTarsus5">
+      <pose>0.41799998143687844 -0.2700005716178566 -1.1337626492604613 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>0.002577412313507991 0.0008895066556037232 -0.052083132513192555 0.0 0.0 0.0</pose>
+        <mass>1.4544445851261665e-07</mass>
+        <inertia>
+          <ixx>1.1351250822278854e-10</ixx>
+          <ixy>5.371606517909682e-13</ixy>
+          <ixz>8.61956236424173e-12</ixz>
+          <iyy>1.2038712906384415e-10</iyy>
+          <iyz>1.0622193925558108e-12</iyz>
+          <izz>3.430116323046479e-11</izz>
+        </inertia>
+      </inertial>
+      <link name="RFTarsus5">
+        <pose>0.0 0.0 0.0 0 0 0</pose>
+        <inertial>
+          <pose>0.0 0.0 0.0 0 0 0</pose>
+          <mass>0.0</mass>
+          <inertia>
+            <ixx>0.0</ixx>
+            <ixy>0.0</ixy>
+            <ixz>0.0</ixz>
+            <iyy>0.0</iyy>
+            <iyz>0.0</iyz>
+            <izz>0.0</izz>
+          </inertia>
+        </inertial>
+      </link>
+      <link name="RFTarsus5">
+        <pose>0.0 0.0 0.0 0 0 0</pose>
+        <inertial>
+          <pose>0.0 0.0 0.0 0 0 0</pose>
+          <mass>0.0</mass>
+          <inertia>
+            <ixx>0.0</ixx>
+            <ixy>0.0</ixy>
+            <ixz>0.0</ixz>
+            <iyy>0.0</iyy>
+            <iyz>0.0</iyz>
+            <izz>0.0</izz>
+          </inertia>
+        </inertial>
+      </link>
+    </link>
+    <link name="RFTibia">
+      <pose>0.41799998143687844 -0.2700005716178566 -0.0507213371747639 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>0.011396976086188386 0.003588724885189383 -0.2930260018149297 0.0 0.0 0.0</pose>
+        <mass>2.626834378398769e-06</mass>
+        <inertia>
+          <ixx>5.5039029499039883e-08</ixx>
+          <ixy>-1.526786740402749e-10</ixy>
+          <ixz>1.8890109702508788e-09</ixz>
+          <iyy>5.519194524654044e-08</iyy>
+          <iyz>-2.1351137781782823e-09</iyz>
+          <izz>2.1828496369105125e-09</izz>
+        </inertia>
+      </inertial>
+      <collision name="RFTibia_collision">
+        <pose>0.0 0.0 -0.259 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.048</radius>
+            <length>0.518</length>
+          </cylinder>
+        </geometry>
+      </collision>
+      <visual name="RFTibia_visual">
+        <pose>0.0 0.0 -0.259 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.048</radius>
+            <length>0.518</length>
+          </cylinder>
+        </geometry>
+        <material/>
+      </visual>
+    </link>
+    <link name="RHCoxa">
+      <pose>-0.14771783025935292 -0.08699407044332474 0.6072231335565448 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>-0.003728200847895757 -0.02086039375676153 -0.10102209839659057 0.0 0.0 0.0</pose>
+        <mass>3.2548946367291556e-06</mass>
+        <inertia>
+          <ixx>1.3508895444032225e-08</ixx>
+          <ixy>1.654774844295877e-10</ixy>
+          <ixz>2.5922456853699946e-10</ixz>
+          <iyy>1.4480297162125718e-08</iyy>
+          <iyz>-2.2830629086425194e-09</iyz>
+          <izz>8.882772581122752e-09</izz>
+        </inertia>
+      </inertial>
+      <collision name="RHCoxa_collision">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/RHCoxa.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name="RHCoxa_visual">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/RHCoxa.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+        <material/>
+      </visual>
+    </link>
+    <link name="RHCoxa_roll">
+      <pose>-0.14771783025935292 -0.08699407044332474 0.6072231335565448 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <mass>0.0</mass>
+        <inertia>
+          <ixx>0.0</ixx>
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <iyy>0.0</iyy>
+          <iyz>0.0</iyz>
+          <izz>0.0</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <link name="RHCoxa_yaw">
+      <pose>-0.14771783025935292 -0.08699407044332474 0.6072231335565448 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <mass>0.0</mass>
+        <inertia>
+          <ixx>0.0</ixx>
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <iyy>0.0</iyy>
+          <iyz>0.0</iyz>
+          <izz>0.0</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <link name="RHFemur">
+      <pose>-0.14779606135562062 -0.08657687430968508 0.40780630661174655 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>0.033161214805692195 0.018143967575905588 -0.43908917951877136 0.0 0.0 0.0</pose>
+        <mass>1.1113711231749002e-05</mass>
+        <inertia>
+          <ixx>5.240827422201451e-07</ixx>
+          <ixy>-3.4471113660241967e-09</ixy>
+          <ixz>8.719731828423071e-09</ixz>
+          <iyy>5.24104138833571e-07</iyy>
+          <iyz>-1.0271105917466366e-08</iyz>
+          <izz>2.708600536854334e-08</izz>
+        </inertia>
+      </inertial>
+      <collision name="RHFemur_collision">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/RHFemur.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name="RHFemur_visual">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/RHFemur.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+        <material/>
+      </visual>
+    </link>
+    <link name="RHFemur_roll">
+      <pose>-0.14779606135562062 -0.08657687430968508 0.40780630661174655 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <mass>0.0</mass>
+        <inertia>
+          <ixx>0.0</ixx>
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <iyy>0.0</iyy>
+          <iyz>0.0</iyz>
+          <izz>0.0</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <link name="RHTarsus1">
+      <pose>-0.14797464245930314 -0.08607671043137088 -1.1129623744636774 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>-0.003050929426526021 -0.0029546679618936587 -0.1676486480762542 0.0 0.0 0.0</pose>
+        <mass>1.3250065372293525e-06</mass>
+        <inertia>
+          <ixx>1.3895980951092814e-08</ixx>
+          <ixy>5.7649647416818145e-11</ixy>
+          <ixz>-1.5814732178418856e-10</ixz>
+          <iyy>1.390914368810993e-08</iyy>
+          <iyz>-5.0070029915928587e-11</iyz>
+          <izz>7.380251977580928e-10</izz>
+        </inertia>
+      </inertial>
+      <collision name="RHTarsus1_collision">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/RHTarsus1.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name="RHTarsus1_visual">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/RHTarsus1.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+        <material/>
+      </visual>
+    </link>
+    <link name="RHTarsus2">
+      <pose>-0.1477215701015666 -0.08611853263573721 -1.465705456212163 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>-0.0011621105829856249 -0.0024351878773620863 -0.09136304613612244 0.0 0.0 0.0</pose>
+        <mass>4.4655875421415463e-07</mass>
+        <inertia>
+          <ixx>1.2470445836855713e-09</ixx>
+          <ixy>-4.81283578894369e-12</ixy>
+          <ixz>2.961874361372959e-11</ixz>
+          <iyy>1.2436939062143497e-09</iyy>
+          <iyz>1.8925046940676516e-11</iyz>
+          <izz>1.5816310328272482e-10</izz>
+        </inertia>
+      </inertial>
+      <collision name="RHTarsus2_collision">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/RHTarsus2.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name="RHTarsus2_visual">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/RHTarsus2.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+        <material/>
+      </visual>
+    </link>
+    <link name="RHTarsus3">
+      <pose>-0.14749380352441221 -0.08640878513688222 -1.6407601069658995 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>-0.0040461742809656245 -0.0008039191820544004 -0.048706048991643054 0.0 0.0 0.0</pose>
+        <mass>1.7172138836448318e-07</mass>
+        <inertia>
+          <ixx>1.5904399360310196e-10</ixx>
+          <ixy>-1.96031748950318e-12</ixy>
+          <ixz>2.771068528733922e-12</ixz>
+          <iyy>1.5772485320176282e-10</iyy>
+          <iyz>7.02619778849401e-13</iyz>
+          <izz>4.230768869256705e-11</izz>
+        </inertia>
+      </inertial>
+      <collision name="RHTarsus3_collision">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/RHTarsus3.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name="RHTarsus3_visual">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/RHTarsus3.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+        <material/>
+      </visual>
+    </link>
+    <link name="RHTarsus4">
+      <pose>-0.1480112550780177 -0.08602128946222365 -1.7374708550050855 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <mass>1.144339255559854e-07</mass>
+        <inertia>
+          <ixx>2.4880045871057033e-10</ixx>
+          <ixy>-8.665306614830621e-13</ixy>
+          <ixz>1.5510740709360946e-11</ixz>
+          <iyy>2.495037795783748e-10</iyy>
+          <iyz>5.9124502528420606e-12</iyz>
+          <izz>2.5945076195407573e-11</izz>
+        </inertia>
+      </inertial>
+      <collision name="RHTarsus4_collision">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/RHTarsus4.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name="RHTarsus4_visual">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/RHTarsus4.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+        <material/>
+      </visual>
+    </link>
+    <link name="RHTarsus5">
+      <pose>-0.14765464584343135 -0.08632257959106937 -1.8107742071151733 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>-0.00022547827006491407 7.83458783382219e-05 -0.052586254747216364 0.0 0.0 0.0</pose>
+        <mass>1.5831640110915208e-07</mass>
+        <inertia>
+          <ixx>1.2960215241164095e-10</ixx>
+          <ixy>-3.694578549733403e-12</ixy>
+          <ixz>4.1268544263261705e-12</ixz>
+          <iyy>1.339943547095337e-10</iyy>
+          <iyz>-3.473055390775781e-12</iyz>
+          <izz>4.3170067037872953e-11</izz>
+        </inertia>
+      </inertial>
+      <collision name="RHTarsus5_collision">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/RHTarsus5.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name="RHTarsus5_visual">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/RHTarsus5.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+        <material/>
+      </visual>
+    </link>
+    <link name="RHTibia">
+      <pose>-0.14771343558095396 -0.08673848788021132 -0.42850716272369027 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>0.02764918866176535 0.009653039763076127 -0.4177238946835987 0.0 0.0 0.0</pose>
+        <mass>4.280436376694625e-06</mass>
+        <inertia>
+          <ixx>1.3645139921780716e-07</ixx>
+          <ixy>1.6544569735397049e-10</ixy>
+          <ixz>7.188265404547709e-09</ixz>
+          <iyy>1.374480931866307e-07</iyy>
+          <iyz>1.4109367971355452e-10</iyz>
+          <izz>4.93355751193845e-09</izz>
+        </inertia>
+      </inertial>
+      <collision name="RHTibia_collision">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/RHTibia.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name="RHTibia_visual">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/RHTibia.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+        <material/>
+      </visual>
+    </link>
+    <link name="RHaltere">
+      <pose>-0.2589676296338439 -0.21355725766625255 0.9370102197863162 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>-0.0076292735639320935 -0.2060459179437653 -0.0028712734719289258 0.0 0.0 0.0</pose>
+        <mass>1.41608730082593e-06</mass>
+        <inertia>
+          <ixx>1.3978402491582015e-08</ixx>
+          <ixy>-5.5496539257974766e-12</ixy>
+          <ixz>-1.206051894354656e-10</ixz>
+          <iyy>1.9730418168460516e-09</iyy>
+          <iyz>6.428633454569222e-11</iyz>
+          <izz>1.3691341329253386e-08</izz>
+        </inertia>
+      </inertial>
+      <collision name="RHaltere_collision">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/RHaltere.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name="RHaltere_visual">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/RHaltere.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+        <material/>
+      </visual>
+    </link>
+    <link name="RHaltere_roll">
+      <pose>-0.2589676296338439 -0.21355725766625255 0.9370102197863162 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <mass>0.0</mass>
+        <inertia>
+          <ixx>0.0</ixx>
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <iyy>0.0</iyy>
+          <iyz>0.0</iyz>
+          <izz>0.0</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <link name="RHaltere_yaw">
+      <pose>-0.2589676296338439 -0.21355725766625255 0.9370102197863162 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <mass>0.0</mass>
+        <inertia>
+          <ixx>0.0</ixx>
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <iyy>0.0</iyy>
+          <iyz>0.0</iyz>
+          <izz>0.0</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <link name="RMCoxa">
+      <pose>0.06800005940021947 -0.12490185326896608 0.6798479007557034 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>-0.0023728900761594888 -0.004893387014162583 -0.07868669620967579 0.0 0.0 0.0</pose>
+        <mass>3.2959672355899836e-06</mass>
+        <inertia>
+          <ixx>1.613695807719273e-08</ixx>
+          <ixy>4.425496770662026e-11</ixy>
+          <ixz>4.542067827088831e-10</ixz>
+          <iyy>1.5040809094716003e-08</iyy>
+          <iyz>-4.489444227735521e-09</iyz>
+          <izz>1.0536086278613396e-08</izz>
+        </inertia>
+      </inertial>
+      <collision name="RMCoxa_collision">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/RMCoxa.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name="RMCoxa_visual">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/RMCoxa.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+        <material/>
+      </visual>
+    </link>
+    <link name="RMCoxa_roll">
+      <pose>0.06800005940021947 -0.12490185326896608 0.6798479007557034 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <mass>0.0</mass>
+        <inertia>
+          <ixx>0.0</ixx>
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <iyy>0.0</iyy>
+          <iyz>0.0</iyz>
+          <izz>0.0</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <link name="RMCoxa_yaw">
+      <pose>0.06800005940021947 -0.12490185326896608 0.6798479007557034 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <mass>0.0</mass>
+        <inertia>
+          <ixx>0.0</ixx>
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <iyy>0.0</iyy>
+          <iyz>0.0</iyz>
+          <izz>0.0</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <link name="RMFemur">
+      <pose>0.0674601542414166 -0.12511780369095504 0.49840123392641544 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>0.023515518039427974 -0.0019084338916727232 -0.4051281512153351 0.0 0.0 0.0</pose>
+        <mass>8.230783761246786e-06</mass>
+        <inertia>
+          <ixx>4.098946651722347e-07</ixx>
+          <ixy>1.0081298820564105e-10</ixy>
+          <ixz>1.454365537695153e-09</ixz>
+          <iyy>4.1001732630376084e-07</iyy>
+          <iyz>-3.793532739913688e-09</iyz>
+          <izz>1.3635377978322353e-08</izz>
+        </inertia>
+      </inertial>
+      <collision name="RMFemur_collision">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/RMFemur.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name="RMFemur_visual">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/RMFemur.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+        <material/>
+      </visual>
+    </link>
+    <link name="RMFemur_roll">
+      <pose>0.0674601542414166 -0.12511780369095504 0.49840123392641544 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <mass>0.0</mass>
+        <inertia>
+          <ixx>0.0</ixx>
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <iyy>0.0</iyy>
+          <iyz>0.0</iyz>
+          <izz>0.0</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <link name="RMTarsus1">
+      <pose>0.06634154851781204 -0.12434118252713233 -0.9525948553346097 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>-0.007306763006954168 -0.0011954918033382825 -0.15358709946092783 0.0 0.0 0.0</pose>
+        <mass>6.662970856873481e-07</mass>
+        <inertia>
+          <ixx>4.786085609086714e-09</ixx>
+          <ixy>1.1229587764474996e-11</ixy>
+          <ixz>-2.9569437293485875e-10</ixz>
+          <iyy>4.8219637249730626e-09</iyy>
+          <iyz>-9.776456904030232e-11</iyz>
+          <izz>2.3959894502154354e-10</izz>
+        </inertia>
+      </inertial>
+      <collision name="RMTarsus1_collision">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/RMTarsus1.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name="RMTarsus1_visual">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/RMTarsus1.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+        <material/>
+      </visual>
+    </link>
+    <link name="RMTarsus2">
+      <pose>0.06691994349239394 -0.12482472811825573 -1.2425635941326618 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>-0.003448773275965451 0.00012632931101405503 -0.08352479461968025 0.0 0.0 0.0</pose>
+        <mass>2.9889542789081263e-07</mass>
+        <inertia>
+          <ixx>6.076366844170667e-10</ixx>
+          <ixy>-1.0950554075613898e-12</ixy>
+          <ixz>-6.20691446924458e-12</ixz>
+          <iyy>6.124554874643867e-10</iyy>
+          <iyz>-1.1689124381363129e-11</iyz>
+          <izz>8.129374249924672e-11</izz>
+        </inertia>
+      </inertial>
+      <collision name="RMTarsus2_collision">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/RMTarsus2.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name="RMTarsus2_visual">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/RMTarsus2.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+        <material/>
+      </visual>
+    </link>
+    <link name="RMTarsus3">
+      <pose>0.06695505726383999 -0.12472497473936528 -1.402715570293367 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>-0.001673907815142762 -0.002491092461516088 -0.04785499542786452 0.0 0.0 0.0</pose>
+        <mass>1.4935990140910388e-07</mass>
+        <inertia>
+          <ixx>1.1688266395709125e-10</ixx>
+          <ixy>-7.794464950887451e-13</ixy>
+          <ixz>7.868856596760551e-12</ixz>
+          <iyy>1.2007545882818493e-10</iyy>
+          <iyz>2.1131327010063204e-12</iyz>
+          <izz>3.633852681154664e-11</izz>
+        </inertia>
+      </inertial>
+      <collision name="RMTarsus3_collision">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/RMTarsus3.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name="RMTarsus3_visual">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/RMTarsus3.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+        <material/>
+      </visual>
+    </link>
+    <link name="RMTarsus4">
+      <pose>0.06647266127401963 -0.12451442307792604 -1.4951506163924932 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <mass>8.690410754701314e-08</mass>
+        <inertia>
+          <ixx>1.2481655944836911e-10</ixx>
+          <ixy>7.294220203229696e-15</ixy>
+          <ixz>1.013155992588112e-11</ixz>
+          <iyy>1.2701130992511684e-10</iyy>
+          <iyz>3.379258134489198e-12</iyz>
+          <izz>1.9267101855701763e-11</izz>
+        </inertia>
+      </inertial>
+      <collision name="RMTarsus4_collision">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/RMTarsus4.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name="RMTarsus4_visual">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/RMTarsus4.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+        <material/>
+      </visual>
+    </link>
+    <link name="RMTarsus5">
+      <pose>0.0680825614836067 -0.12465985491871834 -1.5588728711009026 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>-0.0027945073924869977 0.0007006142539234183 -0.04338708434629493 0.0 0.0 0.0</pose>
+        <mass>1.4474199837663808e-07</mass>
+        <inertia>
+          <ixx>1.161128521476665e-10</ixx>
+          <ixy>3.5819690384350437e-13</ixy>
+          <ixz>9.152945036245464e-12</ixz>
+          <iyy>1.2253105655264746e-10</iyy>
+          <iyz>-2.7204171879651043e-13</iyz>
+          <izz>3.5016629429581806e-11</izz>
+        </inertia>
+      </inertial>
+      <collision name="RMTarsus5_collision">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/RMTarsus5.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name="RMTarsus5_visual">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/RMTarsus5.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+        <material/>
+      </visual>
+    </link>
+    <link name="RMTibia">
+      <pose>0.06648874114034697 -0.12517570576164871 -0.2852685865946114 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>0.0218498955403837 -0.003139086707230702 -0.3738416021341664 0.0 0.0 0.0</pose>
+        <mass>3.631542526554793e-06</mass>
+        <inertia>
+          <ixx>1.344839182531743e-07</ixx>
+          <ixy>-2.9221751414381424e-10</ixy>
+          <ixz>7.427049211709344e-09</ixz>
+          <iyy>1.3461719142282532e-07</iyy>
+          <iyz>-2.1286560896207155e-09</iyz>
+          <izz>3.359639293907525e-09</izz>
+        </inertia>
+      </inertial>
+      <collision name="RMTibia_collision">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/RMTibia.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name="RMTibia_visual">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/RMTibia.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+        <material/>
+      </visual>
+    </link>
+    <link name="RWing">
+      <pose>-0.09160557965515181 -0.36983360769227147 1.324181561358273 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>-0.1111486303751423 -1.0775736845707682 0.0828640580479834 0.0 0.0 0.0</pose>
+        <mass>2.4999207585520077e-06</mass>
+        <inertia>
+          <ixx>7.970593666659577e-07</ixx>
+          <ixy>-6.891142838033076e-08</ixy>
+          <ixz>-9.141307803013943e-10</ixz>
+          <iyy>1.8083534732668685e-07</iyy>
+          <iyz>4.1646738365161963e-08</iyz>
+          <izz>9.638652132779502e-07</izz>
+        </inertia>
+      </inertial>
+      <collision name="RWing_collision">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/RWing.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name="RWing_visual">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/RWing.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+        <material/>
+      </visual>
+    </link>
+    <link name="RWing_roll">
+      <pose>-0.09160557965515181 -0.36983360769227147 1.324181561358273 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <mass>0.0</mass>
+        <inertia>
+          <ixx>0.0</ixx>
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <iyy>0.0</iyy>
+          <iyz>0.0</iyz>
+          <izz>0.0</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <link name="RWing_yaw">
+      <pose>-0.09160557965515181 -0.36983360769227147 1.324181561358273 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <mass>0.0</mass>
+        <inertia>
+          <ixx>0.0</ixx>
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <iyy>0.0</iyy>
+          <iyz>0.0</iyz>
+          <izz>0.0</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <link name="Rostrum">
+      <pose>0.9129836107604206 0.000679564209349337 0.9984660428017378 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>-0.000300147201953014 -0.00022978646565738415 -0.1804860576632445 0.0 0.0 0.0</pose>
+        <mass>1.5627661807211787e-05</mass>
+        <inertia>
+          <ixx>2.1501503591927971e-07</ixx>
+          <ixy>2.487113348182675e-10</ixy>
+          <ixz>1.5850736040493317e-09</ixz>
+          <iyy>2.4625954993851593e-07</iyy>
+          <iyz>1.1258924842238655e-10</iyz>
+          <izz>2.1081350608473025e-07</izz>
+        </inertia>
+      </inertial>
+      <collision name="Rostrum_collision">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/Rostrum.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name="Rostrum_visual">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/Rostrum.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+        <material/>
+      </visual>
+    </link>
+    <link name="Thorax">
+      <pose>0.48076672828756273 -5.750451226305131e-07 1.2107710354030132 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>-0.43118467725240606 -0.0003534229049936627 -0.06135522678067989 0.0 0.0 0.0</pose>
+        <mass>0.000307167823005631</mass>
+        <inertia>
+          <ixx>2.863907937649747e-05</ixx>
+          <ixy>6.706319404043238e-10</ixy>
+          <ixz>2.4562308220203433e-06</ixz>
+          <iyy>3.335871241203942e-05</iyy>
+          <iyz>-3.760156002364519e-10</iyz>
+          <izz>2.611269843739091e-05</izz>
+        </inertia>
+      </inertial>
+      <collision name="Thorax_collision">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/Thorax.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name="Thorax_visual">
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <geometry>
+          <mesh>
+            <uri>../meshes/stl/Thorax.stl</uri>
+            <scale>1000.0 1000.0 1000.0</scale>
+          </mesh>
+        </geometry>
+        <material/>
+      </visual>
+    </link>
+    <link name="world">
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <mass>0.0</mass>
+        <inertia>
+          <ixx>0.0</ixx>
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <iyy>0.0</iyy>
+          <iyz>0.0</iyz>
+          <izz>0.0</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <link name="prismatic_support_1">
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <mass>0.0</mass>
+        <inertia>
+          <ixx>0.0</ixx>
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <iyy>0.0</iyy>
+          <iyz>0.0</iyz>
+          <izz>0.0</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <link name="prismatic_support_2">
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <inertial>
+        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <mass>0.0</mass>
+        <inertia>
+          <ixx>0.0</ixx>
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <iyy>0.0</iyy>
+          <iyz>0.0</iyz>
+          <izz>0.0</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <joint name="joint_A1A2" type="revolute">
+      <parent>Thorax</parent>
+      <child>A1A2</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 1.0 0.0</xyz>
+        <limit>
+          <lower>-3.1415927410125732</lower>
+          <upper>3.1415927410125732</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_A3" type="revolute">
+      <parent>A1A2</parent>
+      <child>A3</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 1.0 0.0</xyz>
+        <limit>
+          <lower>-3.1415927410125732</lower>
+          <upper>3.1415927410125732</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_A4" type="revolute">
+      <parent>A3</parent>
+      <child>A4</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 1.0 0.0</xyz>
+        <limit>
+          <lower>-3.1415927410125732</lower>
+          <upper>3.1415927410125732</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_A5" type="revolute">
+      <parent>A4</parent>
+      <child>A5</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 1.0 0.0</xyz>
+        <limit>
+          <lower>-3.1415927410125732</lower>
+          <upper>3.1415927410125732</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_A6" type="revolute">
+      <parent>A5</parent>
+      <child>A6</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 1.0 0.0</xyz>
+        <limit>
+          <lower>-3.1415927410125732</lower>
+          <upper>3.1415927410125732</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_Haustellum" type="revolute">
+      <parent>Rostrum</parent>
+      <child>Haustellum</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 1.0 0.0</xyz>
+        <limit>
+          <lower>-3.1415912429844184</lower>
+          <upper>3.1415912429844184</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_Head" type="revolute">
+      <parent>Head_yaw</parent>
+      <child>Head</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 1.0 0.0</xyz>
+        <limit>
+          <lower>-3.159385204943339</lower>
+          <upper>3.159385204943339</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_Head_roll" type="revolute">
+      <parent>Thorax</parent>
+      <child>Head_roll</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 0.0 1.0</xyz>
+        <limit>
+          <lower>-1.8373615307932187</lower>
+          <upper>1.8373615307932187</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_Head_yaw" type="revolute">
+      <parent>Head_roll</parent>
+      <child>Head_yaw</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>1.0 0.0 0.0</xyz>
+        <limit>
+          <lower>-4.031278066820278</lower>
+          <upper>4.031278066820278</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_LAntenna" type="revolute">
+      <parent>Head</parent>
+      <child>LAntenna</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>1.0 0.0 0.0</xyz>
+        <limit>
+          <lower>-2.9769279711748746</lower>
+          <upper>2.9769279711748746</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_LEye" type="revolute">
+      <parent>Head</parent>
+      <child>LEye</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>1.0 0.0 0.0</xyz>
+        <limit>
+          <lower>0.0</lower>
+          <upper>0.0</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_LFCoxa" type="revolute">
+      <parent>LFCoxa_yaw</parent>
+      <child>LFCoxa</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 1.0 0.0</xyz>
+        <limit>
+          <lower>-3.1409534503861387</lower>
+          <upper>3.1409534503861387</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_LFCoxa_roll" type="revolute">
+      <parent>Thorax</parent>
+      <child>LFCoxa_roll</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 0.0 1.0</xyz>
+        <limit>
+          <lower>-3.1422325363661354</lower>
+          <upper>3.1422325363661354</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_LFCoxa_yaw" type="revolute">
+      <parent>LFCoxa_roll</parent>
+      <child>LFCoxa_yaw</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>1.0 0.0 0.0</xyz>
+        <limit>
+          <lower>-3.1415923665055345</lower>
+          <upper>3.1415923665055345</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_LFFemur" type="revolute">
+      <parent>LFCoxa</parent>
+      <child>LFFemur</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 1.0 0.0</xyz>
+        <limit>
+          <lower>-3.141592871232662</lower>
+          <upper>3.141592871232662</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_LFFemur_roll" type="revolute">
+      <parent>LFFemur</parent>
+      <child>LFFemur_roll</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 0.0 1.0</xyz>
+        <limit>
+          <lower>-3.1415927410125732</lower>
+          <upper>3.1415927410125732</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_LFTarsus1" type="revolute">
+      <parent>LFTibia</parent>
+      <child>LFTarsus1</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 1.0 0.0</xyz>
+        <limit>
+          <lower>-3.1415927410125732</lower>
+          <upper>3.1415927410125732</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_LFTarsus2" type="revolute">
+      <parent>LFTarsus1</parent>
+      <child>LFTarsus2</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 1.0 0.0</xyz>
+        <limit>
+          <lower>-3.1415927410125732</lower>
+          <upper>3.1415927410125732</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_LFTarsus3" type="revolute">
+      <parent>LFTarsus2</parent>
+      <child>LFTarsus3</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 1.0 0.0</xyz>
+        <limit>
+          <lower>-3.1415927410125732</lower>
+          <upper>3.1415927410125732</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_LFTarsus4" type="revolute">
+      <parent>LFTarsus3</parent>
+      <child>LFTarsus4</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 1.0 0.0</xyz>
+        <limit>
+          <lower>-3.1415927410125732</lower>
+          <upper>3.1415927410125732</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_LFTarsus5" type="revolute">
+      <parent>LFTarsus4</parent>
+      <child>LFTarsus5</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 1.0 0.0</xyz>
+        <limit>
+          <lower>-3.1415927410125732</lower>
+          <upper>3.1415927410125732</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_LFTibia" type="revolute">
+      <parent>LFFemur_roll</parent>
+      <child>LFTibia</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 1.0 0.0</xyz>
+        <limit>
+          <lower>-3.1415927410125732</lower>
+          <upper>3.1415927410125732</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_LHCoxa" type="revolute">
+      <parent>Thorax</parent>
+      <child>LHCoxa</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 1.0 0.0</xyz>
+        <limit>
+          <lower>-3.1346657110746308</lower>
+          <upper>3.1346657110746308</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_LHCoxa_roll" type="revolute">
+      <parent>LHCoxa_yaw</parent>
+      <child>LHCoxa_roll</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 0.0 1.0</xyz>
+        <limit>
+          <lower>-3.1390842483815065</lower>
+          <upper>3.1390842483815065</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_LHCoxa_yaw" type="revolute">
+      <parent>LHCoxa</parent>
+      <child>LHCoxa_yaw</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>1.0 0.0 0.0</xyz>
+        <limit>
+          <lower>-3.1510057496754693</lower>
+          <upper>3.1510057496754693</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_LHFemur" type="revolute">
+      <parent>LHCoxa_roll</parent>
+      <child>LHFemur</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 1.0 0.0</xyz>
+        <limit>
+          <lower>-3.141592871232662</lower>
+          <upper>3.141592871232662</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_LHFemur_roll" type="revolute">
+      <parent>LHFemur</parent>
+      <child>LHFemur_roll</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 0.0 1.0</xyz>
+        <limit>
+          <lower>-3.1415927410125732</lower>
+          <upper>3.1415927410125732</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_LHTarsus1" type="revolute">
+      <parent>LHTibia</parent>
+      <child>LHTarsus1</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 1.0 0.0</xyz>
+        <limit>
+          <lower>-3.1415813185581385</lower>
+          <upper>3.1415813185581385</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_LHTarsus2" type="revolute">
+      <parent>LHTarsus1</parent>
+      <child>LHTarsus2</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 1.0 0.0</xyz>
+        <limit>
+          <lower>-3.141493684665977</lower>
+          <upper>3.141493684665977</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_LHTarsus3" type="revolute">
+      <parent>LHTarsus2</parent>
+      <child>LHTarsus3</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 1.0 0.0</xyz>
+        <limit>
+          <lower>-3.141284903764955</lower>
+          <upper>3.141284903764955</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_LHTarsus4" type="revolute">
+      <parent>LHTarsus3</parent>
+      <child>LHTarsus4</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 1.0 0.0</xyz>
+        <limit>
+          <lower>-3.1415625932679463</lower>
+          <upper>3.1415625932679463</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_LHTarsus5" type="revolute">
+      <parent>LHTarsus4</parent>
+      <child>LHTarsus5</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 1.0 0.0</xyz>
+        <limit>
+          <lower>-3.1415889959432577</lower>
+          <upper>3.1415889959432577</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_LHTibia" type="revolute">
+      <parent>LHFemur_roll</parent>
+      <child>LHTibia</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 1.0 0.0</xyz>
+        <limit>
+          <lower>-3.1415889959432577</lower>
+          <upper>3.1415889959432577</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_LHaltere" type="revolute">
+      <parent>LHaltere_yaw</parent>
+      <child>LHaltere</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 1.0 0.0</xyz>
+        <limit>
+          <lower>-3.1447326076594218</lower>
+          <upper>3.1447326076594218</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_LHaltere_roll" type="revolute">
+      <parent>Thorax</parent>
+      <child>LHaltere_roll</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 0.0 1.0</xyz>
+        <limit>
+          <lower>-3.1415927410125732</lower>
+          <upper>3.1415927410125732</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_LHaltere_yaw" type="revolute">
+      <parent>LHaltere_roll</parent>
+      <child>LHaltere_yaw</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>1.0 0.0 0.0</xyz>
+        <limit>
+          <lower>-3.138449878309415</lower>
+          <upper>3.138449878309415</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_LMCoxa" type="revolute">
+      <parent>Thorax</parent>
+      <child>LMCoxa</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 1.0 0.0</xyz>
+        <limit>
+          <lower>-3.1472331036320957</lower>
+          <upper>3.1472331036320957</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_LMCoxa_roll" type="revolute">
+      <parent>LMCoxa_yaw</parent>
+      <child>LMCoxa_roll</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 0.0 1.0</xyz>
+        <limit>
+          <lower>-3.1359473737307995</lower>
+          <upper>3.1359473737307995</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_LMCoxa_yaw" type="revolute">
+      <parent>LMCoxa</parent>
+      <child>LMCoxa_yaw</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>1.0 0.0 0.0</xyz>
+        <limit>
+          <lower>-3.141587994648568</lower>
+          <upper>3.141587994648568</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_LMFemur" type="revolute">
+      <parent>LMCoxa_roll</parent>
+      <child>LMFemur</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 1.0 0.0</xyz>
+        <limit>
+          <lower>-3.144733661753544</lower>
+          <upper>3.144733661753544</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_LMFemur_roll" type="revolute">
+      <parent>LMFemur</parent>
+      <child>LMFemur_roll</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 0.0 1.0</xyz>
+        <limit>
+          <lower>-3.1384489420422645</lower>
+          <upper>3.1384489420422645</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_LMTarsus1" type="revolute">
+      <parent>LMTibia</parent>
+      <child>LMTarsus1</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 1.0 0.0</xyz>
+        <limit>
+          <lower>-3.1415841273552365</lower>
+          <upper>3.1415841273552365</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_LMTarsus2" type="revolute">
+      <parent>LMTarsus1</parent>
+      <child>LMTarsus2</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 1.0 0.0</xyz>
+        <limit>
+          <lower>-3.1415912429844184</lower>
+          <upper>3.1415912429844184</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_LMTarsus3" type="revolute">
+      <parent>LMTarsus2</parent>
+      <child>LMTarsus3</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 1.0 0.0</xyz>
+        <limit>
+          <lower>-3.1415889959432577</lower>
+          <upper>3.1415889959432577</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_LMTarsus4" type="revolute">
+      <parent>LMTarsus3</parent>
+      <child>LMTarsus4</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 1.0 0.0</xyz>
+        <limit>
+          <lower>-3.1415813185581385</lower>
+          <upper>3.1415813185581385</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_LMTarsus5" type="revolute">
+      <parent>LMTarsus4</parent>
+      <child>LMTarsus5</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 1.0 0.0</xyz>
+        <limit>
+          <lower>-3.1414833859077995</lower>
+          <upper>3.1414833859077995</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_LMTibia" type="revolute">
+      <parent>LMFemur_roll</parent>
+      <child>LMTibia</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 1.0 0.0</xyz>
+        <limit>
+          <lower>-3.141590306717268</lower>
+          <upper>3.141590306717268</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_LWing" type="revolute">
+      <parent>LWing_yaw</parent>
+      <child>LWing</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 1.0 0.0</xyz>
+        <limit>
+          <lower>-3.1415927410125732</lower>
+          <upper>3.1415927410125732</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_LWing_roll" type="revolute">
+      <parent>Thorax</parent>
+      <child>LWing_roll</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 0.0 1.0</xyz>
+        <limit>
+          <lower>-3.1415927410125732</lower>
+          <upper>3.1415927410125732</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_LWing_yaw" type="revolute">
+      <parent>LWing_roll</parent>
+      <child>LWing_yaw</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>1.0 0.0 0.0</xyz>
+        <limit>
+          <lower>-3.1415927410125732</lower>
+          <upper>3.1415927410125732</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_RAntenna" type="revolute">
+      <parent>Head</parent>
+      <child>RAntenna</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>1.0 0.0 0.0</xyz>
+        <limit>
+          <lower>-2.976923630144661</lower>
+          <upper>2.976923630144661</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_REye" type="revolute">
+      <parent>Head</parent>
+      <child>REye</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>1.0 0.0 0.0</xyz>
+        <limit>
+          <lower>0.0</lower>
+          <upper>0.0</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_RFCoxa" type="revolute">
+      <parent>RFCoxa_yaw</parent>
+      <child>RFCoxa</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 1.0 0.0</xyz>
+        <limit>
+          <lower>-3.1409534503861387</lower>
+          <upper>3.1409534503861387</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_RFCoxa_roll" type="revolute">
+      <parent>Thorax</parent>
+      <child>RFCoxa_roll</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 0.0 1.0</xyz>
+        <limit>
+          <lower>-3.1422325363661354</lower>
+          <upper>3.1422325363661354</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_RFCoxa_yaw" type="revolute">
+      <parent>RFCoxa_roll</parent>
+      <child>RFCoxa_yaw</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>1.0 0.0 0.0</xyz>
+        <limit>
+          <lower>-3.1415923665055345</lower>
+          <upper>3.1415923665055345</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_RFFemur" type="revolute">
+      <parent>RFCoxa</parent>
+      <child>RFFemur</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 1.0 0.0</xyz>
+        <limit>
+          <lower>-3.141592871232662</lower>
+          <upper>3.141592871232662</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_RFFemur_roll" type="revolute">
+      <parent>RFFemur</parent>
+      <child>RFFemur_roll</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 0.0 1.0</xyz>
+        <limit>
+          <lower>-3.1415927410125732</lower>
+          <upper>3.1415927410125732</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_RFTarsus1" type="revolute">
+      <parent>RFTibia</parent>
+      <child>RFTarsus1</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 1.0 0.0</xyz>
+        <limit>
+          <lower>-3.1415927410125732</lower>
+          <upper>3.1415927410125732</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_RFTarsus2" type="revolute">
+      <parent>RFTarsus1</parent>
+      <child>RFTarsus2</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 1.0 0.0</xyz>
+        <limit>
+          <lower>-3.1415927410125732</lower>
+          <upper>3.1415927410125732</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_RFTarsus3" type="revolute">
+      <parent>RFTarsus2</parent>
+      <child>RFTarsus3</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 1.0 0.0</xyz>
+        <limit>
+          <lower>-3.1415927410125732</lower>
+          <upper>3.1415927410125732</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_RFTarsus4" type="revolute">
+      <parent>RFTarsus3</parent>
+      <child>RFTarsus4</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 1.0 0.0</xyz>
+        <limit>
+          <lower>-3.1415927410125732</lower>
+          <upper>3.1415927410125732</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_RFTarsus5" type="revolute">
+      <parent>RFTarsus4</parent>
+      <child>RFTarsus5</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 1.0 0.0</xyz>
+        <limit>
+          <lower>-3.1415927410125732</lower>
+          <upper>3.1415927410125732</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_RFTibia" type="revolute">
+      <parent>RFFemur_roll</parent>
+      <child>RFTibia</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 1.0 0.0</xyz>
+        <limit>
+          <lower>-3.1415927410125732</lower>
+          <upper>3.1415927410125732</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_RHCoxa" type="revolute">
+      <parent>Thorax</parent>
+      <child>RHCoxa</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 1.0 0.0</xyz>
+        <limit>
+          <lower>-3.153507575982834</lower>
+          <upper>3.153507575982834</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_RHCoxa_roll" type="revolute">
+      <parent>RHCoxa_yaw</parent>
+      <child>RHCoxa_roll</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 0.0 1.0</xyz>
+        <limit>
+          <lower>-3.132800398985696</lower>
+          <upper>3.132800398985696</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_RHCoxa_yaw" type="revolute">
+      <parent>RHCoxa</parent>
+      <child>RHCoxa_yaw</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>1.0 0.0 0.0</xyz>
+        <limit>
+          <lower>-3.138433741549396</lower>
+          <upper>3.138433741549396</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_RHFemur" type="revolute">
+      <parent>RHCoxa_roll</parent>
+      <child>RHFemur</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 1.0 0.0</xyz>
+        <limit>
+          <lower>-3.141592871232662</lower>
+          <upper>3.141592871232662</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_RHFemur_roll" type="revolute">
+      <parent>RHFemur</parent>
+      <child>RHFemur_roll</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 0.0 1.0</xyz>
+        <limit>
+          <lower>-3.1415927410125732</lower>
+          <upper>3.1415927410125732</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_RHTarsus1" type="revolute">
+      <parent>RHTibia</parent>
+      <child>RHTarsus1</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 1.0 0.0</xyz>
+        <limit>
+          <lower>-3.1415927410125732</lower>
+          <upper>3.1415927410125732</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_RHTarsus2" type="revolute">
+      <parent>RHTarsus1</parent>
+      <child>RHTarsus2</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 1.0 0.0</xyz>
+        <limit>
+          <lower>-3.1415841273552365</lower>
+          <upper>3.1415841273552365</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_RHTarsus3" type="revolute">
+      <parent>RHTarsus2</parent>
+      <child>RHTarsus3</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 1.0 0.0</xyz>
+        <limit>
+          <lower>-3.1415449915461044</lower>
+          <upper>3.1415449915461044</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_RHTarsus4" type="revolute">
+      <parent>RHTarsus3</parent>
+      <child>RHTarsus4</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 1.0 0.0</xyz>
+        <limit>
+          <lower>-3.1415399357414633</lower>
+          <upper>3.1415399357414633</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_RHTarsus5" type="revolute">
+      <parent>RHTarsus4</parent>
+      <child>RHTarsus5</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 1.0 0.0</xyz>
+        <limit>
+          <lower>-3.1415912429844184</lower>
+          <upper>3.1415912429844184</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_RHTibia" type="revolute">
+      <parent>RHFemur_roll</parent>
+      <child>RHTibia</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 1.0 0.0</xyz>
+        <limit>
+          <lower>-3.141590306717268</lower>
+          <upper>3.141590306717268</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_RHaltere" type="revolute">
+      <parent>RHaltere_yaw</parent>
+      <child>RHaltere</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 1.0 0.0</xyz>
+        <limit>
+          <lower>-3.1428684122978283</lower>
+          <upper>3.1428684122978283</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_RHaltere_roll" type="revolute">
+      <parent>Thorax</parent>
+      <child>RHaltere_roll</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 0.0 1.0</xyz>
+        <limit>
+          <lower>-3.1353070171048905</lower>
+          <upper>3.1353070171048905</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_RHaltere_yaw" type="revolute">
+      <parent>RHaltere_roll</parent>
+      <child>RHaltere_yaw</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>1.0 0.0 0.0</xyz>
+        <limit>
+          <lower>-3.1465925376054042</lower>
+          <upper>3.1465925376054042</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_RMCoxa" type="revolute">
+      <parent>Thorax</parent>
+      <child>RMCoxa</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 1.0 0.0</xyz>
+        <limit>
+          <lower>-3.134665087714937</lower>
+          <upper>3.134665087714937</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_RMCoxa_roll" type="revolute">
+      <parent>RMCoxa_yaw</parent>
+      <child>RMCoxa_roll</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 0.0 1.0</xyz>
+        <limit>
+          <lower>-3.1359352154941056</lower>
+          <upper>3.1359352154941056</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_RMCoxa_yaw" type="revolute">
+      <parent>RMCoxa</parent>
+      <child>RMCoxa_yaw</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>1.0 0.0 0.0</xyz>
+        <limit>
+          <lower>-3.1541401798374844</lower>
+          <upper>3.1541401798374844</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_RMFemur" type="revolute">
+      <parent>RMCoxa_roll</parent>
+      <child>RMFemur</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 1.0 0.0</xyz>
+        <limit>
+          <lower>-3.1415922318581977</lower>
+          <upper>3.1415922318581977</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_RMFemur_roll" type="revolute">
+      <parent>RMFemur</parent>
+      <child>RMFemur_roll</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 0.0 1.0</xyz>
+        <limit>
+          <lower>-3.1415918047449765</lower>
+          <upper>3.1415918047449765</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_RMTarsus1" type="revolute">
+      <parent>RMTibia</parent>
+      <child>RMTarsus1</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 1.0 0.0</xyz>
+        <limit>
+          <lower>-3.1415841273552365</lower>
+          <upper>3.1415841273552365</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_RMTarsus2" type="revolute">
+      <parent>RMTarsus1</parent>
+      <child>RMTarsus2</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 1.0 0.0</xyz>
+        <limit>
+          <lower>-3.141590306717268</lower>
+          <upper>3.141590306717268</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_RMTarsus3" type="revolute">
+      <parent>RMTarsus2</parent>
+      <child>RMTarsus3</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 1.0 0.0</xyz>
+        <limit>
+          <lower>-3.1415813185581385</lower>
+          <upper>3.1415813185581385</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_RMTarsus4" type="revolute">
+      <parent>RMTarsus3</parent>
+      <child>RMTarsus4</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 1.0 0.0</xyz>
+        <limit>
+          <lower>-3.14157869701418</lower>
+          <upper>3.14157869701418</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_RMTarsus5" type="revolute">
+      <parent>RMTarsus4</parent>
+      <child>RMTarsus5</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 1.0 0.0</xyz>
+        <limit>
+          <lower>-3.1415740156856833</lower>
+          <upper>3.1415740156856833</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_RMTibia" type="revolute">
+      <parent>RMFemur_roll</parent>
+      <child>RMTibia</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 1.0 0.0</xyz>
+        <limit>
+          <lower>-3.141590306717268</lower>
+          <upper>3.141590306717268</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_RWing" type="revolute">
+      <parent>RWing_yaw</parent>
+      <child>RWing</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 1.0 0.0</xyz>
+        <limit>
+          <lower>-3.1434539534027595</lower>
+          <upper>3.1434539534027595</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_RWing_roll" type="revolute">
+      <parent>Thorax</parent>
+      <child>RWing_roll</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 0.0 1.0</xyz>
+        <limit>
+          <lower>-3.1415927410125732</lower>
+          <upper>3.1415927410125732</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_RWing_yaw" type="revolute">
+      <parent>RWing_roll</parent>
+      <child>RWing_yaw</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>1.0 0.0 0.0</xyz>
+        <limit>
+          <lower>-3.139730405101271</lower>
+          <upper>3.139730405101271</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="joint_Rostrum" type="revolute">
+      <parent>Head</parent>
+      <child>Rostrum</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 1.0 0.0</xyz>
+        <limit>
+          <lower>-3.1415841273552365</lower>
+          <upper>3.1415841273552365</upper>
+          <effort>10000000000.0</effort>
+          <velocity>628.3185307179587</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="prismatic_support_1" type="prismatic">
+      <parent>world</parent>
+      <child>prismatic_support_1</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>1.0 0.0 0.0</xyz>
+        <limit>
+          <lower>1.0</lower>
+          <upper>-1.0</upper>
+          <effort>0.0</effort>
+          <velocity>100.0</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="prismatic_support_2" type="prismatic">
+      <parent>prismatic_support_1</parent>
+      <child>prismatic_support_2</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 0.0 1.0</xyz>
+        <limit>
+          <lower>1.0</lower>
+          <upper>-1.0</upper>
+          <effort>0.0</effort>
+          <velocity>100.0</velocity>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="revolute_support_1" type="continuous">
+      <parent>prismatic_support_2</parent>
+      <child>Thorax</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0.0 1.0 0.0</xyz>
+      </axis>
+    </joint>
+  </model>
+</sdf>

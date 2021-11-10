@@ -24,7 +24,7 @@ autodoc_default_flags = ['show-inheritance']
 autodoc_mock_imports = [
     'pandas', 'matplotlib', 'networkx', 'scipy', 'trimesh', 'tqdm',
     'pybullet', 'pybullet_data', 'yaml', 'dataclasses', 'jmetal',
-    'cv2', 'tables', 'pillow', 'shapely', 'sklearn', 'farms_pylog',
+    'tables', 'pillow', 'shapely', 'sklearn', 'farms_pylog',
     'farms_container', 'farms_network', 'treelib', 'seaborn'
 ]
 autoclass_content = "both"

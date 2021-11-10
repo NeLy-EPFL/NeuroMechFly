@@ -688,11 +688,16 @@ class Inertial(Options):
             if data.find('volume') is not None
             else None
         )
+        inertias_xml = data.find('inertia')
+        elements = ['ixx', 'ixy', 'ixz', 'iyy', 'iyz', 'izz']
         inertias = (
-            [float(i.text) for i in data.find('inertia').getchildren()]
-            if data.find('inertia') is not None
+            [float(i.text) for i in inertias_xml]
+            if list(inertias_xml)
+            else [inertias_xml.attrib[element] for element in elements]
+            if all([element in inertias_xml.attrib for element in elements])
             else None
         )
+        assert inertias is not None, 'Inertias not found'
         return cls(
             mass=mass,
             volume=volume,

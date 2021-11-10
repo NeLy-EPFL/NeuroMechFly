@@ -26,6 +26,8 @@ $ pip install -e .
 ```
 Once you complete all the steps, NeuroMechFly is ready to use!
 
+**NOTE:** Microsoft Visual Studio C++ 14.0 or better is required for the proper installation of farms_container.
+
 ---
 **NOTE:**
 Each time you start using NeuroMechFly, please activate virtual environment by running: 

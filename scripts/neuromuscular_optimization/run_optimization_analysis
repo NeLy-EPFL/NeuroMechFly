@@ -1,0 +1,251 @@
+#!/usr/bin/env python
+""" Script to analyze optimization results.
+In the command line, run $ python run_optimization_analysis.py --plot --path <path-to-results>
+
+To change frequency of generation skip, add --frequency <freq-value>
+To set the number of cores that the script will run, add --ncores <core-number>
+To log the penalty and objective values separately, add --log_penalties to the command.
+"""
+
+import argparse
+import os
+import pkgutil
+from datetime import datetime
+from pathlib import Path
+import matplotlib.pyplot as plt
+import numpy as np
+from multiprocessing import Pool
+
+import farms_pylog as pylog
+from farms_container import Container
+from NeuroMechFly.experiments.network_optimization import neuromuscular_control
+from NeuroMechFly.utils.plotting import plot_gait_diagram
+from NeuroMechFly.utils.profiler import profile
+
+neuromechfly_path = Path(pkgutil.get_loader(
+    "NeuroMechFly").get_filename()).parents[1]
+
+
+
+def print_penalties_to_file(file_path: str, generation: int, penalties: tuple) -> None:
+    """ Writes penalties into a txt file inside results. """
+
+    output_file_directory = os.path.join(file_path, f"PENALTIES.{generation}")
+
+    pylog.info('Output file (penalty values): ' + output_file_directory)
+
+    with open(output_file_directory, 'a') as of:
+        for penalty in penalties:
+            of.write(str(penalty) + ' ')
+        of.write('\n')
+
+
+def run_simulation(args, sol, gen):
+    """ Main function """
+
+    run_time = 2.0
+    time_step = 1e-4
+
+    #: Set collision segments
+    ground_contact = [
+        f"{side}{leg}{segment}"
+        for side in ('L', 'R')
+        for leg in ('F', 'M', 'H')
+        for segment in tuple(f"Tarsus{i}" for i in range(1, 6))
+    ]
+
+    #: Setting up the paths for the SDF and POSE files
+    model_path = neuromechfly_path.joinpath(
+        "data/design/sdf/neuromechfly_locomotion_optimization.sdf"
+    )
+    pose_path = neuromechfly_path.joinpath(
+        "data/config/pose/pose_tripod.yaml"
+    )
+    controller_path = neuromechfly_path.joinpath(
+        "data/config/network/locomotion_network.graphml"
+    )
+
+    #: Get experiment information
+    path = os.path.abspath(args.path)
+    exp_name = path.split('/')[-1]
+    exp_info = exp_name.split('_')
+    exp = f"{exp_name}"
+
+    # Set the ball specs based on your experimental setup
+    ball_specs = {
+        'ball_mass': 54.6e-6,
+        'ground_friction_coef': 1.3
+    }
+    # Simulation options
+    sim_options = {
+        "headless": not args.gui,
+        "model": str(model_path),
+        "model_offset": [0., 0., 11.2e-3],
+        "run_time": run_time,
+        "time_step": time_step,
+        "pose": pose_path,
+        "base_link": 'Thorax',
+        "controller": controller_path,
+        "ground_contacts": ground_contact,
+        # 'self_collisions': self_collision,
+        "draw_collisions": False,  # : Set True to change the color of colliding segments
+        "record": args.record,  # : Set True to record the simulation
+        "solver_iterations":args.solver_iterations,
+        'camera_distance': 4.4,
+        'track': False,
+        'moviename': f'{exp}_gen_{gen}_sol_{sol}.mp4',
+        'moviespeed': 0.1,  # : Speed of the recorded movie
+        'slow_down': args.slow,
+        'sleep_time': 1e-3,
+        'rot_cam': False,  # : Set true to rotate the camera automatically
+        'ground': 'ball',
+        'results_path': f'{exp}_gen_{gen}_sol_{sol}',
+        'save_frames': False,
+        'globalCFM': 5.0,
+        **ball_specs
+    }
+    #: Initialize the container
+    container = Container(run_time / time_step)
+    animal = neuromuscular_control.DrosophilaSimulation(container, sim_options)
+    #: Load the results of the latest generation of the last optimization run
+    fun_path = os.path.join(
+        neuromechfly_path,
+        'scripts/neuromuscular_optimization',
+        args.path,
+        'FUN.' + gen
+    )
+    var_path = os.path.join(
+        neuromechfly_path,
+        'scripts/neuromuscular_optimization',
+        args.path,
+        'VAR.' + gen
+    )
+
+    fun, var = np.loadtxt(fun_path), np.loadtxt(var_path)
+
+    #: Select which solution to use (fastest, in this case)
+    ind = animal.select_solution(sol, fun)
+
+    params = var[ind]
+    params = np.array(params)
+
+    #: Run the selected parameter values in the simulation
+    animal.update_parameters(params)
+    animal.run(optimization=True)
+    #: Dump the optimization results
+    results_path = os.path.join(
+        neuromechfly_path,
+        'scripts/neuromuscular_optimization',
+        f"simulation_{exp}",
+        f"gen_{gen}",
+        f"sol_{sol}"
+    )
+
+    if not os.path.exists(results_path):
+        os.makedirs(results_path)
+
+    if not args.log_penalties:
+        animal.container.dump(dump_path=results_path, overwrite=True)
+    else:
+        # Log penalties
+        # OBJECTIVES
+        objectives = {}
+        #: Forward distance (backward rotation of the ball)
+        objectives['distance'] = np.array(
+            animal.ball_rotations)[0] * animal.ball_radius * animal.units.meters
+        objectives['stability'] = animal.opti_stability
+        # PENALTIES
+        penalties = {}
+        duty_factor = animal.duty_factor
+        # Keep the duty factor between 40% and 90%
+        # Taken from Mendes et al. 2012
+        penalties['duty_factor'] = np.count_nonzero(
+            duty_factor < 0.4) + np.count_nonzero(duty_factor > 0.90)
+        penalties['lava'] = animal.opti_lava
+        penalties['velocity'] = animal.opti_velocity
+        penalties['joint_limits'] = animal.opti_joint_limit
+
+        print_penalties_to_file(
+            file_path=os.path.join(
+                neuromechfly_path,
+                'scripts/neuromuscular_optimization',
+                args.path
+            ), generation=gen,
+            penalties=(*objectives.values(), *penalties.values())
+        )
+        print('Penalties logged!')
+
+        # assert np.isclose(
+        #     [(
+        #         objectives_weighted['distance'] + sum(penalties_weighted.values()) +
+        #         objectives_weighted['stability'] + sum(penalties_weighted.values())
+        #     )], [fun[ind, 0] + fun[ind, 1]]
+        # )
+
+    if args.plot:
+        contact_flag_data = animal.container.physics.contact_flag.log
+        contact_flag_names = animal.container.physics.contact_flag.names
+        contact_flag = {name: contact_flag_data[:, i]
+                        for i, name in enumerate(contact_flag_names)}
+
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 4))
+        ax1.scatter(fun[:, 0], fun[:, 1])
+        ax1.scatter(fun[ind, 0], fun[ind, 1], label=f'Ind: {ind}')
+        ax1.set_xlabel('Distance')
+        ax1.set_ylabel('Stability')
+        ax1.set_title(f'Speed: {round(animal.ball_rotations[0]*5/run_time, 2)} mm/s')
+        ax1.legend()
+
+        duty_factor = [round(dut, 3) for dut in animal.duty_factor]
+        plot_gait_diagram(data=contact_flag, ts=time_step, ax=ax2)
+        ax2.set_title(f'Duty factor: {duty_factor}')
+        ax2.set_xlim(0.2, 1.0)
+        fig.savefig(os.path.join(results_path, f'../selected_sol_{ind}.png'))
+        plt.show()
+
+def parse_args():
+    """ Parse arguments from command line """
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-g', '--gen', default='txt')
+    parser.add_argument(
+        '-p',
+        '--path',
+        default='',
+        help='Path relative to the scripts/neuromuscular_optimization')
+    parser.add_argument(
+        '-s', '--sol', default='fastest',
+        help='Solution types are: fastest, win_win, most_stable or an integer (ind number)'
+    )
+    parser.add_argument('-f', '--frequency', type=int, default=5)
+    parser.add_argument('--gui', dest='gui', action='store_true')
+    parser.add_argument('--record', dest='record', action='store_true')
+    parser.add_argument('--plot', dest='plot', action='store_true')
+    parser.add_argument('--slow', dest='slow', action='store_true')
+    parser.add_argument('--log_penalties', dest='log_penalties', action='store_true')
+    parser.add_argument('--profile', dest='profile', action='store_true')
+    parser.add_argument('-n', '--ncores', type=int, default=8)
+    parser.add_argument('--solver_iterations', dest='solver_iterations', type=int, default=100)
+    parser.set_defaults(gui=False, profile=False)
+    return parser.parse_args()
+
+
+if __name__ == "__main__":
+    """ Main """
+    # parse cli arguments
+    cli_args = parse_args()
+    exp_info = cli_args.path.split('_')
+    generations = int(exp_info[-3])
+    population = int(exp_info[-5])
+    frequency = cli_args.frequency
+    ncores = cli_args.ncores
+
+    #: Parallelize
+    with Pool(processes=ncores) as pool:
+        pool.starmap(
+            run_simulation,
+            [
+                (cli_args, sol, str(gen))
+                for sol in np.arange(0, population, 1)
+                for gen in np.arange(0, generations, frequency)
+            ]
+        )
