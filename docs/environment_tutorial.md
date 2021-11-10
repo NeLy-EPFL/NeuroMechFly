@@ -34,6 +34,7 @@ There are 40 simulation options that can be changed from the scripts. Please ref
 - ```ground_friction_coef```: Specifies the lateral friction coefficient for the ground specified in ```ground```.
 - ```ball_info```: If *True* a file named *treadmill_info__** will be read to obtain the treadmill's position and size.
 - ```ball_mass```: Specifies the mass of the treadmill. If *None* the mass is calculated based on its size and the density of polyurethane foam.
+- ```solver_iterations```: Specifies the number of iterations used by the phisics engine solver during each time step. Default value is 1000, if you decrease it the simulation will run faster but the solver could not converge to a feasible solution.
 
 You can refer to any of the scripts in the ```scripts/kinematic_replay``` folder to have an example of how to use them. 
 
