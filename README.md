@@ -209,7 +209,7 @@ from NeuroMechFly.utils import plotting
 # e.g. type: fastest, tradeoff, most_stable, or the individual, number: generation number
 path_data = '~/NeuroMechFly/scripts/neuromuscular_optimization/simulation_last_run/gen_<number>/sol_<type>'
 
-# Selecting the joint of interest (Femur-Tibia)
+# Selecting the joint of interest (Coxa-Trochanter/Femur)
 link = 'Femur'
 
 # Defining time limits for the plot (in seconds)
