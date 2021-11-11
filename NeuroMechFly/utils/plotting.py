@@ -549,7 +549,7 @@ def plot_network_activity(
         ax1.plot(duration[beg:end], muscle[f'joint_R{part}{link}_flexor_act'][beg:end], label=f'R{part}', linewidth=lw, color=cycle[i * 2])
         ax1.plot(duration[beg:end], muscle[f'joint_L{part}{link}_flexor_act'][beg:end], label=f'L{part}', linewidth=lw, color=cycle[i * 2 + 1])
         ax1.legend(bbox_to_anchor=(1.1, 1))
-        ax1.set_ylabel(f'{link} Protractor (AU)')
+        ax1.set_ylabel(f'{link} Flexor (AU)')
 
         ax2.plot(duration[beg:end], muscle[f'joint_R{part}{link}_torque'][beg:end] * torque_scale, linewidth=lw, color=cycle[i * 2])
         ax2.plot(duration[beg:end], muscle[f'joint_L{part}{link}_torque'][beg:end] * torque_scale, linewidth=lw, color=cycle[i * 2 + 1])
