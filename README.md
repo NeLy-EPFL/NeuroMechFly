@@ -224,6 +224,10 @@ plotting.plot_network_activity(
 )
 
 ```
+---
+**4. The CT-scan Data**
+	
+File containing the raw X-ray microtomography data could be downloaded [here](https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/PEOVAV).
 	
 ---
 
