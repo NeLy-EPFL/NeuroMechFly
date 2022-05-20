@@ -6,23 +6,27 @@
   <img align="center" width="600" src="docs/images/NeuroMechFly.gif">
 </p>
 
-**NeuroMechFly** is a data-driven computational simulation of adult *Drosophila melanogaster* designed to synthesize rapidly growing experimental datasets and to test theories of neuromechanical behavioral control. For the technical background and details, please refer to our [paper](https://www.biorxiv.org/content/10.1101/2021.04.17.440214v1).
+**NeuroMechFly** is a data-driven computational simulation of adult *Drosophila melanogaster* designed to synthesize rapidly growing experimental datasets and to test theories of neuromechanical behavioral control. For the technical background and details, please refer to our [paper](https://www.nature.com/articles/s41592-022-01466-7).
 
 If you use NeuroMechFly in your research, you can cite us:
 
 ```Latex
-@article {Lobato-Rios2021.04.17.440214,
-	author = {Lobato-Rios, Victor and {\"O}zdil, Pembe Gizem and Ramalingasetty, Shravan Tata and Arreguit, Jonathan and Ijspeert, Auke Jan and Ramdya,  Pavan},
-	title = {NeuroMechFly, a neuromechanical model of adult Drosophila melanogaster},
-	elocation-id = {2021.04.17.440214},
-	year = {2021},
-	doi = {10.1101/2021.04.17.440214},
-	publisher = {Cold Spring Harbor Laboratory},
-	URL = {https://www.biorxiv.org/content/early/2021/05/17/2021.04.17.440214},
-	eprint = {https://www.biorxiv.org/content/early/2021/05/17/2021.04.17.440214.full.pdf},
-	journal = {bioRxiv}
+@article{LobatoRios2022,
+  doi = {10.1038/s41592-022-01466-7},
+  url = {https://doi.org/10.1038/s41592-022-01466-7},
+  year = {2022},
+  month = May,
+  publisher = {Springer Science and Business Media {LLC}},
+  volume = {19},
+  number = {5},
+  pages = {620--627},
+  author = {Victor Lobato-Rios and Shravan Tata Ramalingasetty and Pembe Gizem \"{O}zdil and Jonathan Arreguit and Auke Jan Ijspeert and Pavan Ramdya},
+  title = {{NeuroMechFly},  a neuromechanical model of adult Drosophila melanogaster},
+  journal = {Nature Methods}
 }
 ```
+
+A Gym environment of NeuroMechFly is under development [here](https://github.com/NeLy-EPFL/nmf-gym).
 
 ## Content
 
