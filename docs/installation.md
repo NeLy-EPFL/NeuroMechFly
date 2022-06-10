@@ -3,7 +3,7 @@ To avoid any conflicts of python packages with your existing python environment,
 
 **First, make sure that you have git-lfs (large file storage) installed on your local machine. Otherwise, please refer to this [link](https://github.com/git-lfs/git-lfs) to learn more about how to install the Git LFS.**
 
-Then, you can download the repository on your local machine by running the following line in the terminal:
+Then, you can download the repository on your local machine by running the following line in the terminal. If you are interested in downloading the blender model, run `git lfs clone` instead of `git clone`.
 ```bash
 $ git clone https://github.com/NeLy-EPFL/NeuroMechFly.git
 ```
