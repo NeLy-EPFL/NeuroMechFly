@@ -6,6 +6,8 @@
   <img align="center" width="600" src="docs/images/NeuroMechFly.gif">
 </p>
 
+**For NeuroMechFly 2.0, see [neuromechfly.org](https://neuromechfly.org/).**
+
 **NeuroMechFly** is a data-driven computational simulation of adult *Drosophila melanogaster* designed to synthesize rapidly growing experimental datasets and to test theories of neuromechanical behavioral control. For the technical background and details, please refer to our [paper](https://www.nature.com/articles/s41592-022-01466-7).
 
 If you use NeuroMechFly in your research, you can cite us:
