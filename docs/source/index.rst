@@ -6,6 +6,21 @@
 NeuroMechFly
 ============
 
+.. warning::
+   
+   |
+   
+   **IMPORTANT INFORMATION**
+
+   This website contains documentation for legacy code related to `Lobato-Rios et al, Nature Methods, 2022 <https://doi.org/10.1038/s41592-022-01466-7>`__.
+
+   **NeuroMechFly has since been updated, and this website is no longer actively maintained.**
+   
+   **For most up-to-date information, please visit** `neuromechfly.org <https://neuromechfly.org/>`__.
+   
+   |
+
+
 .. image:: https://img.shields.io/badge/License-Apache%202.0-blue.svg
 .. image:: https://badge.fury.io/gh/tterb%2FHyde.svg
 
