@@ -1,0 +1,444 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Biomechanical module &mdash; neuromechfly 1.0.dev0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Controller module" href="controller_tutorial.html" />
+    <link rel="prev" title="Replicating our results" href="replication.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> neuromechfly
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0.dev0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html#angle-processing-obtaining-angles-from-pose-estimation">Angle Processing (Obtaining angles from pose estimation)</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="replication.html">Replicating our results</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Biomechanical module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#modifying-body-segments">Modifying body segments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#modifying-joints">Modifying joints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#changing-the-pose">Changing the pose</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="controller_tutorial.html">Controller module</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="environment_tutorial.html">Environment module</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="muscles_tutorial.html">Muscles module</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="misc.html">Miscellaneous</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="reference/index.html">NeuroMechfly Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">neuromechfly</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Biomechanical module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/biomechanical_tutorial.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="biomechanical-module">
+<h1>Biomechanical module<a class="headerlink" href="#biomechanical-module" title="Permalink to this headline">¶</a></h1>
+<p>Links and joints are defined in the <code class="docutils literal notranslate"><span class="pre">sdf</span></code> configuration files located
+in <code class="docutils literal notranslate"><span class="pre">data/design/sdf/</span></code>. For a complete guide to the simulation
+description format (sdf) please refer to its <a class="reference external" href="http://sdformat.org/">main
+page</a>.</p>
+<p>In this tutorial you can learn how to: - <a class="reference external" href="#modifying-the-body-segments">Modify body
+segments</a> - <a class="reference external" href="#modifying-joints">Modify
+joints</a> - <a class="reference external" href="#changing-the-pose">Change the pose</a></p>
+<div class="section" id="modifying-body-segments">
+<h2>Modifying body segments<a class="headerlink" href="#modifying-body-segments" title="Permalink to this headline">¶</a></h2>
+<p>Each body segment in the biomechanical model is called a link. Each link
+is defined in the sdf configuration file with respect to its physical
+properties including: <em>pose, inertia, collision shape, and visual
+shape</em>. All of these properties were obtained from the rendered CT-scan
+model. <em>pose</em> consists of the translation and orientation of each link.
+<em>inertia</em> defines the mass and inertial moments. <em>collision</em> and
+<em>visual</em> shapes are the meshes rendered from the CT-scan model.
+Modifying the <em>pose</em> or <em>inertial</em> values for any link directly on the
+sdf file can lead to unstable simulations. Therefore we do not recommend
+it.</p>
+<p><strong>Changing visual/collision shape</strong></p>
+<p>On the other hand, changing the <em>visual</em> and <em>collision</em> shapes is
+fairly easy and keeps the mass and intertial measurements untouched. To
+change these shapes, you must change the <code class="docutils literal notranslate"><span class="pre">geometry</span></code> definition in the
+<code class="docutils literal notranslate"><span class="pre">collision</span></code> and <code class="docutils literal notranslate"><span class="pre">visual</span></code> attributes for the link. We performed such
+an operation in our
+<a class="reference external" href="https://www.biorxiv.org/content/10.1101/2021.04.17.440214v2">publication</a>
+to change the morphology of NeuroMechfly’s detailed antennae into
+sticks. You can find an example on how to make these changes in the
+script <code class="docutils literal notranslate"><span class="pre">scripts/model/change_sdf_forelegs.py</span></code>.</p>
+<table>
+<tr>
+<th><p>NeuroMechFly model</p>
+</th>
+<th><p>Antenna stick model</p>
+</th>
+</tr>
+<tr>
+<td><div class="code html highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">collision</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;LAntenna_collision&quot;</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">pose</span><span class="o">&gt;</span><span class="mf">0.0</span> <span class="mf">0.0</span> <span class="mf">0.0</span> <span class="mf">0.0</span> <span class="mf">0.0</span> <span class="mf">0.0</span><span class="o">&lt;/</span><span class="n">pose</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">geometry</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">mesh</span><span class="o">&gt;</span>
+      <span class="o">&lt;</span><span class="n">uri</span><span class="o">&gt;../</span><span class="n">meshes</span><span class="o">/</span><span class="n">stl</span><span class="o">/</span><span class="n">LAntenna</span><span class="o">.</span><span class="n">stl</span><span class="o">&lt;/</span><span class="n">uri</span><span class="o">&gt;</span>
+      <span class="o">&lt;</span><span class="n">scale</span><span class="o">&gt;</span><span class="mf">1000.0</span> <span class="mf">1000.0</span> <span class="mf">1000.0</span><span class="o">&lt;/</span><span class="n">scale</span><span class="o">&gt;</span>
+    <span class="o">&lt;/</span><span class="n">mesh</span><span class="o">&gt;</span>
+  <span class="o">&lt;/</span><span class="n">geometry</span><span class="o">&gt;</span>
+<span class="o">&lt;/</span><span class="n">collision</span><span class="o">&gt;</span>
+<span class="o">&lt;</span><span class="n">visual</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;LAntenna_visual&quot;</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">pose</span><span class="o">&gt;</span><span class="mf">0.0</span> <span class="mf">0.0</span> <span class="mf">0.0</span> <span class="mf">0.0</span> <span class="mf">0.0</span> <span class="mf">0.0</span><span class="o">&lt;/</span><span class="n">pose</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">geometry</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">mesh</span><span class="o">&gt;</span>
+      <span class="o">&lt;</span><span class="n">uri</span><span class="o">&gt;../</span><span class="n">meshes</span><span class="o">/</span><span class="n">stl</span><span class="o">/</span><span class="n">LAntenna</span><span class="o">.</span><span class="n">stl</span><span class="o">&lt;/</span><span class="n">uri</span><span class="o">&gt;</span>
+      <span class="o">&lt;</span><span class="n">scale</span><span class="o">&gt;</span><span class="mf">1000.0</span> <span class="mf">1000.0</span> <span class="mf">1000.0</span><span class="o">&lt;/</span><span class="n">scale</span><span class="o">&gt;</span>
+    <span class="o">&lt;/</span><span class="n">mesh</span><span class="o">&gt;</span>
+  <span class="o">&lt;/</span><span class="n">geometry</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">material</span><span class="o">/&gt;</span>
+<span class="o">&lt;/</span><span class="n">visual</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+</td>
+<td><div class="code html highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">collision</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;LAntenna_collision&quot;</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">pose</span><span class="o">&gt;</span><span class="mf">0.0</span> <span class="mf">0.0</span> <span class="o">-</span><span class="mf">0.1485</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span><span class="o">&lt;/</span><span class="n">pose</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">geometry</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">cylinder</span><span class="o">&gt;</span>
+      <span class="o">&lt;</span><span class="n">radius</span><span class="o">&gt;</span><span class="mf">0.06</span><span class="o">&lt;/</span><span class="n">radius</span><span class="o">&gt;</span>
+      <span class="o">&lt;</span><span class="n">length</span><span class="o">&gt;</span><span class="mf">0.297</span><span class="o">&lt;/</span><span class="n">length</span><span class="o">&gt;</span>
+    <span class="o">&lt;/</span><span class="n">cylinder</span><span class="o">&gt;</span>
+  <span class="o">&lt;/</span><span class="n">geometry</span><span class="o">&gt;</span>
+<span class="o">&lt;/</span><span class="n">collision</span><span class="o">&gt;</span>
+<span class="o">&lt;</span><span class="n">visual</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;LAntenna_visual&quot;</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">pose</span><span class="o">&gt;</span><span class="mf">0.0</span> <span class="mf">0.0</span> <span class="o">-</span><span class="mf">0.1485</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span><span class="o">&lt;/</span><span class="n">pose</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">geometry</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">cylinder</span><span class="o">&gt;</span>
+      <span class="o">&lt;</span><span class="n">radius</span><span class="o">&gt;</span><span class="mf">0.06</span><span class="o">&lt;/</span><span class="n">radius</span><span class="o">&gt;</span>
+      <span class="o">&lt;</span><span class="n">length</span><span class="o">&gt;</span><span class="mf">0.297</span><span class="o">&lt;/</span><span class="n">length</span><span class="o">&gt;</span>
+    <span class="o">&lt;/</span><span class="n">cylinder</span><span class="o">&gt;</span>
+  <span class="o">&lt;/</span><span class="n">geometry</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">material</span><span class="o">/&gt;</span>
+<span class="o">&lt;/</span><span class="n">visual</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+</td>
+</tr>
+</table></div>
+<div class="section" id="modifying-joints">
+<h2>Modifying joints<a class="headerlink" href="#modifying-joints" title="Permalink to this headline">¶</a></h2>
+<p>NeuroMechFly has 90 defined joints (degrees-of-freedom). These are
+listed in Table 3 of our related
+<a class="reference external" href="https://www.biorxiv.org/content/10.1101/2021.04.17.440214v2">publication</a>.
+In every sdf configuration file, the joints are defined as follows:</p>
+<div class="code html highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">joint</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;joint_name&quot;</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;revolute&quot;</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">parent</span><span class="o">&gt;</span><span class="n">parent_link_name</span><span class="o">&lt;/</span><span class="n">parent</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">child</span><span class="o">&gt;</span><span class="n">child_link_name</span><span class="o">&lt;/</span><span class="n">child</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">pose</span><span class="o">&gt;</span><span class="mf">0.0</span> <span class="mf">0.0</span> <span class="mf">0.0</span> <span class="mf">0.0</span> <span class="mf">0.0</span> <span class="mf">0.0</span><span class="o">&lt;/</span><span class="n">pose</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">axis</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">xyz</span><span class="o">&gt;</span><span class="mf">0.0</span> <span class="mf">0.0</span> <span class="mf">1.0</span><span class="o">&lt;/</span><span class="n">xyz</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">limit</span><span class="o">&gt;</span>
+      <span class="o">&lt;</span><span class="n">lower</span><span class="o">&gt;-</span><span class="mf">3.14</span><span class="o">&lt;/</span><span class="n">lower</span><span class="o">&gt;</span>
+      <span class="o">&lt;</span><span class="n">upper</span><span class="o">&gt;</span><span class="mf">3.14</span><span class="o">&lt;/</span><span class="n">upper</span><span class="o">&gt;</span>
+    <span class="o">&lt;/</span><span class="n">limit</span><span class="o">&gt;</span>
+  <span class="o">&lt;/</span><span class="n">axis</span><span class="o">&gt;</span>
+<span class="o">&lt;/</span><span class="n">joint</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p><strong>Removing joints</strong></p>
+<p>Intuitively, one can imagine that removing a joint’s definition will
+simply stop its use. However, such an operation can also affect other
+attributes. NeuroMechFly’s biomechanical model is built as a kinematic
+chain. Therefore, any change to a joint will affect all of the links
+below it in the chain. Thus, you should be sure to conserve a valid
+kinematic chain after completely removing a joint. Alternatively, you
+can remove the actuation of a joint by setting its <code class="docutils literal notranslate"><span class="pre">type</span></code> variable to
+<em>fixed</em>. This will keep the joint static and in its zero pose.
+Furthermore, you can refer to the <a class="reference external" href="#changing-the-pose">changing pose
+section</a> below to know how to fix a position
+(apart from the zero pose) during simulations.</p>
+<p><strong>Adding joints</strong></p>
+<p>To add a new joint, you can copy the snippet above and replace the
+variables <code class="docutils literal notranslate"><span class="pre">&quot;joint_name&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">parent_link_name</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">child_link_name</span></code> at your convenience. This will generate a hinge-type
+(revolute) joint between the <em>parent</em> and the <em>child</em> links rotating
+around the <em>z</em> axis without limits. However, adding a joint implies also
+updating the <code class="docutils literal notranslate"><span class="pre">parent_link_name</span></code>, and <code class="docutils literal notranslate"><span class="pre">child_link_name</span></code> variables in
+the <em>parent</em> and <em>child</em> links to preserve the kinematic chain.</p>
+<p><strong>Modifying the range of motion</strong></p>
+<p>You can specify the range of motion for any joint by changing its
+<code class="docutils literal notranslate"><span class="pre">lower</span></code> and <code class="docutils literal notranslate"><span class="pre">upper</span></code> values in the <code class="docutils literal notranslate"><span class="pre">limit</span></code> property. For example,
+the following lines would set the joint limits for the Tibia-Tarsus
+joint in the left front leg to +/- 90° with respect to its zero-pose.</p>
+<div class="code html highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">joint</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;joint_LFTarsus1&quot;</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;revolute&quot;</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">parent</span><span class="o">&gt;</span><span class="n">LFTibia</span><span class="o">&lt;/</span><span class="n">parent</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">child</span><span class="o">&gt;</span><span class="n">LFTarsus1</span><span class="o">&lt;/</span><span class="n">child</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">pose</span><span class="o">&gt;</span><span class="mf">0.0</span> <span class="mf">0.0</span> <span class="mf">0.0</span> <span class="mf">0.0</span> <span class="mf">0.0</span> <span class="mf">0.0</span><span class="o">&lt;/</span><span class="n">pose</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">axis</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">xyz</span><span class="o">&gt;</span><span class="mf">0.0</span> <span class="mf">1.0</span> <span class="mf">0.0</span><span class="o">&lt;/</span><span class="n">xyz</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">limit</span><span class="o">&gt;</span>
+      <span class="o">&lt;</span><span class="n">lower</span><span class="o">&gt;-</span><span class="mf">1.57</span><span class="o">&lt;/</span><span class="n">lower</span><span class="o">&gt;</span>
+      <span class="o">&lt;</span><span class="n">upper</span><span class="o">&gt;</span><span class="mf">1.57</span><span class="o">&lt;/</span><span class="n">upper</span><span class="o">&gt;</span>
+    <span class="o">&lt;/</span><span class="n">limit</span><span class="o">&gt;</span>
+  <span class="o">&lt;/</span><span class="n">axis</span><span class="o">&gt;</span>
+<span class="o">&lt;/</span><span class="n">joint</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="changing-the-pose">
+<h2>Changing the pose<a class="headerlink" href="#changing-the-pose" title="Permalink to this headline">¶</a></h2>
+<p>Poses are defined in <code class="docutils literal notranslate"><span class="pre">data/config/pose</span></code> as <em>yaml</em> files. They consist
+of a list of joints with their desired angles in degrees. If a joint is
+not modified here, it will retain its zero pose. For example, the
+following lines generate a <em>stretched pose</em>.</p>
+<table>
+<tr>
+<th><p>Stretched pose definition</p>
+</th>
+<th><p>Stretched pose</p>
+</th>
+</tr>
+<tr>
+<td><div class="code html highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">joints</span><span class="p">:</span>
+  <span class="n">joint_LFCoxa</span><span class="p">:</span> <span class="mi">19</span>
+  <span class="n">joint_LFFemur</span><span class="p">:</span> <span class="o">-</span><span class="mi">130</span>
+
+  <span class="n">joint_LMCoxa_roll</span><span class="p">:</span> <span class="mi">90</span>
+  <span class="n">joint_LMFemur</span><span class="p">:</span> <span class="o">-</span><span class="mi">100</span>
+
+  <span class="n">joint_LHCoxa_roll</span><span class="p">:</span> <span class="mi">150</span>
+  <span class="n">joint_LHFemur</span><span class="p">:</span> <span class="o">-</span><span class="mi">100</span>
+
+  <span class="n">joint_RFCoxa</span><span class="p">:</span> <span class="mi">19</span>
+  <span class="n">joint_RFFemur</span><span class="p">:</span> <span class="o">-</span><span class="mi">130</span>
+
+  <span class="n">joint_RMCoxa_roll</span><span class="p">:</span> <span class="o">-</span><span class="mi">90</span>
+  <span class="n">joint_RMFemur</span><span class="p">:</span> <span class="o">-</span><span class="mi">100</span>
+
+  <span class="n">joint_RHCoxa_roll</span><span class="p">:</span> <span class="o">-</span><span class="mi">150</span>
+  <span class="n">joint_RHFemur</span><span class="p">:</span> <span class="o">-</span><span class="mi">100</span>
+</pre></div>
+</div>
+</td>
+<td>
+
+<p align="center"></p>
+
+</td>
+</tr>
+</table><p><strong>Initial pose</strong></p>
+<p>Initial poses are the poses applied to the simulation in the first time
+step. They are used to avoid unwanted collisions when the model is
+created. If no initial pose is defined for a simulation, it will use the
+zero pose from the model. This is shown in Fig. S7 of our related
+<a class="reference external" href="https://www.biorxiv.org/content/10.1101/2021.04.17.440214v2">publication</a>.
+For example, we use the stretch pose (shown above) when running the
+script <code class="docutils literal notranslate"><span class="pre">run_kinematic_replay_ground</span></code> to avoid collisions with the
+floor prior to the start of the simulation. We add this pose as the
+<code class="docutils literal notranslate"><span class="pre">pose</span></code> variable in the simulation options. Please refer to the
+<a class="reference external" href="environment_tutorial.md">environment tutorial</a> to learn how to
+incorporate an initial pose into your simulation.</p>
+<p><strong>Resting pose during simulation</strong></p>
+<p>The resting pose applies to joints that should maintain a certain
+position over the course of the entire simulation. If the zero pose of a
+segment is the desired resting pose, then we recommend defining that
+joint as <em>fixed</em> (as explaned above in the <em>Removing joints</em>
+subsection). This is particularly useful in optimization experiments to
+reduce compute. However, if you want to use a non-zero pose, then you
+must actuate joints to maintain a desired angle for each time step. We
+used a resting pose for many non-leg segments during our <em>kinematic
+replay</em> experiments. These joints are defined in a dictionary named
+<code class="docutils literal notranslate"><span class="pre">fixed_positions</span></code> and defined as the <code class="docutils literal notranslate"><span class="pre">fixed_positions</span></code> variable in
+the simulation initialization. Please refer to the <a class="reference external" href="environment_tutorial.md">environment
+tutorial</a> to learn how to incorporate fixed
+positions into your simulation.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="controller_tutorial.html" class="btn btn-neutral float-right" title="Controller module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="replication.html" class="btn btn-neutral float-left" title="Replicating our results" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2024, nely
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

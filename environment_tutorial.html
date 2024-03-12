@@ -1,0 +1,345 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Environment module &mdash; neuromechfly 1.0.dev0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Muscles module" href="muscles_tutorial.html" />
+    <link rel="prev" title="Controller module" href="controller_tutorial.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> neuromechfly
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0.dev0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html#angle-processing-obtaining-angles-from-pose-estimation">Angle Processing (Obtaining angles from pose estimation)</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="replication.html">Replicating our results</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="biomechanical_tutorial.html">Biomechanical module</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="controller_tutorial.html">Controller module</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Environment module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#manage-the-simulation-options">Manage the simulation options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#initializing-the-simulation">Initializing the simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#adding-objects-to-the-environment">Adding objects to the environment</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="muscles_tutorial.html">Muscles module</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="misc.html">Miscellaneous</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="reference/index.html">NeuroMechfly Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">neuromechfly</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Environment module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/environment_tutorial.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="environment-module">
+<h1>Environment module<a class="headerlink" href="#environment-module" title="Permalink to this headline">¶</a></h1>
+<p>In this tutorial you can learn how to: - <a class="reference external" href="#managing-the-simulation-options">Manage the simulation
+options</a> - <a class="reference external" href="#initializing-the-simulation">Initialize the
+simulation</a> - <a class="reference external" href="#adding-objects-to-the-environment">Add objects to the
+environment</a></p>
+<div class="section" id="manage-the-simulation-options">
+<h2>Manage the simulation options<a class="headerlink" href="#manage-the-simulation-options" title="Permalink to this headline">¶</a></h2>
+<p>There are 40 simulation options that can be changed from the scripts.
+Please refer to <code class="docutils literal notranslate"><span class="pre">NeuroMechFly/simulation/bullet_simulation.py</span></code> to
+check each of the options. Here we list the ones used in our scripts to
+manage the environment:</p>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">headless</span></code>: The GUI is not shown if <em>True</em>. This speeds up the
+simulation.</li>
+<li><code class="docutils literal notranslate"><span class="pre">model</span></code>: Global path to the sdf file with the desired model
+description.</li>
+<li><code class="docutils literal notranslate"><span class="pre">pose</span></code>: Global path to the yaml file with the desired initial pose.</li>
+<li><code class="docutils literal notranslate"><span class="pre">results_path</span></code>: Global path where the results will be stored.</li>
+<li><code class="docutils literal notranslate"><span class="pre">model_offset</span></code>: Model’s base offset <em>[x, y, z]</em> (in meters) when
+the simulation starts.</li>
+<li><code class="docutils literal notranslate"><span class="pre">run_time</span></code>: Total time of the simulation in seconds.</li>
+<li><code class="docutils literal notranslate"><span class="pre">time_step</span></code>: Time step of the simulation in seconds.</li>
+<li><code class="docutils literal notranslate"><span class="pre">base_link</span></code>: Link defined as the starting point of the kinematic
+chain.</li>
+<li><code class="docutils literal notranslate"><span class="pre">ground_contacts</span></code>: List of link names from which ground reactions
+forces will be obtained.</li>
+<li><code class="docutils literal notranslate"><span class="pre">self_collisions</span></code>: List of link names from which self-collision
+forces will be obtained.</li>
+<li><code class="docutils literal notranslate"><span class="pre">draw_collisions</span></code>: If <em>True</em>, links in contact with the ground or
+experiencing self-collisions (if defined in the self-collision
+variable) are painted green.</li>
+<li><code class="docutils literal notranslate"><span class="pre">record</span></code>: If <em>True</em> a video from the simulation is recorded. This
+variable is accesible from our script’s flags. <code class="docutils literal notranslate"><span class="pre">headless</span></code> variable
+should be <em>False</em>.</li>
+<li><code class="docutils literal notranslate"><span class="pre">save_frames</span></code>: If <em>True</em> an image for each time step of the
+simulation will be stored in the folder specified in the
+<code class="docutils literal notranslate"><span class="pre">results_path</span></code> variable.</li>
+<li><code class="docutils literal notranslate"><span class="pre">camera_distance</span></code>: Distance (in millimeters) from the rendering
+camera to the model’s base link.</li>
+<li><code class="docutils literal notranslate"><span class="pre">track</span></code>: If <em>True</em> the camera will follow the model as it moves in
+the environment.</li>
+<li><code class="docutils literal notranslate"><span class="pre">moviename</span></code>: Name of the recorded video with the global path. If
+<code class="docutils literal notranslate"><span class="pre">record</span></code> is <em>True</em>.</li>
+<li><code class="docutils literal notranslate"><span class="pre">moviespeed</span></code>: Speed for the recorded video, 1 corresponds to real
+time. If <code class="docutils literal notranslate"><span class="pre">record</span></code> is <em>True</em>.</li>
+<li><code class="docutils literal notranslate"><span class="pre">slow_down</span></code>: If <em>True</em> the simulation is paused <code class="docutils literal notranslate"><span class="pre">sleep_time</span></code>
+seconds after each time step.</li>
+<li><code class="docutils literal notranslate"><span class="pre">sleep_time</span></code>: Sleep time when <code class="docutils literal notranslate"><span class="pre">slow_down</span></code> is <em>True</em>.</li>
+<li><code class="docutils literal notranslate"><span class="pre">rot_cam</span></code>: If <em>True</em> the camera rotates around the model as in our
+Kinematic Replay videos.</li>
+<li><code class="docutils literal notranslate"><span class="pre">behavior</span></code>: Specifies which behavior we are simulating (<em>walking,
+grooming, or None</em>) for selecting the treadmill position, if
+<code class="docutils literal notranslate"><span class="pre">ball_info</span></code> is <em>False</em>, and the <code class="docutils literal notranslate"><span class="pre">rot_cam</span></code> sequence.</li>
+<li><code class="docutils literal notranslate"><span class="pre">ground</span></code>: Specifies what will be considered the ground during the
+simulation (<em>ball or floor</em>).</li>
+<li><code class="docutils literal notranslate"><span class="pre">ground_friction_coef</span></code>: Specifies the lateral friction coefficient
+for the ground specified in <code class="docutils literal notranslate"><span class="pre">ground</span></code>.</li>
+<li><code class="docutils literal notranslate"><span class="pre">ball_info</span></code>: If <em>True</em> a file named *treadmill_info__** will
+be read to obtain the treadmill’s position and size.</li>
+<li><code class="docutils literal notranslate"><span class="pre">ball_mass</span></code>: Specifies the mass of the treadmill. If <em>None</em> the
+mass is calculated based on its size and the density of polyurethane
+foam.</li>
+<li><code class="docutils literal notranslate"><span class="pre">solver_iterations</span></code>: Specifies the number of iterations used by the
+phisics engine solver during each time step. Default value is 1000,
+if you decrease it the simulation will run faster but the solver
+could not converge to a feasible solution.</li>
+</ul>
+<p>You can refer to any of the scripts in the <code class="docutils literal notranslate"><span class="pre">scripts/kinematic_replay</span></code>
+folder to have an example of how to use them.</p>
+</div>
+<div class="section" id="initializing-the-simulation">
+<h2>Initializing the simulation<a class="headerlink" href="#initializing-the-simulation" title="Permalink to this headline">¶</a></h2>
+<p>When the simulation is initialized, you can set other parameters besides
+the simulation options explained above. For example, as shown in the
+snippet below, we can (i) set the controller gains (<em>kp</em> and <em>kv</em>) if we
+are using PyBullet’s PD controller, (ii) specify the position of joints
+that should remain fixed during the simulation, and (iii) define the
+paths where data can be found. We use this kind of initialization for
+the Kinematic Replay scripts. You can find examples of usage in
+<code class="docutils literal notranslate"><span class="pre">scripts/kinematic_replay/</span></code>. If you want to add other variables during
+initialization you need to modify the class <code class="docutils literal notranslate"><span class="pre">DrosophilaSimulation</span></code>
+found in any script in the folder <code class="docutils literal notranslate"><span class="pre">NeuroMechFly/experiments</span></code>.</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">animal</span> <span class="o">=</span> <span class="n">kinematic_replay</span><span class="o">.</span><span class="n">DrosophilaSimulation</span><span class="p">(</span>
+        <span class="n">container</span><span class="p">,</span>
+        <span class="n">sim_options</span><span class="p">,</span>
+        <span class="n">kp</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">kv</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span>
+        <span class="n">angles_path</span><span class="o">=</span><span class="n">angles_path</span><span class="p">,</span>
+        <span class="n">velocity_path</span><span class="o">=</span><span class="n">velocity_path</span><span class="p">,</span>
+        <span class="n">starting_time</span><span class="o">=</span><span class="n">starting_time</span><span class="p">,</span>
+        <span class="n">fixed_positions</span><span class="o">=</span><span class="n">fixed_positions</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="adding-objects-to-the-environment">
+<h2>Adding objects to the environment<a class="headerlink" href="#adding-objects-to-the-environment" title="Permalink to this headline">¶</a></h2>
+<p>Please refer to the <a class="reference external" href="https://pybullet.org/wordpress/">PyBullet
+documentation</a> for a complete guide
+on how to include objects in your simulation. We include objects in the
+simulation in three ways. The NeuroMechFly model is imported from a
+<em>sdf</em> file which contains the model’s description (see the <a class="reference external" href="biomechanical_tutorial.md">biomechanics
+tutorial</a>). External perturbations shown
+in Video 10 from our related
+<a class="reference external" href="https://www.biorxiv.org/content/10.1101/2021.04.17.440214v2">publication</a>
+were added from a <a class="reference external" href="https://wiki.ros.org/urdf/Tutorials">*urdf*</a> file.
+This is another format supported by PyBullet that is used to describe
+objects (you can find this example in the file
+<code class="docutils literal notranslate"><span class="pre">NeuroMechFly/experiments/kinematic_replay/kinematic_replay_no_support.py</span></code>).
+Finally, we included the spherical treadmill in the simulation using the
+<em>createMultiBody</em> built-in function from PyBullet. You can refer to
+<code class="docutils literal notranslate"><span class="pre">NeuroMechFly/simulation/bullet_simulation.py</span></code> to see an example of
+how we use this function.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="muscles_tutorial.html" class="btn btn-neutral float-right" title="Muscles module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="controller_tutorial.html" class="btn btn-neutral float-left" title="Controller module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2024, nely
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

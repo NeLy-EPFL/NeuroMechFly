@@ -1,0 +1,278 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Muscles module &mdash; neuromechfly 1.0.dev0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Miscellaneous" href="misc.html" />
+    <link rel="prev" title="Environment module" href="environment_tutorial.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> neuromechfly
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0.dev0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html#angle-processing-obtaining-angles-from-pose-estimation">Angle Processing (Obtaining angles from pose estimation)</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="replication.html">Replicating our results</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="biomechanical_tutorial.html">Biomechanical module</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="controller_tutorial.html">Controller module</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="environment_tutorial.html">Environment module</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Muscles module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#modifying-our-muscle-model">Modifying our muscle model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#incorporating-a-customized-muscle-model">Incorporating a customized muscle model</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="misc.html">Miscellaneous</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="reference/index.html">NeuroMechfly Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">neuromechfly</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Muscles module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/muscles_tutorial.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="muscles-module">
+<h1>Muscles module<a class="headerlink" href="#muscles-module" title="Permalink to this headline">¶</a></h1>
+<p>In this tutorial you can learn how to: - <a class="reference external" href="#modifying-our-muscle-model">Modify our muscle
+model</a> - <a class="reference external" href="#incorporating-customized-muscle-models">Incorporate a customized
+muscle models</a></p>
+<div class="section" id="modifying-our-muscle-model">
+<h2>Modifying our muscle model<a class="headerlink" href="#modifying-our-muscle-model" title="Permalink to this headline">¶</a></h2>
+<p>We use a spring-and-damper (Ekeberg) muscle model to control
+NeuroMechFly using output signals from a network of coupled oscillators.
+Please refer to our related
+<a class="reference external" href="https://www.biorxiv.org/content/10.1101/2021.04.17.440214v2">publication</a>
+for a complete description of this model. Each variable from this muscle
+model is determined using multi-objective evolutionary optimization.
+However, you can modify (or replace) these parameters from the scripts.</p>
+<p>The optimized variables are incorporated into the muscle model in the
+<em>update_parameters</em> function within the script
+<code class="docutils literal notranslate"><span class="pre">NeuroMechFly/experiments/network_optimization/neuromuscular_control.py</span></code>.
+The order for assigning these muscle’s parameters to each joint is: α,
+β, γ, δ, and Δφ. We use the same muscle properties for flexors and
+extensors. This can also be changed using the same function.</p>
+<p>The muscle model is implemented in the script
+<code class="docutils literal notranslate"><span class="pre">NeuroMechFly/control/spring_damper_muscles.py</span></code>.</p>
+</div>
+<div class="section" id="incorporating-a-customized-muscle-model">
+<h2>Incorporating a customized muscle model<a class="headerlink" href="#incorporating-a-customized-muscle-model" title="Permalink to this headline">¶</a></h2>
+<p>It is always possible to incorporate completely different muscle models
+in NeuroMechFly (e.g., Hill-type muscles). That requires implementing
+your own script to compute your preferred model. However, once you have
+your muscle model in hand, you can use our other three modules (neural
+controller, biomechanical, and environment) to run a complete
+simulation. The requirements for using NeuroMechFly would depend on the
+modules you want to use:</p>
+<p><strong>Using neural controller, biomechanical, and environment modules</strong></p>
+<ol class="arabic simple">
+<li>The input to your muscle model should be the output of a <strong>CPG-like</strong>
+function. You can retrieve these values from our <em>Container class</em> as
+we do for initializing our muscles. For an example, see our
+implementation in the <em>init</em> function in the script
+<code class="docutils literal notranslate"><span class="pre">NeuroMechFly/experiments/network_optimization/neuromuscular_control.py</span></code>.</li>
+<li>The output of your muscle model should be <strong>joint torques</strong>. You can
+actuate each joint using <em>torque control</em> from PyBullet. For an
+example, see our implementation in the <em>muscle_controller</em> function
+in the script
+<code class="docutils literal notranslate"><span class="pre">NeuroMechFly/experiments/network_optimization/neuromuscular_control.py</span></code>.</li>
+</ol>
+<p><em>NOTE:</em> If you do not want to use our neural controller module, then you
+should only follow condition number two.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="misc.html" class="btn btn-neutral float-right" title="Miscellaneous" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="environment_tutorial.html" class="btn btn-neutral float-left" title="Environment module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2024, nely
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

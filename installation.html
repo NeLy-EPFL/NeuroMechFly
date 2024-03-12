@@ -1,0 +1,300 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Installation &mdash; neuromechfly 1.0.dev0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Replicating our results" href="replication.html" />
+    <link rel="prev" title="NeuroMechFly" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> neuromechfly
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0.dev0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#angle-processing-obtaining-angles-from-pose-estimation">Angle Processing (Obtaining angles from pose estimation)</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="replication.html">Replicating our results</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="biomechanical_tutorial.html">Biomechanical module</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="controller_tutorial.html">Controller module</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="environment_tutorial.html">Environment module</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="muscles_tutorial.html">Muscles module</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="misc.html">Miscellaneous</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="reference/index.html">NeuroMechfly Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">neuromechfly</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Installation</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/installation.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
+<p>To avoid any conflicts of python packages with your existing python
+environment, we highly recommend to use virtualenv or conda env. To
+create a conda environment, follow the following steps:</p>
+<p><strong>First, make sure that you have git-lfs (large file storage) installed
+on your local machine. Otherwise, please refer to
+this</strong><a class="reference external" href="https://github.com/git-lfs/git-lfs">link</a><strong>to learn more
+about how to install the Git LFS.</strong></p>
+<p>Then, you can download the repository on your local machine by running
+the following line in the terminal:</p>
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span>$ git clone https://github.com/NeLy-EPFL/NeuroMechFly.git
+</pre></div>
+</div>
+<p>After the download is complete, navigate to the NeuroMechFly folder:</p>
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd NeuroMechFly
+</pre></div>
+</div>
+<p>In this folder, run the following commands to create a virtual
+environment and activate it:</p>
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span>$ conda create -n neuromechfly python=3.6 numpy Cython shapely
+$ conda activate neuromechfly
+</pre></div>
+</div>
+<p>First, install the FARMS Container by running:</p>
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span>$ pip install git+https://gitlab.com/FARMSIM/farms_container.git
+</pre></div>
+</div>
+<p>Finally, install all the dependencies by running:</p>
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span>$ pip install -e .
+</pre></div>
+</div>
+<p>Once you complete all the steps, NeuroMechFly is ready to use!</p>
+<p>Alternatively, you can use virtualenv. For instructions on how to setup
+and use virtual environments please refer to
+<a class="reference external" href="https://realpython.com/python-virtual-environments-a-primer">Virtualenv</a>.</p>
+<p>After setting up your virtualenv, to install and use the NeuroMechFly
+library follow the abovementioned procedure in your active python
+environment.</p>
+</div>
+<div class="section" id="angle-processing-obtaining-angles-from-pose-estimation">
+<h1>Angle Processing (Obtaining angles from pose estimation)<a class="headerlink" href="#angle-processing-obtaining-angles-from-pose-estimation" title="Permalink to this headline">¶</a></h1>
+<p>An interesting application for NeuroMechFly is what we call <strong>kinematic
+replay</strong>, i.e., reproducing real fly movements with our model. This can
+be done by feeding the model with the joint angles calculated from 3D
+pose estimations. Any method can be used for obtaining such estimations.</p>
+<p>We used <a class="reference external" href="https://github.com/NeLy-EPFL/DeepFly3D">DeepFly3D</a> data and
+software for tracking all leg joints in 3D. Then, we obtained the joint
+angles from the estimated poses using the package
+<a class="reference external" href="https://github.com/NeLy-EPFL/df3dPostProcessing">df3dPostProcessing</a>
+(included in the NeuroMechFly installation).</p>
+<p>We provide the <a class="reference external" href="https://github.com/NeLy-EPFL/NeuroMechFly/tree/master/data/joint_tracking">pose estimation
+results</a>
+from two experiments including walking and grooming behaviors. We
+interpolated the original data because it was recorded at 100 fps and
+our simulation runs with a time step of 1ms. Joint angles can be
+calculated as follows:</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">df3dPostProcessing</span> <span class="k">import</span> <span class="n">df3dPostProcess</span>
+
+<span class="n">exp</span> <span class="o">=</span> <span class="s1">&#39;path/to/NeuroMechFly/data/joint_tracking/walking or grooming/df3d/pose_result*.pkl&#39;</span>
+
+<span class="c1"># Read pose results and calculate 3d positions from 2d estimations</span>
+<span class="n">df3d</span> <span class="o">=</span> <span class="n">df3dPostProcess</span><span class="p">(</span><span class="n">exp</span><span class="p">,</span> <span class="n">calculate_3d</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># Align and scale 3d positions using the NeuroMechFly skeleton as template, data is interpolated</span>
+<span class="n">align</span> <span class="o">=</span> <span class="n">df3d</span><span class="o">.</span><span class="n">align_to_template</span><span class="p">(</span><span class="n">interpolate</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># Calculate joint angles from the leg (ThC-3DOF, CTr-2DOF, FTi-1DOF, TiTa-1DOF)</span>
+<span class="n">angles</span> <span class="o">=</span> <span class="n">df3d</span><span class="o">.</span><span class="n">calculate_leg_angles</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Alternately, we provide the joint angles for both behaviors which were
+calculated as shown above. This files are used when running the scripts
+<em>run_kinematic replay</em> and <em>run_kinematic_replay_ground</em>.</p>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="replication.html" class="btn btn-neutral float-right" title="Replicating our results" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral float-left" title="NeuroMechFly" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2024, nely
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

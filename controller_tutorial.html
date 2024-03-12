@@ -1,0 +1,324 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Controller module &mdash; neuromechfly 1.0.dev0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Environment module" href="environment_tutorial.html" />
+    <link rel="prev" title="Biomechanical module" href="biomechanical_tutorial.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> neuromechfly
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0.dev0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html#angle-processing-obtaining-angles-from-pose-estimation">Angle Processing (Obtaining angles from pose estimation)</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="replication.html">Replicating our results</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="biomechanical_tutorial.html">Biomechanical module</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Controller module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#modifying-the-pybullet-joint-controller">Modifying the PyBullet joint controller</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#modifying-our-neural-controller">Modifying our neural controller</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#incorporating-customized-controllers">Incorporating customized controllers</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="environment_tutorial.html">Environment module</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="muscles_tutorial.html">Muscles module</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="misc.html">Miscellaneous</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="reference/index.html">NeuroMechfly Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">neuromechfly</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Controller module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/controller_tutorial.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="controller-module">
+<h1>Controller module<a class="headerlink" href="#controller-module" title="Permalink to this headline">¶</a></h1>
+<p>In this tutorial you will learn how to: - <a class="reference external" href="#modifying-PyBullet-joint-controller">Modify the PyBullet joint
+controller</a> - <a class="reference external" href="#Modifying-our-neural-controller">Modify our
+neural controller</a> - <a class="reference external" href="#incorporating-customized-controllers">Incorporate
+customized controllers</a></p>
+<div class="section" id="modifying-the-pybullet-joint-controller">
+<h2>Modifying the PyBullet joint controller<a class="headerlink" href="#modifying-the-pybullet-joint-controller" title="Permalink to this headline">¶</a></h2>
+<p>We use two control modes in our experiments to actuate NeuroMechFly’s
+joints:</p>
+<p><strong>Position control</strong></p>
+<p>This mode is used in our Kinematic Replay experiments. It takes as
+inputs angular positions for each joint. There are certain parameters
+that can be modified such as the controller gains (Kp and Kd). Please
+refer to the <a class="reference external" href="environment_tutorial.md">environment tutorial</a> to learn
+how to change these parameters when initializing the simulation.</p>
+<p><strong>Torque control</strong></p>
+<p>This mode is used in our Optimization experiments. It takes as inputs
+torques computed from our muscles model to actuate each joint. Please
+refer to the <a class="reference external" href="muscles_tutorial.md">muscles tutorial</a> to learn how
+these models can be modified.</p>
+</div>
+<div class="section" id="modifying-our-neural-controller">
+<h2>Modifying our neural controller<a class="headerlink" href="#modifying-our-neural-controller" title="Permalink to this headline">¶</a></h2>
+<p>Our neural controller is a network of coupled oscillators whose
+parameters are optimized using a multi-objective genetic algorithm. You
+can either modify the network architecture to explore different
+behaviors, or reformulate the objective functions and penalties in our
+optimization framework to evaluate their importance over generations.</p>
+<p><strong>Modifying the network of coupled oscillators</strong></p>
+<p>Our network was created using the <a class="reference external" href="https://networkx.org/">NetworkX</a>
+Python package. Please refer to their documentation for a full
+description of how to create a network. We define our architecture in
+the script <code class="docutils literal notranslate"><span class="pre">data/locomotion_network/locomotion.py</span></code>. When running this
+script, a configuration file named <code class="docutils literal notranslate"><span class="pre">locomotion_network.graphml</span></code> is
+created in the <code class="docutils literal notranslate"><span class="pre">config/network/</span></code> folder. This file contains the
+network description defining its nodes, edges, phases, and weights. You
+can refer to the comments in the <code class="docutils literal notranslate"><span class="pre">locomotion.py</span></code> script to learn how
+to modify the network’s architecture.</p>
+<p><em>NOTE:</em> If you modify the architecture, make sure to update its
+parameters accordingly in the script
+<code class="docutils literal notranslate"><span class="pre">NeuroMechFly/experiments/network_optimization/neuromuscular_control.py</span></code>.
+Also, be sure to update the optimization framework if neccesary in the
+script
+<code class="docutils literal notranslate"><span class="pre">NeuroMechFly/experiments/network_optimization/multiobj_optimization.py</span></code>.</p>
+<p><strong>Formulating new objective functions and penalties</strong></p>
+<p>We defined two objective functions: locomotor speed and static
+stability. Furthermore, we added four penalties to those functions: a
+moving boundary, an angular velocity limit, a range of motion limit, and
+a duty-factor range. Please refer to our related
+<a class="reference external" href="https://www.biorxiv.org/content/10.1101/2021.04.17.440214v2">publication</a>
+for a full description.</p>
+<p>These objective functions and penalties are implemented in the script
+<code class="docutils literal notranslate"><span class="pre">NeuroMechFly/experiments/network_optimization/neuromuscular_control.py</span></code>.
+You can refer to the docstrings in that script to learn how to modify
+them.</p>
+<p>On the other hand, you can always define completely new objective
+functions and penalties. In that case, you would need to add them to the
+optimization framework in the script
+<code class="docutils literal notranslate"><span class="pre">NeuroMechFly/experiments/network_optimization/multiobj_optimization.py</span></code>.</p>
+</div>
+<div class="section" id="incorporating-customized-controllers">
+<h2>Incorporating customized controllers<a class="headerlink" href="#incorporating-customized-controllers" title="Permalink to this headline">¶</a></h2>
+<p>You can also incorporate a completely different neural controller into
+NeuroMechFly (e.g., a Hodgkin-Huxley model). You would need to implement
+your own script to compute your preferred model, or you can also check
+<a class="reference external" href="https://gitlab.com/farmsim/farms_network">FARMS Network</a> to learn
+how to design new neural network controllers. However, once you have
+your neural controller, you can use our other three modules (muscles,
+biomechanical, and environment) to run a complete simulation. The
+requirements for using NeuroMechFly are as follows:</p>
+<p><strong>Using muscles, biomechanical, and environment modules</strong></p>
+<ul class="simple">
+<li>The output of your neural controller should be a <strong>motor
+neuron-like</strong> activity function: our muscle model computes torques
+based on this kind of signal. For example, the output of a CPG-like
+function from a network of coupled oscillators. This output is stored
+using the <em>Container class</em> and loaded to the muscles during
+initialization in the script
+<code class="docutils literal notranslate"><span class="pre">NeuroMechFly/experiments/network_optimization/neuromuscular_control.py</span></code>.
+Please, refer to <a class="reference external" href="https://gitlab.com/farmsim/farms_container">FARMS
+container</a> to learn
+how to use the <em>Container class</em>.</li>
+</ul>
+<p><strong>Using biomechanical, and environment modules</strong></p>
+<ul class="simple">
+<li>The output of your neural controller should be <strong>torques or angular
+positions</strong> for each joint. In this case you can choose between
+either of the control modes explained above (i.e., position or torque
+mode). Refer to those sections to learn how to test your neural
+controller with our biomechanical model within its environment.</li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="environment_tutorial.html" class="btn btn-neutral float-right" title="Environment module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="biomechanical_tutorial.html" class="btn btn-neutral float-left" title="Biomechanical module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2024, nely
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
