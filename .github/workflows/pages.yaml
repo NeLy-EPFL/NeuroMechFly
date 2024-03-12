@@ -26,6 +26,7 @@ jobs:
           apt-get update
           apt-get install -y git
           git clone "https://github.com/${GITHUB_REPOSITORY}.git" .
+          git config --global --add safe.directory /__w/NeuroMechFly/NeuroMechFly
           git checkout main
         shell: bash
       - run: |
