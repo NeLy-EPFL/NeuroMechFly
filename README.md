@@ -1,3 +1,8 @@
+> [!IMPORTANT]  
+> ⚠️⚠️⚠️⚠️⚠️
+> 
+> **This GitHub repository contains documentation for legacy code related to [Lobato-Rios et al, Nature Methods, 2022](https://www.nature.com/articles/s41592-022-01466-7). NeuroMechFly has since been updated, and this repository is no longer actively maintained. For most up-to-date information, please visit [neuromechfly.org](https://neuromechfly.org/).**
+
 # NeuroMechFly
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Version](https://badge.fury.io/gh/tterb%2FHyde.svg)](https://badge.fury.io/gh/tterb%2FHyde)
@@ -5,8 +10,6 @@
 <p align="center">
   <img align="center" width="600" src="docs/images/NeuroMechFly.gif">
 </p>
-
-**IMPORTANT INFORMATION: This website contains documentation for legacy code related to [Lobato-Rios et al, Nature Methods, 2022](https://www.nature.com/articles/s41592-022-01466-7). NeuroMechFly has since been updated, and this repository is no longer actively maintained. For most up-to-date information, please visit [neuromechfly.org](https://neuromechfly.org/).**
 
 **NeuroMechFly** is a data-driven computational simulation of adult *Drosophila melanogaster* designed to synthesize rapidly growing experimental datasets and to test theories of neuromechanical behavioral control. For the technical background and details, please refer to our [paper](https://www.nature.com/articles/s41592-022-01466-7).
 
